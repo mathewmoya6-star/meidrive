@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "buildCommand": "node build.js",
-  "outputDirectory": "dist",
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "public",
   "installCommand": "npm install",
-  "devCommand": "npm run dev",
   "framework": null,
   "functions": {
     "api/*.js": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs20.x",
+      "maxDuration": 10
     }
   },
   "routes": [
@@ -16,8 +16,16 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|svg|ico))",
+      "dest": "/public/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/dist/$1"
+      "dest": "/public/index.html"
     }
-  ]
+  ],
+  "env": {
+    "SUPABASE_URL": "https://jeksrwrzzrczamxijvwl.supabase.co",
+    "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs"
+  }
 }
