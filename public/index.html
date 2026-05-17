@@ -3,56 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="MEI DRIVE AFRICA - NTSA-approved driver training courses in Kenya. Professional driving school for Learner Hub, PSV, EV, Boda Boda, and more.">
-    <meta name="keywords" content="driving school, Kenya, NTSA, driver training, PSV, EV course, boda boda, learner hub">
-    <meta name="author" content="MEI DRIVE AFRICA">
+    <meta name="description" content="MEI DRIVE AFRICA - NTSA-approved driver training courses in Kenya">
     <meta name="theme-color" content="#041B3D">
-    <meta name="color-scheme" content="dark">
+    <title>MEI DRIVE AFRICA | Driver Training Kenya</title>
     
-    <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="MEI DRIVE AFRICA - Professional Driver Training">
-    <meta property="og:description" content="NTSA-approved driver training courses for all vehicle categories in Kenya">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://meidriveafrica.com">
-    <meta property="og:image" content="https://meidriveafrica.com/og-image.jpg">
-    <meta property="og:locale" content="en_KE">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MEI DRIVE AFRICA - Professional Driver Training">
-    <meta name="twitter:description" content="NTSA-approved driver training courses in Kenya">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://meidriveafrica.com">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2300FF88'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='%23041B3D'%3E🚗%3C/text%3E%3C/svg%3E">
-    <link rel="manifest" href="/manifest.json">
-    
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    
-    <!-- Stylesheets -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Supabase JS Library - Global CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "EducationalOrganization",
-        "name": "MEI DRIVE AFRICA",
-        "description": "NTSA-approved driver training courses in Kenya",
-        "url": "https://meidriveafrica.com",
-        "address": { "@type": "PostalAddress", "addressCountry": "KE", "addressLocality": "Nairobi" }
-    }
-    </script>
-    
-    <title>MEI DRIVE AFRICA | NTSA Approved Driver Training in Kenya</title>
-    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
         :root {
             --neon-green: #00FF88;
@@ -61,227 +24,435 @@
             --white: #FFFFFF;
             --soft-gray: #B7C4D6;
             --error: #ff4444;
-            --warning: #ff9800;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
-            --shadow-md: 0 5px 20px rgba(0,0,0,0.15);
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.2);
-            --transition: all 0.3s ease;
         }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--secondary-dark);
             color: var(--white);
-            overflow-x: hidden;
         }
         
-        /* Loading Spinner */
-        .loading-spinner {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 9999; display: none;
-            justify-content: center; align-items: center; backdrop-filter: blur(4px);
-        }
-        .loading-spinner.active { display: flex; }
-        .spinner {
-            width: 50px; height: 50px; border: 3px solid var(--dark-navy);
-            border-top-color: var(--neon-green); border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        /* Toast Notification */
+        /* Toast */
         .toast {
-            position: fixed; bottom: 30px; right: 30px; z-index: 10000;
-            background: var(--dark-navy); color: var(--white);
-            padding: 14px 24px; border-radius: 12px;
-            transform: translateX(400px); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--dark-navy);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 10000;
             border-left: 4px solid var(--neon-green);
-            box-shadow: var(--shadow-lg); font-size: 0.9rem; max-width: 350px;
+            font-size: 14px;
         }
         .toast.error { border-left-color: var(--error); }
         .toast.show { transform: translateX(0); }
         
+        /* Loading */
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-spinner.active { display: flex; }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--dark-navy);
+            border-top-color: var(--neon-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
         /* Navbar */
         .navbar {
-            position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(4, 27, 61, 0.96); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 255, 136, 0.15);
-            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(4,27,61,0.96);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,255,136,0.15);
+            padding: 0.8rem 1.5rem;
         }
-        .nav-container { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.6rem; font-weight: 700; color: var(--neon-green); cursor: pointer; }
-        .logo span { color: var(--white); }
-        .nav-links { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-        .nav-links a { color: var(--white); text-decoration: none; margin-left: 1.5rem; transition: var(--transition); font-weight: 500; }
+        .nav-container {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--neon-green);
+            cursor: pointer;
+        }
+        .logo span { color: white; }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1rem;
+            font-size: 0.9rem;
+        }
         .nav-links a:hover { color: var(--neon-green); }
         .nav-btn {
-            background: transparent; border: 1px solid var(--neon-green); color: var(--neon-green);
-            padding: 8px 20px; border-radius: 30px; cursor: pointer; margin-left: 1rem;
-            font-weight: 600; transition: var(--transition);
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 5px 14px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-left: 0.8rem;
+            font-size: 0.85rem;
         }
-        .nav-btn:hover { background: var(--neon-green); color: var(--dark-navy); }
-        .user-info { display: flex; align-items: center; gap: 1rem; margin-left: 1rem; }
-        .user-name { color: var(--neon-green); font-weight: 600; }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-left: 0.8rem;
+        }
+        .user-name { color: var(--neon-green); font-size: 0.85rem; }
         .logout-btn {
-            background: rgba(255, 68, 68, 0.2); border: 1px solid var(--error); color: var(--error);
-            padding: 6px 14px; border-radius: 30px; cursor: pointer; transition: var(--transition);
+            background: rgba(255,68,68,0.2);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
         }
-        .logout-btn:hover { background: var(--error); color: var(--white); }
         
         /* Mobile Menu */
-        .mobile-menu-btn { display: none; font-size: 1.5rem; color: var(--white); cursor: pointer; background: none; border: none; padding: 8px; }
+        .mobile-menu-btn {
+            display: none;
+            font-size: 1.2rem;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
         .mobile-nav {
-            position: fixed; top: 0; right: -100%; width: 80%; max-width: 320px; height: 100vh;
-            background: var(--dark-navy); z-index: 2000; padding: 2rem; transition: right 0.3s ease;
-            box-shadow: -5px 0 30px rgba(0,0,0,0.3);
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 70%;
+            max-width: 280px;
+            height: 100vh;
+            background: var(--dark-navy);
+            z-index: 2000;
+            padding: 1.5rem;
+            transition: right 0.3s ease;
         }
         .mobile-nav.active { right: 0; }
-        .mobile-nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .mobile-nav-close { background: none; border: none; color: var(--white); font-size: 1.5rem; cursor: pointer; }
-        .mobile-nav-links { display: flex; flex-direction: column; gap: 1.2rem; }
-        .mobile-nav-links a { color: var(--white); text-decoration: none; padding: 10px; transition: var(--transition); font-size: 1.1rem; }
-        .mobile-nav-links a:hover { color: var(--neon-green); padding-left: 15px; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1999; display: none; }
+        .mobile-nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .mobile-nav-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .mobile-nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 0;
+            font-size: 0.95rem;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
         .overlay.active { display: block; }
         
-        /* Hero Section */
+        /* Hero */
         .hero {
             min-height: 100vh;
-            background: linear-gradient(135deg, rgba(4,27,61,0.85), rgba(10,35,79,0.92)),
+            background: linear-gradient(rgba(4,27,61,0.82), rgba(10,35,79,0.92)),
                 url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format&fit=crop') center/cover;
-            background-attachment: fixed;
-            display: flex; justify-content: center; align-items: center; text-align: center;
-            padding: 120px 20px 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px 50px;
         }
-        .hero-content { max-width: 950px; animation: fadeInUp 0.8s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .hero h1 { font-size: 3.5rem; line-height: 1.2; margin-bottom: 1.5rem; font-weight: 800; }
-        .hero h1 span { color: var(--neon-green); display: block; font-size: 2.2rem; margin-top: 0.5rem; }
-        .hero p { max-width: 700px; margin: 0 auto 2rem; font-size: 1.1rem; color: var(--soft-gray); line-height: 1.7; }
-        .hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+        .hero h1 span {
+            color: var(--neon-green);
+            display: block;
+            font-size: 1.6rem;
+        }
+        .hero p {
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+            font-size: 0.95rem;
+            color: var(--soft-gray);
+            padding: 0 15px;
+        }
+        .btn-primary, .btn-outline {
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
         .btn-primary {
-            background: var(--neon-green); color: var(--dark-navy); padding: 14px 34px;
-            border-radius: 40px; font-weight: 700; text-decoration: none; transition: var(--transition);
-            display: inline-block; border: none; cursor: pointer;
+            background: var(--neon-green);
+            color: var(--dark-navy);
         }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.35); }
         .btn-outline {
-            border: 2px solid var(--neon-green); color: var(--white); padding: 14px 34px;
-            border-radius: 40px; text-decoration: none; transition: var(--transition);
-            background: none; cursor: pointer; display: inline-block;
+            border: 2px solid var(--neon-green);
+            color: white;
+            background: none;
+            margin-left: 0.8rem;
+            cursor: pointer;
         }
-        .btn-outline:hover { background: var(--neon-green); color: var(--dark-navy); }
         
         /* Stats */
-        .stats { margin-top: -60px; position: relative; z-index: 10; }
+        .stats {
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+            padding: 0 15px;
+        }
         .stats-container {
-            max-width: 900px; margin: 0 auto; background: var(--dark-navy);
-            border: 1px solid rgba(0, 255, 136, 0.15); border-radius: 24px;
-            padding: 2rem; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1rem;
+            max-width: 900px;
+            margin: auto;
+            background: var(--dark-navy);
+            border: 1px solid rgba(0,255,136,0.15);
+            border-radius: 20px;
+            padding: 1.2rem;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 0.8rem;
         }
         .stat { text-align: center; }
-        .stat h2 { font-size: 2.5rem; color: var(--neon-green); margin-bottom: 0.25rem; }
-        .stat p { color: var(--soft-gray); }
+        .stat h2 { font-size: 1.6rem; color: var(--neon-green); }
+        .stat p { font-size: 0.8rem; color: var(--soft-gray); }
         
-        /* Courses Section - IMPROVED RESPONSIVENESS */
-        .container { max-width: 1200px; margin: 0 auto; padding: 5rem 2rem; }
-        .section-title { text-align: center; font-size: 2rem; margin-bottom: 3rem; position: relative; }
-        .section-title:after { content: ''; display: block; width: 60px; height: 3px; background: var(--neon-green); margin: 10px auto 0; border-radius: 2px; }
+        /* Courses */
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 2.5rem 1rem;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+        }
         .section-title span { color: var(--neon-green); }
-        .courses-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 1.5rem; 
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
         }
         .course-card {
-            background: var(--dark-navy); border-radius: 20px; padding: 1.5rem;
-            border: 1px solid rgba(0, 255, 136, 0.12); transition: var(--transition);
-            cursor: pointer; position: relative; overflow: hidden;
+            background: var(--dark-navy);
+            border-radius: 14px;
+            padding: 1rem;
+            border: 1px solid rgba(0,255,136,0.12);
+            transition: transform 0.3s;
+            cursor: pointer;
         }
-        .course-card:hover { transform: translateY(-5px); border-color: var(--neon-green); box-shadow: var(--shadow-lg); }
-        .course-icon { font-size: 2rem; margin-bottom: 0.75rem; }
-        .course-badge { display: inline-block; background: var(--neon-green); color: var(--dark-navy); padding: 3px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: bold; margin-bottom: 0.75rem; }
-        .course-card h3 { margin-bottom: 0.5rem; font-size: 1.1rem; }
-        .course-card p { color: var(--soft-gray); margin-bottom: 0.75rem; line-height: 1.4; font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .course-price { font-weight: bold; margin-bottom: 0.75rem; font-size: 1rem; }
+        .course-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--neon-green);
+        }
+        .course-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .course-badge {
+            display: inline-block;
+            background: var(--neon-green);
+            color: var(--dark-navy);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            margin-bottom: 0.5rem;
+        }
+        .course-card h3 {
+            margin-bottom: 0.4rem;
+            font-size: 0.95rem;
+        }
+        .course-card p {
+            color: var(--soft-gray);
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .course-price {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
         .course-price.free { color: var(--neon-green); }
-        .course-price.premium { color: var(--warning); }
-        .btn-view { width: 100%; background: transparent; border: 1px solid var(--neon-green); color: var(--white); padding: 8px; border-radius: 30px; cursor: pointer; transition: var(--transition); font-weight: 600; font-size: 0.85rem; }
-        .btn-view:hover { background: var(--neon-green); color: var(--dark-navy); }
-        
-        /* Responsive Course Grid */
-        @media (max-width: 1024px) {
-            .courses-grid { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
-        }
-        @media (max-width: 768px) {
-            .courses-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-            .container { padding: 3rem 1rem; }
-            .course-card { padding: 1rem; }
-            .course-icon { font-size: 1.5rem; }
-            .course-card h3 { font-size: 0.95rem; }
-        }
-        @media (max-width: 480px) {
-            .courses-grid { grid-template-columns: 1fr; }
+        .course-price.premium { color: #ff9800; }
+        .btn-view {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: white;
+            padding: 6px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.7rem;
         }
         
-        /* Skeleton Loader */
-        .skeleton-card { background: var(--dark-navy); border-radius: 20px; padding: 1.5rem; border: 1px solid rgba(0,255,136,0.12); }
-        .skeleton-icon { width: 50px; height: 50px; background: var(--secondary-dark); border-radius: 12px; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
-        .skeleton-title { width: 70%; height: 20px; background: var(--secondary-dark); border-radius: 4px; margin-bottom: 0.75rem; animation: pulse 1.5s infinite; }
-        .skeleton-text { width: 100%; height: 50px; background: var(--secondary-dark); border-radius: 4px; margin-bottom: 0.75rem; animation: pulse 1.5s infinite; }
-        .skeleton-price { width: 40%; height: 18px; background: var(--secondary-dark); border-radius: 4px; margin-bottom: 0.75rem; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
-        
-        /* Modal - IMPROVED LOGIN RESPONSIVENESS */
-        .modal-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); z-index: 3000; display: none; 
-            justify-content: center; align-items: center; backdrop-filter: blur(4px);
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
         }
         .modal-overlay.active { display: flex; }
-        .modal-content { 
-            background: var(--dark-navy); border-radius: 24px; padding: 2rem; 
-            width: 90%; max-width: 420px; border: 1px solid var(--neon-green); 
-            text-align: center; animation: modalSlideIn 0.3s ease;
+        .modal-content {
+            background: var(--dark-navy);
+            border-radius: 20px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 350px;
+            border: 1px solid var(--neon-green);
+            text-align: center;
         }
-        @keyframes modalSlideIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .modal-content h2 { margin-bottom: 1.5rem; font-size: 1.5rem; }
-        .modal-content input { 
-            width: 100%; padding: 12px; margin: 10px 0; 
-            background: var(--secondary-dark); border: 1px solid rgba(0,255,136,0.2); 
-            border-radius: 12px; color: var(--white); font-size: 1rem; 
+        .modal-content h2 { margin-bottom: 1rem; font-size: 1.3rem; }
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            background: var(--secondary-dark);
+            border: 1px solid rgba(0,255,136,0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
         }
-        .modal-content input:focus { outline: none; border-color: var(--neon-green); }
-        .modal-content button { 
-            width: 100%; padding: 12px; background: var(--neon-green); 
-            color: var(--dark-navy); border: none; border-radius: 12px; 
-            font-weight: bold; cursor: pointer; margin-top: 10px; 
+        .modal-content button {
+            width: 100%;
+            padding: 10px;
+            background: var(--neon-green);
+            color: var(--dark-navy);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            font-size: 0.9rem;
         }
-        .modal-close { background: var(--secondary-dark) !important; color: var(--white) !important; border: 1px solid var(--soft-gray) !important; }
-        .modal-error { color: var(--error); font-size: 0.85rem; margin: 10px 0; display: none; }
+        .modal-close {
+            margin-top: 8px;
+            background: var(--secondary-dark) !important;
+            color: white !important;
+            border: 1px solid var(--soft-gray) !important;
+        }
         
-        /* Mobile Modal Adjustments */
-        @media (max-width: 480px) {
-            .modal-content { padding: 1.5rem; margin: 1rem; width: calc(100% - 2rem); }
-            .modal-content h2 { font-size: 1.25rem; }
-            .modal-content input { padding: 10px; font-size: 0.9rem; }
+        footer {
+            background: var(--dark-navy);
+            text-align: center;
+            padding: 1.2rem;
+            color: var(--soft-gray);
+            font-size: 0.75rem;
+            margin-top: 1.5rem;
         }
         
-        footer { background: var(--dark-navy); text-align: center; padding: 2rem; color: var(--soft-gray); border-top: 1px solid rgba(0,255,136,0.1); }
+        /* ========== RESPONSIVE BREAKPOINTS ========== */
         
-        /* General Responsive */
+        /* Tablet */
+        @media (max-width: 992px) {
+            .courses-grid { grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+            .hero h1 { font-size: 1.8rem; }
+            .hero h1 span { font-size: 1.3rem; }
+        }
+        
+        /* Mobile Landscape */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
-            .hero h1 span { font-size: 1.5rem; }
             .nav-links { display: none; }
             .mobile-menu-btn { display: block; }
-            .stats-container { margin: 0 20px; flex-direction: column; gap: 1.5rem; }
-            .hero-buttons { flex-direction: column; align-items: center; }
-            .toast { bottom: 20px; right: 20px; left: 20px; max-width: calc(100% - 40px); }
-        }
-        @media (max-width: 480px) {
+            .courses-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+            .hero { padding: 70px 15px 40px; }
             .hero h1 { font-size: 1.5rem; }
-            .stat h2 { font-size: 1.8rem; }
+            .hero h1 span { font-size: 1.1rem; }
+            .hero p { font-size: 0.85rem; }
+            .stats-container { padding: 1rem; gap: 0.5rem; }
+            .stat h2 { font-size: 1.3rem; }
+            .btn-primary, .btn-outline { padding: 8px 20px; font-size: 0.8rem; }
+            .btn-outline { margin-left: 0.5rem; }
+            .container { padding: 1.5rem 0.8rem; }
+        }
+        
+        /* Mobile Portrait */
+        @media (max-width: 576px) {
+            .courses-grid { grid-template-columns: 1fr; gap: 0.8rem; }
+            .hero-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: center;
+            }
+            .btn-outline { margin-left: 0; }
+            .stats-container {
+                flex-direction: column;
+                gap: 0.5rem;
+                margin: 0 10px;
+            }
+            .modal-content { padding: 1.2rem; width: 95%; }
+            .hero h1 { font-size: 1.3rem; }
+        }
+        
+        /* Small phones */
+        @media (max-width: 380px) {
+            .logo { font-size: 1rem; }
+            .navbar { padding: 0.6rem 1rem; }
+            .hero h1 { font-size: 1.1rem; }
+            .section-title { font-size: 1.3rem; }
         }
     </style>
 </head>
@@ -293,7 +464,7 @@
 <!-- Toast -->
 <div id="toast" class="toast"></div>
 
-<!-- NAVBAR -->
+<!-- Navbar -->
 <nav class="navbar">
     <div class="nav-container">
         <div class="logo" onclick="location.href='/'">MEI DRIVE <span>AFRICA</span></div>
@@ -301,12 +472,12 @@
             <a href="#">Home</a>
             <a href="#courses">Courses</a>
             <div id="authLinks">
-                <button class="nav-btn" id="loginBtnNav">Login</button>
-                <button class="nav-btn" id="registerBtnNav">Register</button>
+                <button class="nav-btn" id="loginBtn">Login</button>
+                <button class="nav-btn" id="registerBtn">Register</button>
             </div>
-            <div id="userInfoNav" class="user-info" style="display: none;">
-                <span class="user-name" id="userNameDisplay"></span>
-                <button class="logout-btn" id="logoutBtnNav">Logout</button>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <span class="user-name" id="userName"></span>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
             </div>
         </div>
         <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
@@ -334,122 +505,109 @@
     </div>
 </div>
 
-<!-- HERO -->
+<!-- Hero -->
 <section class="hero">
-    <div class="hero-content">
+    <div>
         <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
         <p>For Learners and Experienced Drivers — Refresh Your Skills with MEI DRIVE AFRICA. NTSA-approved courses.</p>
         <div class="hero-buttons">
             <a href="#courses" class="btn-primary">Explore Courses</a>
-            <button id="heroGetStarted" class="btn-outline">Get Started</button>
+            <button id="getStartedBtn" class="btn-outline">Get Started</button>
         </div>
     </div>
 </section>
 
-<!-- STATS -->
-<section class="stats">
+<!-- Stats -->
+<div class="stats">
     <div class="stats-container">
-        <div class="stat"><h2 id="totalStudents">10K+</h2><p>Students</p></div>
-        <div class="stat"><h2 id="totalCourses">--</h2><p>Courses</p></div>
+        <div class="stat"><h2>10K+</h2><p>Students</p></div>
+        <div class="stat"><h2 id="courseCount">8</h2><p>Courses</p></div>
         <div class="stat"><h2>98%</h2><p>Pass Rate</p></div>
     </div>
-</section>
+</div>
 
-<!-- COURSES -->
-<section class="container" id="courses">
+<!-- Courses -->
+<div class="container" id="courses">
     <h2 class="section-title">Our <span>Courses</span></h2>
-    <div id="coursesContainer" class="courses-grid">
-        <!-- Skeleton loaders -->
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-    </div>
-</section>
+    <div id="coursesContainer" class="courses-grid"></div>
+</div>
 
-<!-- LOGIN MODAL - IMPROVED -->
+<!-- Login Modal -->
 <div id="loginModal" class="modal-overlay">
     <div class="modal-content">
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
-        <div id="modalError" class="modal-error"></div>
-        <input type="email" id="loginEmail" placeholder="Email address" required autocomplete="email">
-        <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
-        <button id="loginSubmitBtn">Login</button>
-        <button class="modal-close" id="closeLoginModal">Close</button>
-        <div style="margin-top: 1rem;">
-            <a href="/reset-password.html" style="color: var(--neon-green); font-size: 0.85rem;">Forgot Password?</a>
-        </div>
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginPassword" placeholder="Password">
+        <button id="submitLogin">Login</button>
+        <button class="modal-close" id="closeModal">Close</button>
     </div>
 </div>
 
 <footer>
     <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training</p>
-    <p style="margin-top: 0.5rem; font-size: 0.8rem;"><i class="fas fa-shield-alt"></i> Kenya's Premier Driving School</p>
 </footer>
 
 <script>
-    // Supabase Configuration - Using Global CDN
+    // Supabase
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
-    
-    // Create client using global supabase
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    // Global state
+    // All 8 courses
+    const courses = [
+        { id: 1, name: 'Learner Hub', icon: '🚗', desc: 'Complete NTSA-approved driver training for new drivers. Covers all 21 units.', type: 'premium', price: 5000 },
+        { id: 2, name: 'PSV Training', icon: '🚌', desc: 'Specialized training for matatu, bus, and taxi drivers.', type: 'premium', price: 7500 },
+        { id: 3, name: 'School Bus/Van', icon: '🚸', desc: 'Safety training for school transport drivers.', type: 'premium', price: 6500 },
+        { id: 4, name: 'EV Vehicle Course', icon: '⚡', desc: 'Master electric vehicle driving and charging.', type: 'premium', price: 8000 },
+        { id: 5, name: 'Boda Boda', icon: '🛵', desc: 'Professional motorcycle taxi training.', type: 'premium', price: 5500 },
+        { id: 6, name: 'Professional Driver', icon: '🚛', desc: 'Advanced training for experienced drivers.', type: 'premium', price: 7000 },
+        { id: 7, name: 'e-Safety Library', icon: '📚', desc: 'Free road safety resources for all users.', type: 'free', price: 0 },
+        { id: 8, name: 'Quiz Bank', icon: '📝', desc: '1000+ NTSA practice questions.', type: 'premium', price: 3000 }
+    ];
+    
+    // Display courses
+    function displayCourses() {
+        const container = document.getElementById('coursesContainer');
+        container.innerHTML = '';
+        
+        courses.forEach(course => {
+            const isFree = course.type === 'free';
+            const card = document.createElement('div');
+            card.className = 'course-card';
+            card.onclick = () => window.location.href = `/course.html?id=${course.id}`;
+            card.innerHTML = `
+                <div class="course-icon">${course.icon}</div>
+                ${!isFree ? '<div class="course-badge">PREMIUM</div>' : ''}
+                <h3>${course.name}</h3>
+                <p>${course.desc.substring(0, 80)}...</p>
+                <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${course.price.toLocaleString()}`}</div>
+                <button class="btn-view">View Course →</button>
+            `;
+            container.appendChild(card);
+        });
+    }
+    
+    // Auth state
     let currentUser = null;
-    let allCourses = [];
     
-    // DOM Elements
-    const toast = document.getElementById('toast');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const coursesContainer = document.getElementById('coursesContainer');
-    const totalCoursesSpan = document.getElementById('totalCourses');
-    const loginModal = document.getElementById('loginModal');
-    const authLinks = document.getElementById('authLinks');
-    const userInfo = document.getElementById('userInfoNav');
-    const userNameSpan = document.getElementById('userNameDisplay');
-    const mobileAuthLinks = document.getElementById('mobileAuthLinks');
-    const mobileUserInfo = document.getElementById('mobileUserInfo');
-    const mobileUserName = document.getElementById('mobileUserName');
-    
-    // Toast function
-    function showToast(message, isError = false) {
-        toast.textContent = message;
-        toast.className = `toast ${isError ? 'error' : ''}`;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 4000);
-    }
-    
-    // Loading spinner
-    function setLoading(loading) {
-        loading ? loadingSpinner.classList.add('active') : loadingSpinner.classList.remove('active');
-    }
-    
-    // Validate email
-    function validateEmail(email) {
-        const re = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
-        return re.test(String(email).toLowerCase());
-    }
-    
-    // Update UI based on auth state
-    async function updateAuthUI() {
+    async function checkAuth() {
         const { data: { session } } = await supabase.auth.getSession();
         currentUser = session?.user || null;
         
+        const authLinks = document.getElementById('authLinks');
+        const userInfo = document.getElementById('userInfo');
+        const userNameSpan = document.getElementById('userName');
+        const mobileAuthLinks = document.getElementById('mobileAuthLinks');
+        const mobileUserInfo = document.getElementById('mobileUserInfo');
+        const mobileUserName = document.getElementById('mobileUserName');
+        
         if (currentUser) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', currentUser.id)
-                .single();
-            const displayName = profile?.full_name || currentUser.email.split('@')[0];
-            
             if (authLinks) authLinks.style.display = 'none';
             if (userInfo) userInfo.style.display = 'flex';
-            if (userNameSpan) userNameSpan.textContent = displayName;
+            if (userNameSpan) userNameSpan.textContent = currentUser.email.split('@')[0];
             if (mobileAuthLinks) mobileAuthLinks.style.display = 'none';
             if (mobileUserInfo) mobileUserInfo.style.display = 'block';
-            if (mobileUserName) mobileUserName.textContent = displayName;
+            if (mobileUserName) mobileUserName.textContent = currentUser.email.split('@')[0];
         } else {
             if (authLinks) authLinks.style.display = 'flex';
             if (userInfo) userInfo.style.display = 'none';
@@ -458,187 +616,71 @@
         }
     }
     
-    // Load courses from Supabase
-    async function loadCourses() {
-        setLoading(true);
-        try {
-            const { data, error } = await supabase
-                .from('courses')
-                .select('id, title, description, type, price, icon, duration, level')
-                .order('id', { ascending: true })
-                .limit(8);
-            
-            if (error) throw error;
-            allCourses = data || [];
-            totalCoursesSpan.textContent = allCourses.length || '8';
-            
-            if (allCourses.length === 0) {
-                displayFallbackCourses();
-            } else {
-                displayCourses(allCourses);
-            }
-        } catch (error) {
-            console.error('Error loading courses:', error);
-            showToast('Failed to load courses. Please refresh.', true);
-            displayFallbackCourses();
-        } finally {
-            setLoading(false);
-        }
-    }
-    
-    function displayCourses(courses) {
-        coursesContainer.innerHTML = '';
-        const icons = ['🚗', '🚌', '🚸', '⚡', '🛵', '🚛', '📚', '📝'];
-        
-        courses.forEach((course, index) => {
-            const isFree = course.type === 'free';
-            const card = document.createElement('div');
-            card.className = 'course-card';
-            card.onclick = () => window.location.href = `/course.html?id=${course.id}`;
-            
-            card.innerHTML = `
-                <div class="course-icon">${course.icon || icons[index % icons.length]}</div>
-                ${!isFree ? '<div class="course-badge">PREMIUM</div>' : ''}
-                <h3>${escapeHtml(course.title)}</h3>
-                <p>${escapeHtml(course.description?.substring(0, 80) || 'Professional driver training')}...</p>
-                <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${(course.price || 0).toLocaleString()}`}</div>
-                <button class="btn-view">View Course →</button>
-            `;
-            coursesContainer.appendChild(card);
-        });
-    }
-    
-    function displayFallbackCourses() {
-        const fallbackCourses = [
-            { id: 1, title: 'Learner Hub', description: 'Complete NTSA-approved driver training', type: 'premium', price: 5000, icon: '🚗' },
-            { id: 2, title: 'PSV Training', description: 'Specialized training for bus/taxi drivers', type: 'premium', price: 7500, icon: '🚌' },
-            { id: 3, title: 'School Bus/Van', description: 'Safety training for school transport', type: 'premium', price: 6500, icon: '🚸' },
-            { id: 4, title: 'EV Vehicle Course', description: 'Master electric vehicle driving', type: 'premium', price: 8000, icon: '⚡' },
-            { id: 5, title: 'Boda Boda', description: 'Professional motorcycle taxi training', type: 'premium', price: 5500, icon: '🛵' },
-            { id: 6, title: 'Professional Driver', description: 'Advanced training for experienced drivers', type: 'premium', price: 7000, icon: '🚛' },
-            { id: 7, title: 'e-Safety Library', description: 'Free road safety resources', type: 'free', price: 0, icon: '📚' },
-            { id: 8, title: 'Quiz Bank', description: '1000+ NTSA practice questions', type: 'premium', price: 3000, icon: '📝' }
-        ];
-        totalCoursesSpan.textContent = '8';
-        displayCourses(fallbackCourses);
-    }
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-    }
-    
-    // Login handler
-    async function handleLogin(email, password) {
-        if (!validateEmail(email)) {
-            showToast('Invalid email format', true);
-            return false;
-        }
-        if (!password || password.length < 6) {
-            showToast('Password must be at least 6 characters', true);
-            return false;
-        }
-        
-        setLoading(true);
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        setLoading(false);
-        
-        if (error) {
-            showToast(error.message === 'Invalid login credentials' ? 'Invalid email or password' : error.message, true);
-            return false;
-        }
-        
-        showToast('Login successful!');
-        closeModal();
-        await updateAuthUI();
-        setTimeout(() => { window.location.href = '/dashboard.html'; }, 500);
-        return true;
-    }
-    
-    // Logout
     async function logout() {
-        setLoading(true);
         await supabase.auth.signOut();
-        setLoading(false);
-        showToast('Logged out successfully');
-        await updateAuthUI();
         window.location.href = '/';
     }
     
-    // Modal functions
-    function openModal() {
-        loginModal.classList.add('active');
-        document.getElementById('loginEmail').focus();
-        document.body.style.overflow = 'hidden';
-    }
+    // Modal
+    const modal = document.getElementById('loginModal');
+    function openModal() { modal.classList.add('active'); }
+    function closeModal() { modal.classList.remove('active'); }
     
-    function closeModal() {
-        loginModal.classList.remove('active');
-        const errorDiv = document.getElementById('modalError');
-        if (errorDiv) errorDiv.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-    
-    // Mobile menu
-    function initMobileMenu() {
-        const menuBtn = document.getElementById('mobileMenuBtn');
-        const closeBtn = document.getElementById('mobileNavClose');
-        const mobileNav = document.getElementById('mobileNav');
-        const overlay = document.getElementById('mobileOverlay');
-        
-        const openMenu = () => {
-            mobileNav.classList.add('active');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        };
-        const closeMenu = () => {
-            mobileNav.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        };
-        
-        menuBtn.addEventListener('click', openMenu);
-        closeBtn.addEventListener('click', closeMenu);
-        overlay.addEventListener('click', closeMenu);
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+    async function login(email, password) {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+            alert(error.message);
+            return false;
+        }
+        closeModal();
+        window.location.href = '/dashboard.html';
+        return true;
     }
     
     // Event listeners
-    document.getElementById('loginBtnNav')?.addEventListener('click', openModal);
-    document.getElementById('registerBtnNav')?.addEventListener('click', () => window.location.href = '/register.html');
-    document.getElementById('mobileLoginBtn')?.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
-    document.getElementById('mobileRegisterBtn')?.addEventListener('click', (e) => { e.preventDefault(); window.location.href = '/register.html'; });
-    document.getElementById('heroGetStarted')?.addEventListener('click', openModal);
-    document.getElementById('logoutBtnNav')?.addEventListener('click', logout);
-    document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => { e.preventDefault(); logout(); });
-    document.getElementById('closeLoginModal')?.addEventListener('click', closeModal);
-    
-    document.getElementById('loginSubmitBtn')?.addEventListener('click', async () => {
-        const email = document.getElementById('loginEmail').value.trim();
+    document.getElementById('loginBtn').onclick = openModal;
+    document.getElementById('registerBtn').onclick = () => window.location.href = '/register.html';
+    document.getElementById('getStartedBtn').onclick = openModal;
+    document.getElementById('logoutBtn').onclick = logout;
+    document.getElementById('closeModal').onclick = closeModal;
+    document.getElementById('submitLogin').onclick = async () => {
+        const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
-        const errorDiv = document.getElementById('modalError');
-        
-        if (!email || !password) {
-            if (errorDiv) { errorDiv.textContent = 'Please enter both email and password'; errorDiv.style.display = 'block'; }
-            return;
+        await login(email, password);
+    };
+    
+    // Mobile menu
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const closeNav = document.getElementById('mobileNavClose');
+    const mobileNav = document.getElementById('mobileNav');
+    const overlay = document.getElementById('mobileOverlay');
+    
+    menuBtn.onclick = () => {
+        mobileNav.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+    
+    function closeMobileNav() {
+        mobileNav.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    closeNav.onclick = closeMobileNav;
+    overlay.onclick = closeMobileNav;
+    
+    // Close modal on escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeMobileNav();
         }
-        if (errorDiv) errorDiv.style.display = 'none';
-        await handleLogin(email, password);
     });
-    
-    document.getElementById('loginPassword')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') document.getElementById('loginSubmitBtn')?.click();
-    });
-    
-    loginModal?.addEventListener('click', (e) => { if (e.target === loginModal) closeModal(); });
-    
-    // Supabase auth listener
-    supabase.auth.onAuthStateChange(() => { updateAuthUI(); });
     
     // Initialize
-    initMobileMenu();
-    updateAuthUI();
-    loadCourses();
+    displayCourses();
+    checkAuth();
 </script>
 </body>
 </html>
