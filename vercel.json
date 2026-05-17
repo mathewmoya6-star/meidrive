@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "echo 'No build needed'",
   "outputDirectory": "public",
-  "installCommand": "npm install",
+  "installCommand": "",
   "framework": null
 }
