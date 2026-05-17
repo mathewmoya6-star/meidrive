@@ -22,4 +22,9 @@
     { "src": "/register", "dest": "/register.html" },
     { "src": "/dashboard", "dest": "/dashboard.html" },
     { "src": "/course", "dest": "/course.html" },
-    { "src": "/admin-login", "dest": "/
+    { "src": "/admin-login", "dest": "/admin-login.html" },
+    { "src": "/admin-dashboard", "dest": "/admin-dashboard.html" },
+    { "src": "/reset-password", "dest": "/reset-password.html" },
+    { "src": "/(.*)", "dest": "/404.html", "status": 404 }
+  ]
+}
