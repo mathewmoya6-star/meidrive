@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: meidriveafrica
+    runtime: node
+    buildCommand: npm run render-build
+    startCommand: npm run render-start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SUPABASE_URL
+        value: https://jeksrwrzzrczamxijvwl.supabase.co
+      - key: SUPABASE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs
+      - key: MPESA_CONSUMER_KEY
+        value: your_key_here
+      - key: MPESA_CONSUMER_SECRET
+        value: your_secret_here
+      - key: MPESA_PASSKEY
+        value: your_passkey_here
+      - key: MPESA_SHORTCODE
+        value: "174379"
