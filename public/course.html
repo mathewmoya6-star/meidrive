@@ -4,6 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Details - MEI Drive Africa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --neon-green: #00FF88; --dark-navy: #041B3D; --secondary-dark: #0A234F; --white: #fff; --soft-gray: #B7C4D6; --error: #ff4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--secondary-dark); color: var(--white); }
+        .navbar { background: var(--dark-navy); padding: 1rem 2rem; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .container { max-width: 1200px; margin: auto; padding: 100px 2rem 2rem; }
+        .course-header { background: var(--dark-navy); border-radius: 20px; padding: 2rem; margin-bottom: 2rem; border: 1px solid rgba(0,255,136,0.15); }
+        .course-price { font-size: 2rem; font-weight: bold; color: var(--neon-green); margin: 1rem 0; }
+        .btn-enroll { background: var(--neon-green); color: var(--dark-navy); padding: 14px 34px; border-radius: 40px; font-weight: bold; border: none; cursor: pointer; transition: .3s; }
+        .btn-enroll:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-back { background: transparent; border: 1px solid var(--neon-green); color: var(--white); padding: 14px 34px; border-radius: 40px; cursor: pointer; margin-right: 1rem; }
+        .btn-back:hover, .btn-enroll:hover:not(:disabled) { transform: translateY(-2px); }
+        .loading { text-align: center; padding: 3rem; }
+        .spinner { width: 50px; height: 50px; border: 3px solid var(--dark-navy); border-top-color: var(--neon-green); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .access-denied { text-align: center; padding: 3rem; }
+        .access-denied button { margin-top: 1rem; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--dark-navy); color: var(--white); padding: 12px 20px; border-radius: 8px; transform: translateX(400px); transition: transform 0.3s; z-index: 10000; border-left: 4px solid var(--neon-green); }
+        .toast.error { border-left-color: var(--error); }
+        .toast.show { transform: translateX(0); }
+        @media (max-width: 768px) { .btn-back, .btn-enroll { display: block; width: 100%; margin: 0.5rem 0; } .container { padding: 80px 1rem 1rem; } .course-price { font-size: 1.5rem; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar"><div style="max-width:1200px;margin:auto;"><div class="logo" style="font-size:1.5rem;color:var(--neon-green);cursor:pointer;display:inline-block;" onclick="location.href='/'">MEI DRIVE <span style="color:white;">AFRICA</span></div></div></nav>
+    <div class="container" id="courseContainer"><div class="loading"><div class="spinner"></div><p>Loading course...</p></div></div>
+    <div id="toast" class="toast"></div>
+    
     <script type="importmap">
         {
             "imports": {
@@ -11,67 +40,88 @@
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --neon-green: #00FF88; --dark-navy: #041B3D; --secondary-dark: #0A234F; --white: #fff; --soft-gray: #B7C4D6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--secondary-dark); color: var(--white); }
-        .navbar { background: var(--dark-navy); padding: 1rem 2rem; position: fixed; top: 0; width: 100%; z-index: 1000; }
-        .container { max-width: 1200px; margin: auto; padding: 100px 2rem 2rem; }
-        .course-header { background: var(--dark-navy); border-radius: 20px; padding: 2rem; margin-bottom: 2rem; border: 1px solid rgba(0,255,136,0.15); }
-        .course-price { font-size: 2rem; font-weight: bold; color: var(--neon-green); margin: 1rem 0; }
-        .btn-enroll { background: var(--neon-green); color: var(--dark-navy); padding: 14px 34px; border-radius: 40px; font-weight: bold; border: none; cursor: pointer; }
-        .btn-back { background: transparent; border: 1px solid var(--neon-green); color: var(--white); padding: 14px 34px; border-radius: 40px; cursor: pointer; margin-right: 1rem; }
-        .loading { text-align: center; padding: 3rem; }
-        .spinner { width: 50px; height: 50px; border: 3px solid var(--dark-navy); border-top-color: var(--neon-green); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) { .btn-back, .btn-enroll { display: block; width: 100%; margin: 0.5rem 0; } }
-    </style>
-</head>
-<body>
-    <nav class="navbar"><div class="container" style="padding: 0;"><div class="logo" style="font-size:1.5rem;color:var(--neon-green);cursor:pointer;" onclick="location.href='/'">MEI DRIVE <span style="color:white;">AFRICA</span></div></div></nav>
-    <div class="container" id="courseContainer"><div class="loading"><div class="spinner"></div><p>Loading course...</p></div></div>
+    
     <script type="module">
         import { createClient } from '@supabase/supabase-js';
+        import { loadCurrentUser, hasCourseAccess, logout } from './js/auth.js';
+        
         const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
         
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('id');
+        let currentUser = null;
+        let hasAccess = false;
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        async function checkAuthAndAccess() {
+            currentUser = await loadCurrentUser();
+            if (!courseId) { showAccessDenied('Invalid course', 'Course ID missing'); return false; }
+            hasAccess = await hasCourseAccess(parseInt(courseId));
+            return true;
+        }
         
         async function loadCourse() {
-            if (!courseId) { document.getElementById('courseContainer').innerHTML = '<div class="loading">Course not found</div>'; return; }
-            
+            const container = document.getElementById('courseContainer');
             const { data: course, error } = await supabase.from('courses').select('*').eq('id', courseId).single();
-            if (error || !course) { document.getElementById('courseContainer').innerHTML = '<div class="loading">Course not found</div>'; return; }
             
-            document.getElementById('courseContainer').innerHTML = `
+            if (error || !course) {
+                container.innerHTML = `<div class="access-denied"><h2>Course Not Found</h2><p>The course you're looking for doesn't exist.</p><button class="btn-back" onclick="location.href='/'">Back to Home</button></div>`;
+                return;
+            }
+            
+            if (course.type === 'premium' && !hasAccess && !currentUser) {
+                container.innerHTML = `
+                    <button class="btn-back" onclick="location.href='/'"><i class="fas fa-arrow-left"></i> Back</button>
+                    <div class="access-denied"><h2>🔒 Premium Course</h2><p>This course requires payment or enrollment to access.</p><button class="btn-enroll" onclick="location.href='/login.html'">Login to Enroll</button><button class="btn-back" onclick="location.href='/'">Browse Courses</button></div>`;
+                return;
+            }
+            
+            if (course.type === 'premium' && !hasAccess && currentUser) {
+                container.innerHTML = `
+                    <button class="btn-back" onclick="location.href='/'"><i class="fas fa-arrow-left"></i> Back</button>
+                    <div class="access-denied"><h2>💰 Purchase Required</h2><p>You need to purchase this course to access the content.</p><button class="btn-enroll" onclick="enroll(${course.id}, '${course.type}')">Pay KES ${course.price?.toLocaleString()}</button></div>`;
+                return;
+            }
+            
+            container.innerHTML = `
                 <button class="btn-back" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back</button>
                 <div class="course-header">
                     <div style="font-size:3rem;">${course.icon || '📘'}</div>
-                    <div class="course-badge" style="display:inline-block;background:#00FF88;color:#041B3D;padding:4px 12px;border-radius:20px;margin:1rem 0;">${course.type === 'free' ? 'FREE COURSE' : 'PREMIUM COURSE'}</div>
-                    <h1>${course.title}</h1>
-                    <p>${course.description}</p>
-                    <div class="course-price">${course.type === 'free' ? 'FREE' : `KES ${course.price.toLocaleString()}`}</div>
+                    <div style="display:inline-block;background:#00FF88;color:#041B3D;padding:4px 12px;border-radius:20px;margin:1rem 0;">${course.type === 'free' ? 'FREE COURSE' : 'PREMIUM COURSE'}</div>
+                    <h1>${escapeHtml(course.title)}</h1>
+                    <p>${escapeHtml(course.description)}</p>
+                    <div class="course-price">${course.type === 'free' ? 'FREE' : `KES ${course.price?.toLocaleString()}`}</div>
                     <p><strong>Duration:</strong> ${course.duration || 'Self-paced'} | <strong>Level:</strong> ${course.level || 'All levels'}</p>
-                    <button class="btn-enroll" onclick="enroll(${course.id}, '${course.type}')">${course.type === 'free' ? 'Enroll Now' : `Pay KES ${course.price.toLocaleString()}`}</button>
+                    ${course.type === 'premium' && !hasAccess ? `<button class="btn-enroll" onclick="enroll(${course.id}, '${course.type}')">Pay KES ${course.price?.toLocaleString()}</button>` : 
+                      `<button class="btn-enroll" onclick="enroll(${course.id}, '${course.type}')" ${hasAccess ? 'disabled' : ''}>${hasAccess ? '✓ Enrolled' : (course.type === 'free' ? 'Enroll Now' : 'Purchase Course')}</button>`}
                 </div>
+                <div class="course-header"><h2>What You'll Learn</h2><ul style="margin-top:1rem;padding-left:1.5rem;"><li>✓ Kenyan traffic laws and Highway Code</li><li>✓ Safe driving techniques</li><li>✓ Vehicle control and emergency maneuvers</li><li>✓ NTSA examination preparation</li></ul></div>
             `;
         }
         
         window.enroll = async (courseId, courseType) => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) { alert('Please login to enroll'); window.location.href = '/login.html'; return; }
+            if (!currentUser) { showToast('Please login to enroll', true); setTimeout(() => location.href = '/login.html', 1500); return; }
             if (courseType === 'free') {
-                await supabase.from('enrollments').insert({ user_id: session.user.id, course_id: courseId, progress: 0 });
-                alert('Enrolled successfully!');
+                const { error } = await supabase.from('enrollments').insert({ user_id: currentUser.id, course_id: courseId, progress: 0 });
+                if (error) { showToast('Enrollment failed', true); } else { showToast('Enrolled successfully!'); location.reload(); }
             } else {
                 window.location.href = `/payment.html?course_id=${courseId}`;
             }
         };
         
-        loadCourse();
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+        
+        await checkAuthAndAccess();
+        await loadCourse();
     </script>
 </body>
 </html>
