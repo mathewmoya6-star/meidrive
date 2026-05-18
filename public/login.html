@@ -1,244 +1,508 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - MEI Drive Africa</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <title>Login | MEI DRIVE AFRICA</title>
+
+    <meta name="theme-color" content="#041B3D" />
+
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #041B3D, #0A234F);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
+        :root{
+            --primary:#00FF88;
+            --dark:#041B3D;
+            --dark2:#0A234F;
+            --white:#ffffff;
+            --gray:#B7C4D6;
+            --danger:#ff4d4f;
+            --success:#22c55e;
+            --transition:all .3s ease;
         }
-        .logo { font-size: 48px; margin-bottom: 20px; }
-        h2 { color: #041B3D; margin-bottom: 10px; }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
-        .input-group input {
-            width: 100%; padding: 12px; border: 2px solid #e0e0e0;
-            border-radius: 12px; font-size: 16px;
+
+        body{
+            font-family:'Segoe UI',sans-serif;
+            min-height:100vh;
+            overflow:hidden;
+            background:
+            linear-gradient(rgba(4,27,61,.88),rgba(10,35,79,.92)),
+            url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1400&auto=format&fit=crop')
+            center/cover no-repeat;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding:20px;
+            position:relative;
         }
-        .input-group input:focus { outline: none; border-color: #00FF88; }
-        button {
-            width: 100%; padding: 14px; background: #00FF88; color: #041B3D;
-            border: none; border-radius: 12px; font-weight: bold; cursor: pointer;
-            font-size: 16px;
+
+        /* Floating Glow */
+        .glow{
+            position:absolute;
+            width:400px;
+            height:400px;
+            border-radius:50%;
+            background:rgba(0,255,136,.15);
+            filter:blur(100px);
+            z-index:0;
+            animation:float 8s ease-in-out infinite;
         }
-        button:hover { transform: translateY(-2px); }
-        .error {
-            color: #e74c3c; margin-top: 10px; background: #fde8e8;
-            padding: 10px; border-radius: 8px; display: none; font-size: 14px;
+
+        .glow.one{
+            top:-100px;
+            left:-100px;
         }
-        .success {
-            color: #27ae60; background: #e8f8f0;
-            padding: 10px; border-radius: 8px; display: none; font-size: 14px;
-            margin-top: 10px;
+
+        .glow.two{
+            bottom:-120px;
+            right:-120px;
+            animation-delay:2s;
         }
-        .spinner {
-            display: none; width: 20px; height: 20px;
-            border: 2px solid #041B3D; border-top-color: #00FF88;
-            border-radius: 50%; animation: spin 0.8s linear infinite;
-            margin: 10px auto 0;
+
+        @keyframes float{
+            0%,100%{
+                transform:translateY(0px);
+            }
+            50%{
+                transform:translateY(-20px);
+            }
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .auth-switch { margin-top: 20px; color: #666; }
-        .auth-switch a { color: #00FF88; text-decoration: none; font-weight: bold; }
-        .back-home { 
-            margin-top: 20px; display: inline-block; color: #666; 
-            text-decoration: none; font-size: 14px;
+
+        .login-card{
+            width:100%;
+            max-width:430px;
+            background:rgba(255,255,255,.08);
+            backdrop-filter:blur(18px);
+            border:1px solid rgba(255,255,255,.12);
+            border-radius:28px;
+            padding:40px;
+            position:relative;
+            z-index:2;
+            box-shadow:0 20px 60px rgba(0,0,0,.4);
+            animation:fadeIn .8s ease;
         }
-        .back-home:hover { color: #00FF88; }
-        @media (max-width: 480px) { .login-container { padding: 30px 20px; } }
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(25px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+        }
+
+        .logo{
+            width:80px;
+            height:80px;
+            margin:auto;
+            border-radius:24px;
+            background:linear-gradient(135deg,var(--primary),#00cc6f);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-size:38px;
+            color:var(--dark);
+            margin-bottom:20px;
+            font-weight:bold;
+            box-shadow:0 10px 30px rgba(0,255,136,.35);
+        }
+
+        h1{
+            text-align:center;
+            color:var(--white);
+            font-size:2rem;
+            margin-bottom:10px;
+            font-weight:800;
+        }
+
+        .subtitle{
+            text-align:center;
+            color:var(--gray);
+            margin-bottom:35px;
+            font-size:.95rem;
+        }
+
+        .input-group{
+            margin-bottom:20px;
+        }
+
+        .input-group label{
+            display:block;
+            color:var(--white);
+            margin-bottom:8px;
+            font-size:.9rem;
+            font-weight:600;
+        }
+
+        .input-box{
+            position:relative;
+        }
+
+        .input-box i{
+            position:absolute;
+            top:50%;
+            left:15px;
+            transform:translateY(-50%);
+            color:var(--gray);
+        }
+
+        .input-box input{
+            width:100%;
+            padding:15px 15px 15px 45px;
+            border:none;
+            outline:none;
+            border-radius:14px;
+            background:rgba(255,255,255,.12);
+            color:white;
+            font-size:15px;
+            border:1px solid rgba(255,255,255,.08);
+            transition:var(--transition);
+        }
+
+        .input-box input::placeholder{
+            color:#d0d7e2;
+        }
+
+        .input-box input:focus{
+            border-color:var(--primary);
+            box-shadow:0 0 0 4px rgba(0,255,136,.12);
+        }
+
+        .login-btn{
+            width:100%;
+            padding:15px;
+            border:none;
+            border-radius:14px;
+            background:linear-gradient(135deg,var(--primary),#00d977);
+            color:var(--dark);
+            font-weight:800;
+            font-size:16px;
+            cursor:pointer;
+            transition:var(--transition);
+            margin-top:10px;
+        }
+
+        .login-btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 12px 30px rgba(0,255,136,.3);
+        }
+
+        .message{
+            display:none;
+            margin-top:15px;
+            padding:12px;
+            border-radius:12px;
+            font-size:.9rem;
+            text-align:center;
+        }
+
+        .error{
+            background:rgba(255,77,79,.12);
+            color:#ff9b9c;
+            border:1px solid rgba(255,77,79,.2);
+        }
+
+        .success{
+            background:rgba(34,197,94,.12);
+            color:#7dffac;
+            border:1px solid rgba(34,197,94,.2);
+        }
+
+        .spinner{
+            display:none;
+            width:24px;
+            height:24px;
+            border:3px solid rgba(255,255,255,.25);
+            border-top-color:var(--primary);
+            border-radius:50%;
+            margin:18px auto 0;
+            animation:spin .8s linear infinite;
+        }
+
+        @keyframes spin{
+            to{
+                transform:rotate(360deg);
+            }
+        }
+
+        .bottom-links{
+            text-align:center;
+            margin-top:28px;
+            color:var(--gray);
+            font-size:.92rem;
+        }
+
+        .bottom-links a{
+            color:var(--primary);
+            text-decoration:none;
+            font-weight:700;
+        }
+
+        .home-link{
+            display:inline-block;
+            margin-top:18px;
+            color:#d9e2ef;
+            text-decoration:none;
+            font-size:.88rem;
+            transition:var(--transition);
+        }
+
+        .home-link:hover{
+            color:var(--primary);
+        }
+
+        @media(max-width:480px){
+
+            body{
+                padding:15px;
+            }
+
+            .login-card{
+                padding:30px 22px;
+            }
+
+            h1{
+                font-size:1.7rem;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div class="login-container">
-        <div class="logo">🚗</div>
-        <h2>MEI DRIVE AFRICA</h2>
-        <p style="color: #666; margin-bottom: 20px;">Welcome back!</p>
-        
-        <div id="error" class="error"></div>
-        <div id="success" class="success"></div>
-        
-        <form id="loginForm">
-            <div class="input-group">
-                <label><i class="fas fa-envelope"></i> Email Address</label>
-                <input type="email" id="email" placeholder="Enter your email" required autocomplete="email">
+
+<div class="glow one"></div>
+<div class="glow two"></div>
+
+<div class="login-card">
+
+    <div class="logo">🚗</div>
+
+    <h1>Welcome Back</h1>
+
+    <p class="subtitle">
+        Login to continue learning with MEI DRIVE AFRICA
+    </p>
+
+    <div id="error" class="message error"></div>
+    <div id="success" class="message success"></div>
+
+    <form id="loginForm">
+
+        <div class="input-group">
+
+            <label>Email Address</label>
+
+            <div class="input-box">
+                <i class="fas fa-envelope"></i>
+
+                <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+                autocomplete="email"
+                required>
             </div>
-            <div class="input-group">
-                <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+
+        </div>
+
+        <div class="input-group">
+
+            <label>Password</label>
+
+            <div class="input-box">
+                <i class="fas fa-lock"></i>
+
+                <input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required>
             </div>
-            <button type="submit" id="loginBtn">Login</button>
-        </form>
-        
-        <div id="loadingSpinner" class="spinner"></div>
-        
-        <div class="auth-switch">
-            Don't have an account? <a href="/register.html">Create Account</a>
+
         </div>
-        <div>
-            <a href="/" class="back-home"><i class="fas fa-arrow-left"></i> Back to Home</a>
-        </div>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+            Login
+        </button>
+
+    </form>
+
+    <div id="spinner" class="spinner"></div>
+
+    <div class="bottom-links">
+        Don't have an account?
+        <a href="/register.html">Create Account</a>
+
+        <br>
+
+        <a href="/" class="home-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home
+        </a>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        const form = document.getElementById('loginForm');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const loginBtn = document.getElementById('loginBtn');
-        const errorDiv = document.getElementById('error');
-        const successDiv = document.getElementById('success');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        
-        function showError(message) {
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            successDiv.style.display = 'none';
-            setTimeout(() => errorDiv.style.display = 'none', 5000);
-        }
-        
-        function showSuccess(message) {
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
+</div>
+
+<script>
+
+    const SUPABASE_URL =
+    'https://jeksrwrzzrczamxijvwl.supabase.co';
+
+    const SUPABASE_KEY =
+    'YOUR_SUPABASE_ANON_KEY';
+
+    const { createClient } = window.supabase;
+
+    const supabase =
+    createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const form =
+    document.getElementById('loginForm');
+
+    const loginBtn =
+    document.getElementById('loginBtn');
+
+    const spinner =
+    document.getElementById('spinner');
+
+    const errorDiv =
+    document.getElementById('error');
+
+    const successDiv =
+    document.getElementById('success');
+
+    function showError(message){
+
+        errorDiv.innerText = message;
+
+        errorDiv.style.display = 'block';
+
+        successDiv.style.display = 'none';
+
+        setTimeout(()=>{
             errorDiv.style.display = 'none';
-            setTimeout(() => successDiv.style.display = 'none', 3000);
+        },5000);
+    }
+
+    function showSuccess(message){
+
+        successDiv.innerText = message;
+
+        successDiv.style.display = 'block';
+
+        errorDiv.style.display = 'none';
+    }
+
+    function setLoading(state){
+
+        spinner.style.display =
+        state ? 'block' : 'none';
+
+        loginBtn.disabled = state;
+
+        loginBtn.innerText =
+        state ? 'Logging in...' : 'Login';
+    }
+
+    form.addEventListener('submit', async(e)=>{
+
+        e.preventDefault();
+
+        const email =
+        document.getElementById('email').value.trim();
+
+        const password =
+        document.getElementById('password').value;
+
+        if(!email || !password){
+            showError('Please fill all fields');
+            return;
         }
-        
-        function setLoading(loading) {
-            if (loading) {
-                loadingSpinner.style.display = 'block';
-                loginBtn.disabled = true;
-                loginBtn.style.opacity = '0.6';
-                loginBtn.textContent = 'Logging in...';
-            } else {
-                loadingSpinner.style.display = 'none';
-                loginBtn.disabled = false;
-                loginBtn.style.opacity = '1';
-                loginBtn.textContent = 'Login';
-            }
-        }
-        
-        // Handle login form submission
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            
-            if (!email || !password) {
-                showError('Please enter both email and password');
+
+        setLoading(true);
+
+        try{
+
+            const { data, error } =
+            await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            setLoading(false);
+
+            if(error){
+
+                if(error.message.includes('Invalid')){
+                    showError('Invalid email or password');
+                }else{
+                    showError(error.message);
+                }
+
                 return;
             }
-            
-            // Basic email validation
-            const emailRegex = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
-            if (!emailRegex.test(email)) {
-                showError('Please enter a valid email address');
-                return;
-            }
-            
-            setLoading(true);
-            
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-                
-                setLoading(false);
-                
-                if (error) {
-                    if (error.message === 'Invalid login credentials') {
-                        showError('Invalid email or password. Please try again.');
-                    } else if (error.message.includes('Email not confirmed')) {
-                        showError('Please verify your email before logging in. Check your inbox.');
-                    } else {
-                        showError(error.message);
-                    }
-                    return;
-                }
-                
-                if (data.session) {
-                    // Store session
-                    localStorage.setItem('access_token', data.session.access_token);
-                    localStorage.setItem('user_email', email);
-                    localStorage.setItem('user_id', data.user.id);
-                    
-                    showSuccess('Login successful! Redirecting...');
-                    
-                    // Redirect after short delay
-                    setTimeout(() => {
-                        window.location.href = '/dashboard.html';
-                    }, 1000);
-                }
-            } catch (err) {
-                setLoading(false);
-                showError('Network error. Please check your connection.');
-                console.error('Login error:', err);
-            }
-        });
-        
-        // Check for existing session
-        async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                // Already logged in, redirect to dashboard
-                window.location.href = '/dashboard.html';
-            }
+
+            localStorage.setItem(
+                'user_id',
+                data.user.id
+            );
+
+            localStorage.setItem(
+                'user_email',
+                data.user.email
+            );
+
+            showSuccess(
+                'Login successful! Redirecting...'
+            );
+
+            setTimeout(()=>{
+                window.location.href =
+                '/dashboard.html';
+            },1500);
+
+        }catch(err){
+
+            console.error(err);
+
+            setLoading(false);
+
+            showError(
+                'Network error. Try again.'
+            );
         }
-        checkSession();
-        
-        // Listen for auth changes
-        supabase.auth.onAuthStateChange((event, session) => {
-            console.log('Auth event:', event);
-            if (event === 'SIGNED_IN' && session) {
-                localStorage.setItem('access_token', session.access_token);
-            }
-            if (event === 'SIGNED_OUT') {
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('user_email');
-                localStorage.removeItem('user_id');
-            }
-        });
-        
-        // Enter key submission
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                form.dispatchEvent(new Event('submit'));
-            }
-        });
-        
-        // Test connection on load (for debugging)
-        async function testConnection() {
-            const { error } = await supabase.from('courses').select('id').limit(1);
-            if (error && error.message.includes('row-level security')) {
-                console.warn('⚠️ RLS policy needed on courses table for public access');
-            }
+    });
+
+    async function checkSession(){
+
+        const {
+            data:{ session }
+        } = await supabase.auth.getSession();
+
+        if(session){
+            window.location.href =
+            '/dashboard.html';
         }
-        testConnection();
-    </script>
+    }
+
+    checkSession();
+
+</script>
+
 </body>
 </html>
