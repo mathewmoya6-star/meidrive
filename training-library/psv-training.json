@@ -1,0 +1,101 @@
+{
+  "course_id": 2,
+  "title": "🚌 PSV Driver Training",
+  "description": "Professional training for matatu, bus, and taxi drivers focusing on passenger safety, commercial regulations, and customer service excellence.",
+  "duration": "25 hours",
+  "level": "Intermediate",
+  "price": 7500,
+  "units": [
+    {
+      "unit_number": 1,
+      "title": "PSV Licensing & NTSA Regulations",
+      "duration": "3 hours",
+      "content": "# PSV Licensing & NTSA Regulations\n\n## Overview\nThis unit covers the legal requirements for operating a Public Service Vehicle in Kenya.\n\n## Key Requirements\n- PSV badge application and renewal process\n- Speed governor compliance (80 km/h maximum)\n- Annual NTSA vehicle inspection\n- Road service license requirements\n- Insurance coverage for PSV operations\n\n## PSV Badge\nAll PSV drivers must obtain a PSV badge from NTSA. Requirements include:\n- Valid driving license\n- Certificate of Good Conduct\n- Medical examination\n- PSV training completion\n\n## Speed Governors\n- All PSV vehicles must have functional speed governors\n- Maximum speed limited to 80 km/h\n- Tampering with speed governors is illegal\n- Regular calibration required\n\n## Vehicle Inspection\nAnnual inspection covers:\n- Brakes and suspension\n- Lights and signals\n- Tyres and wheels\n- Speed governor functionality\n- Emergency exits and equipment",
+      "key_points": [
+        "PSV badge required for all commercial passenger drivers",
+        "Speed governors mandatory - maximum 80 km/h",
+        "Annual NTSA vehicle inspection",
+        "Valid insurance and road service license required",
+        "Tampering with speed governors is a criminal offense"
+      ]
+    },
+    {
+      "unit_number": 2,
+      "title": "Passenger Safety & Rights",
+      "duration": "4 hours",
+      "content": "# Passenger Safety & Rights\n\n## Passenger Rights\n- Right to a safe journey\n- Right to be informed of fares\n- Right to receive a receipt\n- Right to respectful treatment\n- Right to report complaints\n\n## Safe Boarding Procedures\n1. Stop only at designated stages\n2. Allow passengers to alight first\n3. Assist elderly and disabled passengers\n4. Ensure passengers are seated before moving\n5. Count passengers to prevent overcrowding\n\n## Emergency Evacuation\n- Identify emergency exits\n- Remain calm and give clear instructions\n- Use emergency hammers for windows\n- Assist passengers with mobility issues\n- Account for all passengers after evacuation\n\n## Lost Property\n- Secure lost items immediately\n- Log items with description and location\n- Store in designated lost property area\n- Attempt to contact owner if identified\n- Transfer to police station after 30 days",
+      "key_points": [
+        "Passengers have right to safe, respectful service",
+        "Load only at designated stages",
+        "Never exceed passenger capacity",
+        "Have emergency evacuation plan",
+        "Document and secure lost property"
+      ]
+    },
+    {
+      "unit_number": 3,
+      "title": "Route Planning & Time Management",
+      "duration": "3 hours",
+      "content": "# Route Planning & Time Management\n\n## Route Optimization\n- Study traffic patterns for different times\n- Identify alternative routes for diversions\n- Know peak hour congestion areas\n- Plan for construction zones\n- Use navigation apps for real-time updates\n\n## Time Management\n- Start trips on schedule\n- Build in buffer time for delays\n- Take mandatory rest breaks\n- Log driving hours accurately\n- Maximum 8 hours driving per day\n\n## Fuel Efficiency\n- Smooth acceleration and braking\n- Maintain steady speed\n- Avoid unnecessary idling\n- Check tyre pressure regularly\n- Plan routes to minimize backtracking\n\n## Documentation\n- Maintain trip log books\n- Record departure and arrival times\n- Note any incidents or delays\n- Track fuel consumption\n- Report mechanical issues immediately",
+      "key_points": [
+        "Study traffic patterns and plan alternative routes",
+        "Maximum 8 hours driving per 24-hour period",
+        "Maintain accurate trip logs",
+        "Smooth driving improves fuel efficiency",
+        "Build buffer time for unexpected delays"
+      ]
+    },
+    {
+      "unit_number": 4,
+      "title": "Customer Service Excellence",
+      "duration": "4 hours",
+      "content": "# Customer Service Excellence\n\n## Professional Conduct\n- Wear clean, professional uniform\n- Greet passengers warmly\n- Speak respectfully at all times\n- Be patient and helpful\n- Maintain vehicle cleanliness\n\n## Communication Skills\n- Speak clearly and audibly\n- Announce upcoming stops\n- Explain fare structure clearly\n- Listen to passenger concerns\n- Use appropriate language\n\n## Handling Difficult Situations\n- Stay calm and professional\n- Listen without interrupting\n- Acknowledge the issue\n- Offer reasonable solutions\n- Escalate if necessary\n\n## Fare Disputes\n- Display fare chart prominently\n- Explain charges clearly\n- Issue receipts for all fares\n- Keep change readily available\n- Refer serious disputes to supervisor\n\n## Building Customer Loyalty\n- Remember regular passengers\n- Provide consistent service\n- Go the extra mile when possible\n- Handle complaints professionally\n- Create positive passenger experience",
+      "key_points": [
+        "Professional appearance and behavior essential",
+        "Clear communication prevents misunderstandings",
+        "Stay calm when handling difficult passengers",
+        "Display fare chart prominently",
+        "Build loyalty through consistent service"
+      ]
+    },
+    {
+      "unit_number": 5,
+      "title": "Defensive Driving for PSV",
+      "duration": "5 hours",
+      "content": "# Defensive Driving for PSV\n\n## Core Principles\n- Anticipate hazards before they develop\n- Maintain 360-degree awareness\n- Keep safe following distance (4 seconds minimum)\n- Scan 12-15 seconds ahead\n- Prepare for others' mistakes\n\n## Hazard Anticipation\n- Watch for passengers waiting to board\n- Anticipate sudden stops\n- Be alert for other drivers' blind spots\n- Watch for pedestrians near stages\n- Expect the unexpected from other road users\n\n## Managing Blind Spots\n- Adjust mirrors for maximum visibility\n- Check blind spots before lane changes\n- Be aware of larger vehicle limitations\n- Use convex mirrors for wider view\n- Turn head to check critical areas\n\n## Emergency Braking\n- Apply firm, steady pressure\n- Avoid locking wheels\n- Use engine braking on descents\n- Maintain steering control\n- Warn passengers before hard braking\n\n## Weather Conditions\n- Reduce speed in rain (50 km/h max)\n- Increase following distance in wet conditions\n- Use headlights in low visibility\n- Avoid standing water\n- Be extra cautious during first rain after dry spell",
+      "key_points": [
+        "Maintain 4-second following distance minimum",
+        "Scan 12-15 seconds ahead for hazards",
+        "Check blind spots before any lane change",
+        "Reduce speed significantly in wet conditions",
+        "Anticipate passenger actions at stages"
+      ]
+    },
+    {
+      "unit_number": 6,
+      "title": "Fare Management & Ticketing",
+      "duration": "3 hours",
+      "content": "# Fare Management & Ticketing\n\n## Fare Collection\n- Know fare stages and prices\n- Display fare chart visibly\n- Announce upcoming fare stages\n- Handle cash securely\n- Give correct change promptly\n\n## Digital Payments\n- Accept M-Pesa payments\n- Verify payment confirmations\n- Use tap-to-pay where available\n- Have backup for system outages\n- Train on payment device operation\n\n## Ticketing Systems\n- Issue tickets for all fares\n- Record ticket numbers\n- Validate tickets before boarding\n- Keep ticket stock secure\n- Report lost or stolen tickets immediately\n\n## Revenue Reconciliation\n- Count cash at end of shift\n- Match tickets to cash collected\n- Report discrepancies immediately\n- Secure cash during transport\n- Deposit daily revenue\n\n## Fraud Prevention\n- Never accept damaged notes\n- Be aware of counterfeit money\n- Keep cash drawer closed\n- Don't leave valuables visible\n- Report suspicious activity",
+      "key_points": [
+        "Display fare chart prominently in vehicle",
+        "Accept multiple payment methods",
+        "Issue tickets for all fares",
+        "Reconcile cash and tickets daily",
+        "Be vigilant against fraud"
+      ]
+    },
+    {
+      "unit_number": 7,
+      "title": "Vehicle Inspection for PSV",
+      "duration": "3 hours",
+      "content": "# Vehicle Inspection for PSV\n\n## Daily Pre-Trip Inspection\n- Check tyre pressure and tread depth\n- Verify all lights and signals work\n- Test brakes before departure\n- Check fluid levels (oil, coolant, brake)\n- Inspect mirrors for cracks and positioning\n\n## Interior Inspection\n- Verify seat belts functional\n- Check emergency exits\n- Test horn and wipers\n- Ensure fire extinguisher present\n- Verify first aid kit complete\n\n## Speed Governor Check\n- Confirm speed governor is sealed\n- Test governor operation\n- Check calibration sticker valid\n- Report tampering immediately\n- Document governor readings\n\n## Defect Reporting\n- Log all defects found\n- Report serious issues immediately\n- Do not drive with safety defects\n- Follow repair procedures\n- Verify repairs before next trip\n\n## Documentation\n- Complete daily inspection sheet\n- Record odometer readings\n- Log fuel and fluid top-ups\n- Document any incidents\n- Keep records for NTSA inspection",
+      "key_points": [
+        "Complete daily pre-trip inspection before driving",
+        "Check tyres, lights, brakes every day",
+        "Verify speed governor is functional and sealed",
+        "Never drive with safety defects",
+        "Maintain complete inspection records"
+      ]
+    }
+  ]
+}
