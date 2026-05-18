@@ -16,6 +16,7 @@
             --soft-gray: #B7C4D6;
             --error: #ff4444;
             --success: #00FF88;
+            --warning: #ff9800;
         }
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -35,6 +36,7 @@
             padding: 1.5rem;
             transition: all 0.3s;
             z-index: 100;
+            overflow-y: auto;
         }
         .sidebar-header {
             text-align: center;
@@ -71,6 +73,7 @@
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
+            transition: all 0.3s;
         }
         .logout-btn:hover {
             background: var(--error);
@@ -159,7 +162,9 @@
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
+            transition: all 0.3s;
         }
+        .btn-add:hover { transform: scale(1.05); }
         .btn-edit {
             background: rgba(255,152,0,0.2);
             color: #ff9800;
@@ -168,7 +173,9 @@
             border-radius: 15px;
             cursor: pointer;
             margin-right: 5px;
+            transition: all 0.3s;
         }
+        .btn-edit:hover { background: #ff9800; color: var(--dark-navy); }
         .btn-delete {
             background: rgba(255,68,68,0.2);
             color: var(--error);
@@ -176,9 +183,14 @@
             padding: 4px 10px;
             border-radius: 15px;
             cursor: pointer;
+            transition: all 0.3s;
         }
+        .btn-delete:hover { background: var(--error); color: var(--white); }
         
         /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+        }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(183,196,214,0.1); }
         th { color: var(--neon-green); font-weight: 600; }
@@ -188,9 +200,11 @@
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: bold;
+            display: inline-block;
         }
         .badge-success { background: rgba(0,255,136,0.2); color: var(--neon-green); }
         .badge-warning { background: rgba(255,152,0,0.2); color: #ff9800; }
+        .badge-info { background: rgba(0,255,255,0.2); color: #00ffff; }
         
         /* Modal */
         .modal {
@@ -215,7 +229,7 @@
             border: 1px solid var(--neon-green);
         }
         .modal-content h3 { margin-bottom: 1rem; color: var(--neon-green); }
-        .modal-content input, .modal-content select {
+        .modal-content input, .modal-content select, .modal-content textarea {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -223,7 +237,9 @@
             border: 1px solid rgba(0,255,136,0.2);
             border-radius: 8px;
             color: var(--white);
+            font-size: 14px;
         }
+        .modal-content textarea { resize: vertical; }
         .modal-buttons {
             display: flex;
             gap: 1rem;
@@ -236,6 +252,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            transition: all 0.3s;
         }
         .btn-save {
             background: var(--neon-green);
@@ -282,7 +299,7 @@
             .sidebar { transform: translateX(-100%); }
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-left: 0; }
-            .mobile-menu-btn { display: block; background: none; border: none; color: var(--white); font-size: 1.5rem; cursor: pointer; }
+            .mobile-menu-btn { display: block !important; }
         }
     </style>
 </head>
@@ -343,7 +360,7 @@
         </div>
         
         <div class="section-card">
-            <div class="section-header"><h3>All Courses with Price Management</h3></div>
+            <div class="section-header"><h3>Recent Courses</h3><button class="btn-add" id="dashboardAddCourseBtn"><i class="fas fa-plus"></i> Add Course</button></div>
             <div id="coursesTable"><div class="loading"><div class="spinner"></div></div></div>
         </div>
     </div>
@@ -376,19 +393,29 @@
 <!-- Course Modal -->
 <div id="courseModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">Edit Course Price</h3>
+        <h3 id="modalTitle">Add New Course</h3>
         <input type="hidden" id="courseId">
         <label>Course Name</label>
-        <input type="text" id="courseName" readonly style="background: var(--dark-navy);">
+        <input type="text" id="courseName" placeholder="Enter course name" required>
+        <label>Description</label>
+        <textarea id="courseDesc" rows="3" placeholder="Enter course description"></textarea>
         <label>Course Type</label>
         <select id="courseType">
             <option value="free">Free</option>
             <option value="premium">Premium</option>
         </select>
         <label>Price (KES)</label>
-        <input type="number" id="coursePrice" placeholder="Enter price">
+        <input type="number" id="coursePrice" placeholder="Enter price" value="0">
+        <label>Duration (weeks)</label>
+        <input type="number" id="courseDuration" placeholder="Duration in weeks" value="4">
+        <label>Level</label>
+        <select id="courseLevel">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+        </select>
         <div class="modal-buttons">
-            <button class="btn-save" id="saveCourseBtn">Save Changes</button>
+            <button class="btn-save" id="saveCourseBtn">Save Course</button>
             <button class="btn-cancel" id="cancelModalBtn">Cancel</button>
         </div>
     </div>
@@ -398,11 +425,10 @@
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
     
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
     let currentUser = null;
     
-    // Toast function
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
@@ -413,48 +439,34 @@
     
     // Check admin authentication
     async function checkAdminAuth() {
-        const token = localStorage.getItem('adminToken');
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (!token) {
+        if (error || !session) {
             window.location.href = '/admin-login.html';
             return false;
         }
         
-        try {
-            const { data: { user }, error } = await supabase.auth.getUser(token);
-            
-            if (error || !user) {
-                localStorage.removeItem('adminToken');
-                window.location.href = '/admin-login.html';
-                return false;
-            }
-            
-            currentUser = user;
-            
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('role, full_name')
-                .eq('id', user.id)
-                .single();
-            
-            if (profileError || profile?.role !== 'admin') {
-                localStorage.removeItem('adminToken');
-                window.location.href = '/admin-login.html';
-                return false;
-            }
-            
-            document.getElementById('adminName').textContent = profile?.full_name || 'Admin';
-            document.getElementById('adminEmail').textContent = user.email;
-            
-            return true;
-        } catch (err) {
-            console.error('Auth error:', err);
-            window.location.href = '/admin-login.html';
+        currentUser = session.user;
+        
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role, full_name')
+            .eq('id', currentUser.id)
+            .single();
+        
+        if (profileError || profile?.role !== 'admin') {
+            showToast('Admin access required', true);
+            setTimeout(() => window.location.href = '/login.html', 1500);
             return false;
         }
+        
+        document.getElementById('adminName').textContent = profile?.full_name || 'Admin';
+        document.getElementById('adminEmail').textContent = currentUser.email;
+        
+        return true;
     }
     
-    // Load Dashboard Stats and Courses
+    // Load Dashboard Stats
     async function loadDashboard() {
         try {
             const { count: coursesCount } = await supabase
@@ -469,59 +481,72 @@
                 .from('enrollments')
                 .select('*', { count: 'exact', head: true });
             
+            const { data: premiumCourses } = await supabase
+                .from('courses')
+                .select('price')
+                .eq('type', 'premium');
+            
+            const totalRevenue = premiumCourses?.reduce((sum, c) => sum + (c.price || 0), 0) || 0;
+            
             document.getElementById('totalCourses').textContent = coursesCount || 0;
             document.getElementById('totalUsers').textContent = usersCount || 0;
             document.getElementById('totalEnrollments').textContent = enrollmentsCount || 0;
+            document.getElementById('totalRevenue').textContent = `KES ${totalRevenue.toLocaleString()}`;
             
-            // Load courses for dashboard
             await loadCoursesTable();
         } catch (error) {
             console.error('Error loading dashboard:', error);
         }
     }
     
-    // Load Courses Table (with edit buttons)
+    // Load Courses Table
     async function loadCoursesTable() {
         const { data: courses, error } = await supabase
             .from('courses')
             .select('*')
-            .order('id');
+            .order('id')
+            .limit(5);
         
         const container = document.getElementById('coursesTable');
-        if (error) {
+        if (error || !courses) {
             container.innerHTML = '<p>Error loading courses</p>';
             return;
         }
         
-        if (courses && courses.length > 0) {
+        if (courses.length > 0) {
             container.innerHTML = `
-                <table>
-                    <thead>
-                        <tr><th>ID</th><th>Course Name</th><th>Type</th><th>Price</th><th>Actions</th></tr>
-                    </thead>
-                    <tbody>
-                        ${courses.map(course => `
-                            <tr>
-                                <td>${course.id}</td>
-                                <td>${escapeHtml(course.name)}</td>
-                                <td><span class="badge ${course.type === 'free' ? 'badge-success' : 'badge-warning'}">${course.type}</span></td>
-                                <td>${course.type === 'free' ? 'FREE' : `KES ${course.price?.toLocaleString()}`}</td>
-                                <td>
-                                    <button class="btn-edit" onclick="editCourse(${course.id}, '${escapeHtml(course.name)}', '${course.type}', ${course.price || 0})">
-                                        <i class="fas fa-edit"></i> Edit Price
-                                    </button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Course Name</th><th>Type</th><th>Price</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            ${courses.map(course => `
+                                <tr>
+                                    <td>${course.id}</td>
+                                    <td>${escapeHtml(course.name)}</td>
+                                    <td><span class="badge ${course.type === 'free' ? 'badge-success' : 'badge-warning'}">${course.type}</span></td>
+                                    <td>${course.type === 'free' ? 'FREE' : `KES ${course.price?.toLocaleString()}`}</td>
+                                    <td>
+                                        <button class="btn-edit" onclick="editCourse(${course.id})">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn-delete" onclick="deleteCourse(${course.id})">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
             `;
         } else {
-            container.innerHTML = '<p>No courses found</p>';
+            container.innerHTML = '<p>No courses found. Click "Add Course" to create one.</p>';
         }
     }
     
-    // Load All Courses for Management
+    // Load All Courses
     async function loadAllCourses() {
         const { data: courses, error } = await supabase
             .from('courses')
@@ -529,73 +554,139 @@
             .order('id');
         
         const container = document.getElementById('allCoursesTable');
-        if (error) {
+        if (error || !courses) {
             container.innerHTML = '<p>Error loading courses</p>';
             return;
         }
         
-        if (courses && courses.length > 0) {
+        if (courses.length > 0) {
             container.innerHTML = `
-                <table>
-                    <thead>
-                        <tr><th>ID</th><th>Course Name</th><th>Type</th><th>Price</th><th>Actions</th></tr>
-                    </thead>
-                    <tbody>
-                        ${courses.map(course => `
-                            <tr>
-                                <td>${course.id}</td>
-                                <td>${escapeHtml(course.name)}</td>
-                                <td><span class="badge ${course.type === 'free' ? 'badge-success' : 'badge-warning'}">${course.type}</span></td>
-                                <td>${course.type === 'free' ? 'FREE' : `KES ${course.price?.toLocaleString()}`}</td>
-                                <td>
-                                    <button class="btn-edit" onclick="editCourse(${course.id}, '${escapeHtml(course.name)}', '${course.type}', ${course.price || 0})">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Course Name</th><th>Description</th><th>Type</th><th>Price</th><th>Duration</th><th>Level</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            ${courses.map(course => `
+                                <tr>
+                                    <td>${course.id}</td>
+                                    <td>${escapeHtml(course.name)}</td>
+                                    <td>${escapeHtml(course.description?.substring(0, 50))}...</td>
+                                    <td><span class="badge ${course.type === 'free' ? 'badge-success' : 'badge-warning'}">${course.type}</span></td>
+                                    <td>${course.type === 'free' ? 'FREE' : `KES ${course.price?.toLocaleString()}`}</td>
+                                    <td>${course.duration || 'N/A'} weeks</td>
+                                    <td><span class="badge badge-info">${course.level || 'Beginner'}</span></td>
+                                    <td>
+                                        <button class="btn-edit" onclick="editCourse(${course.id})">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn-delete" onclick="deleteCourse(${course.id})">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
             `;
         } else {
-            container.innerHTML = '<p>No courses found</p>';
+            container.innerHTML = '<p>No courses found. Click "Add Course" to create one.</p>';
         }
     }
     
-    // Edit Course Price
-    window.editCourse = (id, name, type, price) => {
-        document.getElementById('modalTitle').textContent = `Edit Price: ${name}`;
-        document.getElementById('courseId').value = id;
-        document.getElementById('courseName').value = name;
-        document.getElementById('courseType').value = type;
-        document.getElementById('coursePrice').value = price;
-        document.getElementById('courseModal').classList.add('active');
-    };
-    
-    // Save Course Changes
-    async function saveCourse() {
-        const id = document.getElementById('courseId').value;
-        const type = document.getElementById('courseType').value;
-        const price = type === 'free' ? 0 : parseInt(document.getElementById('coursePrice').value) || 0;
+    // Edit Course
+    window.editCourse = async (id) => {
+        const { data: course, error } = await supabase
+            .from('courses')
+            .select('*')
+            .eq('id', id)
+            .single();
         
-        if (type === 'premium' && price < 0) {
-            showToast('Invalid price', true);
+        if (error) {
+            showToast('Error loading course', true);
             return;
         }
         
-        const { error } = await supabase
-            .from('courses')
-            .update({ type: type, price: price })
-            .eq('id', id);
+        document.getElementById('modalTitle').textContent = `Edit Course: ${course.name}`;
+        document.getElementById('courseId').value = course.id;
+        document.getElementById('courseName').value = course.name;
+        document.getElementById('courseDesc').value = course.description || '';
+        document.getElementById('courseType').value = course.type;
+        document.getElementById('coursePrice').value = course.price || 0;
+        document.getElementById('courseDuration').value = course.duration || 4;
+        document.getElementById('courseLevel').value = course.level || 'Beginner';
+        document.getElementById('courseModal').classList.add('active');
+    };
+    
+    // Delete Course
+    window.deleteCourse = async (id) => {
+        if (confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+            const { error } = await supabase
+                .from('courses')
+                .delete()
+                .eq('id', id);
+            
+            if (error) {
+                showToast('Error deleting course', true);
+            } else {
+                showToast('Course deleted successfully!');
+                await loadAllCourses();
+                await loadDashboard();
+            }
+        }
+    };
+    
+    // Save Course (Add/Edit)
+    async function saveCourse() {
+        const id = document.getElementById('courseId').value;
+        const name = document.getElementById('courseName').value.trim();
+        const description = document.getElementById('courseDesc').value.trim();
+        const type = document.getElementById('courseType').value;
+        const price = type === 'free' ? 0 : parseInt(document.getElementById('coursePrice').value) || 0;
+        const duration = parseInt(document.getElementById('courseDuration').value) || 4;
+        const level = document.getElementById('courseLevel').value;
+        
+        if (!name) {
+            showToast('Please enter course name', true);
+            return;
+        }
+        
+        const courseData = {
+            name: name,
+            description: description,
+            type: type,
+            price: price,
+            duration: duration,
+            level: level,
+            updated_at: new Date()
+        };
+        
+        let error;
+        
+        if (id) {
+            // Update existing course
+            const result = await supabase
+                .from('courses')
+                .update(courseData)
+                .eq('id', id);
+            error = result.error;
+        } else {
+            // Add new course
+            const result = await supabase
+                .from('courses')
+                .insert([{ ...courseData, created_at: new Date() }]);
+            error = result.error;
+        }
         
         if (error) {
-            showToast('Error updating course', true);
+            showToast(`Error ${id ? 'updating' : 'adding'} course`, true);
             console.error(error);
         } else {
-            showToast('Course updated successfully!');
+            showToast(`Course ${id ? 'updated' : 'added'} successfully!`);
             closeModal();
-            await loadDashboard();
             await loadAllCourses();
+            await loadDashboard();
         }
     }
     
@@ -603,7 +694,11 @@
         document.getElementById('courseModal').classList.remove('active');
         document.getElementById('courseId').value = '';
         document.getElementById('courseName').value = '';
-        document.getElementById('coursePrice').value = '';
+        document.getElementById('courseDesc').value = '';
+        document.getElementById('courseType').value = 'free';
+        document.getElementById('coursePrice').value = '0';
+        document.getElementById('courseDuration').value = '4';
+        document.getElementById('courseLevel').value = 'Beginner';
     }
     
     // Load Users
@@ -614,28 +709,30 @@
             .order('created_at', { ascending: false });
         
         const container = document.getElementById('usersTable');
-        if (error) {
+        if (error || !users) {
             container.innerHTML = '<p>Error loading users</p>';
             return;
         }
         
-        if (users && users.length > 0) {
+        if (users.length > 0) {
             container.innerHTML = `
-                <table>
-                    <thead>
-                        <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr>
-                    </thead>
-                    <tbody>
-                        ${users.map(user => `
-                            <tr>
-                                <td>${escapeHtml(user.full_name || 'N/A')}</td>
-                                <td>${escapeHtml(user.email)}</td>
-                                <td><span class="badge ${user.role === 'admin' ? 'badge-warning' : 'badge-success'}">${user.role || 'learner'}</span></td>
-                                <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => `
+                                <tr>
+                                    <td>${escapeHtml(user.full_name || 'N/A')}</td>
+                                    <td>${escapeHtml(user.email)}</td>
+                                    <td><span class="badge ${user.role === 'admin' ? 'badge-warning' : 'badge-success'}">${user.role || 'learner'}</span></td>
+                                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
             `;
         } else {
             container.innerHTML = '<p>No users found</p>';
@@ -646,32 +743,42 @@
     async function loadEnrollments() {
         const { data: enrollments, error } = await supabase
             .from('enrollments')
-            .select('*, profiles(full_name, email), courses(name)')
+            .select(`
+                *,
+                profiles:user_id (full_name, email),
+                courses:course_id (name)
+            `)
             .order('enrolled_at', { ascending: false });
         
         const container = document.getElementById('enrollmentsTable');
-        if (error) {
+        if (error || !enrollments) {
             container.innerHTML = '<p>Error loading enrollments</p>';
             return;
         }
         
-        if (enrollments && enrollments.length > 0) {
+        if (enrollments.length > 0) {
             container.innerHTML = `
-                <table>
-                    <thead>
-                        <tr><th>User</th><th>Course</th><th>Enrolled</th><th>Progress</th></tr>
-                    </thead>
-                    <tbody>
-                        ${enrollments.map(e => `
-                            <tr>
-                                <td>${escapeHtml(e.profiles?.full_name || e.profiles?.email || 'N/A')}</td>
-                                <td>${escapeHtml(e.courses?.name || 'N/A')}</td>
-                                <td>${new Date(e.enrolled_at).toLocaleDateString()}</td>
-                                <td><span class="badge badge-success">${e.progress || 0}%</span></td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>User</th><th>Course</th><th>Enrolled</th><th>Progress</th></tr>
+                        </thead>
+                        <tbody>
+                            ${enrollments.map(e => {
+                                const profile = e.profiles || {};
+                                const course = e.courses || {};
+                                return `
+                                    <tr>
+                                        <td>${escapeHtml(profile.full_name || profile.email || 'N/A')}</td>
+                                        <td>${escapeHtml(course.name || 'N/A')}</td>
+                                        <td>${new Date(e.enrolled_at).toLocaleDateString()}</td>
+                                        <td><span class="badge badge-success">${e.progress || 0}%</span></td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
             `;
         } else {
             container.innerHTML = '<p>No enrollments found</p>';
@@ -700,10 +807,7 @@
     // Logout
     async function logout() {
         await supabase.auth.signOut();
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminEmail');
-        localStorage.removeItem('adminName');
-        window.location.href = '/admin-login.html';
+        window.location.href = '/login.html';
     }
     
     function escapeHtml(str) {
@@ -716,6 +820,22 @@
         });
     }
     
+    // Mobile menu
+    function initMobileMenu() {
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        
+        menuBtn?.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!sidebar.contains(e.target) && e.target !== menuBtn) {
+                sidebar.classList.remove('active');
+            }
+        });
+    }
+    
     // Event Listeners
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => showSection(item.dataset.section));
@@ -724,9 +844,24 @@
     document.getElementById('logoutBtn').addEventListener('click', logout);
     document.getElementById('saveCourseBtn').addEventListener('click', saveCourse);
     document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+    document.getElementById('addCourseBtn').addEventListener('click', () => {
+        document.getElementById('modalTitle').textContent = 'Add New Course';
+        document.getElementById('courseId').value = '';
+        document.getElementById('courseName').value = '';
+        document.getElementById('courseDesc').value = '';
+        document.getElementById('courseType').value = 'free';
+        document.getElementById('coursePrice').value = '0';
+        document.getElementById('courseDuration').value = '4';
+        document.getElementById('courseLevel').value = 'Beginner';
+        document.getElementById('courseModal').classList.add('active');
+    });
+    document.getElementById('dashboardAddCourseBtn').addEventListener('click', () => {
+        document.getElementById('addCourseBtn').click();
+    });
     
     // Initialize
     async function init() {
+        initMobileMenu();
         const isAdmin = await checkAdminAuth();
         if (isAdmin) {
             await loadDashboard();
