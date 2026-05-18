@@ -33,7 +33,6 @@
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/index.css">
     
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -224,7 +223,7 @@
         }
         .overlay.active { display: block; }
         
-        /* Hero Section - FIXED CENTERING */
+        /* Hero Section */
         .hero {
             min-height: 100vh;
             width: 100%;
@@ -246,14 +245,8 @@
             animation: fadeInUp 0.8s ease;
         }
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .hero h1 {
             font-size: 3.5rem;
@@ -487,44 +480,6 @@
             50% { opacity: 0.8; }
         }
         
-        /* Modal */
-        .modal-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); z-index: 3000; display: none; 
-            justify-content: center; align-items: center; backdrop-filter: blur(4px);
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-content { 
-            background: var(--dark-navy); border-radius: 24px; padding: 2rem; 
-            width: 90%; max-width: 420px; border: 1px solid var(--neon-green); 
-            text-align: center; animation: modalSlideIn 0.3s ease;
-        }
-        @keyframes modalSlideIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .modal-content h2 { margin-bottom: 1.5rem; font-size: 1.5rem; }
-        .modal-content input { 
-            width: 100%; padding: 12px; margin: 10px 0; 
-            background: var(--secondary-dark); border: 1px solid rgba(0,255,136,0.2); 
-            border-radius: 12px; color: var(--white); font-size: 1rem; 
-        }
-        .modal-content input:focus { outline: none; border-color: var(--neon-green); }
-        .modal-content button { 
-            width: 100%; padding: 12px; background: var(--neon-green); 
-            color: var(--dark-navy); border: none; border-radius: 12px; 
-            font-weight: bold; cursor: pointer; margin-top: 10px; 
-        }
-        .modal-close { background: var(--secondary-dark) !important; color: var(--white) !important; border: 1px solid var(--soft-gray) !important; }
-        .modal-error { color: var(--error); font-size: 0.85rem; margin: 10px 0; display: none; }
-        
-        /* Mobile Modal Adjustments */
-        @media (max-width: 480px) {
-            .modal-content { padding: 1.5rem; margin: 1rem; width: calc(100% - 2rem); }
-            .modal-content h2 { font-size: 1.25rem; }
-            .modal-content input { padding: 10px; font-size: 0.9rem; }
-        }
-        
         footer {
             background: var(--dark-navy);
             text-align: center;
@@ -534,7 +489,6 @@
             margin-top: 2rem;
         }
         
-        /* General Responsive */
         @media (max-width: 768px) {
             .hero { background-attachment: scroll; }
         }
@@ -543,8 +497,6 @@
                 animation-duration: 0.01ms !important;
                 transition-duration: 0.01ms !important;
             }
-            .hero { background-attachment: scroll; }
-            .course-card::before { display: none; }
         }
     </style>
 </head>
@@ -597,7 +549,7 @@
     </div>
 </div>
 
-<!-- HERO SECTION - FIXED CENTERING -->
+<!-- HERO SECTION -->
 <section class="hero">
     <div class="hero-content">
         <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
@@ -622,297 +574,234 @@
 <section class="container" id="courses">
     <h2 class="section-title">Our <span>Courses</span></h2>
     <div id="coursesContainer" class="courses-grid">
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
+        <!-- Skeleton loaders will be replaced -->
     </div>
 </section>
-
-<!-- LOGIN MODAL -->
-<div id="loginModal" class="modal-overlay">
-    <div class="modal-content">
-        <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
-        <div id="modalError" class="modal-error"></div>
-        <input type="email" id="loginEmail" placeholder="Email address" required autocomplete="email">
-        <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
-        <button id="loginSubmitBtn">Login</button>
-        <button class="modal-close" id="closeLoginModal">Close</button>
-        <div style="margin-top: 1rem;">
-            <a href="/reset-password.html" style="color: var(--neon-green); font-size: 0.85rem;">Forgot Password?</a>
-        </div>
-    </div>
-</div>
 
 <footer>
     <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training</p>
     <p style="margin-top: 0.5rem; font-size: 0.8rem;"><i class="fas fa-shield-alt"></i> Kenya's Premier Driving School</p>
 </footer>
 
-<script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-    
+<script>
+    // Direct Supabase initialization (non-module for compatibility)
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    let currentUser = null;
-    let allCourses = [];
+    // Load Supabase from CDN
+    const supabaseScript = document.createElement('script');
+    supabaseScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    supabaseScript.onload = () => {
+        const { createClient } = window.supabase;
+        initApp(createClient(SUPABASE_URL, SUPABASE_KEY));
+    };
+    document.head.appendChild(supabaseScript);
     
-    const toast = document.getElementById('toast');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const coursesContainer = document.getElementById('coursesContainer');
-    const totalCoursesSpan = document.getElementById('totalCourses');
-    const loginModal = document.getElementById('loginModal');
-    const authLinks = document.getElementById('authLinks');
-    const userInfo = document.getElementById('userInfoNav');
-    const userNameSpan = document.getElementById('userNameDisplay');
-    const mobileAuthLinks = document.getElementById('mobileAuthLinks');
-    const mobileUserInfo = document.getElementById('mobileUserInfo');
-    const mobileUserName = document.getElementById('mobileUserName');
-    
-    function showToast(message, isError = false) {
-        toast.textContent = message;
-        toast.className = `toast ${isError ? 'error' : ''}`;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 4000);
-    }
-    
-    function setLoading(loading) {
-        loading ? loadingSpinner.classList.add('active') : loadingSpinner.classList.remove('active');
-    }
-    
-    function validateEmail(email) {
-        const re = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
-        return re.test(String(email).toLowerCase());
-    }
-    
-    async function updateAuthUI() {
-        const { data: { session } } = await supabase.auth.getSession();
-        currentUser = session?.user || null;
+    function initApp(supabase) {
+        let currentUser = null;
         
-        if (currentUser) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', currentUser.id)
-                .single();
-            const displayName = profile?.full_name || currentUser.email.split('@')[0];
-            
-            if (authLinks) authLinks.style.display = 'none';
-            if (userInfo) userInfo.style.display = 'flex';
-            if (userNameSpan) userNameSpan.textContent = displayName;
-            if (mobileAuthLinks) mobileAuthLinks.style.display = 'none';
-            if (mobileUserInfo) mobileUserInfo.style.display = 'block';
-            if (mobileUserName) mobileUserName.textContent = displayName;
-        } else {
-            if (authLinks) authLinks.style.display = 'flex';
-            if (userInfo) userInfo.style.display = 'none';
-            if (mobileAuthLinks) mobileAuthLinks.style.display = 'block';
-            if (mobileUserInfo) mobileUserInfo.style.display = 'none';
+        const toast = document.getElementById('toast');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const coursesContainer = document.getElementById('coursesContainer');
+        const totalCoursesSpan = document.getElementById('totalCourses');
+        const authLinks = document.getElementById('authLinks');
+        const userInfo = document.getElementById('userInfoNav');
+        const userNameSpan = document.getElementById('userNameDisplay');
+        const mobileAuthLinks = document.getElementById('mobileAuthLinks');
+        const mobileUserInfo = document.getElementById('mobileUserInfo');
+        const mobileUserName = document.getElementById('mobileUserName');
+        
+        function showToast(message, isError = false) {
+            toast.textContent = message;
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
         }
-    }
-    
-    async function loadCourses() {
-        setLoading(true);
-        try {
-            const { data, error } = await supabase
-                .from('courses')
-                .select('id, name, description, type, price, icon, duration, level')
-                .order('id', { ascending: true })
-                .limit(8);
+        
+        function setLoading(loading) {
+            loading ? loadingSpinner.classList.add('active') : loadingSpinner.classList.remove('active');
+        }
+        
+        async function updateAuthUI() {
+            const { data: { session } } = await supabase.auth.getSession();
+            currentUser = session?.user || null;
             
-            if (error) throw error;
-            allCourses = data || [];
-            totalCoursesSpan.textContent = allCourses.length || '8';
-            
-            if (allCourses.length === 0) {
-                displayFallbackCourses();
+            if (currentUser) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', currentUser.id)
+                    .single();
+                const displayName = profile?.full_name || currentUser.email.split('@')[0];
+                
+                if (authLinks) authLinks.style.display = 'none';
+                if (userInfo) userInfo.style.display = 'flex';
+                if (userNameSpan) userNameSpan.textContent = displayName;
+                if (mobileAuthLinks) mobileAuthLinks.style.display = 'none';
+                if (mobileUserInfo) mobileUserInfo.style.display = 'block';
+                if (mobileUserName) mobileUserName.textContent = displayName;
             } else {
-                displayCourses(allCourses);
+                if (authLinks) authLinks.style.display = 'flex';
+                if (userInfo) userInfo.style.display = 'none';
+                if (mobileAuthLinks) mobileAuthLinks.style.display = 'block';
+                if (mobileUserInfo) mobileUserInfo.style.display = 'none';
             }
-        } catch (error) {
-            console.error('Error loading courses:', error);
-            showToast('Failed to load courses. Please refresh.', true);
-            displayFallbackCourses();
-        } finally {
-            setLoading(false);
         }
-    }
-    
-    function displayCourses(courses) {
-        coursesContainer.innerHTML = '';
-        const icons = ['🚗', '🚌', '🚸', '⚡', '🛵', '🚛', '📚', '📝'];
         
-        courses.forEach((course, index) => {
-            const isFree = course.type === 'free';
-            const title = course.name || course.title;
-            const desc = course.description || 'Professional driver training course';
-            const price = course.price || 0;
-            const icon = course.icon || icons[index % icons.length];
+        function displayCourses(courses) {
+            coursesContainer.innerHTML = '';
+            const icons = ['🚗', '🚌', '🚸', '⚡', '🛵', '🚛', '📚', '📝'];
             
-            const card = document.createElement('div');
-            card.className = 'course-card';
-            card.onclick = () => window.location.href = `/course.html?id=${course.id}`;
-            
-            card.innerHTML = `
-                <div class="course-icon">${icon}</div>
-                ${!isFree ? '<div class="course-badge">PREMIUM</div>' : ''}
-                <h3>${escapeHtml(title)}</h3>
-                <p>${escapeHtml(desc.substring(0, 80))}...</p>
-                <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${price.toLocaleString()}`}</div>
-                <button class="btn-view">View Course →</button>
+            courses.forEach((course, index) => {
+                const isFree = course.type === 'free';
+                const title = course.name || course.title;
+                const desc = course.description || 'Professional driver training course';
+                const price = course.price || 0;
+                const icon = course.icon || icons[index % icons.length];
+                
+                const card = document.createElement('div');
+                card.className = 'course-card';
+                card.onclick = () => window.location.href = `/course.html?id=${course.id}`;
+                
+                card.innerHTML = `
+                    <div class="course-icon">${icon}</div>
+                    ${!isFree ? '<div class="course-badge">PREMIUM</div>' : ''}
+                    <h3>${escapeHtml(title)}</h3>
+                    <p>${escapeHtml(desc.substring(0, 80))}...</p>
+                    <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${price.toLocaleString()}`}</div>
+                    <button class="btn-view">View Course →</button>
+                `;
+                coursesContainer.appendChild(card);
+            });
+        }
+        
+        function displayFallbackCourses() {
+            const fallbackCourses = [
+                { id: 1, name: 'Learner Hub', description: 'Complete NTSA-approved driver training', type: 'premium', price: 5000, icon: '🚗' },
+                { id: 2, name: 'PSV Training', description: 'Specialized training for bus/taxi drivers', type: 'premium', price: 7500, icon: '🚌' },
+                { id: 3, name: 'School Bus/Van', description: 'Safety training for school transport', type: 'premium', price: 6500, icon: '🚸' },
+                { id: 4, name: 'EV Vehicle Course', description: 'Master electric vehicle driving', type: 'premium', price: 8000, icon: '⚡' },
+                { id: 5, name: 'Boda Boda', description: 'Professional motorcycle taxi training', type: 'premium', price: 5500, icon: '🛵' },
+                { id: 6, name: 'Professional Driver', description: 'Advanced training for experienced drivers', type: 'premium', price: 7000, icon: '🚛' },
+                { id: 7, name: 'e-Safety Library', description: 'Free road safety resources', type: 'free', price: 0, icon: '📚' },
+                { id: 8, name: 'Quiz Bank', description: '1000+ NTSA practice questions', type: 'premium', price: 3000, icon: '📝' }
+            ];
+            totalCoursesSpan.textContent = '8';
+            displayCourses(fallbackCourses);
+            showToast('Using demo courses (RLS policy needed for live data)', true);
+        }
+        
+        async function loadCourses() {
+            setLoading(true);
+            // Show skeleton loaders first
+            coursesContainer.innerHTML = `
+                <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
+                <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
+                <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
+                <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
             `;
-            coursesContainer.appendChild(card);
+            
+            try {
+                const { data, error } = await supabase
+                    .from('courses')
+                    .select('id, name, description, type, price, icon, duration, level')
+                    .order('id', { ascending: true })
+                    .limit(8);
+                
+                if (error) {
+                    console.error('Supabase error:', error);
+                    if (error.message.includes('row-level security') || error.message.includes('permission')) {
+                        showToast('RLS policy missing. Using demo courses.', true);
+                    }
+                    displayFallbackCourses();
+                } else if (data && data.length > 0) {
+                    totalCoursesSpan.textContent = data.length.toString();
+                    displayCourses(data);
+                } else {
+                    displayFallbackCourses();
+                }
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                displayFallbackCourses();
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+        
+        async function logout() {
+            setLoading(true);
+            await supabase.auth.signOut();
+            setLoading(false);
+            showToast('Logged out successfully');
+            await updateAuthUI();
+            window.location.href = '/';
+        }
+        
+        function initMobileMenu() {
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            const closeBtn = document.getElementById('mobileNavClose');
+            const mobileNav = document.getElementById('mobileNav');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            const openMenu = () => {
+                mobileNav.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            };
+            const closeMenu = () => {
+                mobileNav.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            };
+            
+            if (menuBtn) menuBtn.addEventListener('click', openMenu);
+            if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+            if (overlay) overlay.addEventListener('click', closeMenu);
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+        }
+        
+        // Event Listeners
+        document.getElementById('loginBtnNav')?.addEventListener('click', () => {
+            window.location.href = '/login.html';
         });
-    }
-    
-    function displayFallbackCourses() {
-        const fallbackCourses = [
-            { id: 1, name: 'Learner Hub', description: 'Complete NTSA-approved driver training', type: 'premium', price: 5000, icon: '🚗' },
-            { id: 2, name: 'PSV Training', description: 'Specialized training for bus/taxi drivers', type: 'premium', price: 7500, icon: '🚌' },
-            { id: 3, name: 'School Bus/Van', description: 'Safety training for school transport', type: 'premium', price: 6500, icon: '🚸' },
-            { id: 4, name: 'EV Vehicle Course', description: 'Master electric vehicle driving', type: 'premium', price: 8000, icon: '⚡' },
-            { id: 5, name: 'Boda Boda', description: 'Professional motorcycle taxi training', type: 'premium', price: 5500, icon: '🛵' },
-            { id: 6, name: 'Professional Driver', description: 'Advanced training for experienced drivers', type: 'premium', price: 7000, icon: '🚛' },
-            { id: 7, name: 'e-Safety Library', description: 'Free road safety resources', type: 'free', price: 0, icon: '📚' },
-            { id: 8, name: 'Quiz Bank', description: '1000+ NTSA practice questions', type: 'premium', price: 3000, icon: '📝' }
-        ];
-        totalCoursesSpan.textContent = '8';
-        displayCourses(fallbackCourses);
-    }
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-    }
-    
-    async function handleLogin(email, password) {
-        if (!validateEmail(email)) {
-            showToast('Invalid email format', true);
-            return false;
-        }
-        if (!password || password.length < 6) {
-            showToast('Password must be at least 6 characters', true);
-            return false;
-        }
         
-        setLoading(true);
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        setLoading(false);
+        document.getElementById('registerBtnNav')?.addEventListener('click', () => {
+            window.location.href = '/register.html';
+        });
         
-        if (error) {
-            showToast(error.message === 'Invalid login credentials' ? 'Invalid email or password' : error.message, true);
-            return false;
-        }
+        document.getElementById('mobileLoginBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = '/login.html';
+        });
         
-        showToast('Login successful!');
-        closeModal();
-        await updateAuthUI();
-        setTimeout(() => { window.location.href = '/dashboard.html'; }, 500);
-        return true;
-    }
-    
-    async function logout() {
-        setLoading(true);
-        await supabase.auth.signOut();
-        setLoading(false);
-        showToast('Logged out successfully');
-        await updateAuthUI();
-        window.location.href = '/';
-    }
-    
-    function openModal() {
-        loginModal.classList.add('active');
-        document.getElementById('loginEmail').focus();
-        document.body.style.overflow = 'hidden';
-    }
-    
-    function closeModal() {
-        loginModal.classList.remove('active');
-        const errorDiv = document.getElementById('modalError');
-        if (errorDiv) errorDiv.style.display = 'none';
-        document.body.style.overflow = '';
-    }
-    
-    function initMobileMenu() {
-        const menuBtn = document.getElementById('mobileMenuBtn');
-        const closeBtn = document.getElementById('mobileNavClose');
-        const mobileNav = document.getElementById('mobileNav');
-        const overlay = document.getElementById('mobileOverlay');
+        document.getElementById('mobileRegisterBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = '/register.html';
+        });
         
-        const openMenu = () => {
-            mobileNav.classList.add('active');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        };
-        const closeMenu = () => {
-            mobileNav.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        };
+        document.getElementById('heroGetStarted')?.addEventListener('click', () => {
+            window.location.href = '/register.html';
+        });
         
-        menuBtn.addEventListener('click', openMenu);
-        closeBtn.addEventListener('click', closeMenu);
-        overlay.addEventListener('click', closeMenu);
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+        document.getElementById('logoutBtnNav')?.addEventListener('click', logout);
+        document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+        
+        // Initialize
+        initMobileMenu();
+        updateAuthUI();
+        loadCourses();
+        
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange(() => { updateAuthUI(); });
     }
-    
-    // FIXED: All buttons properly connected
-    document.getElementById('loginBtnNav')?.addEventListener('click', () => {
-        window.location.href = '/login.html';
-    });
-    
-    document.getElementById('registerBtnNav')?.addEventListener('click', () => {
-        window.location.href = '/register.html';
-    });
-    
-    document.getElementById('mobileLoginBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = '/login.html';
-    });
-    
-    document.getElementById('mobileRegisterBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = '/register.html';
-    });
-    
-    // Get Started button now goes to Register (consistent)
-    document.getElementById('heroGetStarted')?.addEventListener('click', () => {
-        window.location.href = '/register.html';
-    });
-    
-    document.getElementById('logoutBtnNav')?.addEventListener('click', logout);
-    document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        logout();
-    });
-    document.getElementById('closeLoginModal')?.addEventListener('click', closeModal);
-    
-    document.getElementById('loginSubmitBtn')?.addEventListener('click', async () => {
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        const errorDiv = document.getElementById('modalError');
-        
-        if (!email || !password) {
-            if (errorDiv) { errorDiv.textContent = 'Please enter both email and password'; errorDiv.style.display = 'block'; }
-            return;
-        }
-        if (errorDiv) errorDiv.style.display = 'none';
-        await handleLogin(email, password);
-    });
-    
-    document.getElementById('loginPassword')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') document.getElementById('loginSubmitBtn')?.click();
-    });
-    
-    loginModal?.addEventListener('click', (e) => { if (e.target === loginModal) closeModal(); });
-    
-    supabase.auth.onAuthStateChange(() => { updateAuthUI(); });
-    
-    initMobileMenu();
-    updateAuthUI();
-    loadCourses();
 </script>
 </body>
 </html>
