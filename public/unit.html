@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unit - MEI Drive Africa</title>
+    <title>Unit Content - MEI Drive Africa</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -22,7 +23,7 @@
         }
         .navbar {
             background: var(--dark-navy);
-            padding: 1rem 2rem;
+            padding: 0.8rem 1.5rem;
             position: fixed;
             top: 0;
             width: 100%;
@@ -31,7 +32,7 @@
         .container {
             max-width: 900px;
             margin: auto;
-            padding: 100px 2rem 2rem;
+            padding: 100px 20px 40px;
         }
         .unit-content {
             background: var(--dark-navy);
@@ -43,22 +44,6 @@
             color: var(--neon-green);
             margin: 1rem 0;
         }
-        .unit-content p {
-            margin: 0.5rem 0;
-        }
-        .unit-content ul, .unit-content ol {
-            padding-left: 2rem;
-            margin: 0.5rem 0;
-        }
-        .unit-content li {
-            margin: 0.25rem 0;
-        }
-        .unit-content pre {
-            background: var(--secondary-dark);
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-        }
         .btn-back {
             background: transparent;
             border: 1px solid var(--neon-green);
@@ -67,6 +52,9 @@
             border-radius: 30px;
             cursor: pointer;
             margin-bottom: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         .loading {
             text-align: center;
@@ -82,67 +70,62 @@
             margin: 0 auto;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) {
-            .unit-content { padding: 1rem; }
-            .container { padding: 80px 1rem 1rem; }
-        }
     </style>
 </head>
 <body>
-    <nav class="navbar"><div style="max-width:1200px;margin:auto;"><div style="font-size:1.5rem;color:var(--neon-green);">MEI DRIVE AFRICA</div></div></nav>
-    <div class="container" id="container"><div class="loading"><div class="spinner"></div><p>Loading unit...</p></div></div>
+    <nav class="navbar"><div style="max-width:1200px;margin:auto;"><div style="font-size:1.3rem;color:var(--neon-green);">MEI DRIVE AFRICA</div></div></nav>
+    <div class="container" id="container"><div class="loading"><div class="spinner"></div><p>Loading unit content...</p></div></div>
     <script>
         const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
         const urlParams = new URLSearchParams(window.location.search);
-        const courseId = urlParams.get('course_id') || 1;
+        const courseId = urlParams.get('course_id');
         const unitNumber = urlParams.get('unit');
         
         async function loadUnit() {
             const container = document.getElementById('container');
             
-            const { data: unit, error } = await supabase
-                .from('course_units')
-                .select('*')
-                .eq('course_id', courseId)
-                .eq('unit_number', unitNumber)
-                .single();
-            
-            if (error || !unit) {
-                container.innerHTML = '<div class="loading">Unit not found</div>';
+            if (!courseId || !unitNumber) {
+                container.innerHTML = '<div class="loading">Invalid unit. <button class="btn-back" onclick="history.back()">Go Back</button></div>';
                 return;
             }
             
-            // Convert markdown-style content to HTML
-            let content = unit.content || '';
-            content = content.replace(/^# (.*$)/gm, '<h1>$1</h1>');
-            content = content.replace(/^## (.*$)/gm, '<h2>$1</h2>');
-            content = content.replace(/^### (.*$)/gm, '<h3>$1</h3>');
-            content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            content = content.replace(/\n- (.*$)/gm, '<li>$1</li>');
-            content = content.replace(/<li>(.*?)<\/li>/gs, '<ul>$&</ul>');
-            content = content.replace(/\n\d\. (.*$)/gm, '<li>$1</li>');
-            content = content.replace(/\n\n/g, '</p><p>');
-            content = '<p>' + content + '</p>';
-            
-            container.innerHTML = `
-                <button class="btn-back" onclick="history.back()">← Back to Course</button>
-                <div class="unit-content">
-                    <div style="color:var(--neon-green); margin-bottom:1rem;">Unit ${unit.unit_number}</div>
-                    <h1>${unit.title}</h1>
-                    ${content}
-                    ${unit.key_points ? `
-                        <div style="background:var(--secondary-dark); padding:1rem; border-radius:12px; margin-top:2rem;">
-                            <h3>📌 Key Takeaways</h3>
-                            <ul>
-                                ${unit.key_points.map(point => `<li>${point}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
+            try {
+                const { data: unit, error } = await supabase
+                    .from('course_units')
+                    .select('*')
+                    .eq('course_id', courseId)
+                    .eq('unit_number', unitNumber)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (!unit) {
+                    container.innerHTML = '<div class="loading">Unit not found.<button class="btn-back" onclick="history.back()">Go Back</button></div>';
+                    return;
+                }
+                
+                let content = unit.content || 'Content coming soon...';
+                content = content.replace(/\n/g, '<br>');
+                
+                container.innerHTML = `
+                    <button class="btn-back" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back to Materials</button>
+                    <div class="unit-content">
+                        <div style="color:var(--neon-green); margin-bottom:1rem;">Unit ${unit.unit_number}</div>
+                        <h1>${escapeHtml(unit.title)}</h1>
+                        <div>${content}</div>
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = `<div class="loading">Error loading unit: ${error.message}<button class="btn-back" onclick="history.back()">Go Back</button></div>`;
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
         }
         
         loadUnit();
