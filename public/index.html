@@ -290,7 +290,6 @@
         <div class="nav-links">
             <a href="#">Home</a>
             <a href="#courses">Courses</a>
-            <a href="/admin-login.html" style="color: #ff9800;">Admin</a>
             <div id="authLinks">
                 <button class="nav-btn" id="loginBtnNav">Login</button>
                 <button class="nav-btn" id="registerBtnNav">Register</button>
@@ -314,7 +313,6 @@
     <div class="mobile-nav-links">
         <a href="#">Home</a>
         <a href="#courses">Courses</a>
-        <a href="/admin-login.html" style="color: #ff9800;">Admin</a>
         <div id="mobileAuthLinks">
             <a href="#" id="mobileLoginBtn">Login</a>
             <a href="#" id="mobileRegisterBtn">Register</a>
@@ -351,7 +349,6 @@
 <section class="container" id="courses">
     <h2 class="section-title">Our <span>Courses</span></h2>
     <div id="coursesContainer" class="courses-grid">
-        <!-- Skeleton loaders -->
         <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
         <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
         <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
@@ -382,17 +379,13 @@
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
     
-    // Supabase Configuration
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
-    
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    // Global state
     let currentUser = null;
     let allCourses = [];
     
-    // DOM Elements
     const toast = document.getElementById('toast');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const coursesContainer = document.getElementById('coursesContainer');
@@ -405,7 +398,6 @@
     const mobileUserInfo = document.getElementById('mobileUserInfo');
     const mobileUserName = document.getElementById('mobileUserName');
     
-    // Toast function
     function showToast(message, isError = false) {
         toast.textContent = message;
         toast.className = `toast ${isError ? 'error' : ''}`;
@@ -413,18 +405,15 @@
         setTimeout(() => toast.classList.remove('show'), 4000);
     }
     
-    // Loading spinner
     function setLoading(loading) {
         loading ? loadingSpinner.classList.add('active') : loadingSpinner.classList.remove('active');
     }
     
-    // Validate email
     function validateEmail(email) {
         const re = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
         return re.test(String(email).toLowerCase());
     }
     
-    // Update UI based on auth state
     async function updateAuthUI() {
         const { data: { session } } = await supabase.auth.getSession();
         currentUser = session?.user || null;
@@ -451,7 +440,6 @@
         }
     }
     
-    // Load courses from Supabase
     async function loadCourses() {
         setLoading(true);
         try {
@@ -526,7 +514,6 @@
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
-    // Login handler
     async function handleLogin(email, password) {
         if (!validateEmail(email)) {
             showToast('Invalid email format', true);
@@ -553,7 +540,6 @@
         return true;
     }
     
-    // Logout
     async function logout() {
         setLoading(true);
         await supabase.auth.signOut();
@@ -563,7 +549,6 @@
         window.location.href = '/';
     }
     
-    // Modal functions
     function openModal() {
         loginModal.classList.add('active');
         document.getElementById('loginEmail').focus();
@@ -577,7 +562,6 @@
         document.body.style.overflow = '';
     }
     
-    // Mobile menu
     function initMobileMenu() {
         const menuBtn = document.getElementById('mobileMenuBtn');
         const closeBtn = document.getElementById('mobileNavClose');
@@ -601,7 +585,7 @@
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
     }
     
-    // Event listeners - FIXED CONNECTIONS
+    // FIXED: All buttons properly connected
     document.getElementById('loginBtnNav')?.addEventListener('click', () => {
         window.location.href = '/login.html';
     });
@@ -620,7 +604,7 @@
         window.location.href = '/register.html';
     });
     
-    // Get Started button - goes to register page (not login modal)
+    // Get Started button now goes to Register (consistent)
     document.getElementById('heroGetStarted')?.addEventListener('click', () => {
         window.location.href = '/register.html';
     });
@@ -651,10 +635,8 @@
     
     loginModal?.addEventListener('click', (e) => { if (e.target === loginModal) closeModal(); });
     
-    // Supabase auth listener
     supabase.auth.onAuthStateChange(() => { updateAuthUI(); });
     
-    // Initialize
     initMobileMenu();
     updateAuthUI();
     loadCourses();
