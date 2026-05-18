@@ -1,101 +1,264 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Admin Quick Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - MEI Drive Africa</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: monospace; padding: 20px; background: #0A234F; color: white; }
-        .success { color: #00FF88; }
-        .error { color: #ff4444; }
-        pre { background: #041B3D; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-container {
+            background: #0f3460;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(0,255,136,0.2);
+        }
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #00FF88;
+            margin-bottom: 10px;
+        }
+        .admin-badge {
+            background: #00FF88;
+            color: #0f3460;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 30px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #B7C4D6;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid rgba(0,255,136,0.2);
+            border-radius: 12px;
+            font-size: 16px;
+            background: #1a1a2e;
+            color: white;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #00FF88;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #00FF88;
+            color: #0f3460;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,255,136,0.3);
+        }
+        .error {
+            color: #ff4444;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255,68,68,0.1);
+            border-radius: 8px;
+            display: none;
+        }
+        .success {
+            color: #00FF88;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0,255,136,0.1);
+            border-radius: 8px;
+            display: none;
+        }
+        .back-home {
+            margin-top: 20px;
+            display: inline-block;
+            color: #B7C4D6;
+            text-decoration: none;
+        }
+        .back-home:hover {
+            color: #00FF88;
+        }
+        @media (max-width: 480px) {
+            .login-container { padding: 30px 20px; }
+        }
     </style>
 </head>
 <body>
-    <h1>Admin Login Diagnostic</h1>
-    <div id="result">Running diagnostics...</div>
+    <div class="login-container">
+        <div class="logo">🚗</div>
+        <h2>MEI DRIVE AFRICA</h2>
+        <div class="admin-badge">Administrator Panel</div>
+        
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+        
+        <form id="adminLoginForm">
+            <div class="input-group">
+                <label><i class="fas fa-envelope"></i> Admin Email</label>
+                <input type="email" id="email" placeholder="admin@meidriveafrica.com" required>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" id="loginBtn">Login as Admin</button>
+        </form>
+        
+        <div>
+            <a href="/" class="back-home">← Back to Home</a>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
         
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const resultDiv = document.getElementById('result');
         
-        async function runDiagnostics() {
-            let html = '';
+        const form = document.getElementById('adminLoginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            successDiv.style.display = 'none';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showSuccess(message) {
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 2000);
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            // Test 1: Try to login
-            html += '<h3>1. Attempting Login...</h3>';
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: 'admin@meidriveafrica.com',
-                password: 'Admin@2026'
-            });
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
             
-            if (error) {
-                html += `<div class="error">❌ Login Failed: ${error.message}</div>`;
-                html += `<div class="error">This means the user does not exist or password is wrong.</div>`;
-                resultDiv.innerHTML = html;
+            if (!email || !password) {
+                showError('Please enter both email and password');
                 return;
             }
             
-            html += `<div class="success">✅ Login successful! User: ${data.user.email}</div>`;
+            // Disable button during login
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
             
-            // Test 2: Check profile
-            html += '<h3>2. Checking Profile...</h3>';
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', data.user.id)
-                .single();
-            
-            if (profileError) {
-                html += `<div class="error">❌ Profile not found: ${profileError.message}</div>`;
-                html += '<div>Creating profile...</div>';
+            try {
+                // Attempt login
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
                 
-                const { error: insertError } = await supabase
-                    .from('profiles')
-                    .insert({
-                        id: data.user.id,
-                        email: 'admin@meidriveafrica.com',
-                        full_name: 'Super Admin',
-                        role: 'admin'
-                    });
-                
-                if (insertError) {
-                    html += `<div class="error">❌ Failed to create profile: ${insertError.message}</div>`;
-                } else {
-                    html += `<div class="success">✅ Profile created with admin role!</div>`;
+                if (error) {
+                    showError(error.message);
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Login as Admin';
+                    return;
                 }
-            } else {
-                html += `<div class="success">✅ Profile found! Role: ${profile.role}</div>`;
                 
-                if (profile.role !== 'admin') {
-                    html += '<div>Updating role to admin...</div>';
-                    const { error: updateError } = await supabase
+                if (data.user) {
+                    // Check if user has admin role
+                    const { data: profile, error: profileError } = await supabase
                         .from('profiles')
-                        .update({ role: 'admin' })
-                        .eq('id', data.user.id);
+                        .select('role')
+                        .eq('id', data.user.id)
+                        .single();
                     
-                    if (updateError) {
-                        html += `<div class="error">❌ Failed to update role: ${updateError.message}</div>`;
+                    if (profileError) {
+                        showError('Error verifying admin status');
+                        await supabase.auth.signOut();
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Login as Admin';
+                        return;
+                    }
+                    
+                    if (profile?.role === 'admin') {
+                        // Store session
+                        localStorage.setItem('adminToken', data.session.access_token);
+                        localStorage.setItem('adminEmail', email);
+                        
+                        showSuccess('Login successful! Redirecting...');
+                        
+                        setTimeout(() => {
+                            window.location.href = '/admin-dashboard.html';
+                        }, 1000);
                     } else {
-                        html += `<div class="success">✅ Role updated to admin!</div>`;
+                        showError('Access denied. Admin privileges required.');
+                        await supabase.auth.signOut();
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Login as Admin';
                     }
                 }
+            } catch (err) {
+                showError('Network error. Please try again.');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login as Admin';
             }
-            
-            // Test 3: Store session
-            localStorage.setItem('adminToken', data.session.access_token);
-            localStorage.setItem('adminEmail', data.user.email);
-            
-            html += '<h3>3. Ready to Redirect</h3>';
-            html += `<div class="success">✅ You can now access the admin dashboard.</div>`;
-            html += `<div><a href="/admin-dashboard.html" style="color: #00FF88;">→ Go to Admin Dashboard</a></div>`;
-            
-            resultDiv.innerHTML = html;
+        });
+        
+        // Check for existing session
+        const existingToken = localStorage.getItem('adminToken');
+        if (existingToken) {
+            // Verify token is still valid
+            supabase.auth.getUser(existingToken).then(({ data, error }) => {
+                if (!error && data.user) {
+                    window.location.href = '/admin-dashboard.html';
+                } else {
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminEmail');
+                }
+            });
         }
         
-        runDiagnostics();
+        // Pre-fill for convenience (remove in production)
+        emailInput.value = 'admin@meidriveafrica.com';
+        passwordInput.value = 'Admin@2026';
     </script>
 </body>
 </html>
