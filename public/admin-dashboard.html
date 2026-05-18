@@ -21,69 +21,31 @@
             background: var(--secondary-dark);
             color: var(--white);
         }
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100vh;
+        .navbar {
             background: var(--dark-navy);
-            border-right: 1px solid rgba(0,255,136,0.15);
-            padding: 1.5rem;
-        }
-        .sidebar-header {
-            text-align: center;
-            padding-bottom: 1.5rem;
+            padding: 1rem 2rem;
             border-bottom: 1px solid rgba(0,255,136,0.15);
-            margin-bottom: 1.5rem;
-        }
-        .sidebar-header .logo { font-size: 2rem; margin-bottom: 0.5rem; }
-        .sidebar-header h3 { color: var(--neon-green); font-size: 1rem; }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            margin: 5px 0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: var(--soft-gray);
-        }
-        .nav-item:hover, .nav-item.active {
-            background: rgba(0,255,136,0.1);
-            color: var(--neon-green);
-        }
-        .logout-btn {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(255,68,68,0.2);
-            border: 1px solid var(--error);
-            color: var(--error);
-            padding: 12px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .main-content {
-            margin-left: 260px;
-            padding: 1.5rem;
-        }
-        .top-bar {
-            background: var(--dark-navy);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--neon-green); cursor: pointer; }
+        .logo span { color: white; }
+        .logout-btn {
+            background: rgba(255,68,68,0.2);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .container { max-width: 1200px; margin: auto; padding: 2rem; }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
         .stat-card {
             background: var(--dark-navy);
@@ -92,7 +54,7 @@
             text-align: center;
             border: 1px solid rgba(0,255,136,0.15);
         }
-        .stat-card h2 { font-size: 2rem; color: var(--neon-green); }
+        .stat-card h2 { font-size: 2rem; color: var(--neon-green); margin: 0.5rem 0; }
         .section-card {
             background: var(--dark-navy);
             border-radius: 16px;
@@ -116,211 +78,123 @@
             font-size: 0.75rem;
         }
         .badge-success { background: rgba(0,255,136,0.2); color: var(--neon-green); }
-        .badge-warning { background: rgba(255,152,0,0.2); color: #ff9800; }
-        .btn-add {
-            background: var(--neon-green);
-            color: var(--dark-navy);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: var(--dark-navy);
-            border-radius: 16px;
-            padding: 2rem;
-            width: 500px;
-            border: 1px solid var(--neon-green);
-        }
-        .modal-content input, .modal-content select, .modal-content textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background: var(--secondary-dark);
-            border: 1px solid rgba(0,255,136,0.2);
-            border-radius: 8px;
-            color: var(--white);
-        }
-        .modal-buttons { display: flex; gap: 1rem; margin-top: 1rem; }
-        .btn-save { background: var(--neon-green); color: var(--dark-navy); padding: 10px; border: none; border-radius: 8px; cursor: pointer; flex: 1; }
-        .btn-cancel { background: var(--secondary-dark); color: var(--white); border: 1px solid var(--soft-gray); padding: 10px; border-radius: 8px; cursor: pointer; flex: 1; }
-        .action-btn { background: none; border: none; cursor: pointer; margin: 0 5px; }
-        .edit-btn { color: #ff9800; }
-        .delete-btn { color: var(--error); }
+        .loading { text-align: center; padding: 2rem; }
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .main-content { margin-left: 0; }
+            .stats-grid { grid-template-columns: 1fr; }
+            table { display: block; overflow-x: auto; }
         }
     </style>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="logo" onclick="location.href='/'">MEI DRIVE <span>AFRICA</span></div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </nav>
 
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <div class="logo">🚗</div>
-        <h3>MEI DRIVE AFRICA</h3>
-        <p style="font-size: 0.7rem;">Admin Panel</p>
-    </div>
-    <div class="nav-item active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
-    <div class="nav-item" data-section="courses"><i class="fas fa-book"></i> Courses</div>
-    <div class="nav-item" data-section="users"><i class="fas fa-users"></i> Users</div>
-    <div class="nav-item" data-section="enrollments"><i class="fas fa-graduation-cap"></i> Enrollments</div>
-    <div class="nav-item" data-section="payments"><i class="fas fa-credit-card"></i> Payments</div>
-    <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-</div>
-
-<div class="main-content">
-    <div class="top-bar">
-        <div></div>
-        <div><strong id="adminName">Admin</strong> | <span id="adminEmail"></span></div>
-    </div>
-
-    <div id="dashboardSection">
+    <div class="container">
         <div class="stats-grid">
-            <div class="stat-card"><i class="fas fa-book"></i><h2 id="totalCourses">0</h2><p>Courses</p></div>
-            <div class="stat-card"><i class="fas fa-users"></i><h2 id="totalUsers">0</h2><p>Users</p></div>
-            <div class="stat-card"><i class="fas fa-graduation-cap"></i><h2 id="totalEnrollments">0</h2><p>Enrollments</p></div>
-            <div class="stat-card"><i class="fas fa-credit-card"></i><h2 id="totalRevenue">KES 0</h2><p>Revenue</p></div>
+            <div class="stat-card"><h2 id="totalCourses">0</h2><p>Total Courses</p></div>
+            <div class="stat-card"><h2 id="totalUsers">0</h2><p>Total Users</p></div>
+            <div class="stat-card"><h2 id="totalEnrollments">0</h2><p>Enrollments</p></div>
         </div>
+
         <div class="section-card">
             <div class="section-header"><h3>Recent Users</h3></div>
-            <div id="recentUsersList">Loading...</div>
-        </div>
-        <div class="section-card">
-            <div class="section-header"><h3>Recent Enrollments</h3></div>
-            <div id="recentEnrollmentsList">Loading...</div>
+            <div id="usersList">Loading...</div>
         </div>
     </div>
 
-    <div id="coursesSection" style="display: none;">
-        <div class="section-card">
-            <div class="section-header"><h3>All Courses</h3><button class="btn-add" id="addCourseBtn"><i class="fas fa-plus"></i> Add Course</button></div>
-            <div id="coursesList">Loading...</div>
-        </div>
-    </div>
-
-    <div id="usersSection" style="display: none;">
-        <div class="section-card"><div class="section-header"><h3>All Users</h3></div><div id="usersList">Loading...</div></div>
-    </div>
-
-    <div id="enrollmentsSection" style="display: none;">
-        <div class="section-card"><div class="section-header"><h3>All Enrollments</h3></div><div id="enrollmentsList">Loading...</div></div>
-    </div>
-
-    <div id="paymentsSection" style="display: none;">
-        <div class="section-card"><div class="section-header"><h3>Payment History</h3></div><div id="paymentsList">Loading...</div></div>
-    </div>
-</div>
-
-<div id="courseModal" class="modal">
-    <div class="modal-content">
-        <h3 id="modalTitle">Add Course</h3>
-        <input type="hidden" id="courseId">
-        <input type="text" id="courseTitle" placeholder="Course Title">
-        <textarea id="courseDescription" placeholder="Description" rows="3"></textarea>
-        <select id="courseType"><option value="free">Free</option><option value="premium">Premium</option></select>
-        <input type="number" id="coursePrice" placeholder="Price (KES)">
-        <input type="text" id="courseDuration" placeholder="Duration">
-        <select id="courseLevel"><option value="Beginner">Beginner</option><option value="Intermediate">Intermediate</option><option value="Advanced">Advanced</option></select>
-        <div class="modal-buttons"><button class="btn-save" id="saveCourseBtn">Save</button><button class="btn-cancel" id="cancelModalBtn">Cancel</button></div>
-    </div>
-</div>
-
-<script>
-    const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    let currentUser = null;
-
-    async function checkAuth() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { window.location.href = '/admin-login.html'; return; }
-        currentUser = session.user;
-        const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', currentUser.id).single();
-        if (profile?.role !== 'admin') { window.location.href = '/'; return; }
-        document.getElementById('adminName').textContent = profile?.full_name || 'Admin';
-        document.getElementById('adminEmail').textContent = currentUser.email;
-        loadDashboard();
-    }
-
-    async function loadDashboard() {
-        const { count: courses } = await supabase.from('courses').select('*', { count: 'exact', head: true });
-        const { count: users } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-        const { count: enrollments } = await supabase.from('enrollments').select('*', { count: 'exact', head: true });
-        document.getElementById('totalCourses').textContent = courses || 0;
-        document.getElementById('totalUsers').textContent = users || 0;
-        document.getElementById('totalEnrollments').textContent = enrollments || 0;
+    <script>
+        const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
-        const { data: recentUsers } = await supabase.from('profiles').select('full_name, email, created_at').order('created_at', { ascending: false }).limit(5);
-        document.getElementById('recentUsersList').innerHTML = recentUsers?.length ? `<table><thead><tr><th>Name</th><th>Email</th><th>Joined</th></tr></thead><tbody>${recentUsers.map(u => `<tr><td>${u.full_name || 'N/A'}</td><td>${u.email}</td><td>${new Date(u.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>` : '<p>No users found</p>';
-    }
-
-    async function loadCourses() {
-        const { data: courses } = await supabase.from('courses').select('*').order('id');
-        document.getElementById('coursesList').innerHTML = courses?.length ? `<table><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Price</th><th>Actions</th></tr></thead><tbody>${courses.map(c => `<tr><td>${c.id}</td><td>${c.title}</td><td><span class="badge ${c.type === 'free' ? 'badge-success' : 'badge-warning'}">${c.type}</span></td><td>${c.type === 'free' ? 'FREE' : `KES ${c.price}`}</td><td><button class="action-btn edit-btn" onclick="editCourse(${c.id})"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" onclick="deleteCourse(${c.id})"><i class="fas fa-trash"></i></button></td></tr>`).join('')}</tbody></table>` : '<p>No courses</p>';
-    }
-
-    window.editCourse = async (id) => {
-        const { data: c } = await supabase.from('courses').select('*').eq('id', id).single();
-        document.getElementById('modalTitle').textContent = 'Edit Course';
-        document.getElementById('courseId').value = c.id;
-        document.getElementById('courseTitle').value = c.title;
-        document.getElementById('courseDescription').value = c.description || '';
-        document.getElementById('courseType').value = c.type;
-        document.getElementById('coursePrice').value = c.price;
-        document.getElementById('courseDuration').value = c.duration || '';
-        document.getElementById('courseLevel').value = c.level || 'Beginner';
-        document.getElementById('courseModal').classList.add('active');
-    };
-
-    window.deleteCourse = async (id) => {
-        if (confirm('Delete this course?')) await supabase.from('courses').delete().eq('id', id);
-        loadCourses();
-        loadDashboard();
-    };
-
-    document.getElementById('saveCourseBtn').onclick = async () => {
-        const id = document.getElementById('courseId').value;
-        const course = {
-            title: document.getElementById('courseTitle').value,
-            description: document.getElementById('courseDescription').value,
-            type: document.getElementById('courseType').value,
-            price: parseInt(document.getElementById('coursePrice').value) || 0,
-            duration: document.getElementById('courseDuration').value,
-            level: document.getElementById('courseLevel').value
-        };
-        if (id) await supabase.from('courses').update(course).eq('id', id);
-        else await supabase.from('courses').insert([course]);
-        document.getElementById('courseModal').classList.remove('active');
-        loadCourses();
-        loadDashboard();
-    };
-
-    document.getElementById('cancelModalBtn').onclick = () => document.getElementById('courseModal').classList.remove('active');
-    document.getElementById('addCourseBtn').onclick = () => { document.getElementById('modalTitle').textContent = 'Add Course'; document.getElementById('courseForm').reset(); document.getElementById('courseId').value = ''; document.getElementById('courseModal').classList.add('active'); };
-    document.getElementById('logoutBtn').onclick = async () => { await supabase.auth.signOut(); window.location.href = '/admin-login.html'; };
-    document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => {
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        ['dashboard', 'courses', 'users', 'enrollments', 'payments'].forEach(s => document.getElementById(s + 'Section').style.display = 'none');
-        document.getElementById(item.dataset.section + 'Section').style.display = 'block';
-        if (item.dataset.section === 'courses') loadCourses();
-    }));
-
-    checkAuth();
-</script>
+        async function checkAdmin() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return false;
+            }
+            
+            const { data: { user }, error } = await supabase.auth.getUser(token);
+            if (error || !user) {
+                localStorage.removeItem('adminToken');
+                window.location.href = '/admin-login.html';
+                return false;
+            }
+            
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .single();
+            
+            if (profile?.role !== 'admin') {
+                window.location.href = '/admin-login.html';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        async function loadStats() {
+            const { count: courses } = await supabase.from('courses').select('*', { count: 'exact', head: true });
+            const { count: users } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+            const { count: enrollments } = await supabase.from('enrollments').select('*', { count: 'exact', head: true });
+            
+            document.getElementById('totalCourses').textContent = courses || 0;
+            document.getElementById('totalUsers').textContent = users || 0;
+            document.getElementById('totalEnrollments').textContent = enrollments || 0;
+        }
+        
+        async function loadRecentUsers() {
+            const { data: users } = await supabase
+                .from('profiles')
+                .select('full_name, email, created_at, role')
+                .order('created_at', { ascending: false })
+                .limit(5);
+            
+            const usersList = document.getElementById('usersList');
+            if (!users || users.length === 0) {
+                usersList.innerHTML = '<p>No users found</p>';
+                return;
+            }
+            
+            usersList.innerHTML = `
+                <table>
+                    <thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Role</th></tr></thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.full_name || 'N/A'}</td>
+                                <td>${user.email}</td>
+                                <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                                <td><span class="badge badge-success">${user.role || 'learner'}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        async function logout() {
+            await supabase.auth.signOut();
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminEmail');
+            window.location.href = '/admin-login.html';
+        }
+        
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        
+        async function init() {
+            const isAdmin = await checkAdmin();
+            if (isAdmin) {
+                await loadStats();
+                await loadRecentUsers();
+            }
+        }
+        
+        init();
+    </script>
 </body>
 </html>
