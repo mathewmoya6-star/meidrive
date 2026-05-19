@@ -2,316 +2,681 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Admin Dashboard | MEI Drive Africa</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
 <style>
-body{
-    margin:0;
-    font-family:Segoe UI;
-    background:#041B3D;
-    color:#fff;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.sidebar{
-    position:fixed;
-    width:250px;
-    height:100vh;
-    background:#0A234F;
-    padding:20px;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #041B3D;
+    color: #fff;
 }
 
-.sidebar h2{
-    color:#00FF88;
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background: #0A234F;
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 100;
+    transition: transform 0.3s ease;
 }
 
-.sidebar a{
-    display:block;
-    color:#B7C4D6;
-    padding:10px;
-    text-decoration:none;
-    margin-top:10px;
-    border-radius:8px;
+.sidebar h2 {
+    color: #00FF88;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
 }
 
-.sidebar a:hover{
-    background:#00FF88;
-    color:#041B3D;
+.sidebar a {
+    display: block;
+    color: #B7C4D6;
+    padding: 12px;
+    text-decoration: none;
+    margin-top: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.main{
-    margin-left:250px;
-    padding:20px;
+.sidebar a:hover {
+    background: #00FF88;
+    color: #041B3D;
 }
 
-.card{
-    background:#0A234F;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:20px;
+.logout-btn {
+    margin-top: 30px;
+    background: #ff4d4f;
+    color: white;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
 }
 
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
+.logout-btn:hover {
+    background: #ff7875;
+    transform: translateY(-2px);
 }
 
-.stat{
-    background:#041B3D;
-    padding:20px;
-    border-radius:12px;
-    text-align:center;
-    border:1px solid #00FF88;
+/* Mobile menu button */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: #00FF88;
+    color: #041B3D;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    z-index: 101;
+    font-size: 1.2rem;
 }
 
-button{
-    background:#00FF88;
-    border:none;
-    padding:10px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:bold;
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
+/* Main content */
+.main {
+    margin-left: 260px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
 }
 
-th,td{
-    padding:10px;
-    border-bottom:1px solid #333;
+/* Cards */
+.card {
+    background: #0A234F;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
 }
 
-th{
-    color:#00FF88;
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
-.logout{
-    margin-top:20px;
-    background:red;
-    color:white;
+.stat {
+    background: #041B3D;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #00FF88;
+}
+
+.stat h3 {
+    font-size: 2rem;
+    color: #00FF88;
+    margin-bottom: 8px;
+}
+
+.stat p {
+    color: #B7C4D6;
+}
+
+/* Tables */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #1a3a5f;
+}
+
+th {
+    color: #00FF88;
+    font-weight: 600;
+}
+
+/* Loading states */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #00FF88;
+}
+
+.spinner {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(0,255,136,0.3);
+    border-top-color: #00FF88;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #B7C4D6;
+}
+
+/* Buttons */
+.btn-primary {
+    background: #00FF88;
+    color: #041B3D;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,255,136,0.3);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .main {
+        margin-left: 0;
+        padding: 60px 15px 20px 15px;
+    }
+    
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .overlay.active {
+        display: block;
+    }
+    
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+    
+    th {
+        display: none;
+    }
+    
+    td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #1a3a5f;
+    }
+    
+    td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #00FF88;
+        width: 40%;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 </head>
-
 <body>
 
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+    <i class="fas fa-bars"></i>
+</button>
+<div class="overlay" id="overlay"></div>
+
 <!-- SIDEBAR -->
-<div class="sidebar">
-<h2>🚗 MEI ADMIN</h2>
-
-<a href="#" onclick="show('dashboard')">Dashboard</a>
-<a href="#" onclick="show('courses')">Courses</a>
-<a href="#" onclick="show('users')">Users</a>
-<a href="#" onclick="show('enrollments')">Enrollments</a>
-
-<button class="logout" onclick="logout()">Logout</button>
+<div class="sidebar" id="sidebar">
+    <h2>🚗 MEI ADMIN</h2>
+    
+    <a href="javascript:void(0)" onclick="showSection('dashboard')">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+    <a href="javascript:void(0)" onclick="showSection('courses')">
+        <i class="fas fa-book"></i> Courses
+    </a>
+    <a href="javascript:void(0)" onclick="showSection('users')">
+        <i class="fas fa-users"></i> Users
+    </a>
+    <a href="javascript:void(0)" onclick="showSection('enrollments')">
+        <i class="fas fa-graduation-cap"></i> Enrollments
+    </a>
+    
+    <button class="logout-btn" onclick="handleLogout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
 <!-- DASHBOARD -->
-<div id="dashboard">
-
-<h2>Dashboard</h2>
-
-<div class="grid">
-<div class="stat">
-<h3 id="coursesCount">0</h3>
-<p>Courses</p>
-</div>
-
-<div class="stat">
-<h3 id="usersCount">0</h3>
-<p>Users</p>
-</div>
-
-<div class="stat">
-<h3 id="enrollmentsCount">0</h3>
-<p>Enrollments</p>
-</div>
-</div>
-
+<div id="dashboardSection">
+    <h2>Dashboard</h2>
+    <div class="grid" id="statsGrid">
+        <div class="stat">
+            <h3 id="coursesCount">-</h3>
+            <p>Courses</p>
+        </div>
+        <div class="stat">
+            <h3 id="usersCount">-</h3>
+            <p>Users</p>
+        </div>
+        <div class="stat">
+            <h3 id="enrollmentsCount">-</h3>
+            <p>Enrollments</p>
+        </div>
+    </div>
 </div>
 
 <!-- COURSES -->
-<div id="courses" style="display:none">
-<div class="card">
-<h2>Courses</h2>
-<button onclick="loadCourses()">Refresh</button>
-<div id="coursesTable"></div>
-</div>
+<div id="coursesSection" style="display:none">
+    <div class="card">
+        <h2>Courses</h2>
+        <button class="btn-primary" onclick="loadCourses()">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <div id="coursesTable" class="table-wrapper"></div>
+    </div>
 </div>
 
 <!-- USERS -->
-<div id="users" style="display:none">
-<div class="card">
-<h2>Users</h2>
-<div id="usersTable"></div>
-</div>
+<div id="usersSection" style="display:none">
+    <div class="card">
+        <h2>Users</h2>
+        <div id="usersTable" class="table-wrapper"></div>
+    </div>
 </div>
 
 <!-- ENROLLMENTS -->
-<div id="enrollments" style="display:none">
-<div class="card">
-<h2>Enrollments</h2>
-<div id="enrollmentsTable"></div>
-</div>
+<div id="enrollmentsSection" style="display:none">
+    <div class="card">
+        <h2>Enrollments</h2>
+        <div id="enrollmentsTable" class="table-wrapper"></div>
+    </div>
 </div>
 
 </div>
 
 <script>
+// ============================================
+// SUPABASE CONFIGURATION - REAL ANON KEY
+// ============================================
+const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
 
-const supabase = supabase.createClient(
-"https://jeksrwrzzrczamxijvwl.supabase.co",
-"YOUR_SUPABASE_ANON_KEY"
-);
+const { createClient } = window.supabase;
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let user = null;
+// ============================================
+// GLOBAL VARIABLES
+// ============================================
+let currentUser = null;
+let isLoading = false;
 
-/* CHECK ADMIN */
-async function checkAdmin(){
-
-const { data:{ session } } = await supabase.auth.getSession();
-
-if(!session){
-window.location.href = "/admin-login.html";
-return;
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+function escapeHtml(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
-user = session.user;
-
-/* check role */
-const { data:profile } = await supabase
-.from("profiles")
-.select("role")
-.eq("id", user.id)
-.single();
-
-if(profile?.role !== "admin"){
-alert("Not admin");
-await supabase.auth.signOut();
-window.location.href = "/login.html";
+function showLoading(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+    }
 }
 
+// ============================================
+// ADMIN VERIFICATION
+// ============================================
+async function checkAdmin() {
+    try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+            window.location.href = '/admin-login.html';
+            return false;
+        }
+        
+        currentUser = session.user;
+        
+        // Check role from profiles
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', currentUser.id)
+            .single();
+        
+        if (profileError || profile?.role !== 'admin') {
+            console.error('Admin verification failed:', profileError);
+            alert('Access denied. Admin privileges required.');
+            await supabase.auth.signOut();
+            window.location.href = '/login.html';
+            return false;
+        }
+        
+        return true;
+        
+    } catch (err) {
+        console.error('Admin check error:', err);
+        window.location.href = '/admin-login.html';
+        return false;
+    }
 }
 
-/* LOAD STATS */
-async function loadStats(){
-
-const { count: courses } = await supabase.from("courses").select("*", { count:"exact", head:true });
-const { count: users } = await supabase.from("profiles").select("*", { count:"exact", head:true });
-const { count: enrollments } = await supabase.from("enrollments").select("*", { count:"exact", head:true });
-
-document.getElementById("coursesCount").innerText = courses || 0;
-document.getElementById("usersCount").innerText = users || 0;
-document.getElementById("enrollmentsCount").innerText = enrollments || 0;
-
+// ============================================
+// LOAD STATS
+// ============================================
+async function loadStats() {
+    try {
+        const [{ count: courses }, { count: users }, { count: enrollments }] = await Promise.all([
+            supabase.from('courses').select('*', { count: 'exact', head: true }),
+            supabase.from('profiles').select('*', { count: 'exact', head: true }),
+            supabase.from('enrollments').select('*', { count: 'exact', head: true })
+        ]);
+        
+        document.getElementById('coursesCount').innerText = courses || 0;
+        document.getElementById('usersCount').innerText = users || 0;
+        document.getElementById('enrollmentsCount').innerText = enrollments || 0;
+        
+    } catch (err) {
+        console.error('Error loading stats:', err);
+        document.getElementById('coursesCount').innerText = 'Error';
+        document.getElementById('usersCount').innerText = 'Error';
+        document.getElementById('enrollmentsCount').innerText = 'Error';
+    }
 }
 
-/* COURSES */
-async function loadCourses(){
+// ============================================
+// LOAD COURSES
+// ============================================
+async function loadCourses() {
+    if (isLoading) return;
+    isLoading = true;
+    
+    showLoading('coursesTable');
+    
+    try {
+        const { data, error } = await supabase
+            .from('courses')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            document.getElementById('coursesTable').innerHTML = '<div class="empty-state">No courses found</div>';
+            return;
+        }
+        
+        let html = '<table><thead><tr><th>Name</th><th>Type</th><th>Price</th><th>Duration</th><th>Level</th></tr></thead><tbody>';
+        
+        data.forEach(course => {
+            html += `
+                <tr>
+                    <td data-label="Name">${escapeHtml(course.name)}</td>
+                    <td data-label="Type">${escapeHtml(course.type)}</td>
+                    <td data-label="Price">KES ${course.price?.toLocaleString() || 0}</td>
+                    <td data-label="Duration">${escapeHtml(course.duration || 'N/A')}</td>
+                    <td data-label="Level">${escapeHtml(course.level || 'N/A')}</td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table>';
+        document.getElementById('coursesTable').innerHTML = html;
+        
+    } catch (err) {
+        console.error('Error loading courses:', err);
+        document.getElementById('coursesTable').innerHTML = '<div class="empty-state error">Error loading courses</div>';
+    } finally {
+        isLoading = false;
+    }
+}
 
-const { data } = await supabase.from("courses").select("*");
+// ============================================
+// LOAD USERS
+// ============================================
+async function loadUsers() {
+    if (isLoading) return;
+    isLoading = true;
+    
+    showLoading('usersTable');
+    
+    try {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            document.getElementById('usersTable').innerHTML = '<div class="empty-state">No users found</div>';
+            return;
+        }
+        
+        let html = '<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th></tr></thead><tbody>';
+        
+        data.forEach(user => {
+            html += `
+                <tr>
+                    <td data-label="Name">${escapeHtml(user.full_name || 'N/A')}</td>
+                    <td data-label="Email">${escapeHtml(user.email || 'N/A')}</td>
+                    <td data-label="Phone">${escapeHtml(user.phone || 'N/A')}</td>
+                    <td data-label="Role">${escapeHtml(user.role || 'user')}</td>
+                    <td data-label="Joined">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table>';
+        document.getElementById('usersTable').innerHTML = html;
+        
+    } catch (err) {
+        console.error('Error loading users:', err);
+        document.getElementById('usersTable').innerHTML = '<div class="empty-state error">Error loading users</div>';
+    } finally {
+        isLoading = false;
+    }
+}
 
-let html = `<table>
-<tr><th>Name</th><th>Type</th><th>Price</th></tr>`;
+// ============================================
+// LOAD ENROLLMENTS
+// ============================================
+async function loadEnrollments() {
+    if (isLoading) return;
+    isLoading = true;
+    
+    showLoading('enrollmentsTable');
+    
+    try {
+        const { data, error } = await supabase
+            .from('enrollments')
+            .select('*, profiles(full_name), courses(name)')
+            .order('enrolled_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            document.getElementById('enrollmentsTable').innerHTML = '<div class="empty-state">No enrollments found</div>';
+            return;
+        }
+        
+        let html = '<table><thead><tr><th>User</th><th>Course</th><th>Status</th><th>Payment</th><th>Enrolled</th></tr></thead><tbody>';
+        
+        data.forEach(enrollment => {
+            html += `
+                <tr>
+                    <td data-label="User">${escapeHtml(enrollment.profiles?.full_name || 'N/A')}</td>
+                    <td data-label="Course">${escapeHtml(enrollment.courses?.name || 'N/A')}</td>
+                    <td data-label="Status">${escapeHtml(enrollment.status || 'pending')}</td>
+                    <td data-label="Payment">${escapeHtml(enrollment.payment_status || 'pending')}</td>
+                    <td data-label="Enrolled">${enrollment.enrolled_at ? new Date(enrollment.enrolled_at).toLocaleDateString() : 'N/A'}</td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table>';
+        document.getElementById('enrollmentsTable').innerHTML = html;
+        
+    } catch (err) {
+        console.error('Error loading enrollments:', err);
+        document.getElementById('enrollmentsTable').innerHTML = '<div class="empty-state error">Error loading enrollments</div>';
+    } finally {
+        isLoading = false;
+    }
+}
 
-data.forEach(c=>{
-html += `
-<tr>
-<td>${c.name}</td>
-<td>${c.type}</td>
-<td>${c.price}</td>
-</tr>`;
+// ============================================
+// SECTION NAVIGATION
+// ============================================
+function showSection(section) {
+    const sections = ['dashboardSection', 'coursesSection', 'usersSection', 'enrollmentsSection'];
+    
+    sections.forEach(sec => {
+        const element = document.getElementById(sec);
+        if (element) element.style.display = 'none';
+    });
+    
+    document.getElementById(`${section}Section`).style.display = 'block';
+    
+    // Load data based on section
+    if (section === 'dashboard') loadStats();
+    if (section === 'courses') loadCourses();
+    if (section === 'users') loadUsers();
+    if (section === 'enrollments') loadEnrollments();
+    
+    // Close mobile sidebar on selection
+    if (window.innerWidth <= 768) {
+        closeMobileMenu();
+    }
+}
+
+// ============================================
+// LOGOUT
+// ============================================
+async function handleLogout() {
+    try {
+        await supabase.auth.signOut();
+        window.location.href = '/login.html';
+    } catch (err) {
+        console.error('Logout error:', err);
+        window.location.href = '/login.html';
+    }
+}
+
+// ============================================
+// MOBILE MENU
+// ============================================
+function openMobileMenu() {
+    document.getElementById('sidebar').classList.add('active');
+    document.getElementById('overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMobileMenu() {
+    document.getElementById('sidebar').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// ============================================
+// AUTH STATE LISTENER
+// ============================================
+supabase.auth.onAuthStateChange((event, session) => {
+    console.log('Auth event:', event);
+    
+    if (event === 'SIGNED_OUT') {
+        window.location.href = '/login.html';
+    }
+    
+    if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed successfully');
+    }
 });
 
-html += "</table>";
-
-document.getElementById("coursesTable").innerHTML = html;
-
+// ============================================
+// INITIALIZATION
+// ============================================
+async function init() {
+    // Check admin status first
+    const isAdmin = await checkAdmin();
+    if (!isAdmin) return;
+    
+    // Load dashboard stats
+    await loadStats();
+    
+    // Setup mobile menu
+    const menuBtn = document.getElementById('mobileMenuBtn');
+    const overlay = document.getElementById('overlay');
+    
+    if (menuBtn) menuBtn.addEventListener('click', openMobileMenu);
+    if (overlay) overlay.addEventListener('click', closeMobileMenu);
+    
+    // Show dashboard by default
+    showSection('dashboard');
 }
 
-/* USERS */
-async function loadUsers(){
+// Start the app
+init();
 
-const { data } = await supabase.from("profiles").select("*");
-
-let html = `<table>
-<tr><th>Name</th><th>Email</th><th>Role</th></tr>`;
-
-data.forEach(u=>{
-html += `
-<tr>
-<td>${u.full_name || ""}</td>
-<td>${u.email}</td>
-<td>${u.role}</td>
-</tr>`;
-});
-
-html += "</table>";
-
-document.getElementById("usersTable").innerHTML = html;
-
-}
-
-/* ENROLLMENTS */
-async function loadEnrollments(){
-
-const { data } = await supabase
-.from("enrollments")
-.select("*, profiles(full_name), courses(name)");
-
-let html = `<table>
-<tr><th>User</th><th>Course</th><th>Progress</th></tr>`;
-
-data.forEach(e=>{
-html += `
-<tr>
-<td>${e.profiles?.full_name}</td>
-<td>${e.courses?.name}</td>
-<td>${e.progress}%</td>
-</tr>`;
-});
-
-html += "</table>";
-
-document.getElementById("enrollmentsTable").innerHTML = html;
-
-}
-
-/* NAV */
-function show(page){
-
-document.querySelectorAll(".main > div")
-.forEach(d => d.style.display = "none");
-
-document.getElementById(page).style.display = "block";
-
-if(page==="courses") loadCourses();
-if(page==="users") loadUsers();
-if(page==="enrollments") loadEnrollments();
-
-}
-
-/* LOGOUT */
-async function logout(){
-await supabase.auth.signOut();
-window.location.href="/login.html";
-}
-
-/* INIT */
-checkAdmin();
-loadStats();
-
+// Global functions for onclick
+window.showSection = showSection;
+window.loadCourses = loadCourses;
+window.handleLogout = handleLogout;
 </script>
-
 </body>
 </html>
