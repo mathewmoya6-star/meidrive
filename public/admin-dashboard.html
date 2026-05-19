@@ -52,7 +52,7 @@ body {
     cursor: pointer;
 }
 
-.sidebar a:hover {
+.sidebar a:hover, .sidebar a.active {
     background: #00FF88;
     color: #041B3D;
 }
@@ -130,6 +130,7 @@ body {
     border-radius: 12px;
     text-align: center;
     border: 1px solid #00FF88;
+    transition: all 0.3s ease;
 }
 
 .stat h3 {
@@ -190,6 +191,23 @@ th {
     color: #B7C4D6;
 }
 
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.error-state {
+    text-align: center;
+    padding: 40px;
+    color: #ff4d4f;
+}
+
+.error-state i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
 /* Buttons */
 .btn-primary {
     background: #00FF88;
@@ -206,6 +224,43 @@ th {
 .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0,255,136,0.3);
+}
+
+.btn-secondary {
+    background: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* Toast notification */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #0A234F;
+    border-left: 4px solid #00FF88;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+}
+
+.toast.error {
+    border-left-color: #ff4d4f;
+}
+
+.toast.success {
+    border-left-color: #00FF88;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 
 /* Mobile responsive */
@@ -273,16 +328,16 @@ th {
 <div class="sidebar" id="sidebar">
     <h2>🚗 MEI ADMIN</h2>
     
-    <a href="javascript:void(0)" onclick="showSection('dashboard')">
+    <a href="javascript:void(0)" data-section="dashboard" onclick="showSection('dashboard')">
         <i class="fas fa-tachometer-alt"></i> Dashboard
     </a>
-    <a href="javascript:void(0)" onclick="showSection('courses')">
+    <a href="javascript:void(0)" data-section="courses" onclick="showSection('courses')">
         <i class="fas fa-book"></i> Courses
     </a>
-    <a href="javascript:void(0)" onclick="showSection('users')">
+    <a href="javascript:void(0)" data-section="users" onclick="showSection('users')">
         <i class="fas fa-users"></i> Users
     </a>
-    <a href="javascript:void(0)" onclick="showSection('enrollments')">
+    <a href="javascript:void(0)" data-section="enrollments" onclick="showSection('enrollments')">
         <i class="fas fa-graduation-cap"></i> Enrollments
     </a>
     
@@ -316,7 +371,7 @@ th {
 <!-- COURSES -->
 <div id="coursesSection" style="display:none">
     <div class="card">
-        <h2>Courses</h2>
+        <h2>Courses Management</h2>
         <button class="btn-primary" onclick="loadCourses()">
             <i class="fas fa-sync-alt"></i> Refresh
         </button>
@@ -327,7 +382,7 @@ th {
 <!-- USERS -->
 <div id="usersSection" style="display:none">
     <div class="card">
-        <h2>Users</h2>
+        <h2>Users Management</h2>
         <div id="usersTable" class="table-wrapper"></div>
     </div>
 </div>
@@ -344,26 +399,56 @@ th {
 
 <script>
 // ============================================
-// SUPABASE CONFIGURATION - REAL ANON KEY
+// SUPABASE CONFIGURATION
 // ============================================
 const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
 
-const { createClient } = window.supabase;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Safe Supabase initialization with error handling
+let supabase = null;
+try {
+    const { createClient } = window.supabase;
+    if (!createClient) {
+        throw new Error('Supabase not loaded');
+    }
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('Supabase initialized successfully');
+} catch (err) {
+    console.error('Failed to initialize Supabase:', err);
+    alert('Failed to connect to database. Please refresh the page.');
+}
 
 // ============================================
 // GLOBAL VARIABLES
 // ============================================
 let currentUser = null;
-let isLoading = false;
+let loadingStates = {
+    courses: false,
+    users: false,
+    enrollments: false
+};
+
+// ============================================
+// TOAST NOTIFICATION
+// ============================================
+function showToast(message, type = 'info') {
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) existingToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.remove(), 4000);
+}
 
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
 function escapeHtml(str) {
     if (!str) return '';
-    return str
+    return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -378,10 +463,24 @@ function showLoading(containerId) {
     }
 }
 
+function setActiveMenu(section) {
+    document.querySelectorAll('.sidebar a').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-section') === section) {
+            link.classList.add('active');
+        }
+    });
+}
+
 // ============================================
-// ADMIN VERIFICATION
+// ADMIN VERIFICATION (ENHANCED)
 // ============================================
 async function checkAdmin() {
+    if (!supabase) {
+        window.location.href = '/admin-login.html';
+        return false;
+    }
+    
     try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
@@ -392,16 +491,23 @@ async function checkAdmin() {
         
         currentUser = session.user;
         
-        // Check role from profiles
+        // Check role from profiles with proper error handling
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', currentUser.id)
-            .single();
+            .maybeSingle();  // Use maybeSingle() instead of single() to avoid errors
         
-        if (profileError || profile?.role !== 'admin') {
-            console.error('Admin verification failed:', profileError);
-            alert('Access denied. Admin privileges required.');
+        if (profileError) {
+            console.error('Profile fetch error:', profileError);
+            showToast('Error verifying admin privileges', 'error');
+            await supabase.auth.signOut();
+            window.location.href = '/login.html';
+            return false;
+        }
+        
+        if (!profile || profile.role !== 'admin') {
+            showToast('Access denied. Admin privileges required.', 'error');
             await supabase.auth.signOut();
             window.location.href = '/login.html';
             return false;
@@ -417,173 +523,217 @@ async function checkAdmin() {
 }
 
 // ============================================
-// LOAD STATS
+// LOAD STATS (WITH ERROR HANDLING)
 // ============================================
 async function loadStats() {
+    if (!supabase) return;
+    
     try {
-        const [{ count: courses }, { count: users }, { count: enrollments }] = await Promise.all([
+        const [coursesResult, usersResult, enrollmentsResult] = await Promise.all([
             supabase.from('courses').select('*', { count: 'exact', head: true }),
             supabase.from('profiles').select('*', { count: 'exact', head: true }),
             supabase.from('enrollments').select('*', { count: 'exact', head: true })
         ]);
         
-        document.getElementById('coursesCount').innerText = courses || 0;
-        document.getElementById('usersCount').innerText = users || 0;
-        document.getElementById('enrollmentsCount').innerText = enrollments || 0;
+        if (coursesResult.error) throw coursesResult.error;
+        if (usersResult.error) throw usersResult.error;
+        if (enrollmentsResult.error) throw enrollmentsResult.error;
+        
+        document.getElementById('coursesCount').innerText = coursesResult.count || 0;
+        document.getElementById('usersCount').innerText = usersResult.count || 0;
+        document.getElementById('enrollmentsCount').innerText = enrollmentsResult.count || 0;
         
     } catch (err) {
         console.error('Error loading stats:', err);
         document.getElementById('coursesCount').innerText = 'Error';
         document.getElementById('usersCount').innerText = 'Error';
         document.getElementById('enrollmentsCount').innerText = 'Error';
+        showToast('Failed to load statistics', 'error');
     }
 }
 
 // ============================================
-// LOAD COURSES
+// LOAD COURSES (WITH PAGINATION)
 // ============================================
-async function loadCourses() {
-    if (isLoading) return;
-    isLoading = true;
+async function loadCourses(page = 1, limit = 50) {
+    if (loadingStates.courses) return;
+    loadingStates.courses = true;
     
     showLoading('coursesTable');
     
     try {
-        const { data, error } = await supabase
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
+        
+        const { data, error, count } = await supabase
             .from('courses')
-            .select('*')
+            .select('*', { count: 'exact' })
+            .range(from, to)
             .order('created_at', { ascending: false });
         
         if (error) throw error;
         
         if (!data || data.length === 0) {
-            document.getElementById('coursesTable').innerHTML = '<div class="empty-state">No courses found</div>';
+            document.getElementById('coursesTable').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <p>No courses found</p>
+                    <button class="btn-primary" onclick="loadCourses()" style="margin-top: 15px;">Refresh</button>
+                </div>`;
             return;
         }
         
-        let html = '<table><thead><tr><th>Name</th><th>Type</th><th>Price</th><th>Duration</th><th>Level</th></tr></thead><tbody>';
+        let html = `<table><thead>运转<th>Name</th><th>Type</th><th>Price</th><th>Duration</th><th>Level</th></thead><tbody>`;
         
         data.forEach(course => {
-            html += `
-                <tr>
-                    <td data-label="Name">${escapeHtml(course.name)}</td>
-                    <td data-label="Type">${escapeHtml(course.type)}</td>
-                    <td data-label="Price">KES ${course.price?.toLocaleString() || 0}</td>
-                    <td data-label="Duration">${escapeHtml(course.duration || 'N/A')}</td>
-                    <td data-label="Level">${escapeHtml(course.level || 'N/A')}</td>
-                </tr>
-            `;
+            html += `<tr>
+                <td data-label="Name">${escapeHtml(course.name)}</td>
+                <td data-label="Type"><span class="badge ${course.type}">${escapeHtml(course.type)}</span></td>
+                <td data-label="Price">KES ${course.price?.toLocaleString() || 0}</td>
+                <td data-label="Duration">${escapeHtml(course.duration || 'N/A')}</td>
+                <td data-label="Level">${escapeHtml(course.level || 'N/A')}</td>
+            </tr>`;
         });
         
-        html += '</tbody></table>';
+        html += '</tbody>赶';
         document.getElementById('coursesTable').innerHTML = html;
+        
+        if (count > limit) {
+            const pagination = `<div class="pagination">Total: ${count} courses. Showing ${limit} per page.</div>`;
+            document.getElementById('coursesTable').innerHTML += pagination;
+        }
         
     } catch (err) {
         console.error('Error loading courses:', err);
-        document.getElementById('coursesTable').innerHTML = '<div class="empty-state error">Error loading courses</div>';
+        document.getElementById('coursesTable').innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Error loading courses</p>
+                <button class="btn-primary" onclick="loadCourses()" style="margin-top: 15px;">Retry</button>
+            </div>`;
+        showToast('Failed to load courses', 'error');
     } finally {
-        isLoading = false;
+        loadingStates.courses = false;
     }
 }
 
 // ============================================
-// LOAD USERS
+// LOAD USERS (WITH PAGINATION)
 // ============================================
-async function loadUsers() {
-    if (isLoading) return;
-    isLoading = true;
+async function loadUsers(page = 1, limit = 50) {
+    if (loadingStates.users) return;
+    loadingStates.users = true;
     
     showLoading('usersTable');
     
     try {
-        const { data, error } = await supabase
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
+        
+        const { data, error, count } = await supabase
             .from('profiles')
-            .select('*')
+            .select('*', { count: 'exact' })
+            .range(from, to)
             .order('created_at', { ascending: false });
         
         if (error) throw error;
         
         if (!data || data.length === 0) {
-            document.getElementById('usersTable').innerHTML = '<div class="empty-state">No users found</div>';
+            document.getElementById('usersTable').innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>No users found</p></div>';
             return;
         }
         
-        let html = '<table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th></tr></thead><tbody>';
+        let html = `<table><thead>运转<th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th></thead><tbody>`;
         
         data.forEach(user => {
-            html += `
-                <tr>
-                    <td data-label="Name">${escapeHtml(user.full_name || 'N/A')}</td>
-                    <td data-label="Email">${escapeHtml(user.email || 'N/A')}</td>
-                    <td data-label="Phone">${escapeHtml(user.phone || 'N/A')}</td>
-                    <td data-label="Role">${escapeHtml(user.role || 'user')}</td>
-                    <td data-label="Joined">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
-                </tr>
-            `;
+            html += `<tr>
+                <td data-label="Name">${escapeHtml(user.full_name || 'N/A')}</td>
+                <td data-label="Email">${escapeHtml(user.email || 'N/A')}</td>
+                <td data-label="Phone">${escapeHtml(user.phone || 'N/A')}</td>
+                <td data-label="Role"><span class="badge ${user.role}">${escapeHtml(user.role || 'user')}</span></td>
+                <td data-label="Joined">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
+            </tr>`;
         });
         
-        html += '</tbody></table>';
+        html += '</tbody>赶';
         document.getElementById('usersTable').innerHTML = html;
         
     } catch (err) {
         console.error('Error loading users:', err);
-        document.getElementById('usersTable').innerHTML = '<div class="empty-state error">Error loading users</div>';
+        document.getElementById('usersTable').innerHTML = '<div class="error-state"><i class="fas fa-exclamation-triangle"></i><p>Error loading users</p></div>';
+        showToast('Failed to load users', 'error');
     } finally {
-        isLoading = false;
+        loadingStates.users = false;
     }
 }
 
 // ============================================
-// LOAD ENROLLMENTS
+// LOAD ENROLLMENTS (SAFE JOINS)
 // ============================================
 async function loadEnrollments() {
-    if (isLoading) return;
-    isLoading = true;
+    if (loadingStates.enrollments) return;
+    loadingStates.enrollments = true;
     
     showLoading('enrollmentsTable');
     
     try {
-        const { data, error } = await supabase
+        // First get enrollments
+        const { data: enrollments, error: enrollmentsError } = await supabase
             .from('enrollments')
-            .select('*, profiles(full_name), courses(name)')
-            .order('enrolled_at', { ascending: false });
+            .select('*')
+            .order('enrolled_at', { ascending: false })
+            .limit(100);
         
-        if (error) throw error;
+        if (enrollmentsError) throw enrollmentsError;
         
-        if (!data || data.length === 0) {
-            document.getElementById('enrollmentsTable').innerHTML = '<div class="empty-state">No enrollments found</div>';
+        if (!enrollments || enrollments.length === 0) {
+            document.getElementById('enrollmentsTable').innerHTML = '<div class="empty-state"><i class="fas fa-graduation-cap"></i><p>No enrollments found</p></div>';
             return;
         }
         
-        let html = '<table><thead><tr><th>User</th><th>Course</th><th>Status</th><th>Payment</th><th>Enrolled</th></tr></thead><tbody>';
+        // Get related data safely
+        const userIds = [...new Set(enrollments.map(e => e.user_id).filter(Boolean))];
+        const courseIds = [...new Set(enrollments.map(e => e.course_id).filter(Boolean))];
         
-        data.forEach(enrollment => {
-            html += `
-                <tr>
-                    <td data-label="User">${escapeHtml(enrollment.profiles?.full_name || 'N/A')}</td>
-                    <td data-label="Course">${escapeHtml(enrollment.courses?.name || 'N/A')}</td>
-                    <td data-label="Status">${escapeHtml(enrollment.status || 'pending')}</td>
-                    <td data-label="Payment">${escapeHtml(enrollment.payment_status || 'pending')}</td>
-                    <td data-label="Enrolled">${enrollment.enrolled_at ? new Date(enrollment.enrolled_at).toLocaleDateString() : 'N/A'}</td>
-                </tr>
-            `;
+        const [profilesResult, coursesResult] = await Promise.all([
+            userIds.length ? supabase.from('profiles').select('id, full_name').in('id', userIds) : { data: [] },
+            courseIds.length ? supabase.from('courses').select('id, name').in('id', courseIds) : { data: [] }
+        ]);
+        
+        const profiles = profilesResult.data || [];
+        const courses = coursesResult.data || [];
+        
+        const profileMap = Object.fromEntries(profiles.map(p => [p.id, p.full_name]));
+        const courseMap = Object.fromEntries(courses.map(c => [c.id, c.name]));
+        
+        let html = `<table><thead>运转<th>User</th><th>Course</th><th>Status</th><th>Payment</th><th>Enrolled</th></thead><tbody>`;
+        
+        enrollments.forEach(enrollment => {
+            html += `<tr>
+                <td data-label="User">${escapeHtml(profileMap[enrollment.user_id] || 'User not found')}</td>
+                <td data-label="Course">${escapeHtml(courseMap[enrollment.course_id] || 'Course not found')}</td>
+                <td data-label="Status"><span class="badge ${enrollment.status}">${escapeHtml(enrollment.status || 'pending')}</span></td>
+                <td data-label="Payment"><span class="badge payment ${enrollment.payment_status}">${escapeHtml(enrollment.payment_status || 'pending')}</span></td>
+                <td data-label="Enrolled">${enrollment.enrolled_at ? new Date(enrollment.enrolled_at).toLocaleDateString() : 'N/A'}</td>
+            </tr>`;
         });
         
-        html += '</tbody></table>';
+        html += '</tbody>赶';
         document.getElementById('enrollmentsTable').innerHTML = html;
         
     } catch (err) {
         console.error('Error loading enrollments:', err);
-        document.getElementById('enrollmentsTable').innerHTML = '<div class="empty-state error">Error loading enrollments</div>';
+        document.getElementById('enrollmentsTable').innerHTML = '<div class="error-state"><i class="fas fa-exclamation-triangle"></i><p>Error loading enrollments</p></div>';
+        showToast('Failed to load enrollments', 'error');
     } finally {
-        isLoading = false;
+        loadingStates.enrollments = false;
     }
 }
 
 // ============================================
 // SECTION NAVIGATION
 // ============================================
-function showSection(section) {
+async function showSection(section) {
     const sections = ['dashboardSection', 'coursesSection', 'usersSection', 'enrollmentsSection'];
     
     sections.forEach(sec => {
@@ -591,13 +741,24 @@ function showSection(section) {
         if (element) element.style.display = 'none';
     });
     
-    document.getElementById(`${section}Section`).style.display = 'block';
+    const targetSection = document.getElementById(`${section}Section`);
+    if (targetSection) targetSection.style.display = 'block';
+    
+    setActiveMenu(section);
     
     // Load data based on section
-    if (section === 'dashboard') loadStats();
-    if (section === 'courses') loadCourses();
-    if (section === 'users') loadUsers();
-    if (section === 'enrollments') loadEnrollments();
+    if (section === 'dashboard') {
+        await loadStats();
+    }
+    if (section === 'courses') {
+        await loadCourses();
+    }
+    if (section === 'users') {
+        await loadUsers();
+    }
+    if (section === 'enrollments') {
+        await loadEnrollments();
+    }
     
     // Close mobile sidebar on selection
     if (window.innerWidth <= 768) {
@@ -610,7 +771,9 @@ function showSection(section) {
 // ============================================
 async function handleLogout() {
     try {
-        await supabase.auth.signOut();
+        if (supabase) {
+            await supabase.auth.signOut();
+        }
         window.location.href = '/login.html';
     } catch (err) {
         console.error('Logout error:', err);
@@ -622,36 +785,52 @@ async function handleLogout() {
 // MOBILE MENU
 // ============================================
 function openMobileMenu() {
-    document.getElementById('sidebar').classList.add('active');
-    document.getElementById('overlay').classList.add('active');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    if (sidebar) sidebar.classList.add('active');
+    if (overlay) overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeMobileMenu() {
-    document.getElementById('sidebar').classList.remove('active');
-    document.getElementById('overlay').classList.remove('active');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    if (sidebar) sidebar.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
     document.body.style.overflow = '';
 }
 
 // ============================================
 // AUTH STATE LISTENER
 // ============================================
-supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth event:', event);
-    
-    if (event === 'SIGNED_OUT') {
-        window.location.href = '/login.html';
-    }
-    
-    if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed successfully');
-    }
-});
+if (supabase) {
+    supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth event:', event);
+        
+        if (event === 'SIGNED_OUT') {
+            window.location.href = '/login.html';
+        }
+        
+        if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed successfully');
+        }
+        
+        if (event === 'USER_UPDATED') {
+            showToast('Session updated', 'success');
+        }
+    });
+}
 
 // ============================================
 // INITIALIZATION
 // ============================================
 async function init() {
+    // Wait for Supabase
+    if (!supabase) {
+        setTimeout(init, 500);
+        return;
+    }
+    
     // Check admin status first
     const isAdmin = await checkAdmin();
     if (!isAdmin) return;
@@ -666,8 +845,13 @@ async function init() {
     if (menuBtn) menuBtn.addEventListener('click', openMobileMenu);
     if (overlay) overlay.addEventListener('click', closeMobileMenu);
     
+    // Set active menu
+    setActiveMenu('dashboard');
+    
     // Show dashboard by default
-    showSection('dashboard');
+    await showSection('dashboard');
+    
+    console.log('Admin dashboard initialized');
 }
 
 // Start the app
@@ -678,5 +862,69 @@ window.showSection = showSection;
 window.loadCourses = loadCourses;
 window.handleLogout = handleLogout;
 </script>
+
+<style>
+/* Additional badge styles */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge.premium, .badge.admin {
+    background: #00FF88;
+    color: #041B3D;
+}
+
+.badge.free, .badge.user, .badge.student {
+    background: #0A234F;
+    color: #00FF88;
+    border: 1px solid #00FF88;
+}
+
+.badge.active {
+    background: #00C851;
+    color: white;
+}
+
+.badge.pending {
+    background: #ff9800;
+    color: white;
+}
+
+.badge.completed {
+    background: #00C851;
+    color: white;
+}
+
+.badge.cancelled {
+    background: #ff4d4f;
+    color: white;
+}
+
+.badge.payment.completed {
+    background: #00C851;
+    color: white;
+}
+
+.badge.payment.pending {
+    background: #ff9800;
+    color: white;
+}
+
+.badge.payment.failed {
+    background: #ff4d4f;
+    color: white;
+}
+
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+    color: #B7C4D6;
+    font-size: 0.85rem;
+}
+</style>
 </body>
 </html>
