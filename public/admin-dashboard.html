@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Admin Dashboard | MEI Drive Africa</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
@@ -197,7 +197,7 @@
             color: #041B3D;
         }
 
-        .badge.user {
+        .badge.user, .badge.learner {
             background: #0A234F;
             color: #00FF88;
             border: 1px solid #00FF88;
@@ -213,6 +213,18 @@
             background: rgba(255, 152, 0, 0.2);
             color: #ff9800;
             border: 1px solid #ff9800;
+        }
+
+        .badge.premium {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        .badge.free {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00FF88;
+            border: 1px solid #00FF88;
         }
 
         /* Buttons */
@@ -423,13 +435,31 @@
     // SUPABASE CONFIGURATION - CORRECT WAY
     // ============================================
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
     
-    // Initialize Supabase correctly
-    const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Initialize Supabase correctly - FIXED
+    let supabaseClient;
     
-    console.log('Supabase Admin Client initialized');
+    // Wait for Supabase to load
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase Admin Client initialized');
+            init();
+        } else {
+            console.error('Supabase not loaded yet, retrying...');
+            setTimeout(() => {
+                if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('Supabase Admin Client initialized on retry');
+                    init();
+                } else {
+                    console.error('Failed to load Supabase');
+                    document.body.innerHTML = '<div style="padding:50px;text-align:center">Failed to load Supabase. Please check your internet connection.</div>';
+                }
+            }, 1000);
+        }
+    });
     
     // ============================================
     // GLOBAL VARIABLES
@@ -474,6 +504,11 @@
     // CHECK ADMIN AUTHENTICATION
     // ============================================
     async function checkAdminAuth() {
+        if (!supabaseClient) {
+            console.log('Supabase client not ready');
+            return false;
+        }
+        
         try {
             const { data: { session }, error } = await supabaseClient.auth.getSession();
             
@@ -523,6 +558,8 @@
     // LOAD STATS
     // ============================================
     async function loadStats() {
+        if (!supabaseClient) return;
+        
         try {
             const [coursesRes, usersRes, enrollmentsRes] = await Promise.all([
                 supabaseClient.from('courses').select('*', { count: 'exact', head: true }),
@@ -550,6 +587,7 @@
     // LOAD COURSES
     // ============================================
     async function loadCourses() {
+        if (!supabaseClient) return;
         if (loadingStates.courses) return;
         loadingStates.courses = true;
         
@@ -569,7 +607,7 @@
                 return;
             }
             
-            let html = `<table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Price</th><th>Duration</th><th>Level</th></thead><tbody>`;
+            let html = `<table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Price</th><th>Duration</th><th>Level</th></tr></thead><tbody>`;
             
             data.forEach(course => {
                 html += `<tr>
@@ -582,7 +620,7 @@
                 </tr>`;
             });
             
-            html += '</tbody>赶';
+            html += '</tbody></table>';
             container.innerHTML = html;
             
         } catch (err) {
@@ -598,6 +636,7 @@
     // LOAD USERS
     // ============================================
     async function loadUsers() {
+        if (!supabaseClient) return;
         if (loadingStates.users) return;
         loadingStates.users = true;
         
@@ -617,20 +656,19 @@
                 return;
             }
             
-            let html = `<table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th></thead><tbody>`;
+            let html = `<table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead><tbody>`;
             
             data.forEach(user => {
                 html += `<tr>
                     <td data-label="ID">${user.id?.substring(0, 8)}...</td>
                     <td data-label="Name">${escapeHtml(user.full_name || 'N/A')}</td>
                     <td data-label="Email">${escapeHtml(user.email || 'N/A')}</td>
-                    <td data-label="Phone">${escapeHtml(user.phone || 'N/A')}</td>
-                    <td data-label="Role"><span class="badge ${user.role || 'user'}">${escapeHtml(user.role || 'user')}</span></td>
+                    <td data-label="Role"><span class="badge ${user.role || 'user'}">${escapeHtml(user.role || 'learner')}</span></td>
                     <td data-label="Joined">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
                 </tr>`;
             });
             
-            html += '</tbody>赶';
+            html += '</tbody></table>';
             container.innerHTML = html;
             
         } catch (err) {
@@ -646,6 +684,7 @@
     // LOAD ENROLLMENTS
     // ============================================
     async function loadEnrollments() {
+        if (!supabaseClient) return;
         if (loadingStates.enrollments) return;
         loadingStates.enrollments = true;
         
@@ -669,11 +708,9 @@
                 return;
             }
             
-            let html = `社<thead>
-                <tr>
-                    <th>User</th><th>Course</th><th>Status</th><th>Payment</th><th>Progress</th><th>Enrolled</th>
-                </tr>
-            </thead><tbody>`;
+            let html = `<table><thead><tr>
+                    <th>User</th><th>Course</th><th>Status</th><th>Progress</th><th>Enrolled</th>
+                </tr></thead><tbody>`;
             
             data.forEach(enrollment => {
                 const profile = enrollment.profiles;
@@ -683,13 +720,12 @@
                     <td data-label="User">${escapeHtml(profile?.full_name || 'N/A')}<br><small>${escapeHtml(profile?.email || '')}</small></td>
                     <td data-label="Course">${escapeHtml(course?.name || 'N/A')}<br><small>${escapeHtml(course?.type || '')}</small></td>
                     <td data-label="Status"><span class="badge ${enrollment.status || 'pending'}">${escapeHtml(enrollment.status || 'pending')}</span></td>
-                    <td data-label="Payment"><span class="badge ${enrollment.payment_status || 'pending'}">${escapeHtml(enrollment.payment_status || 'pending')}</span></td>
                     <td data-label="Progress">${enrollment.progress || 0}%</td>
                     <td data-label="Enrolled">${enrollment.enrolled_at ? new Date(enrollment.enrolled_at).toLocaleDateString() : 'N/A'}</td>
                 </tr>`;
             });
             
-            html += '</tbody>赶';
+            html += '</tbody></table>';
             container.innerHTML = html;
             
         } catch (err) {
@@ -737,6 +773,8 @@
     // LOGOUT
     // ============================================
     async function handleLogout() {
+        if (!supabaseClient) return;
+        
         try {
             await supabaseClient.auth.signOut();
             window.location.href = 'admin-login.html';
@@ -762,19 +800,14 @@
     }
     
     // ============================================
-    // AUTH STATE LISTENER
-    // ============================================
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-        console.log('Auth event:', event);
-        if (event === 'SIGNED_OUT') {
-            window.location.href = 'admin-login.html';
-        }
-    });
-    
-    // ============================================
     // INITIALIZATION
     // ============================================
     async function init() {
+        if (!supabaseClient) {
+            console.log('Waiting for Supabase client...');
+            return;
+        }
+        
         const isAdmin = await checkAdminAuth();
         if (!isAdmin) return;
         
@@ -788,23 +821,10 @@
         if (overlay) overlay.addEventListener('click', closeMobileMenu);
         
         // Set active menu and show dashboard
-        setActiveMenu('dashboard');
         await showSection('dashboard');
     }
     
-    function setActiveMenu(section) {
-        document.querySelectorAll('.sidebar a').forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('data-section') === section) {
-                link.classList.add('active');
-            }
-        });
-    }
-    
-    // Start the app
-    init();
-    
-    // Global functions
+    // Make functions global
     window.showSection = showSection;
     window.loadCourses = loadCourses;
     window.loadUsers = loadUsers;
