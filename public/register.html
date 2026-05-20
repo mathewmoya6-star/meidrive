@@ -3,74 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - MEI Drive Africa</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <title>Register | MEI DRIVE AFRICA</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #041B3D;
+            --secondary: #0A234F;
+            --accent: #00FF88;
+            --white: #ffffff;
+            --gray: #B7C4D6;
+            --danger: #ff4d4d;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0A234F 0%, #041B3D 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #041B3D, #0A234F);
         }
         
-        .container {
-            max-width: 450px;
-            width: 100%;
-            background: rgba(4, 27, 61, 0.95);
-            border-radius: 20px;
+        .register-container {
+            background: white;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            border: 1px solid rgba(0, 255, 136, 0.2);
-        }
-        
-        h1 {
-            color: #00FF88;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            text-align: center;
-            color: #B7C4D6;
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            color: white;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        input {
+            border-radius: 20px;
             width: 100%;
-            padding: 12px 15px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(10, 35, 79, 0.8);
-            color: white;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         
-        input:focus {
+        .logo { font-size: 48px; text-align: center; margin-bottom: 20px; }
+        h2 { color: #041B3D; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
+        
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .input-group input:focus {
             outline: none;
             border-color: #00FF88;
-            background: rgba(10, 35, 79, 1);
         }
+        
+        .password-requirements {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .password-requirements.valid { color: #27ae60; }
+        .password-requirements.invalid { color: #e74c3c; }
         
         button {
             width: 100%;
@@ -78,323 +70,301 @@
             background: #00FF88;
             color: #041B3D;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            font-size: 16px;
+            transition: all 0.3s;
             margin-top: 10px;
         }
+        button:hover { transform: translateY(-2px); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
         
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
-        }
-        
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .message {
-            margin-top: 15px;
-            padding: 12px;
+        .error {
+            color: #e74c3c;
+            background: #fde8e8;
+            padding: 10px;
             border-radius: 8px;
+            margin-bottom: 20px;
             display: none;
             font-size: 14px;
         }
         
-        .message.success {
-            background: rgba(0, 200, 81, 0.2);
-            border: 1px solid #00C851;
-            color: #00C851;
-            display: block;
+        .success {
+            color: #27ae60;
+            background: #e8f8f0;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
         }
         
-        .message.error {
-            background: rgba(255, 68, 68, 0.2);
-            border: 1px solid #ff4444;
-            color: #ff4444;
-            display: block;
+        .login-link { text-align: center; margin-top: 20px; color: #666; }
+        .login-link a { color: #00FF88; text-decoration: none; font-weight: bold; }
+        .back-home { text-align: center; margin-top: 15px; display: block; color: #666; text-decoration: none; font-size: 14px; }
+        .back-home:hover { color: #00FF88; }
+        
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #041B3D;
+            border-top-color: #00FF88;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
         }
         
-        .message.info {
-            background: rgba(0, 255, 136, 0.2);
-            border: 1px solid #00FF88;
-            color: #00FF88;
-            display: block;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        .login-link {
+        .terms {
             text-align: center;
-            margin-top: 20px;
-            color: #B7C4D6;
-        }
-        
-        .login-link a {
-            color: #00FF88;
-            text-decoration: none;
-        }
-        
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-        
-        .ntsa-badge {
-            text-align: center;
-            margin-top: 20px;
             font-size: 12px;
-            color: #00FF88;
+            color: #888;
+            margin-top: 20px;
         }
+        .terms a { color: #00FF88; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🚗 MEI DRIVE AFRICA</h1>
-        <div class="subtitle">Create Your Account to Start Learning</div>
-        
-        <form id="registerForm">
-            <div class="form-group">
-                <label>Full Name <span style="color: #ff4444;">*</span></label>
-                <input type="text" id="fullName" required placeholder="John Doe">
-            </div>
-            
-            <div class="form-group">
-                <label>Email Address <span style="color: #ff4444;">*</span></label>
-                <input type="email" id="email" required placeholder="john@example.com">
-            </div>
-            
-            <div class="form-group">
-                <label>Phone Number</label>
-                <input type="tel" id="phone" placeholder="0712345678">
-            </div>
-            
-            <div class="form-group">
-                <label>Password <span style="color: #ff4444;">*</span></label>
-                <input type="password" id="password" required placeholder="Min 6 characters">
-            </div>
-            
-            <div class="form-group">
-                <label>Confirm Password <span style="color: #ff4444;">*</span></label>
-                <input type="password" id="confirmPassword" required placeholder="Type password again">
-            </div>
-            
-            <button type="submit" id="registerBtn">Create Account</button>
-        </form>
-        
-        <div class="login-link">
-            Already have an account? <a href="login.html">Login here</a>
+
+<div class="register-container">
+    <div class="logo">🚗</div>
+    <h2>MEI DRIVE AFRICA</h2>
+    <p class="subtitle">Create your account to start learning</p>
+    
+    <div id="errorBox" class="error"></div>
+    <div id="successBox" class="success"></div>
+    
+    <form id="registerForm">
+        <div class="input-group">
+            <label><i class="fas fa-user"></i> Full Name</label>
+            <input type="text" id="fullName" placeholder="Enter your full name" required autocomplete="name">
         </div>
         
-        <div class="ntsa-badge">
-            🎓 NTSA Certified: ILR-7WA1P62
+        <div class="input-group">
+            <label><i class="fas fa-envelope"></i> Email Address</label>
+            <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
         </div>
         
-        <div id="message" class="message"></div>
+        <div class="input-group">
+            <label><i class="fas fa-lock"></i> Password</label>
+            <input type="password" id="password" placeholder="Create a password" required autocomplete="new-password">
+            <div class="password-requirements" id="passwordHelp">
+                <i class="fas fa-info-circle"></i> Min 6 characters
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label><i class="fas fa-check-circle"></i> Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm your password" required autocomplete="off">
+        </div>
+        
+        <button type="submit" id="registerBtn">Create Account</button>
+    </form>
+    
+    <div class="login-link">
+        Already have an account? <a href="/login.html">Login here</a>
     </div>
     
-    <script>
-        // ============================================
-        // SUPABASE CONFIGURATION - FIXED INITIALIZATION
-        // ============================================
-        const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+    <div class="terms">
+        By registering, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+    </div>
+    
+    <a href="/" class="back-home"><i class="fas fa-arrow-left"></i> Back to Home</a>
+</div>
+
+<script>
+    // ============================================
+    // SUPABASE CONFIGURATION
+    // ============================================
+    const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+    
+    // Initialize Supabase client
+    const { createClient } = window.supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    console.log('Register page - Supabase initialized');
+    
+    // DOM elements
+    const form = document.getElementById('registerForm');
+    const registerBtn = document.getElementById('registerBtn');
+    const fullNameInput = document.getElementById('fullName');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const errorBox = document.getElementById('errorBox');
+    const successBox = document.getElementById('successBox');
+    const passwordHelp = document.getElementById('passwordHelp');
+    
+    // Helper functions
+    function showError(message) {
+        errorBox.textContent = message;
+        errorBox.style.display = 'block';
+        successBox.style.display = 'none';
+        setTimeout(() => errorBox.style.display = 'none', 5000);
+    }
+    
+    function showSuccess(message) {
+        successBox.textContent = message;
+        successBox.style.display = 'block';
+        errorBox.style.display = 'none';
+    }
+    
+    function setLoading(state) {
+        registerBtn.disabled = state;
+        registerBtn.innerHTML = state ? '<span class="loader"></span>Creating account...' : 'Create Account';
+    }
+    
+    // Validate email format
+    function isValidEmail(email) {
+        const re = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
+        return re.test(String(email).toLowerCase());
+    }
+    
+    // Check password strength
+    function updatePasswordStrength() {
+        const password = passwordInput.value;
+        if (password.length >= 6) {
+            passwordHelp.innerHTML = '<i class="fas fa-check-circle"></i> Password meets requirements';
+            passwordHelp.className = 'password-requirements valid';
+        } else if (password.length > 0) {
+            passwordHelp.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Password must be at least 6 characters';
+            passwordHelp.className = 'password-requirements invalid';
+        } else {
+            passwordHelp.innerHTML = '<i class="fas fa-info-circle"></i> Min 6 characters';
+            passwordHelp.className = 'password-requirements';
+        }
+    }
+    
+    // Check if passwords match
+    function doPasswordsMatch() {
+        return passwordInput.value === confirmPasswordInput.value;
+    }
+    
+    // Event listeners for password validation
+    passwordInput.addEventListener('input', updatePasswordStrength);
+    confirmPasswordInput.addEventListener('input', () => {
+        if (confirmPasswordInput.value.length > 0 && !doPasswordsMatch()) {
+            confirmPasswordInput.style.borderColor = '#e74c3c';
+        } else {
+            confirmPasswordInput.style.borderColor = '#27ae60';
+        }
+    });
+    
+    // Registration handler
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        // Initialize Supabase Client correctly
-        const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const fullName = fullNameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
         
-        console.log('Supabase Client initialized successfully');
-        
-        // DOM Elements
-        const form = document.getElementById('registerForm');
-        const registerBtn = document.getElementById('registerBtn');
-        const messageDiv = document.getElementById('message');
-        
-        // Function to show message
-        function showMessage(text, type) {
-            messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 5000);
+        // Validation
+        if (!fullName || !email || !password || !confirmPassword) {
+            return showError('Please fill in all fields');
         }
         
-        // Registration handler
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // Get form values
-            const fullName = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim().toLowerCase();
-            const phone = document.getElementById('phone').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Validate all fields
-            if (!fullName) {
-                showMessage('Please enter your full name', 'error');
-                document.getElementById('fullName').focus();
-                return;
-            }
-            
-            if (!email) {
-                showMessage('Please enter your email address', 'error');
-                document.getElementById('email').focus();
-                return;
-            }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showMessage('Please enter a valid email address', 'error');
-                document.getElementById('email').focus();
-                return;
-            }
-            
-            if (!password) {
-                showMessage('Please enter a password', 'error');
-                document.getElementById('password').focus();
-                return;
-            }
-            
-            if (password.length < 6) {
-                showMessage('Password must be at least 6 characters long', 'error');
-                document.getElementById('password').focus();
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showMessage('Passwords do not match', 'error');
-                document.getElementById('confirmPassword').focus();
-                return;
-            }
-            
-            // Disable button and show loading
-            registerBtn.disabled = true;
-            registerBtn.textContent = 'Creating Account...';
-            
-            console.log('Attempting to register:', email);
-            showMessage('Creating your account...', 'info');
-            
-            try {
-                // Sign up with Supabase using supabaseClient
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: {
-                            full_name: fullName,
-                            phone: phone || null
-                        }
-                    }
-                });
-                
-                if (error) {
-                    console.error('Registration error:', error);
-                    
-                    if (error.message.includes('User already registered')) {
-                        showMessage('This email is already registered. Please login instead.', 'error');
-                    } else if (error.message.includes('Password should be at least 6 characters')) {
-                        showMessage('Password must be at least 6 characters', 'error');
-                    } else {
-                        showMessage(error.message, 'error');
-                    }
-                    registerBtn.disabled = false;
-                    registerBtn.textContent = 'Create Account';
-                    return;
-                }
-                
-                if (data.user) {
-                    console.log('Registration successful:', data.user);
-                    
-                    // Check if user is automatically logged in
-                    if (data.session) {
-                        // User is already logged in
-                        showMessage('Account created successfully! Redirecting to dashboard...', 'success');
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 2000);
-                    } else {
-                        // Email confirmation required
-                        showMessage('Account created successfully! Please check your email for verification.', 'success');
-                        
-                        // Clear form
-                        form.reset();
-                        
-                        setTimeout(() => {
-                            window.location.href = 'login.html';
-                        }, 3000);
-                    }
-                } else {
-                    showMessage('Registration failed. Please try again.', 'error');
-                    registerBtn.disabled = false;
-                    registerBtn.textContent = 'Create Account';
-                }
-                
-            } catch (err) {
-                console.error('Unexpected error:', err);
-                showMessage('Network error. Please check your connection.', 'error');
-                registerBtn.disabled = false;
-                registerBtn.textContent = 'Create Account';
-            }
-        });
-        
-        // Password validation
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        
-        passwordInput.addEventListener('input', () => {
-            if (passwordInput.value.length >= 6) {
-                passwordInput.style.borderColor = '#00C851';
-            } else if (passwordInput.value.length > 0) {
-                passwordInput.style.borderColor = '#ff4444';
-            } else {
-                passwordInput.style.borderColor = 'rgba(255,255,255,0.2)';
-            }
-        });
-        
-        confirmPasswordInput.addEventListener('input', () => {
-            if (confirmPasswordInput.value === passwordInput.value && confirmPasswordInput.value.length > 0) {
-                confirmPasswordInput.style.borderColor = '#00C851';
-            } else if (confirmPasswordInput.value.length > 0) {
-                confirmPasswordInput.style.borderColor = '#ff4444';
-            } else {
-                confirmPasswordInput.style.borderColor = 'rgba(255,255,255,0.2)';
-            }
-        });
-        
-        // Email validation
-        const emailInput = document.getElementById('email');
-        emailInput.addEventListener('input', () => {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (emailRegex.test(emailInput.value)) {
-                emailInput.style.borderColor = '#00C851';
-            } else if (emailInput.value.length > 0) {
-                emailInput.style.borderColor = '#ff4444';
-            } else {
-                emailInput.style.borderColor = 'rgba(255,255,255,0.2)';
-            }
-        });
-        
-        // Test connection on load
-        async function testConnection() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('courses')
-                    .select('count', { count: 'exact', head: true });
-                    
-                if (error) {
-                    console.error('Connection test failed:', error);
-                } else {
-                    console.log('✅ Supabase connection successful!');
-                }
-            } catch (err) {
-                console.error('Connection test exception:', err);
-            }
+        if (fullName.length < 2) {
+            return showError('Please enter your full name');
         }
         
-        testConnection();
-    </script>
+        if (!isValidEmail(email)) {
+            return showError('Please enter a valid email address');
+        }
+        
+        if (password.length < 6) {
+            return showError('Password must be at least 6 characters');
+        }
+        
+        if (password !== confirmPassword) {
+            return showError('Passwords do not match');
+        }
+        
+        setLoading(true);
+        errorBox.style.display = 'none';
+        successBox.style.display = 'none';
+        
+        try {
+            console.log('Attempting registration for:', email);
+            
+            // Register user with Supabase
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        role: 'learner'
+                    }
+                }
+            });
+            
+            if (error) {
+                console.error('Registration error:', error);
+                setLoading(false);
+                
+                if (error.message.includes('User already registered')) {
+                    return showError('This email is already registered. Please login instead.');
+                } else if (error.message.includes('Password should be at least 6 characters')) {
+                    return showError('Password must be at least 6 characters');
+                }
+                return showError(error.message);
+            }
+            
+            if (data.user) {
+                console.log('Registration successful for:', email);
+                
+                // Profile is auto-created by Supabase trigger
+                showSuccess('Account created successfully! Redirecting to login...');
+                
+                // Clear form
+                form.reset();
+                
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+            }
+            
+        } catch (err) {
+            console.error('Registration error:', err);
+            showError('Network error. Please check your connection.');
+            setLoading(false);
+        }
+    });
+    
+    // Auto-fill demo for testing (remove in production)
+    // fullNameInput.value = 'Test User';
+    // emailInput.value = 'test@example.com';
+    // passwordInput.value = 'Test123456';
+    // confirmPasswordInput.value = 'Test123456';
+    
+    // Test connection
+    async function testConnection() {
+        const { error } = await supabaseClient.from('courses').select('id').limit(1);
+        if (error) {
+            console.warn('Connection test:', error.message);
+        } else {
+            console.log('✅ Supabase connection OK');
+        }
+    }
+    
+    // Check if already logged in
+    async function checkExistingSession() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            // User is already logged in, redirect to dashboard
+            window.location.href = '/dashboard.html';
+        }
+    }
+    
+    // Initialize
+    testConnection();
+    checkExistingSession();
+</script>
 </body>
 </html>
