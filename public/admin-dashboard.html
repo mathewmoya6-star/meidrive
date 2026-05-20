@@ -350,7 +350,6 @@
         <div class="card">
             <h2><i class="fas fa-chart-line"></i> Payment & Revenue Matrix</h2>
             
-            <!-- Revenue Summary Cards -->
             <div class="revenue-grid" style="margin-bottom: 30px;">
                 <div class="revenue-card"><h4>Today's Revenue</h4><div class="amount" id="todayRevenue">KES 0</div></div>
                 <div class="revenue-card"><h4>This Week</h4><div class="amount" id="weeklyRevenue">KES 0</div></div>
@@ -358,11 +357,9 @@
                 <div class="revenue-card"><h4>All Time</h4><div class="amount" id="allTimeRevenue">KES 0</div></div>
             </div>
             
-            <!-- Revenue by Course -->
             <h3><i class="fas fa-chart-simple"></i> Revenue by Course</h3>
             <div id="revenueByCourseTable" class="table-wrapper"><div class="loading"><div class="spinner"></div></div></div>
             
-            <!-- Payment Approvals -->
             <h3 style="margin-top: 30px;"><i class="fas fa-credit-card"></i> Payment Approvals</h3>
             <button class="btn-primary" onclick="openPaymentModal()"><i class="fas fa-plus"></i> Add Payment</button>
             <div id="paymentsTable" class="table-wrapper"><div class="loading"><div class="spinner"></div></div></div>
@@ -404,18 +401,19 @@
         <input type="hidden" id="courseId">
         <input type="text" id="courseName" placeholder="Course Name" required>
         <textarea id="courseDesc" rows="3" placeholder="Description"></textarea>
+        <input type="text" id="courseIcon" placeholder="Icon (e.g., 🚗)" value="🚗">
         <select id="courseType">
             <option value="free">Free</option>
             <option value="premium">Premium</option>
         </select>
-        <input type="number" id="coursePrice" placeholder="Price (KES)">
-        <input type="number" id="courseDuration" placeholder="Duration (weeks)">
+        <input type="number" id="coursePrice" placeholder="Price (KES)" value="0">
+        <input type="number" id="courseDuration" placeholder="Duration (weeks)" value="4">
         <select id="courseLevel">
             <option value="Beginner">Beginner</option>
             <option value="Intermediate">Intermediate</option>
             <option value="Advanced">Advanced</option>
         </select>
-        <div class="modal-buttons"><button class="btn-primary" onclick="saveCourse()">Save</button><button onclick="closeCourseModal()">Cancel</button></div>
+        <div class="modal-buttons"><button class="btn-primary" onclick="saveCourse()">Save Course</button><button onclick="closeCourseModal()">Cancel</button></div>
     </div>
 </div>
 
@@ -501,12 +499,27 @@
     async function loadCourses() {
         const { data, error } = await supabaseClient.from('courses').select('*').order('id');
         const container = document.getElementById('coursesTable');
-        if (error) { container.innerHTML = '<p>Error loading courses</p>'; return; }
-        if (!data.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><p>No courses found. Click "Add Course" to create one.</p></div>'; return; }
+        if (error) { 
+            console.error('Error loading courses:', error);
+            container.innerHTML = '<p>Error loading courses: ' + error.message + '</p>'; 
+            return; 
+        }
+        if (!data.length) { 
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><p>No courses found. Click "Add Course" to create one.</p></div>'; 
+            return; 
+        }
         
-        let html = `<tr><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Price</th><th>Duration</th><th>Level</th><th>Actions</th></tr></thead><tbody>`;
+        let html = `<table><thead><tr><th>ID</th><th>Icon</th><th>Name</th><th>Type</th><th>Price</th><th>Duration</th><th>Level</th><th>Actions</th></tr></thead><tbody>`;
         data.forEach(c => {
-            html += `<tr><td data-label="ID">${c.id}</td><td data-label="Name">${escapeHtml(c.name)}</td><td data-label="Type"><span class="badge ${c.type}">${c.type}</span></td><td data-label="Price">${c.type === 'free' ? 'FREE' : `KES ${c.price?.toLocaleString()}`}</td><td data-label="Duration">${c.duration || 'N/A'} weeks</td><td data-label="Level">${c.level || 'Beginner'}</td><td data-label="Actions"><button class="btn-edit" onclick="editCourse(${c.id})"><i class="fas fa-edit"></i> Edit Price</button> <button class="btn-delete" onclick="deleteCourse(${c.id})"><i class="fas fa-trash"></i> Delete</button></td></tr>`;
+            html += `<tr><td data-label="ID">${c.id}</td>
+                <td data-label="Icon">${c.icon || '🚗'}</td>
+                <td data-label="Name">${escapeHtml(c.name)}</td>
+                <td data-label="Type"><span class="badge ${c.type}">${c.type}</span></td>
+                <td data-label="Price">${c.type === 'free' ? 'FREE' : `KES ${c.price?.toLocaleString()}`}</td>
+                <td data-label="Duration">${c.duration || 'N/A'} weeks</td>
+                <td data-label="Level">${c.level || 'Beginner'}</td>
+                <td data-label="Actions"><button class="btn-edit" onclick="editCourse(${c.id})"><i class="fas fa-edit"></i> Edit</button> <button class="btn-delete" onclick="deleteCourse(${c.id})"><i class="fas fa-trash"></i> Delete</button></td>
+            </tr>`;
         });
         html += `</tbody></table>`;
         container.innerHTML = html;
@@ -515,14 +528,27 @@
     async function loadPayments() {
         const { data: payments, error } = await supabaseClient.from('payments').select('*, profiles:user_id(id, full_name, email), courses:course_id(id, name)').order('created_at', { ascending: false });
         const container = document.getElementById('paymentsTable');
-        if (error) { container.innerHTML = '<p>Error loading payments</p>'; return; }
-        if (!payments?.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-credit-card"></i><p>No payments found</p></div>'; return; }
+        if (error) { 
+            console.error('Error loading payments:', error);
+            container.innerHTML = '<p>Error loading payments: ' + error.message + '</p>'; 
+            return; 
+        }
+        if (!payments?.length) { 
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-credit-card"></i><p>No payments found</p></div>'; 
+            return; 
+        }
         
         let html = `社<thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>`;
         payments.forEach(p => {
-            html += `<tr><td data-label="User">${escapeHtml(p.profiles?.full_name || p.profiles?.email || 'N/A')}</td><td data-label="Course">${escapeHtml(p.courses?.name)}</td><td data-label="Amount">KES ${p.amount?.toLocaleString()}</td><td data-label="Status"><span class="badge ${p.status}">${p.status}</span></td><td data-label="Date">${new Date(p.created_at).toLocaleDateString()}</td><td data-label="Actions">${p.status === 'pending' ? `<button class="btn-approve" onclick="approvePayment(${p.id}, ${p.amount})">Approve</button>` : '✅ Approved'} <button class="btn-delete" onclick="deletePayment(${p.id})">Delete</button></td></tr>`;
+            html += `<tr><td data-label="User">${escapeHtml(p.profiles?.full_name || p.profiles?.email || 'N/A')}</td>
+                <td data-label="Course">${escapeHtml(p.courses?.name)}</td>
+                <td data-label="Amount">KES ${p.amount?.toLocaleString()}</td>
+                <td data-label="Status"><span class="badge ${p.status}">${p.status}</span></td>
+                <td data-label="Date">${new Date(p.created_at).toLocaleDateString()}</td>
+                <td data-label="Actions">${p.status === 'pending' ? `<button class="btn-approve" onclick="approvePayment(${p.id}, ${p.amount})">Approve</button>` : '✅ Approved'} <button class="btn-delete" onclick="deletePayment(${p.id})">Delete</button></td>
+            </tr>`;
         });
-        html += `</tbody><table>`;
+        html += `</tbody></td>`;
         container.innerHTML = html;
     }
 
@@ -553,8 +579,7 @@
         document.getElementById('monthlyRevenue').innerHTML = `KES ${monthly.toLocaleString()}`;
         document.getElementById('allTimeRevenue').innerHTML = `KES ${allTime.toLocaleString()}`;
         
-        // Revenue by Course Table
-        let courseHtml = `<tr><thead><tr><th>Course Name</th><th>Total Revenue</th><th>Enrollments</th></tr></thead><tbody>`;
+        let courseHtml = `社<thead><tr><th>Course Name</th><th>Total Revenue</th><th>Enrollments</th></tr></thead><tbody>`;
         for (const [course, revenue] of Object.entries(courseRevenue).sort((a,b) => b[1] - a[1])) {
             const { count } = await supabaseClient.from('enrollments').select('*', { count: 'exact', head: true });
             courseHtml += `<tr><td data-label="Course">${escapeHtml(course)}</td><td data-label="Revenue">KES ${revenue.toLocaleString()}</td><td data-label="Enrollments">${count || 0}</td></tr>`;
@@ -599,7 +624,7 @@
         data.forEach(u => {
             html += `<tr><td data-label="Name">${escapeHtml(u.full_name || 'N/A')}</td><td data-label="Email">${escapeHtml(u.email)}</td><td data-label="Role"><span class="badge ${u.role || 'learner'}">${u.role || 'learner'}</span></td><td data-label="Joined">${new Date(u.created_at).toLocaleDateString()}</td><td data-label="Actions"><button class="btn-edit" onclick="toggleUserRole('${u.id}', '${u.role}')">Toggle Role</button></td></tr>`;
         });
-        html += `</tbody></table>`;
+        html += `</tbody><table>`;
         container.innerHTML = html;
     }
 
@@ -631,20 +656,28 @@
     }
 
     window.approvePayment = async (id, amount) => {
-        await supabaseClient.from('payments').update({ status: 'approved', approved_at: new Date() }).eq('id', id);
-        showToast(`Payment of KES ${amount.toLocaleString()} approved`, 'success');
-        loadPayments();
-        loadRevenueData();
-        loadStats();
+        const { error } = await supabaseClient.from('payments').update({ status: 'approved', approved_at: new Date() }).eq('id', id);
+        if (error) {
+            showToast('Error approving payment: ' + error.message, 'error');
+        } else {
+            showToast(`Payment of KES ${amount.toLocaleString()} approved`, 'success');
+            loadPayments();
+            loadRevenueData();
+            loadStats();
+        }
     };
 
     window.deletePayment = async (id) => {
         if (confirm('Delete this payment record?')) {
-            await supabaseClient.from('payments').delete().eq('id', id);
-            showToast('Payment deleted');
-            loadPayments();
-            loadRevenueData();
-            loadStats();
+            const { error } = await supabaseClient.from('payments').delete().eq('id', id);
+            if (error) {
+                showToast('Error deleting payment: ' + error.message, 'error');
+            } else {
+                showToast('Payment deleted');
+                loadPayments();
+                loadRevenueData();
+                loadStats();
+            }
         }
     };
 
@@ -669,12 +702,16 @@
             showToast('Please fill all fields', 'error');
             return;
         }
-        await supabaseClient.from('payments').insert([data]);
-        closePaymentModal();
-        loadPayments();
-        loadRevenueData();
-        loadStats();
-        showToast('Payment added');
+        const { error } = await supabaseClient.from('payments').insert([data]);
+        if (error) {
+            showToast('Error saving payment: ' + error.message, 'error');
+        } else {
+            closePaymentModal();
+            loadPayments();
+            loadRevenueData();
+            loadStats();
+            showToast('Payment added');
+        }
     };
 
     window.closePaymentModal = () => document.getElementById('paymentModal').classList.remove('active');
@@ -726,20 +763,34 @@
             showToast('Please fill required fields', 'error'); 
             return; 
         }
-        if (id) await supabaseClient.from('quiz_questions').update(data).eq('id', id);
-        else await supabaseClient.from('quiz_questions').insert([data]);
-        closeQuizModal();
-        loadQuizQuestions();
-        loadStats();
-        showToast(id ? 'Question updated' : 'Question added');
+        let error;
+        if (id) {
+            const { error: updateError } = await supabaseClient.from('quiz_questions').update(data).eq('id', id);
+            error = updateError;
+        } else {
+            const { error: insertError } = await supabaseClient.from('quiz_questions').insert([data]);
+            error = insertError;
+        }
+        if (error) {
+            showToast('Error saving question: ' + error.message, 'error');
+        } else {
+            closeQuizModal();
+            loadQuizQuestions();
+            loadStats();
+            showToast(id ? 'Question updated' : 'Question added');
+        }
     };
 
     window.deleteQuizQuestion = async (id) => {
         if (confirm('Delete this question?')) { 
-            await supabaseClient.from('quiz_questions').delete().eq('id', id); 
-            showToast('Question deleted'); 
-            loadQuizQuestions(); 
-            loadStats(); 
+            const { error } = await supabaseClient.from('quiz_questions').delete().eq('id', id); 
+            if (error) {
+                showToast('Error deleting question: ' + error.message, 'error');
+            } else {
+                showToast('Question deleted'); 
+                loadQuizQuestions(); 
+                loadStats(); 
+            }
         }
     };
 
@@ -751,6 +802,7 @@
         document.getElementById('courseId').value = data.id;
         document.getElementById('courseName').value = data.name;
         document.getElementById('courseDesc').value = data.description || '';
+        document.getElementById('courseIcon').value = data.icon || '🚗';
         document.getElementById('courseType').value = data.type;
         document.getElementById('coursePrice').value = data.price || 0;
         document.getElementById('courseDuration').value = data.duration || 4;
@@ -760,10 +812,14 @@
 
     window.deleteCourse = async (id) => {
         if (confirm('Delete this course? This will also delete enrollments.')) {
-            await supabaseClient.from('courses').delete().eq('id', id);
-            showToast('Course deleted');
-            loadCourses();
-            loadStats();
+            const { error } = await supabaseClient.from('courses').delete().eq('id', id);
+            if (error) {
+                showToast('Error deleting course: ' + error.message, 'error');
+            } else {
+                showToast('Course deleted');
+                loadCourses();
+                loadStats();
+            }
         }
     };
 
@@ -772,6 +828,7 @@
         document.getElementById('courseId').value = '';
         document.getElementById('courseName').value = '';
         document.getElementById('courseDesc').value = '';
+        document.getElementById('courseIcon').value = '🚗';
         document.getElementById('courseType').value = 'premium';
         document.getElementById('coursePrice').value = '';
         document.getElementById('courseDuration').value = '4';
@@ -781,28 +838,55 @@
 
     window.saveCourse = async () => {
         const id = document.getElementById('courseId').value;
+        const courseName = document.getElementById('courseName').value.trim();
+        if (!courseName) {
+            showToast('Please enter a course name', 'error');
+            return;
+        }
+        
         const data = { 
-            name: document.getElementById('courseName').value, 
-            description: document.getElementById('courseDesc').value, 
+            name: courseName, 
+            description: document.getElementById('courseDesc').value || '',
+            icon: document.getElementById('courseIcon').value || '🚗',
             type: document.getElementById('courseType').value, 
             price: document.getElementById('courseType').value === 'free' ? 0 : parseInt(document.getElementById('coursePrice').value) || 0, 
             duration: parseInt(document.getElementById('courseDuration').value) || 4, 
             level: document.getElementById('courseLevel').value 
         };
-        if (id) await supabaseClient.from('courses').update(data).eq('id', id);
-        else await supabaseClient.from('courses').insert([data]);
-        closeCourseModal();
-        loadCourses();
-        loadStats();
-        showToast(id ? 'Course updated' : 'Course added');
+        
+        console.log('Saving course data:', data);
+        
+        let error;
+        if (id) {
+            const { error: updateError } = await supabaseClient.from('courses').update(data).eq('id', id);
+            error = updateError;
+        } else {
+            const { error: insertError } = await supabaseClient.from('courses').insert([data]);
+            error = insertError;
+        }
+        
+        if (error) {
+            console.error('Error saving course:', error);
+            showToast('Error saving course: ' + error.message, 'error');
+        } else {
+            closeCourseModal();
+            loadCourses();
+            loadStats();
+            showToast(id ? 'Course updated successfully!' : 'Course added successfully!');
+        }
     };
 
     window.closeCourseModal = () => document.getElementById('courseModal').classList.remove('active');
+    
     window.toggleUserRole = async (userId, currentRole) => {
         const newRole = currentRole === 'admin' ? 'learner' : 'admin';
-        await supabaseClient.from('profiles').update({ role: newRole }).eq('id', userId);
-        showToast(`User role changed to ${newRole}`);
-        loadUsers();
+        const { error } = await supabaseClient.from('profiles').update({ role: newRole }).eq('id', userId);
+        if (error) {
+            showToast('Error changing role: ' + error.message, 'error');
+        } else {
+            showToast(`User role changed to ${newRole}`);
+            loadUsers();
+        }
     };
 
     async function showSection(section) {
@@ -821,10 +905,25 @@
         if (section === 'users') await loadUsers();
     }
 
-    async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'admin-login.html'; }
-    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-    function openMobileMenu() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
-    function closeMobileMenu() { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
+    async function handleLogout() { 
+        await supabaseClient.auth.signOut(); 
+        window.location.href = 'admin-login.html'; 
+    }
+    
+    function escapeHtml(str) { 
+        if (!str) return ''; 
+        return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); 
+    }
+    
+    function openMobileMenu() { 
+        document.getElementById('sidebar').classList.add('active'); 
+        document.getElementById('overlay').classList.add('active'); 
+    }
+    
+    function closeMobileMenu() { 
+        document.getElementById('sidebar').classList.remove('active'); 
+        document.getElementById('overlay').classList.remove('active'); 
+    }
     
     async function init() {
         if (!await checkAdminAuth()) return;
