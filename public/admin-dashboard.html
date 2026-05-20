@@ -204,10 +204,8 @@
         .badge.learner { background: #0A234F; color: #00FF88; border: 1px solid #00FF88; }
         .badge.premium { background: rgba(255, 152, 0, 0.2); color: #ff9800; border: 1px solid #ff9800; }
         .badge.free { background: rgba(0, 255, 136, 0.2); color: #00FF88; border: 1px solid #00FF88; }
-        .badge.approved { background: rgba(0, 200, 81, 0.2); color: #00C851; border: 1px solid #00C851; }
-        .badge.pending { background: rgba(255, 152, 0, 0.2); color: #ff9800; border: 1px solid #ff9800; }
 
-        .btn-primary, .btn-edit, .btn-delete, .btn-approve {
+        .btn-primary, .btn-edit, .btn-delete {
             border: none;
             padding: 8px 16px;
             border-radius: 6px;
@@ -219,8 +217,7 @@
         .btn-primary { background: #00FF88; color: #041B3D; }
         .btn-edit { background: #ff9800; color: #fff; }
         .btn-delete { background: #ff4d4f; color: #fff; }
-        .btn-approve { background: #00C851; color: #fff; }
-        .btn-primary:hover, .btn-edit:hover, .btn-delete:hover, .btn-approve:hover { transform: translateY(-2px); }
+        .btn-primary:hover, .btn-edit:hover, .btn-delete:hover { transform: translateY(-2px); }
 
         .modal {
             display: none;
@@ -313,12 +310,10 @@
 <div class="sidebar" id="sidebar">
     <h2><i class="fas fa-car"></i> MEI ADMIN</h2>
     <a href="javascript:void(0)" data-section="dashboard" onclick="showSection('dashboard')"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-    <a href="javascript:void(0)" data-section="income" onclick="showSection('income')"><i class="fas fa-chart-line"></i> Income Matrix</a>
     <a href="javascript:void(0)" data-section="courses" onclick="showSection('courses')"><i class="fas fa-book"></i> Courses</a>
     <a href="javascript:void(0)" data-section="units" onclick="showSection('units')"><i class="fas fa-layer-group"></i> Learner Units</a>
     <a href="javascript:void(0)" data-section="quiz" onclick="showSection('quiz')"><i class="fas fa-question-circle"></i> Quiz Bank</a>
     <a href="javascript:void(0)" data-section="users" onclick="showSection('users')"><i class="fas fa-users"></i> Users</a>
-    <a href="javascript:void(0)" data-section="enrollments" onclick="showSection('enrollments')"><i class="fas fa-graduation-cap"></i> Enrollments</a>
     <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
 </div>
 
@@ -327,35 +322,10 @@
     <div id="dashboardSection">
         <h2><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h2>
         <div class="stats-grid">
-            <div class="stat-card"><i class="fas fa-book"></i><h3 id="coursesCount">0</h3><p>Total Courses</p></div>
-            <div class="stat-card"><i class="fas fa-layer-group"></i><h3 id="unitsCount">0</h3><p>Learner Units</p></div>
-            <div class="stat-card"><i class="fas fa-question-circle"></i><h3 id="quizCount">0</h3><p>Quiz Questions</p></div>
-            <div class="stat-card"><i class="fas fa-users"></i><h3 id="usersCount">0</h3><p>Total Users</p></div>
-            <div class="stat-card"><i class="fas fa-graduation-cap"></i><h3 id="enrollmentsCount">0</h3><p>Enrollments</p></div>
-            <div class="stat-card"><i class="fas fa-money-bill-wave"></i><h3 id="totalRevenue">KES 0</h3><p>Total Revenue</p></div>
-        </div>
-    </div>
-
-    <!-- INCOME MATRIX SECTION -->
-    <div id="incomeSection" style="display:none">
-        <div class="card">
-            <h2><i class="fas fa-chart-line"></i> Income Matrix</h2>
-            
-            <!-- Revenue Summary -->
-            <div class="revenue-grid" style="margin-bottom: 30px;">
-                <div class="revenue-card"><h4>Today's Revenue</h4><div class="amount" id="todayRevenue">KES 0</div></div>
-                <div class="revenue-card"><h4>This Week</h4><div class="amount" id="weeklyRevenue">KES 0</div></div>
-                <div class="revenue-card"><h4>This Month</h4><div class="amount" id="monthlyRevenue">KES 0</div></div>
-                <div class="revenue-card"><h4>All Time</h4><div class="amount" id="allTimeRevenue">KES 0</div></div>
-            </div>
-            
-            <!-- Revenue by Course -->
-            <h3><i class="fas fa-chart-simple"></i> Revenue by Course</h3>
-            <div id="revenueByCourseTable" class="table-wrapper"><div class="loading"><div class="spinner"></div></div></div>
-            
-            <!-- Recent Payments -->
-            <h3 style="margin-top: 30px;"><i class="fas fa-credit-card"></i> Recent Payments</h3>
-            <div id="recentPaymentsTable" class="table-wrapper"><div class="loading"><div class="spinner"></div></div></div>
+            <div class="stat-card" onclick="showSection('courses')"><i class="fas fa-book"></i><h3 id="coursesCount">0</h3><p>Total Courses</p></div>
+            <div class="stat-card" onclick="showSection('units')"><i class="fas fa-layer-group"></i><h3 id="unitsCount">0</h3><p>Learner Units</p></div>
+            <div class="stat-card" onclick="showSection('quiz')"><i class="fas fa-question-circle"></i><h3 id="quizCount">0</h3><p>Quiz Questions</p></div>
+            <div class="stat-card" onclick="showSection('users')"><i class="fas fa-users"></i><h3 id="usersCount">0</h3><p>Total Users</p></div>
         </div>
     </div>
 
@@ -395,14 +365,6 @@
             <div id="usersTable" class="table-wrapper"><div class="loading"><div class="spinner"></div></div></div>
         </div>
     </div>
-
-    <!-- ENROLLMENTS SECTION -->
-    <div id="enrollmentsSection" style="display:none">
-        <div class="card">
-            <h2><i class="fas fa-graduation-cap"></i> Enrollment Management</h2>
-            <div id="enrollmentsTable" class="table-wrapper"><div class="loading"><div class="spinner"></div></div></div>
-        </div>
-    </div>
 </div>
 
 <!-- Course Modal -->
@@ -434,18 +396,6 @@
         <select id="quizCorrectAnswer"><option value="">Select Correct Answer</option><option value="A">Option A</option><option value="B">Option B</option><option value="C">Option C</option><option value="D">Option D</option></select>
         <textarea id="quizExplanation" rows="2" placeholder="Explanation (optional)"></textarea>
         <div class="modal-buttons"><button class="btn-primary" onclick="saveQuizQuestion()">Save</button><button onclick="closeQuizModal()">Cancel</button></div>
-    </div>
-</div>
-
-<!-- Payment Modal -->
-<div id="paymentModal" class="modal">
-    <div class="modal-content">
-        <h3>Add Payment</h3>
-        <select id="paymentUserId"><option value="">Select User</option></select>
-        <select id="paymentCourseId"><option value="">Select Course</option></select>
-        <input type="number" id="paymentAmount" placeholder="Amount (KES)">
-        <select id="paymentStatus"><option value="pending">Pending</option><option value="approved">Approved</option></select>
-        <div class="modal-buttons"><button class="btn-primary" onclick="savePayment()">Save Payment</button><button onclick="closePaymentModal()">Cancel</button></div>
     </div>
 </div>
 
@@ -483,70 +433,18 @@
         const { count: units } = await supabaseClient.from('learner_units').select('*', { count: 'exact', head: true });
         const { count: quiz } = await supabaseClient.from('quiz_questions').select('*', { count: 'exact', head: true });
         const { count: users } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
-        const { count: enrollments } = await supabaseClient.from('enrollments').select('*', { count: 'exact', head: true });
-        
-        // Calculate total revenue from approved payments
-        const { data: payments } = await supabaseClient.from('payments').select('amount').eq('status', 'approved');
-        const totalRevenue = payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
         
         document.getElementById('coursesCount').textContent = courses || 0;
         document.getElementById('unitsCount').textContent = units || 0;
         document.getElementById('quizCount').textContent = quiz || 0;
         document.getElementById('usersCount').textContent = users || 0;
-        document.getElementById('enrollmentsCount').textContent = enrollments || 0;
-        document.getElementById('totalRevenue').innerHTML = `KES ${totalRevenue.toLocaleString()}`;
-    }
-
-    async function loadRevenueData() {
-        const { data: payments } = await supabaseClient.from('payments').select('*, profiles:profile_id(full_name, email), courses:course_id(name)').eq('status', 'approved').order('created_at', { ascending: false });
-        
-        const today = new Date().toISOString().split('T')[0];
-        const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-        const monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 30);
-        
-        let daily = 0, weekly = 0, monthly = 0, allTime = 0;
-        const courseRevenue = {};
-        
-        payments?.forEach(p => {
-            const amount = p.amount || 0;
-            const date = p.created_at?.split('T')[0];
-            allTime += amount;
-            if (date === today) daily += amount;
-            if (new Date(p.created_at) >= weekAgo) weekly += amount;
-            if (new Date(p.created_at) >= monthAgo) monthly += amount;
-            
-            const courseName = p.courses?.name || 'Unknown';
-            courseRevenue[courseName] = (courseRevenue[courseName] || 0) + amount;
-        });
-        
-        document.getElementById('todayRevenue').innerHTML = `KES ${daily.toLocaleString()}`;
-        document.getElementById('weeklyRevenue').innerHTML = `KES ${weekly.toLocaleString()}`;
-        document.getElementById('monthlyRevenue').innerHTML = `KES ${monthly.toLocaleString()}`;
-        document.getElementById('allTimeRevenue').innerHTML = `KES ${allTime.toLocaleString()}`;
-        
-        // Revenue by Course Table
-        let courseHtml = `<table><thead><tr><th>Course Name</th><th>Total Revenue</th><th>Enrollments</th></tr></thead><tbody>`;
-        for (const [course, revenue] of Object.entries(courseRevenue).sort((a,b) => b[1] - a[1])) {
-            const { count } = await supabaseClient.from('enrollments').select('*', { count: 'exact', head: true }).eq('course_id', (await supabaseClient.from('courses').select('id').eq('name', course).single()).data?.id);
-            courseHtml += `<tr><td data-label="Course">${escapeHtml(course)}</td><td data-label="Revenue">KES ${revenue.toLocaleString()}</td><td data-label="Enrollments">${count || 0}</td></tr>`;
-        }
-        courseHtml += `</tbody></table>`;
-        document.getElementById('revenueByCourseTable').innerHTML = courseHtml;
-        
-        // Recent Payments Table
-        let paymentHtml = `<table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Date</th></tr></thead><tbody>`;
-        payments?.slice(0, 20).forEach(p => {
-            paymentHtml += `<tr><td data-label="User">${escapeHtml(p.profiles?.full_name || 'N/A')}</td><td data-label="Course">${escapeHtml(p.courses?.name)}</td><td data-label="Amount">KES ${p.amount?.toLocaleString()}</td><td data-label="Date">${new Date(p.created_at).toLocaleDateString()}</td></tr>`;
-        });
-        paymentHtml += `</tbody></table>`;
-        document.getElementById('recentPaymentsTable').innerHTML = paymentHtml;
     }
 
     async function loadCourses() {
         const { data, error } = await supabaseClient.from('courses').select('*').order('id');
         const container = document.getElementById('coursesTable');
         if (error) { container.innerHTML = '<p>Error loading courses</p>'; return; }
-        if (!data.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><p>No courses found</p></div>'; return; }
+        if (!data.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><p>No courses found. Click "Add Course" to create one.</p></div>'; return; }
         
         let html = `<table><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Price</th><th>Duration</th><th>Level</th><th>Actions</th></tr></thead><tbody>`;
         data.forEach(c => {
@@ -576,7 +474,7 @@
         if (error) { container.innerHTML = '<p>Error loading quiz questions</p>'; return; }
         if (!data.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-question-circle"></i><p>No quiz questions found</p></div>'; return; }
         
-        let html = `社<thead><tr><th>ID</th><th>Unit</th><th>Question</th><th>Correct</th><th>Actions</th></tr></thead><tbody>`;
+        let html = `社<thead><tr><th>ID</th><th>Unit</th><th>Question</th><th>Correct</th><th>Actions</th><tr></thead><tbody>`;
         data.forEach(q => {
             html += `<tr><td data-label="ID">${q.id}</td><td data-label="Unit">${q.unit_id || '-'}</td><td data-label="Question">${escapeHtml(q.question?.substring(0, 50)) || 'N/A'}...</td><td data-label="Correct">${escapeHtml(q.correct_answer) || '-'}</td><td data-label="Actions"><button class="btn-edit" onclick="editQuizQuestion(${q.id})"><i class="fas fa-edit"></i> Edit</button> <button class="btn-delete" onclick="deleteQuizQuestion(${q.id})"><i class="fas fa-trash"></i> Delete</button></td></tr>`;
         });
@@ -591,18 +489,6 @@
         let html = `社<thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead><tbody>`;
         data.forEach(u => {
             html += `<tr><td data-label="Name">${escapeHtml(u.full_name || 'N/A')}</td><td data-label="Email">${escapeHtml(u.email)}</td><td data-label="Role"><span class="badge ${u.role || 'learner'}">${u.role || 'learner'}</span></td><td data-label="Joined">${new Date(u.created_at).toLocaleDateString()}</td><td data-label="Actions"><button class="btn-edit" onclick="toggleUserRole('${u.id}', '${u.role}')"><i class="fas fa-user-shield"></i> Toggle Role</button></td></tr>`;
-        });
-        html += `</tbody></table>`;
-        container.innerHTML = html;
-    }
-
-    async function loadEnrollments() {
-        const { data } = await supabaseClient.from('enrollments').select('*, profiles:profile_id(full_name, email), courses:course_id(name)').order('enrolled_at', { ascending: false });
-        const container = document.getElementById('enrollmentsTable');
-        if (!data?.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-graduation-cap"></i><p>No enrollments found</p></div>'; return; }
-        let html = `社<thead><tr><th>User</th><th>Course</th><th>Enrolled</th><th>Progress</th></thead><tbody>`;
-        data.forEach(e => {
-            html += `<tr><td data-label="User">${escapeHtml(e.profiles?.full_name || 'N/A')}</td><td data-label="Course">${escapeHtml(e.courses?.name)}</td><td data-label="Enrolled">${new Date(e.enrolled_at).toLocaleDateString()}</td><td data-label="Progress">${e.progress || 0}%</td></tr>`;
         });
         html += `</tbody></table>`;
         container.innerHTML = html;
@@ -665,7 +551,6 @@
     };
 
     window.closeQuizModal = () => document.getElementById('quizModal').classList.remove('active');
-    window.closePaymentModal = () => document.getElementById('paymentModal').classList.remove('active');
 
     window.editCourse = async (id) => {
         const { data } = await supabaseClient.from('courses').select('*').eq('id', id).single();
@@ -681,7 +566,12 @@
     };
 
     window.deleteCourse = async (id) => {
-        if (confirm('Delete this course?')) { await supabaseClient.from('courses').delete().eq('id', id); showToast('Course deleted'); loadCourses(); loadStats(); }
+        if (confirm('Delete this course? This will also delete enrollments.')) {
+            await supabaseClient.from('courses').delete().eq('id', id);
+            showToast('Course deleted');
+            loadCourses();
+            loadStats();
+        }
     };
 
     window.openCourseModal = () => {
@@ -708,6 +598,7 @@
     };
 
     window.closeCourseModal = () => document.getElementById('courseModal').classList.remove('active');
+    
     window.toggleUserRole = async (userId, currentRole) => {
         const newRole = currentRole === 'admin' ? 'learner' : 'admin';
         await supabaseClient.from('profiles').update({ role: newRole }).eq('id', userId);
@@ -717,24 +608,24 @@
 
     async function showSection(section) {
         document.getElementById('dashboardSection').style.display = section === 'dashboard' ? 'block' : 'none';
-        document.getElementById('incomeSection').style.display = section === 'income' ? 'block' : 'none';
         document.getElementById('coursesSection').style.display = section === 'courses' ? 'block' : 'none';
         document.getElementById('unitsSection').style.display = section === 'units' ? 'block' : 'none';
         document.getElementById('quizSection').style.display = section === 'quiz' ? 'block' : 'none';
         document.getElementById('usersSection').style.display = section === 'users' ? 'block' : 'none';
-        document.getElementById('enrollmentsSection').style.display = section === 'enrollments' ? 'block' : 'none';
         
         if (section === 'dashboard') await loadStats();
-        if (section === 'income') await loadRevenueData();
         if (section === 'courses') await loadCourses();
         if (section === 'units') await loadUnits();
         if (section === 'quiz') await loadQuizQuestions();
         if (section === 'users') await loadUsers();
-        if (section === 'enrollments') await loadEnrollments();
     }
 
     async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'admin-login.html'; }
-    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    
+    function escapeHtml(str) { 
+        if (!str) return ''; 
+        return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); 
+    }
     
     function openMobileMenu() { document.getElementById('sidebar').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
     function closeMobileMenu() { document.getElementById('sidebar').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
