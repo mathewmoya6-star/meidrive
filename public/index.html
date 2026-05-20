@@ -833,10 +833,22 @@
         }
     }
     
-    // Display courses from Supabase (NO HARDCODED PRICES)
+    // Display courses from Supabase
     function displayCourses(courses) {
         coursesContainer.innerHTML = '';
-        const icons = ['🚗', '🚌', '🚸', '⚡', '🛵', '🚛', '📚', '📝'];
+        const icons = ['🚗', '🚌', '🚸', '⚡', '🛵', '🚛', '📚', '📝', '🛡️', '🔄'];
+        
+        if (!courses || courses.length === 0) {
+            coursesContainer.innerHTML = `
+                <div style="text-align:center; padding:60px; background:#0A234F; border-radius:20px; grid-column:1/-1;">
+                    <i class="fas fa-tools" style="font-size:4rem; color:#00FF88; margin-bottom:20px; display:block;"></i>
+                    <h3 style="color:#00FF88; margin-bottom:10px;">Courses Coming Soon!</h3>
+                    <p style="color:#B7C4D6;">We are adding new courses. Check back regularly!</p>
+                    <button onclick="location.href='/register.html'" style="margin-top:20px; background:#00FF88; color:#041B3D; border:none; padding:12px 30px; border-radius:30px; cursor:pointer; font-weight:bold;">Get Notified</button>
+                </div>
+            `;
+            return;
+        }
         
         courses.forEach((course, index) => {
             const isFree = course.type === 'free' || course.price === 0;
@@ -849,7 +861,11 @@
             card.className = 'course-card';
             card.onclick = () => {
                 if (currentUser) {
-                    window.location.href = `/course-learner.html`;
+                    if (title === 'Learner Hub') {
+                        window.location.href = '/course-learner.html';
+                    } else {
+                        showToast(`Coming soon! The ${title} course will be available shortly.`, false);
+                    }
                 } else {
                     showToast('Please login to view course details', true);
                     window.location.href = '/login.html';
@@ -862,7 +878,7 @@
                 <h3>${escapeHtml(title)}</h3>
                 <p>${escapeHtml(desc.substring(0, 80))}...</p>
                 <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${price.toLocaleString()}`}</div>
-                <button class="btn-view">View Course →</button>
+                <button class="btn-view">${title === 'Learner Hub' ? 'Start Learning →' : 'View Course →'}</button>
             `;
             coursesContainer.appendChild(card);
         });
@@ -878,7 +894,7 @@
         `;
     }
     
-    // Load courses directly from Supabase (NO FALLBACK, NO HARDCODED PRICES)
+    // Load courses directly from Supabase
     async function loadCourses() {
         setLoading(true);
         showSkeletons();
@@ -891,30 +907,25 @@
                 .order('id', { ascending: true });
             
             console.log('Courses from Supabase:', data);
+            console.log('Total courses found:', data?.length || 0);
             
             if (error) {
                 console.error('Supabase error:', error);
                 showToast('Failed to load courses. Please refresh the page.', true);
-                coursesContainer.innerHTML = `<div style="text-align:center; padding:40px; color:#ff4d4f;">
-                    <i class="fas fa-exclamation-circle"></i> Error loading courses. 
-                    <button onclick="loadCourses()" style="margin-top:10px; padding:8px 16px; background:#00FF88; border:none; border-radius:8px; cursor:pointer;">Retry</button>
-                </div>`;
+                displayCourses([]);
             } else if (data && data.length > 0) {
                 totalCoursesSpan.textContent = data.length.toString();
                 displayCourses(data);
-                console.log(`✅ Loaded ${data.length} courses with dynamic prices from database`);
+                console.log(`✅ Loaded ${data.length} courses from database`);
             } else {
                 console.log('No courses found in database');
-                coursesContainer.innerHTML = `<div style="text-align:center; padding:40px;">
-                    <i class="fas fa-book-open"></i><br>No courses available yet. Please check back later.
-                </div>`;
+                totalCoursesSpan.textContent = '0';
+                displayCourses([]);
             }
         } catch (error) {
             console.error('Error loading courses:', error);
             showToast('Failed to connect to database. Please refresh the page.', true);
-            coursesContainer.innerHTML = `<div style="text-align:center; padding:40px; color:#ff4d4f;">
-                <i class="fas fa-exclamation-circle"></i> Connection error. Please refresh the page.
-            </div>`;
+            displayCourses([]);
         } finally {
             setLoading(false);
         }
