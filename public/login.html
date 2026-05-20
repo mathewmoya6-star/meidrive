@@ -3,85 +3,367 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Login - Supabase App</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        .dashboard-container {
-            max-width: 800px;
-            margin: 50px auto;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-card {
             background: white;
             border-radius: 16px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         h1 {
             color: #333;
+            font-size: 28px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .input-group {
             margin-bottom: 20px;
         }
         
-        .user-info {
-            background: #f5f5f5;
-            padding: 20px;
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            margin: 20px 0;
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         button {
+            width: 100%;
+            padding: 12px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 24px;
             border-radius: 8px;
-            cursor: pointer;
             font-size: 16px;
             font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         
-        button:hover {
+        button:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        
+        .info-message {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+        
+        .spinner {
+            display: none;
+            text-align: center;
+            margin-top: 16px;
+            color: #667eea;
+        }
+        
+        .spinner.active {
+            display: block;
+        }
+        
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <h1>Welcome to Dashboard</h1>
-        <div class="user-info" id="userInfo">Loading...</div>
-        <button onclick="logout()">Logout</button>
+    <div class="container">
+        <div class="login-card">
+            <h1 id="formTitle">Welcome Back</h1>
+            <p id="formSubtitle" class="subtitle">Sign in to your account</p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
+                </div>
+                
+                <button type="submit" id="submitBtn">Sign In</button>
+                
+                <div id="message" class="message"></div>
+                <div id="spinner" class="spinner">Processing...</div>
+            </form>
+            
+            <div class="footer">
+                <p id="toggleText">Don't have an account? <a href="#" id="toggleMode">Sign up</a></p>
+            </div>
+        </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Supabase configuration
         const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
         
+        // Initialize Supabase
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        async function checkUser() {
-            const { data: { user }, error } = await supabaseClient.auth.getUser();
-            if (error || !user) {
-                window.location.href = 'index.html';
+        // DOM elements
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const submitBtn = document.getElementById('submitBtn');
+        const spinner = document.getElementById('spinner');
+        const messageDiv = document.getElementById('message');
+        const formTitle = document.getElementById('formTitle');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const toggleMode = document.getElementById('toggleMode');
+        
+        let isSignupMode = false;
+        
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                if (messageDiv.style.display === 'block') {
+                    messageDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+        
+        // Login function
+        async function loginUser(email, password) {
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                if (error) throw error;
+                return { success: true, data: data };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Signup function
+        async function signupUser(email, password) {
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password
+                });
+                if (error) throw error;
+                return { success: true, data: data };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Toggle between login and signup
+        toggleMode.addEventListener('click', (e) => {
+            e.preventDefault();
+            isSignupMode = !isSignupMode;
+            
+            if (isSignupMode) {
+                formTitle.textContent = 'Create Account';
+                formSubtitle.textContent = 'Sign up for a new account';
+                submitBtn.textContent = 'Sign Up';
+                document.getElementById('toggleText').innerHTML = 'Already have an account? <a href="#" id="toggleMode">Login</a>';
+            } else {
+                formTitle.textContent = 'Welcome Back';
+                formSubtitle.textContent = 'Sign in to your account';
+                submitBtn.textContent = 'Sign In';
+                document.getElementById('toggleText').innerHTML = 'Don\'t have an account? <a href="#" id="toggleMode">Sign up</a>';
+            }
+            
+            // Re-attach event listener
+            const newToggle = document.getElementById('toggleMode');
+            if (newToggle) {
+                newToggle.addEventListener('click', arguments.callee);
+            }
+        });
+        
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                showMessage('Please enter both email and password', 'error');
                 return;
             }
-            document.getElementById('userInfo').innerHTML = `
-                <p><strong>Email:</strong> ${user.email}</p>
-                <p><strong>User ID:</strong> ${user.id}</p>
-            `;
-        }
+            
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            // Show loading
+            submitBtn.disabled = true;
+            spinner.classList.add('active');
+            messageDiv.style.display = 'none';
+            
+            let result;
+            if (isSignupMode) {
+                result = await signupUser(email, password);
+            } else {
+                result = await loginUser(email, password);
+            }
+            
+            // Hide loading
+            submitBtn.disabled = false;
+            spinner.classList.remove('active');
+            
+            if (result.success) {
+                if (isSignupMode) {
+                    if (result.data.user && result.data.user.identities && result.data.user.identities.length === 0) {
+                        showMessage('Account already exists. Please login.', 'error');
+                        setTimeout(() => {
+                            isSignupMode = false;
+                            formTitle.textContent = 'Welcome Back';
+                            formSubtitle.textContent = 'Sign in to your account';
+                            submitBtn.textContent = 'Sign In';
+                            document.getElementById('toggleText').innerHTML = 'Don\'t have an account? <a href="#" id="toggleMode">Sign up</a>';
+                        }, 2000);
+                    } else {
+                        showMessage('Signup successful! Please check your email to confirm.', 'success');
+                        emailInput.value = '';
+                        passwordInput.value = '';
+                        setTimeout(() => {
+                            isSignupMode = false;
+                            formTitle.textContent = 'Welcome Back';
+                            formSubtitle.textContent = 'Sign in to your account';
+                            submitBtn.textContent = 'Sign In';
+                            document.getElementById('toggleText').innerHTML = 'Don\'t have an account? <a href="#" id="toggleMode">Sign up</a>';
+                            showMessage('Please login with your new account', 'info');
+                        }, 3000);
+                    }
+                } else {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    localStorage.setItem('user', JSON.stringify(result.data.user));
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                }
+            } else {
+                let errorMsg = result.error;
+                if (errorMsg.includes('Invalid login credentials')) {
+                    errorMsg = 'Invalid email or password';
+                } else if (errorMsg.includes('Email not confirmed')) {
+                    errorMsg = 'Please confirm your email first';
+                }
+                showMessage(errorMsg, 'error');
+            }
+        });
         
-        async function logout() {
-            await supabaseClient.auth.signOut();
-            window.location.href = 'index.html';
+        // Check if already logged in
+        async function checkSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                window.location.href = 'dashboard.html';
+            }
         }
-        
-        checkUser();
+        checkSession();
     </script>
 </body>
 </html>
