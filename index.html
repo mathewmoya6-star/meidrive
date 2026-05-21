@@ -800,14 +800,12 @@
             const card = document.createElement('div');
             card.className = 'course-card';
             
-            // UPDATED: Universal course redirect - ALL courses go to course.html?id=X
             card.onclick = () => {
                 if (currentUser) {
-                    // Check if user is enrolled, if not, enroll them
                     handleCourseAccess(course);
                 } else {
                     showToast('Please login to view course details', true);
-                    window.location.href = '/login.html';
+                    setTimeout(() => { window.location.href = '/login.html'; }, 1500);
                 }
             };
             
@@ -823,11 +821,9 @@
         });
     }
     
-    // New function to handle course access with auto-enrollment
     async function handleCourseAccess(course) {
         setLoading(true);
         try {
-            // Check if already enrolled
             const { data: existingEnrollment } = await supabaseClient
                 .from('enrollments')
                 .select('id')
@@ -835,7 +831,6 @@
                 .eq('course_id', course.id)
                 .maybeSingle();
             
-            // If not enrolled, enroll them
             if (!existingEnrollment) {
                 const { error: enrollError } = await supabaseClient
                     .from('enrollments')
@@ -845,140 +840,77 @@
                         status: 'active',
                         enrolled_at: new Date().toISOString()
                     }]);
-                
-                if (enrollError) {
-                    console.error('Enrollment error:', enrollError);
-                } else {
-                    showToast(`You've been enrolled in ${course.name}!`, false);
-                }
+
+                if (enrollError) throw enrollError;
             }
             
-            // Redirect to universal course page
             window.location.href = `/course.html?id=${course.id}`;
-            
         } catch (err) {
-            console.error('Error:', err);
-            // Still try to go to course page even if enrollment fails
-            window.location.href = `/course.html?id=${course.id}`;
+            console.error('Enrollment error:', err);
+            showToast('Failed to access course. Please try again.', true);
         } finally {
             setLoading(false);
         }
     }
-    
-    function showSkeletons() {
-        coursesContainer.innerHTML = `
-            <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-            <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-            <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-            <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
-        `;
-    }
-    
-    async function loadCourses() {
+
+    async function fetchCourses() {
         setLoading(true);
-        showSkeletons();
-        
         try {
-            console.log('Fetching courses from Supabase...');
             const { data, error } = await supabaseClient
                 .from('courses')
                 .select('*')
-                .order('id', { ascending: true });
-            
-            console.log('Courses loaded:', data?.length || 0);
-            
-            if (error) {
-                console.error('Supabase error:', error);
-                showToast('Failed to load courses. Please refresh the page.', true);
-                displayCourses([]);
-            } else if (data && data.length > 0) {
-                totalCoursesSpan.textContent = data.length.toString();
-                displayCourses(data);
-                console.log(`✅ Loaded ${data.length} courses from database`);
-            } else {
-                console.log('No courses found in database');
-                totalCoursesSpan.textContent = '0';
-                displayCourses([]);
-            }
-        } catch (error) {
-            console.error('Error loading courses:', error);
-            showToast('Failed to connect to database.', true);
-            displayCourses([]);
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            if (totalCoursesSpan) totalCoursesSpan.textContent = data ? data.length : 0;
+            displayCourses(data);
+        } catch (err) {
+            console.error('Error fetching courses:', err);
+            showToast('Could not load courses from the server.', true);
+            displayCourses([]); 
         } finally {
             setLoading(false);
         }
     }
-    
-    async function logout() {
-        setLoading(true);
-        await supabaseClient.auth.signOut();
-        setLoading(false);
-        showToast('Logged out successfully');
-        await updateAuthUI();
-        window.location.href = '/';
-    }
-    
-    function initMobileMenu() {
-        const menuBtn = document.getElementById('mobileMenuBtn');
-        const closeBtn = document.getElementById('mobileNavClose');
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateAuthUI();
+        fetchCourses();
+
+        // Navigation actions
+        document.getElementById('loginBtnNav')?.addEventListener('click', () => window.location.href = '/login.html');
+        document.getElementById('registerBtnNav')?.addEventListener('click', () => window.location.href = '/register.html');
+        document.getElementById('mobileLoginBtn')?.addEventListener('click', (e) => { e.preventDefault(); window.location.href = '/login.html'; });
+        document.getElementById('mobileRegisterBtn')?.addEventListener('click', (e) => { e.preventDefault(); window.location.href = '/register.html'; });
+        document.getElementById('heroGetStarted')?.addEventListener('click', () => window.location.href = '/register.html');
+        
+        const logoutHandler = async (e) => {
+            e.preventDefault();
+            setLoading(true);
+            await supabaseClient.auth.signOut();
+            window.location.reload();
+        };
+
+        document.getElementById('logoutBtnNav')?.addEventListener('click', logoutHandler);
+        document.getElementById('mobileLogoutBtn')?.addEventListener('click', logoutHandler);
+
+        // Responsive mobile menu navigation handler
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileNav = document.getElementById('mobileNav');
-        const overlay = document.getElementById('mobileOverlay');
-        
-        const openMenu = () => {
-            mobileNav.classList.add('active');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        };
-        const closeMenu = () => {
-            mobileNav.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-        };
-        
-        if (menuBtn) menuBtn.addEventListener('click', openMenu);
-        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
-        if (overlay) overlay.addEventListener('click', closeMenu);
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
-    }
-    
-    // Event Listeners
-    document.getElementById('loginBtnNav')?.addEventListener('click', () => {
-        window.location.href = '/login.html';
+        const mobileNavClose = document.getElementById('mobileNavClose');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+
+        function toggleMobileMenu(e) {
+            e.preventDefault();
+            mobileNav.classList.toggle('active');
+            mobileOverlay.classList.toggle('active');
+        }
+
+        mobileMenuBtn?.addEventListener('click', toggleMobileMenu);
+        mobileNavClose?.addEventListener('click', toggleMobileMenu);
+        mobileOverlay?.addEventListener('click', toggleMobileMenu);
     });
-    
-    document.getElementById('registerBtnNav')?.addEventListener('click', () => {
-        window.location.href = '/register.html';
-    });
-    
-    document.getElementById('mobileLoginBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = '/login.html';
-    });
-    
-    document.getElementById('mobileRegisterBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = '/register.html';
-    });
-    
-    document.getElementById('heroGetStarted')?.addEventListener('click', () => {
-        window.location.href = '/register.html';
-    });
-    
-    document.getElementById('logoutBtnNav')?.addEventListener('click', logout);
-    document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        logout();
-    });
-    
-    async function init() {
-        console.log('Initializing MEI DRIVE AFRICA...');
-        initMobileMenu();
-        await updateAuthUI();
-        await loadCourses();
-        supabaseClient.auth.onAuthStateChange(() => { updateAuthUI(); });
-    }
-    
-    init();
 </script>
 </body>
 </html>
