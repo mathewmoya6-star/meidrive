@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Electric Vehicle Course | MEI DRIVE AFRICA</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #041B3D;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(4, 27, 61, 0.96);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.15);
+            padding: 1rem 2rem;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #00FF88;
+            cursor: pointer;
+        }
+        .logo span { color: #fff; }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-links a:hover { color: #00FF88; }
+        .user-name { color: #00FF88; font-weight: 600; }
+        .logout-btn {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid #ff4d4f;
+            color: #ff4d4f;
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover { background: #ff4d4f; color: #fff; }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #041B3D, #0A234F);
+            padding: 120px 20px 60px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            color: #00FF88;
+            margin-bottom: 15px;
+        }
+        .hero h1 i { margin-right: 15px; }
+        .hero p {
+            color: #B7C4D6;
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Module Grid */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .module-card {
+            background: #0A234F;
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            border-color: #00FF88;
+        }
+        .module-card i {
+            font-size: 2.5rem;
+            color: #00FF88;
+            margin-bottom: 15px;
+        }
+        .module-card h3 {
+            color: #00FF88;
+            margin-bottom: 10px;
+        }
+        .module-card p {
+            color: #B7C4D6;
+            line-height: 1.5;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: #0A234F;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        .progress-bar {
+            background: #041B3D;
+            border-radius: 10px;
+            height: 20px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #00FF88;
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #0A234F;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid #00FF88;
+        }
+        .modal-content h2 {
+            color: #00FF88;
+            margin-bottom: 20px;
+        }
+        .modal-content h3 {
+            color: #00FF88;
+            margin: 20px 0 10px;
+        }
+        .modal-content p {
+            color: #B7C4D6;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .modal-content ul, .modal-content ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+            color: #B7C4D6;
+        }
+        .modal-content li { margin-bottom: 8px; }
+        .close-modal {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #fff;
+        }
+        .close-modal:hover { color: #00FF88; }
+
+        /* Quiz Section */
+        .quiz-section {
+            background: #0A234F;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .quiz-question {
+            background: #041B3D;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #0A234F;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .quiz-option:hover { background: #1a3a5f; }
+        .btn-check {
+            background: #00FF88;
+            color: #041B3D;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .quiz-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        .quiz-result.correct { background: rgba(0,255,136,0.2); color: #00FF88; display: block; }
+        .quiz-result.incorrect { background: rgba(255,68,68,0.2); color: #ff4d4f; display: block; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0A234F;
+            border-left: 4px solid #00FF88;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.error { border-left-color: #ff4d4f; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        footer {
+            background: #0A234F;
+            text-align: center;
+            padding: 30px;
+            color: #B7C4D6;
+            margin-top: 40px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 255, 136, 0.3);
+            border-top-color: #00FF88;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .module-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo" onclick="location.href='/'">MEI DRIVE <span>AFRICA</span></div>
+        <div class="nav-links">
+            <a href="/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <span class="user-name" id="userName">EV Learner</span>
+            <button class="logout-btn" id="logoutButton"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <h1><i class="fas fa-charging-station"></i> Electric Vehicle (EV) Course</h1>
+    <p>Master the skills to drive, maintain, and operate electric vehicles safely and efficiently</p>
+</section>
+
+<div class="container">
+    <!-- Progress Section -->
+    <div class="progress-section">
+        <h3><i class="fas fa-chart-line"></i> Course Progress</h3>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <p id="progressText">0% Complete (0/12 modules)</p>
+    </div>
+
+    <!-- Course Modules -->
+    <h2 style="margin-bottom: 20px;"><i class="fas fa-book-open"></i> Course Modules</h2>
+    <div id="modulesGrid" class="module-grid">
+        <div style="text-align:center; padding:40px;"><div class="spinner"></div> Loading modules...</div>
+    </div>
+
+    <!-- Quiz Section -->
+    <div class="quiz-section">
+        <h2><i class="fas fa-question-circle"></i> EV Knowledge Quiz</h2>
+        <div id="quizContainer">
+            <div style="text-align:center; padding:40px;"><div class="spinner"></div> Loading quiz...</div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 MEI DRIVE AFRICA | Electric Vehicle Training Program</p>
+    <p style="margin-top: 10px; font-size: 0.8rem;"><i class="fas fa-charging-station"></i> NTSA-Approved EV Course</p>
+</footer>
+
+<!-- Modal -->
+<div id="moduleModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentUser = null;
+    let modules = [];
+    let quizQuestions = [];
+    let completedModules = [];
+    let userProgress = null;
+    
+    // Check authentication
+    async function checkAuth() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.href = '/login.html';
+            return false;
+        }
+        currentUser = session.user;
+        
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', currentUser.id)
+            .maybeSingle();
+        
+        const displayName = profile?.full_name?.split(' ')[0] || currentUser.email.split('@')[0];
+        document.getElementById('userName').textContent = displayName;
+        
+        return true;
+    }
+    
+    // Load user progress
+    async function loadUserProgress() {
+        const { data, error } = await supabase
+            .from('ev_user_progress')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+        
+        if (data) {
+            userProgress = data;
+            completedModules = data.completed_modules || [];
+        }
+        updateProgressDisplay();
+    }
+    
+    // Save progress
+    async function saveProgress() {
+        const progressPercent = Math.round((completedModules.length / modules.length) * 100);
+        
+        const { error } = await supabase
+            .from('ev_user_progress')
+            .upsert({
+                user_id: currentUser.id,
+                completed_modules: completedModules,
+                overall_progress: progressPercent,
+                last_accessed: new Date(),
+                completed_at: progressPercent === 100 ? new Date() : null
+            });
+        
+        if (error) console.error('Error saving progress:', error);
+    }
+    
+    // Update progress display
+    function updateProgressDisplay() {
+        const percent = modules.length ? (completedModules.length / modules.length) * 100 : 0;
+        document.getElementById('progressFill').style.width = percent + '%';
+        document.getElementById('progressText').innerHTML = `${Math.round(percent)}% Complete (${completedModules.length}/${modules.length} modules)`;
+    }
+    
+    // Load modules from Supabase
+    async function loadModules() {
+        const grid = document.getElementById('modulesGrid');
+        
+        try {
+            const { data, error } = await supabase
+                .from('ev_course_modules')
+                .select('*')
+                .order('module_number', { ascending: true });
+            
+            if (error) throw error;
+            
+            modules = data || [];
+            
+            if (modules.length === 0) {
+                grid.innerHTML = '<div style="text-align:center; padding:40px;">No modules found. Please check back later.</div>';
+                return;
+            }
+            
+            grid.innerHTML = '';
+            
+            modules.forEach(module => {
+                const isCompleted = completedModules.includes(module.id);
+                const card = document.createElement('div');
+                card.className = 'module-card';
+                card.style.border = isCompleted ? '1px solid #00FF88' : '';
+                card.onclick = () => openModule(module);
+                
+                card.innerHTML = `
+                    <i class="fas ${module.icon || 'fa-book'}"></i>
+                    <h3>Module ${module.module_number}: ${module.title} ${isCompleted ? '✅' : ''}</h3>
+                    <p>${module.description?.substring(0, 100) || 'Click to view content'}...</p>
+                    ${!isCompleted ? `<button class="btn-check" onclick="event.stopPropagation(); completeModule(${module.id})">Mark Completed</button>` : ''}
+                `;
+                grid.appendChild(card);
+            });
+            
+        } catch (err) {
+            console.error('Error loading modules:', err);
+            grid.innerHTML = '<div style="text-align:center; padding:40px; color:#ff4d4f;">Error loading modules. Please refresh.</div>';
+        }
+    }
+    
+    // Load quiz questions from Supabase
+    async function loadQuizQuestions() {
+        const container = document.getElementById('quizContainer');
+        
+        try {
+            const { data, error } = await supabase
+                .from('ev_quiz_questions')
+                .select('*')
+                .limit(10);
+            
+            if (error) throw error;
+            
+            quizQuestions = data || [];
+            
+            if (quizQuestions.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px;">Quiz questions coming soon!</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            quizQuestions.forEach((q, idx) => {
+                html += `
+                    <div class="quiz-question">
+                        <p><strong>${idx + 1}. ${q.question}</strong></p>
+                        <div class="quiz-options" id="quiz-${idx}">
+                            <label class="quiz-option"><input type="radio" name="q${idx}" value="A"> A) ${escapeHtml(q.option_a)}</label>
+                            <label class="quiz-option"><input type="radio" name="q${idx}" value="B"> B) ${escapeHtml(q.option_b)}</label>
+                            <label class="quiz-option"><input type="radio" name="q${idx}" value="C"> C) ${escapeHtml(q.option_c)}</label>
+                            <label class="quiz-option"><input type="radio" name="q${idx}" value="D"> D) ${escapeHtml(q.option_d)}</label>
+                        </div>
+                        <button class="btn-check" onclick="checkAnswer(${idx}, '${q.correct_answer}', '${escapeHtml(q.explanation || '')}')">Check Answer</button>
+                        <div id="result-${idx}" class="quiz-result"></div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+        } catch (err) {
+            console.error('Error loading quiz:', err);
+            container.innerHTML = '<div style="text-align:center; padding:40px; color:#ff4d4f;">Error loading quiz. Please refresh.</div>';
+        }
+    }
+    
+    // Check answer
+    window.checkAnswer = function(qIdx, correctAnswer, explanation) {
+        const selected = document.querySelector(`input[name="q${qIdx}"]:checked`);
+        const resultDiv = document.getElementById(`result-${qIdx}`);
+        
+        if (!selected) {
+            resultDiv.innerHTML = 'Please select an answer';
+            resultDiv.className = 'quiz-result incorrect';
+            return;
+        }
+        
+        const isCorrect = selected.value === correctAnswer;
+        
+        if (isCorrect) {
+            resultDiv.innerHTML = `✅ Correct! ${explanation}`;
+            resultDiv.className = 'quiz-result correct';
+        } else {
+            resultDiv.innerHTML = `❌ Incorrect. ${explanation}`;
+            resultDiv.className = 'quiz-result incorrect';
+        }
+    };
+    
+    // Open module modal
+    function openModule(module) {
+        const modal = document.getElementById('moduleModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        modalContent.innerHTML = `
+            <h2><i class="fas ${module.icon || 'fa-book'}"></i> Module ${module.module_number}: ${module.title}</h2>
+            ${module.content || '<p>Content coming soon...</p>'}
+            <button class="btn-check" onclick="completeModule(${module.id}); closeModal();" style="margin-top:20px;">
+                ✅ Mark as Completed
+            </button>
+        `;
+        modal.classList.add('active');
+    }
+    
+    // Complete module
+    window.completeModule = async function(moduleId) {
+        if (!currentUser) {
+            showToast('Please login to track your progress', 'error');
+            window.location.href = '/login.html';
+            return;
+        }
+        
+        if (!completedModules.includes(moduleId)) {
+            completedModules.push(moduleId);
+            await saveProgress();
+            updateProgressDisplay();
+            loadModules();
+            showToast('✅ Module completed!', 'success');
+        }
+        closeModal();
+    };
+    
+    // Close modal
+    function closeModal() {
+        document.getElementById('moduleModal').classList.remove('active');
+    }
+    
+    // Logout
+    window.logout = async function() {
+        await supabase.auth.signOut();
+        window.location.href = '/';
+    };
+    
+    // Show toast
+    function showToast(message, type = 'info') {
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) existingToast.remove();
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+    
+    // Escape HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+    
+    // Initialize
+    async function init() {
+        const isAuthenticated = await checkAuth();
+        if (!isAuthenticated) return;
+        
+        await loadUserProgress();
+        await loadModules();
+        await loadQuizQuestions();
+    }
+    
+    // Event listeners
+    document.getElementById('logoutButton').addEventListener('click', logout);
+    
+    init();
+</script>
+</body>
+</html>
