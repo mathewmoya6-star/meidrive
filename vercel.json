@@ -1,83 +1,19 @@
 {
   "version": 2,
-  "buildCommand": "",
-  "outputDirectory": "public",
-  "installCommand": "",
-  "framework": null,
-  "cleanUrls": false,
-  "trailingSlash": true,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "*.{html,css,js,png,jpg,jpeg,gif,svg,ico,json,txt,xml}",
+      "use": "@vercel/static"
+    }
+  ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/index.html",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/course.html",
-      "dest": "/course.html"
-    },
-    {
-      "src": "/materials-display.html",
-      "dest": "/materials-display.html"
-    },
-    {
-      "src": "/unit-view.html",
-      "dest": "/unit-view.html"
-    },
-    {
-      "src": "/login.html",
-      "dest": "/login.html"
-    },
-    {
-      "src": "/register.html",
-      "dest": "/register.html"
-    },
-    {
-      "src": "/dashboard.html",
-      "dest": "/dashboard.html"
-    },
-    {
-      "src": "/admin-login.html",
-      "dest": "/admin-login.html"
-    },
-    {
-      "src": "/admin-dashboard.html",
-      "dest": "/admin-dashboard.html"
-    },
-    {
-      "src": "/quiz.html",
-      "dest": "/quiz.html"
-    },
-    {
-      "src": "/reset-password.html",
-      "dest": "/reset-password.html"
-    },
-    {
-      "src": "/404.html",
-      "dest": "/404.html"
-    },
-    {
-      "src": "/css/(.*)",
-      "dest": "/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/js/$1"
-    },
-    {
-      "src": "/images/(.*)",
-      "dest": "/images/$1"
-    },
-    {
-      "src": "/(.*)\\.(css|js|json|png|jpg|jpeg|gif|svg|ico|xml|txt|webmanifest)",
-      "dest": "/$1.$2"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "server.js"
     }
   ]
 }
