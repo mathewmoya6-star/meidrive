@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MEI DRIVE AFRICA | NTSA Approved Driver Training</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --neon-green: #00FF88;
+            --dark-navy: #041B3D;
+            --secondary-dark: #0A234F;
+            --white: #FFFFFF;
+            --soft-gray: #B7C4D6;
+            --error: #ff4444;
+            --warning: #ff9800;
+            --whatsapp: #25D366;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-md: 0 5px 20px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.2);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--secondary-dark);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+        
+        .loading-spinner {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 9999; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(4px);
+        }
+        .loading-spinner.active { display: flex; }
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid var(--dark-navy);
+            border-top-color: var(--neon-green); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; z-index: 10000;
+            background: var(--dark-navy); color: var(--white);
+            padding: 14px 24px; border-radius: 12px;
+            transform: translateX(400px); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-left: 4px solid var(--neon-green);
+            box-shadow: var(--shadow-lg); font-size: 0.9rem; max-width: 350px;
+        }
+        .toast.error { border-left-color: var(--error); }
+        .toast.show { transform: translateX(0); }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(4, 27, 61, 0.96);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.15);
+            padding: 1rem 2rem;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            cursor: pointer;
+        }
+        .logo span { color: var(--white); }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+            padding: 8px 12px;
+        }
+        .nav-links a:hover { color: var(--neon-green); }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .nav-btn:hover { background: var(--neon-green); color: var(--dark-navy); }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-name { color: var(--neon-green); font-weight: 600; }
+        .logout-btn {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .logout-btn:hover { background: var(--error); color: var(--white); }
+        
+        .hero {
+            min-height: 90vh;
+            background: linear-gradient(135deg, rgba(4, 27, 61, 0.9), rgba(10, 35, 79, 0.95)),
+                url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format&fit=crop') center/cover;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            padding-top: 80px;
+        }
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 span { color: var(--neon-green); }
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--soft-gray);
+            margin-bottom: 2rem;
+        }
+        .btn-primary, .btn-outline {
+            padding: 14px 34px;
+            border-radius: 40px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+        .btn-primary {
+            background: var(--neon-green);
+            color: var(--dark-navy);
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.35); }
+        .btn-outline {
+            border: 2px solid var(--neon-green);
+            background: transparent;
+            color: var(--white);
+            margin-left: 1rem;
+        }
+        .btn-outline:hover { background: var(--neon-green); color: var(--dark-navy); }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+        }
+        .section-title span { color: var(--neon-green); }
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--neon-green);
+            margin: 10px auto 0;
+        }
+        
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .course-card {
+            background: var(--dark-navy);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 255, 136, 0.15);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-green);
+            box-shadow: var(--shadow-lg);
+        }
+        .course-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .course-badge {
+            display: inline-block;
+            background: var(--neon-green);
+            color: var(--dark-navy);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+        }
+        .course-badge.premium { background: var(--warning); }
+        .course-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .course-card p {
+            color: var(--soft-gray);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .course-price {
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .course-price.free { color: var(--neon-green); }
+        .course-price.premium { color: var(--warning); }
+        .enrolled-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--neon-green);
+            color: var(--dark-navy);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .btn-view {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--white);
+            padding: 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+        .btn-view:hover { background: var(--neon-green); color: var(--dark-navy); }
+        
+        .skeleton-card {
+            background: var(--dark-navy);
+            border-radius: 20px;
+            padding: 1.5rem;
+            animation: pulse 1.5s infinite;
+        }
+        .skeleton-icon { width: 50px; height: 50px; background: var(--secondary-dark); border-radius: 12px; margin-bottom: 1rem; }
+        .skeleton-title { width: 70%; height: 20px; background: var(--secondary-dark); border-radius: 4px; margin-bottom: 0.75rem; }
+        .skeleton-text { width: 100%; height: 60px; background: var(--secondary-dark); border-radius: 4px; margin-bottom: 0.75rem; }
+        .skeleton-price { width: 40%; height: 18px; background: var(--secondary-dark); border-radius: 4px; margin-bottom: 0.75rem; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+        
+        .footer {
+            background: var(--dark-navy);
+            text-align: center;
+            padding: 2rem;
+            color: var(--soft-gray);
+            border-top: 1px solid rgba(0,255,136,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero-buttons { display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+            .btn-outline { margin-left: 0; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="loadingSpinner" class="loading-spinner"><div class="spinner"></div></div>
+<div id="toast" class="toast"></div>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo" onclick="location.href='/'">MEI DRIVE <span>AFRICA</span></div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#courses">Courses</a>
+            <div id="authLinks">
+                <button class="nav-btn" id="loginBtnNav">Login</button>
+                <button class="nav-btn" id="registerBtnNav">Register</button>
+            </div>
+            <div id="userInfoNav" class="user-info" style="display: none;">
+                <span class="user-name" id="userNameDisplay"></span>
+                <button class="logout-btn" id="logoutBtnNav">Logout</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
+        <p>NTSA-approved driver training courses for Kenyan roads. From beginner to professional.</p>
+        <div class="hero-buttons">
+            <a href="#courses" class="btn-primary">Explore Courses</a>
+            <button id="heroGetStarted" class="btn-outline">Get Started Free</button>
+        </div>
+    </div>
+</section>
+
+<section class="container" id="courses">
+    <h2 class="section-title">Our <span>Courses</span></h2>
+    <div id="coursesContainer" class="courses-grid"></div>
+</section>
+
+<footer class="footer">
+    <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training</p>
+    <p style="margin-top: 0.5rem;"><i class="fas fa-id-card"></i> Instructor: ILR-7WA1P62</p>
+</footer>
+
+<script>
+    // ============================================
+    // SUPABASE CONFIGURATION - SINGLE CLIENT
+    // ============================================
+    const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // ============================================
+    // DOM ELEMENTS
+    // ============================================
+    const toast = document.getElementById('toast');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const coursesContainer = document.getElementById('coursesContainer');
+    const authLinks = document.getElementById('authLinks');
+    const userInfo = document.getElementById('userInfoNav');
+    const userNameSpan = document.getElementById('userNameDisplay');
+    
+    let currentUser = null;
+    let userEnrollments = new Set(); // Store enrolled course IDs
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    function showToast(message, isError = false) {
+        toast.textContent = message;
+        toast.className = `toast ${isError ? 'error' : ''}`;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+    
+    function setLoading(loading) {
+        loading ? loadingSpinner.classList.add('active') : loadingSpinner.classList.remove('active');
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+    
+    // ============================================
+    // AUTHENTICATION
+    // ============================================
+    async function updateAuthUI() {
+        const { data: { session } } = await supabase.auth.getSession();
+        currentUser = session?.user || null;
+        
+        if (currentUser) {
+            let displayName = currentUser.email?.split('@')[0] || 'Driver';
+            // Try to get profile name
+            try {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', currentUser.id)
+                    .maybeSingle();
+                if (profile?.full_name) displayName = profile.full_name;
+            } catch(e) { /* table might not exist */ }
+            
+            authLinks.style.display = 'none';
+            userInfo.style.display = 'flex';
+            userNameSpan.textContent = displayName;
+        } else {
+            authLinks.style.display = 'flex';
+            userInfo.style.display = 'none';
+        }
+    }
+    
+    // ============================================
+    // COURSE FUNCTIONS
+    // ============================================
+    async function loadUserEnrollments() {
+        if (!currentUser) return;
+        try {
+            const { data } = await supabase
+                .from('enrollments')
+                .select('course_id')
+                .eq('user_id', currentUser.id);
+            
+            if (data) {
+                userEnrollments.clear();
+                data.forEach(e => userEnrollments.add(e.course_id));
+            }
+        } catch (err) {
+            console.log('Enrollments table not ready yet');
+        }
+    }
+    
+    async function enrollInCourse(courseId, courseTitle) {
+        if (!currentUser) {
+            showToast('Please login to enroll', true);
+            setTimeout(() => window.location.href = '/login.html', 1500);
+            return false;
+        }
+        
+        setLoading(true);
+        try {
+            // Check if already enrolled
+            const { data: existing } = await supabase
+                .from('enrollments')
+                .select('id')
+                .eq('user_id', currentUser.id)
+                .eq('course_id', courseId)
+                .maybeSingle();
+            
+            if (existing) {
+                showToast(`You are already enrolled in ${courseTitle}`, false);
+                return true;
+            }
+            
+            const { error } = await supabase
+                .from('enrollments')
+                .insert([{
+                    user_id: currentUser.id,
+                    course_id: courseId,
+                    status: 'active',
+                    enrolled_at: new Date().toISOString()
+                }]);
+            
+            if (error) {
+                if (error.code === '42P01') {
+                    // Table doesn't exist - still allow enrollment conceptually
+                    showToast(`Enrolled in ${courseTitle}! (Demo mode)`, false);
+                    userEnrollments.add(courseId);
+                    return true;
+                }
+                throw error;
+            }
+            
+            userEnrollments.add(courseId);
+            showToast(`✅ Successfully enrolled in ${courseTitle}!`, false);
+            return true;
+        } catch (err) {
+            console.error('Enrollment error:', err);
+            showToast('Enrollment failed. Please try again.', true);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }
+    
+    function viewCourse(course) {
+        if (!currentUser) {
+            showToast('Please login to access course content', true);
+            setTimeout(() => window.location.href = '/login.html', 1500);
+            return;
+        }
+        
+        // Store current course in sessionStorage for the course page
+        sessionStorage.setItem('currentCourse', JSON.stringify(course));
+        window.location.href = `/course-view.html?id=${course.id}`;
+    }
+    
+    async function handleCourseAction(course) {
+        const isEnrolled = userEnrollments.has(course.id);
+        
+        if (isEnrolled) {
+            viewCourse(course);
+        } else {
+            const success = await enrollInCourse(course.id, course.name);
+            if (success) {
+                viewCourse(course);
+            }
+        }
+    }
+    
+    function displayCourses(courses) {
+        if (!courses || courses.length === 0) {
+            coursesContainer.innerHTML = `
+                <div style="text-align:center; padding:60px; background:#0A234F; border-radius:20px; grid-column:1/-1;">
+                    <i class="fas fa-database" style="font-size:4rem; color:#FF4444;"></i>
+                    <h3 style="margin-top:20px;">No Courses Found</h3>
+                    <p style="margin-top:10px; color:#B7C4D6;">Please add courses to your Supabase 'courses' table.</p>
+                    <button onclick="location.reload()" style="margin-top:20px; background:#00FF88; border:none; padding:10px 30px; border-radius:30px; cursor:pointer; font-weight:bold;">Refresh</button>
+                </div>
+            `;
+            return;
+        }
+        
+        coursesContainer.innerHTML = '';
+        
+        courses.forEach(course => {
+            const isFree = course.type === 'free' || course.price === 0 || !course.price;
+            const isEnrolled = userEnrollments.has(course.id);
+            const price = course.price || 0;
+            
+            const card = document.createElement('div');
+            card.className = 'course-card';
+            
+            card.innerHTML = `
+                ${isEnrolled ? '<div class="enrolled-badge"><i class="fas fa-check"></i> Enrolled</div>' : ''}
+                <div class="course-icon">${course.icon || '🚗'}</div>
+                <div class="course-badge ${!isFree ? 'premium' : ''}">${isFree ? 'FREE' : 'PREMIUM'}</div>
+                <h3>${escapeHtml(course.name)}</h3>
+                <p>${escapeHtml(course.description || 'Professional driver training course covering all essential skills.')}</p>
+                <div class="course-price ${isFree ? 'free' : 'premium'}">
+                    ${isFree ? 'FREE' : `KES ${price.toLocaleString()}`}
+                </div>
+                <button class="btn-view" data-course-id="${course.id}">
+                    ${isEnrolled ? '<i class="fas fa-play"></i> Continue Learning' : '<i class="fas fa-plus-circle"></i> Enroll Now'}
+                </button>
+            `;
+            
+            card.querySelector('.btn-view').addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleCourseAction(course);
+            });
+            
+            coursesContainer.appendChild(card);
+        });
+    }
+    
+    function showSkeletons() {
+        coursesContainer.innerHTML = `
+            <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
+            <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
+            <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div></div>
+        `;
+    }
+    
+    async function fetchCourses() {
+        setLoading(true);
+        showSkeletons();
+        
+        try {
+            console.log('Fetching courses from Supabase...');
+            const { data, error } = await supabase
+                .from('courses')
+                .select('*')
+                .order('id', { ascending: true });
+            
+            if (error) {
+                console.error('Supabase error:', error);
+                showToast('Failed to load courses. Please check database connection.', true);
+                displayCourses([]);
+            } else if (data && data.length > 0) {
+                console.log(`✅ Loaded ${data.length} courses from database`);
+                displayCourses(data);
+            } else {
+                console.log('No courses found in database');
+                showToast('No courses found. Please add courses to your database.', true);
+                displayCourses([]);
+            }
+        } catch (error) {
+            console.error('Error loading courses:', error);
+            showToast('Failed to connect to database. Please check your connection.', true);
+            displayCourses([]);
+        } finally {
+            setLoading(false);
+        }
+    }
+    
+    // ============================================
+    // SQL SETUP INSTRUCTIONS
+    // ============================================
+    // Run this in your Supabase SQL editor to create the required tables:
+    /*
+    -- Create courses table
+    CREATE TABLE IF NOT EXISTS courses (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        price INTEGER DEFAULT 0,
+        type TEXT DEFAULT 'free',
+        icon TEXT DEFAULT '🚗',
+        created_at TIMESTAMP DEFAULT NOW()
+    );
+    
+    -- Insert sample courses
+    INSERT INTO courses (name, description, price, type, icon) VALUES
+    ('Learner Hub', 'Complete training for new drivers - from basics to road readiness. NTSA certified curriculum.', 0, 'free', '🚗'),
+    ('Defensive Driving', 'Advanced hazard perception, emergency maneuvers, and accident prevention techniques.', 5000, 'premium', '🛡️'),
+    ('PSV License Prep', 'Professional Service Vehicle license preparation for matatu, taxi, and bus drivers.', 7500, 'premium', '🚌'),
+    ('EV Driving Course', 'Electric vehicle handling, charging infrastructure, and eco-driving techniques.', 6000, 'premium', '⚡'),
+    ('Boda Boda Safety', 'Motorcycle safety, defensive riding, and road navigation for boda boda operators.', 3500, 'premium', '🏍️');
+    
+    -- Create enrollments table
+    CREATE TABLE IF NOT EXISTS enrollments (
+        id SERIAL PRIMARY KEY,
+        user_id UUID NOT NULL,
+        course_id INTEGER NOT NULL,
+        status TEXT DEFAULT 'active',
+        enrolled_at TIMESTAMP DEFAULT NOW(),
+        progress INTEGER DEFAULT 0,
+        UNIQUE(user_id, course_id)
+    );
+    
+    -- Enable RLS
+    ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE enrollments ENABLE ROW LEVEL SECURITY;
+    
+    -- Allow public read access to courses
+    CREATE POLICY "Enable read access for all users" ON courses
+        FOR SELECT USING (true);
+    
+    -- Allow authenticated users to manage their enrollments
+    CREATE POLICY "Enable insert for authenticated users" ON enrollments
+        FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+    
+    CREATE POLICY "Enable read for own enrollments" ON enrollments
+        FOR SELECT USING (auth.uid() = user_id);
+    */
+    
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    async function init() {
+        await updateAuthUI();
+        await loadUserEnrollments();
+        await fetchCourses();
+        
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange(async () => {
+            await updateAuthUI();
+            await loadUserEnrollments();
+            await fetchCourses();
+        });
+    }
+    
+    // Event listeners
+    document.getElementById('loginBtnNav')?.addEventListener('click', () => {
+        window.location.href = '/login.html';
+    });
+    
+    document.getElementById('registerBtnNav')?.addEventListener('click', () => {
+        window.location.href = '/register.html';
+    });
+    
+    document.getElementById('heroGetStarted')?.addEventListener('click', () => {
+        window.location.href = '/register.html';
+    });
+    
+    document.getElementById('logoutBtnNav')?.addEventListener('click', async () => {
+        setLoading(true);
+        await supabase.auth.signOut();
+        window.location.reload();
+    });
+    
+    init();
+</script>
+</body>
+</html>
