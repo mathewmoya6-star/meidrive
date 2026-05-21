@@ -800,14 +800,11 @@
             const card = document.createElement('div');
             card.className = 'course-card';
             
-            // FIXED: Redirect Refresher Course to professional-driver-course.html
+            // UPDATED: Universal course redirect - ALL courses go to course.html?id=X
             card.onclick = () => {
                 if (currentUser) {
-                    if (title === 'Refresher Course') {
-                        window.location.href = '/professional-driver-course.html';
-                    } else {
-                        window.location.href = `/course-learner.html`;
-                    }
+                    // Check if user is enrolled, if not, enroll them
+                    handleCourseAccess(course);
                 } else {
                     showToast('Please login to view course details', true);
                     window.location.href = '/login.html';
@@ -824,6 +821,48 @@
             `;
             coursesContainer.appendChild(card);
         });
+    }
+    
+    // New function to handle course access with auto-enrollment
+    async function handleCourseAccess(course) {
+        setLoading(true);
+        try {
+            // Check if already enrolled
+            const { data: existingEnrollment } = await supabaseClient
+                .from('enrollments')
+                .select('id')
+                .eq('user_id', currentUser.id)
+                .eq('course_id', course.id)
+                .maybeSingle();
+            
+            // If not enrolled, enroll them
+            if (!existingEnrollment) {
+                const { error: enrollError } = await supabaseClient
+                    .from('enrollments')
+                    .insert([{
+                        user_id: currentUser.id,
+                        course_id: course.id,
+                        status: 'active',
+                        enrolled_at: new Date().toISOString()
+                    }]);
+                
+                if (enrollError) {
+                    console.error('Enrollment error:', enrollError);
+                } else {
+                    showToast(`You've been enrolled in ${course.name}!`, false);
+                }
+            }
+            
+            // Redirect to universal course page
+            window.location.href = `/course.html?id=${course.id}`;
+            
+        } catch (err) {
+            console.error('Error:', err);
+            // Still try to go to course page even if enrollment fails
+            window.location.href = `/course.html?id=${course.id}`;
+        } finally {
+            setLoading(false);
+        }
     }
     
     function showSkeletons() {
