@@ -217,25 +217,35 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-spinner.active { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #00FF88;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         footer {
             background: #0A234F;
             text-align: center;
             padding: 30px;
             color: #B7C4D6;
             margin-top: 40px;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(0, 255, 136, 0.3);
-            border-top-color: #00FF88;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -245,6 +255,8 @@
     </style>
 </head>
 <body>
+
+<div id="loadingSpinner" class="loading-spinner"><div class="spinner"></div></div>
 
 <nav class="navbar">
     <div class="nav-container">
@@ -312,64 +324,123 @@
     let currentUser = null;
     let enrolledCourseIds = new Set();
     let allCourses = [];
+    let userProgress = {};
     
-    async function checkAuth() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            window.location.href = '/login.html';
-            return false;
+    function setLoading(loading) {
+        const spinner = document.getElementById('loadingSpinner');
+        if (loading) {
+            spinner.classList.add('active');
+        } else {
+            spinner.classList.remove('active');
         }
-        currentUser = session.user;
-        
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', currentUser.id)
-            .maybeSingle();
-        
-        const displayName = profile?.full_name?.split(' ')[0] || currentUser.email.split('@')[0];
-        document.getElementById('userName').textContent = displayName;
-        document.getElementById('welcomeMsg').textContent = `Welcome back, ${displayName}!`;
-        
-        return true;
     }
     
-    async function loadStats() {
+    async function checkAuth() {
+        setLoading(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = '/login.html';
+                return false;
+            }
+            currentUser = session.user;
+            
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', currentUser.id)
+                .maybeSingle();
+            
+            const displayName = profile?.full_name?.split(' ')[0] || currentUser.email.split('@')[0];
+            document.getElementById('userName').textContent = displayName;
+            document.getElementById('welcomeMsg').textContent = `Welcome back, ${displayName}!`;
+            
+            return true;
+        } catch (err) {
+            console.error('Auth error:', err);
+            window.location.href = '/login.html';
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }
+    
+    async function loadUserData() {
         try {
             // Get enrolled courses
             const { data: enrollments } = await supabase
                 .from('enrollments')
                 .select('course_id')
-                .eq('user_id', currentUser?.id);
+                .eq('user_id', currentUser.id);
             
             if (enrollments) {
                 document.getElementById('enrolledCount').textContent = enrollments.length;
                 enrolledCourseIds = new Set(enrollments.map(e => e.course_id));
             }
             
-            // Get user progress
+            // Get user progress for each course
             const { data: progress } = await supabase
                 .from('user_progress')
-                .select('overall_progress')
-                .eq('user_id', currentUser?.id);
+                .select('course_id, unit_id, completed, score')
+                .eq('user_id', currentUser.id);
             
-            if (progress && progress.length) {
-                const total = progress.reduce((a, b) => a + (b.overall_progress || 0), 0);
-                const avg = Math.round(total / progress.length);
-                document.getElementById('avgProgress').textContent = `${avg}%`;
+            if (progress) {
+                // Group progress by course
+                progress.forEach(p => {
+                    if (!userProgress[p.course_id]) {
+                        userProgress[p.course_id] = {
+                            completedUnits: new Set(),
+                            scores: []
+                        };
+                    }
+                    if (p.completed) {
+                        userProgress[p.course_id].completedUnits.add(p.unit_id);
+                    }
+                    if (p.score) {
+                        userProgress[p.course_id].scores.push(p.score);
+                    }
+                });
+                
+                // Calculate total completed units
+                let totalCompleted = 0;
+                Object.values(userProgress).forEach(course => {
+                    totalCompleted += course.completedUnits.size;
+                });
+                document.getElementById('completedUnits').textContent = totalCompleted;
+                
+                // Calculate average quiz score
+                let allScores = [];
+                Object.values(userProgress).forEach(course => {
+                    allScores = allScores.concat(course.scores);
+                });
+                const avgScore = allScores.length > 0 ? Math.round(allScores.reduce((a,b) => a+b, 0) / allScores.length) : 0;
+                document.getElementById('quizScore').textContent = `${avgScore}%`;
+                
+                // Calculate average progress across enrolled courses
+                let totalProgress = 0;
+                let progressCount = 0;
+                for (const courseId of enrolledCourseIds) {
+                    const course = allCourses.find(c => c.id === courseId);
+                    if (course) {
+                        const { data: units } = await supabase
+                            .from('course_units')
+                            .select('id')
+                            .eq('course_id', courseId);
+                        
+                        if (units && units.length > 0) {
+                            const completed = userProgress[courseId]?.completedUnits.size || 0;
+                            const percent = Math.round((completed / units.length) * 100);
+                            totalProgress += percent;
+                            progressCount++;
+                        }
+                    }
+                }
+                const avgProgress = progressCount > 0 ? Math.round(totalProgress / progressCount) : 0;
+                document.getElementById('avgProgress').textContent = `${avgProgress}%`;
             }
             
-            // Get completed units
-            const { data: completed } = await supabase
-                .from('user_progress')
-                .select('unit_id')
-                .eq('user_id', currentUser?.id)
-                .eq('completed', true);
-            
-            document.getElementById('completedUnits').textContent = completed?.length || 0;
-            
         } catch (err) {
-            console.error('Error loading stats:', err);
+            console.error('Error loading user data:', err);
         }
     }
     
@@ -395,7 +466,7 @@
             console.log('Courses loaded:', courses?.length || 0);
             allCourses = courses || [];
             
-            // Remove duplicates by name (keep first occurrence)
+            // Remove duplicates by name
             const uniqueCourses = [];
             const seenNames = new Set();
             for (const course of allCourses) {
@@ -457,24 +528,47 @@
         container.innerHTML = '';
         
         courses.forEach(course => {
+            const courseProgress = userProgress[course.id];
+            const completedCount = courseProgress?.completedUnits.size || 0;
+            
+            // Get total units for this course
+            const getCourseProgress = async () => {
+                const { data: units } = await supabase
+                    .from('course_units')
+                    .select('id')
+                    .eq('course_id', course.id);
+                
+                const totalUnits = units?.length || 1;
+                const percent = Math.round((completedCount / totalUnits) * 100);
+                
+                const progressElement = document.getElementById(`progress_${course.id}`);
+                if (progressElement) {
+                    progressElement.style.width = `${percent}%`;
+                }
+            };
+            
             const card = document.createElement('div');
             card.className = 'course-card';
             card.innerHTML = `
                 <span class="badge enrolled"><i class="fas fa-check-circle"></i> ENROLLED</span>
                 <h3><i class="fas fa-car"></i> ${escapeHtml(course.name)}</h3>
                 <p>${escapeHtml(course.description) || 'Continue your learning journey.'}</p>
+                <div class="progress-bar-container" style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; margin: 10px 0;">
+                    <div id="progress_${course.id}" style="background: #00FF88; width: 0%; height: 100%; border-radius: 10px; transition: width 0.3s;"></div>
+                </div>
                 <button class="btn-start" onclick="window.startCourse(${course.id})">
                     <i class="fas fa-play-circle"></i> Continue Learning
                 </button>
-                <button class="btn-start btn-quiz" onclick="window.startQuiz(${course.id})">
-                    <i class="fas fa-question-circle"></i> Take Practice Quiz
-                </button>
             `;
             container.appendChild(card);
+            
+            // Load progress asynchronously
+            getCourseProgress();
         });
     }
     
     window.enrollInCourse = async function(courseId) {
+        setLoading(true);
         try {
             // Check if already enrolled
             const { data: existing } = await supabase
@@ -505,93 +599,33 @@
                 showToast('Successfully enrolled in course!', 'success');
                 enrolledCourseIds.add(courseId);
                 await loadCourses();
-                await loadStats();
+                await loadUserData();
             }
         } catch (err) {
             console.error('Error:', err);
             showToast('Failed to enroll. Please try again.', 'error');
+        } finally {
+            setLoading(false);
         }
     };
     
     window.startCourse = function(courseId) {
-        // Find the course name
-        const course = allCourses.find(c => c.id === courseId);
-        if (course && course.name === 'Learner Hub') {
-            window.location.href = `/course-learner.html`;
-        } else {
-            showToast(`The ${course?.name || 'course'} content is coming soon!`, 'error');
-        }
+        window.location.href = `/course.html?id=${courseId}`;
     };
     
-    window.startQuiz = async function(courseId) {
-        try {
-            // Fetch quiz questions from Supabase
-            const { data: questions, error } = await supabase
-                .from('quiz_questions')
-                .select('*')
-                .limit(10);
-            
-            if (error || !questions || questions.length === 0) {
-                showToast('Quiz questions coming soon!', 'error');
-                return;
-            }
-            
-            let score = 0;
-            for (let i = 0; i < questions.length; i++) {
-                const q = questions[i];
-                const userAnswer = prompt(`
-📝 QUIZ QUESTION ${i+1}/${questions.length}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${q.question}
-
-A) ${q.option_a}
-B) ${q.option_b}
-C) ${q.option_c}
-D) ${q.option_d}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Enter A, B, C, or D:`);
-                
-                if (userAnswer && userAnswer.toUpperCase() === q.correct_answer) {
-                    score++;
-                    alert('✅ Correct!');
-                } else if (userAnswer) {
-                    let correctText = '';
-                    if (q.correct_answer === 'A') correctText = q.option_a;
-                    else if (q.correct_answer === 'B') correctText = q.option_b;
-                    else if (q.correct_answer === 'C') correctText = q.option_c;
-                    else correctText = q.option_d;
-                    alert(`❌ Incorrect. The correct answer is: ${correctText}`);
-                }
-            }
-            
-            const percent = Math.round((score / questions.length) * 100);
-            showToast(`🎉 Quiz completed! Score: ${score}/${questions.length} (${percent}%)`, 'success');
-            document.getElementById('quizScore').textContent = `${percent}%`;
-            
-            // Save quiz score to database
-            await supabase
-                .from('user_progress')
-                .upsert({
-                    user_id: currentUser.id,
-                    score: percent,
-                    updated_at: new Date()
-                });
-            
-        } catch (err) {
-            console.error('Quiz error:', err);
-            showToast('Error loading quiz. Please try again.', 'error');
-        }
-    };
-    
-    // FIXED: Proper logout function
+    // FIXED: Working logout function
     async function handleLogout() {
+        setLoading(true);
         try {
             await supabase.auth.signOut();
             localStorage.clear();
+            sessionStorage.clear();
             window.location.href = '/';
         } catch (err) {
             console.error('Logout error:', err);
             window.location.href = '/';
+        } finally {
+            setLoading(false);
         }
     }
     
@@ -611,7 +645,7 @@ Enter A, B, C, or D:`);
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
-    // FIXED: Event listener for logout button
+    // Event listener for logout button
     document.getElementById('logoutButton').addEventListener('click', function(e) {
         e.preventDefault();
         handleLogout();
@@ -620,8 +654,8 @@ Enter A, B, C, or D:`);
     async function init() {
         const isAuthenticated = await checkAuth();
         if (!isAuthenticated) return;
-        await loadStats();
         await loadCourses();
+        await loadUserData();
     }
     
     init();
