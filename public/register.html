@@ -177,19 +177,11 @@
 </div>
 
 <script>
-    // ============================================
-    // SUPABASE CONFIGURATION
-    // ============================================
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
     
-    // Initialize Supabase client
-    const { createClient } = window.supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    console.log('Register page - Supabase initialized');
-    
-    // DOM elements
     const form = document.getElementById('registerForm');
     const registerBtn = document.getElementById('registerBtn');
     const fullNameInput = document.getElementById('fullName');
@@ -200,7 +192,6 @@
     const successBox = document.getElementById('successBox');
     const passwordHelp = document.getElementById('passwordHelp');
     
-    // Helper functions
     function showError(message) {
         errorBox.textContent = message;
         errorBox.style.display = 'block';
@@ -219,13 +210,11 @@
         registerBtn.innerHTML = state ? '<span class="loader"></span>Creating account...' : 'Create Account';
     }
     
-    // Validate email format
     function isValidEmail(email) {
         const re = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
         return re.test(String(email).toLowerCase());
     }
     
-    // Check password strength
     function updatePasswordStrength() {
         const password = passwordInput.value;
         if (password.length >= 6) {
@@ -240,12 +229,10 @@
         }
     }
     
-    // Check if passwords match
     function doPasswordsMatch() {
         return passwordInput.value === confirmPasswordInput.value;
     }
     
-    // Event listeners for password validation
     passwordInput.addEventListener('input', updatePasswordStrength);
     confirmPasswordInput.addEventListener('input', () => {
         if (confirmPasswordInput.value.length > 0 && !doPasswordsMatch()) {
@@ -255,7 +242,6 @@
         }
     });
     
-    // Registration handler
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -264,7 +250,6 @@
         const password = passwordInput.value;
         const confirmPassword = confirmPasswordInput.value;
         
-        // Validation
         if (!fullName || !email || !password || !confirmPassword) {
             return showError('Please fill in all fields');
         }
@@ -290,10 +275,7 @@
         successBox.style.display = 'none';
         
         try {
-            console.log('Attempting registration for:', email);
-            
-            // Register user with Supabase
-            const { data, error } = await supabaseClient.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email: email,
                 password: password,
                 options: {
@@ -305,26 +287,16 @@
             });
             
             if (error) {
-                console.error('Registration error:', error);
                 setLoading(false);
-                
                 if (error.message.includes('User already registered')) {
                     return showError('This email is already registered. Please login instead.');
-                } else if (error.message.includes('Password should be at least 6 characters')) {
-                    return showError('Password must be at least 6 characters');
                 }
                 return showError(error.message);
             }
             
             if (data.user) {
-                console.log('Registration successful for:', email);
-                
-                // Profile is auto-created by Supabase trigger
                 showSuccess('Account created successfully! Redirecting to login...');
-                
-                // Clear form
                 form.reset();
-                
                 setTimeout(() => {
                     window.location.href = '/login.html';
                 }, 2000);
@@ -337,15 +309,8 @@
         }
     });
     
-    // Auto-fill demo for testing (remove in production)
-    // fullNameInput.value = 'Test User';
-    // emailInput.value = 'test@example.com';
-    // passwordInput.value = 'Test123456';
-    // confirmPasswordInput.value = 'Test123456';
-    
-    // Test connection
     async function testConnection() {
-        const { error } = await supabaseClient.from('courses').select('id').limit(1);
+        const { error } = await supabase.from('courses').select('id').limit(1);
         if (error) {
             console.warn('Connection test:', error.message);
         } else {
@@ -353,16 +318,13 @@
         }
     }
     
-    // Check if already logged in
     async function checkExistingSession() {
-        const { data: { session } } = await supabaseClient.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-            // User is already logged in, redirect to dashboard
             window.location.href = '/dashboard.html';
         }
     }
     
-    // Initialize
     testConnection();
     checkExistingSession();
 </script>
