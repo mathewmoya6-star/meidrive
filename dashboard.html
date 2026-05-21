@@ -21,7 +21,7 @@
         try {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
-                window.location.href = '/login.html';
+                window.location.replace('/login.html');
                 return false;
             }
             currentUser = session.user;
@@ -33,13 +33,16 @@
                 .maybeSingle();
             
             const displayName = profile?.full_name?.split(' ')[0] || currentUser.email.split('@')[0];
-            document.getElementById('userName').textContent = displayName;
-            document.getElementById('welcomeMsg').textContent = `Welcome back, ${displayName}!`;
+            
+            const nameEl = document.getElementById('userName');
+            const welcomeEl = document.getElementById('welcomeMsg');
+            if (nameEl) nameEl.textContent = displayName;
+            if (welcomeEl) welcomeEl.textContent = `Welcome back, ${displayName}!`;
             
             return true;
         } catch (err) {
             console.error('Auth error:', err);
-            window.location.href = '/login.html';
+            window.location.replace('/login.html');
             return false;
         } finally {
             setLoading(false);
@@ -59,11 +62,14 @@
             return allCourses;
         } catch (err) {
             console.error('Error loading courses:', err);
-            document.getElementById('coursesGrid').innerHTML = `
-                <div style="text-align:center; padding:40px; color:#ff4d4f;">
-                    <i class="fas fa-exclamation-circle"></i> Error loading courses. 
-                    <button onclick="location.reload()" style="margin-top:10px; padding:8px 16px; background:#00FF88; border:none; border-radius:8px; cursor:pointer;">Retry</button>
-                </div>`;
+            const grid = document.getElementById('coursesGrid');
+            if (grid) {
+                grid.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#ff4d4f;">
+                        <i class="fas fa-exclamation-circle"></i> Error loading courses. 
+                        <button onclick="location.reload()" style="margin-top:10px; padding:8px 16px; background:#00FF88; border:none; border-radius:8px; cursor:pointer;">Retry</button>
+                    </div>`;
+            }
             return [];
         }
     }
@@ -77,7 +83,8 @@
                 .eq('user_id', currentUser.id);
             
             if (enrollments) {
-                document.getElementById('enrolledCount').textContent = enrollments.length;
+                const countEl = document.getElementById('enrolledCount');
+                if (countEl) countEl.textContent = enrollments.length;
                 enrolledCourseIds = new Set(enrollments.map(e => e.course_id));
             }
             
@@ -103,7 +110,8 @@
                 Object.values(userProgress).forEach(course => {
                     totalCompleted += course.completedUnits.size;
                 });
-                document.getElementById('completedUnits').textContent = totalCompleted;
+                const completedUnitsEl = document.getElementById('completedUnits');
+                if (completedUnitsEl) completedUnitsEl.textContent = totalCompleted;
                 
                 // Calculate total average quiz scores
                 let allScores = [];
@@ -111,7 +119,8 @@
                     allScores = allScores.concat(course.scores);
                 });
                 const avgScore = allScores.length > 0 ? Math.round(allScores.reduce((a,b) => a+b, 0) / allScores.length) : 0;
-                document.getElementById('quizScore').textContent = `${avgScore}%`;
+                const quizScoreEl = document.getElementById('quizScore');
+                if (quizScoreEl) quizScoreEl.textContent = `${avgScore}%`;
                 
                 // Safe sequential progress loader mapping calculations
                 let totalProgress = 0;
@@ -133,7 +142,8 @@
                     }
                 }
                 const avgProgress = progressCount > 0 ? Math.round(totalProgress / progressCount) : 0;
-                document.getElementById('avgProgress').textContent = `${avgProgress}%`;
+                const avgProgressEl = document.getElementById('avgProgress');
+                if (avgProgressEl) avgProgressEl.textContent = `${avgProgress}%`;
             }
             
             // 3. Prevent duplicate course renders based on matching titles
@@ -277,15 +287,18 @@
     async function handleLogout() {
         setLoading(true);
         try {
-            await supabase.auth.signOut();
+            // Force sign out locally even if connection fails or session is expired
+            await supabase.auth.signOut({ scope: 'local' });
+        } catch (err) {
+            console.error('Supabase explicit signout failed:', err);
+        } finally {
+            // Always run cleanup steps regardless of database connection status
             localStorage.clear();
             sessionStorage.clear();
-            window.location.href = '/';
-        } catch (err) {
-            console.error('Logout operation error:', err);
-            window.location.href = '/';
-        } finally {
+            currentUser = null;
+            enrolledCourseIds = new Set();
             setLoading(false);
+            window.location.replace('/');
         }
     }
     
@@ -307,9 +320,13 @@
         }[m]));
     }
     
-    document.getElementById('logoutButton').addEventListener('click', function(e) {
-        e.preventDefault();
-        handleLogout();
+    // EVENT DELEGATION: Catches click on logout button even if UI re-renders dynamically
+    document.addEventListener('click', function(e) {
+        const logoutBtn = e.target.closest('#logoutButton');
+        if (logoutBtn) {
+            e.preventDefault();
+            handleLogout();
+        }
     });
     
     // Proper structural loading lifecycle chain
