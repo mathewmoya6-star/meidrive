@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Learn | MEI DRIVE AFRICA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --neon-green: #00FF88;
+            --dark-navy: #041B3D;
+            --secondary-dark: #0A234F;
+            --white: #FFFFFF;
+            --soft-gray: #B7C4D6;
+            --error: #ff4444;
+            --success: #00FF88;
+            --warning: #ff9800;
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--secondary-dark);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+        
+        .loading-spinner {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 9999; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(4px);
+        }
+        .loading-spinner.active { display: flex; }
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid var(--dark-navy);
+            border-top-color: var(--neon-green); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; z-index: 10000;
+            background: var(--dark-navy); color: var(--white);
+            padding: 14px 24px; border-radius: 12px;
+            transform: translateX(400px); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-left: 4px solid var(--neon-green);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            font-size: 0.9rem;
+            max-width: 350px;
+        }
+        .toast.error { border-left-color: var(--error); }
+        .toast.show { transform: translateX(0); }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(4, 27, 61, 0.96);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.15);
+            padding: 1rem 2rem;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            cursor: pointer;
+        }
+        .logo span { color: var(--white); }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+        .nav-links a:hover { color: var(--neon-green); }
+        .back-link {
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .back-link:hover { background: var(--neon-green); color: var(--dark-navy); }
+        .logout-btn {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .logout-btn:hover { background: var(--error); color: var(--white); }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-name {
+            color: var(--neon-green);
+            font-weight: 600;
+        }
+        
+        .main-content {
+            padding-top: 90px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Course Header */
+        .course-header {
+            background: linear-gradient(135deg, var(--dark-navy), #061832);
+            border-radius: 28px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        .course-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--neon-green);
+        }
+        .course-header .course-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            color: var(--soft-gray);
+            font-size: 0.85rem;
+        }
+        .progress-section {
+            margin-top: 1.5rem;
+        }
+        .progress-label {
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .progress-bar-bg {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background: var(--neon-green);
+            width: 0%;
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.3s;
+        }
+        
+        /* Course Content */
+        .course-content {
+            background: var(--dark-navy);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 255, 136, 0.15);
+        }
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--neon-green);
+            display: inline-block;
+        }
+        
+        /* Units List */
+        .units-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .unit-item {
+            background: var(--secondary-dark);
+            border-radius: 16px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+        }
+        .unit-item:hover {
+            border-color: var(--neon-green);
+            transform: translateX(5px);
+        }
+        .unit-number {
+            width: 40px;
+            height: 40px;
+            background: var(--neon-green);
+            color: var(--dark-navy);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .unit-number.locked {
+            background: var(--soft-gray);
+            color: var(--dark-navy);
+        }
+        .unit-number.completed {
+            background: var(--success);
+        }
+        .unit-details {
+            flex: 1;
+        }
+        .unit-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .unit-description {
+            font-size: 0.8rem;
+            color: var(--soft-gray);
+        }
+        .unit-status {
+            width: 40px;
+            text-align: center;
+        }
+        .unit-status i {
+            font-size: 1.2rem;
+        }
+        .unit-status .fa-check-circle { color: var(--success); }
+        .unit-status .fa-lock { color: var(--error); }
+        .unit-status .fa-play-circle { color: var(--neon-green); }
+        .btn-start-unit {
+            background: var(--neon-green);
+            color: var(--dark-navy);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .btn-start-unit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,255,136,0.3);
+        }
+        .btn-start-unit:disabled {
+            background: #4a627a;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Lesson Modal */
+        .lesson-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .lesson-modal.active {
+            display: flex;
+        }
+        .lesson-content {
+            background: var(--dark-navy);
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 28px;
+            padding: 2rem;
+            border: 1px solid var(--neon-green);
+            position: relative;
+        }
+        .lesson-content h2 {
+            color: var(--neon-green);
+            margin-bottom: 1rem;
+        }
+        .lesson-body {
+            margin: 1.5rem 0;
+            line-height: 1.6;
+        }
+        .lesson-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        .btn-complete {
+            background: var(--neon-green);
+            color: var(--dark-navy);
+            border: none;
+            padding: 10px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-close {
+            background: transparent;
+            border: 1px solid var(--soft-gray);
+            color: var(--soft-gray);
+            padding: 10px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--soft-gray);
+        }
+        .close-modal:hover { color: var(--error); }
+        
+        .footer {
+            background: var(--dark-navy);
+            text-align: center;
+            padding: 2rem;
+            color: var(--soft-gray);
+            border-top: 1px solid rgba(0,255,136,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .course-header h1 { font-size: 1.5rem; }
+            .unit-item { flex-wrap: wrap; }
+            .unit-status { width: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="loadingSpinner" class="loading-spinner"><div class="spinner"></div></div>
+<div id="toast" class="toast"></div>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo" onclick="location.href='/'">MEI DRIVE <span>AFRICA</span></div>
+        <div class="nav-links">
+            <a href="/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="#" class="back-link" id="backToCourses"><i class="fas fa-arrow-left"></i> All Courses</a>
+            <div id="userInfoNav" class="user-info">
+                <span class="user-name" id="userNameDisplay"></span>
+                <button class="logout-btn" id="logoutBtnNav"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="container">
+        <div id="courseContainer">
+            <div style="text-align: center; padding: 60px;">
+                <div class="spinner" style="margin: 0 auto 20px;"></div>
+                <p>Loading course content...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="lessonModal" class="lesson-modal">
+    <div class="lesson-content">
+        <span class="close-modal" id="closeModalBtn">&times;</span>
+        <h2 id="modalTitle">Lesson Title</h2>
+        <div id="modalBody" class="lesson-body">
+            <p>Lesson content will appear here...</p>
+        </div>
+        <div class="lesson-actions">
+            <button class="btn-close" id="modalCloseBtn">Close</button>
+            <button class="btn-complete" id="modalCompleteBtn">Mark as Completed</button>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training</p>
+</footer>
+
+<script>
+    // ============================================
+    // SUPABASE CONFIGURATION - SINGLE CLIENT
+    // ============================================
+    const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // ============================================
+    // DOM ELEMENTS
+    // ============================================
+    const toast = document.getElementById('toast');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const courseContainer = document.getElementById('courseContainer');
+    const lessonModal = document.getElementById('lessonModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    
+    let currentUser = null;
+    let currentCourse = null;
+    let courseUnits = [];
+    let completedUnits = new Set();
+    let currentUnitId = null;
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    function showToast(message, isError = false) {
+        toast.textContent = message;
+        toast.className = `toast ${isError ? 'error' : ''}`;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+    
+    function setLoading(loading) {
+        loading ? loadingSpinner.classList.add('active') : loadingSpinner.classList.remove('active');
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+    
+    // ============================================
+    // AUTHENTICATION
+    // ============================================
+    async function checkAuth() {
+        setLoading(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                showToast('Please login to access course content', true);
+                setTimeout(() => { window.location.href = '/login.html'; }, 1500);
+                return false;
+            }
+            
+            currentUser = session.user;
+            
+            // Get user name
+            let displayName = currentUser.email?.split('@')[0] || 'Driver';
+            try {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', currentUser.id)
+                    .maybeSingle();
+                if (profile?.full_name) displayName = profile.full_name;
+            } catch(e) {}
+            
+            document.getElementById('userNameDisplay').textContent = displayName;
+            return true;
+        } catch (err) {
+            console.error('Auth error:', err);
+            window.location.href = '/login.html';
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }
+    
+    // ============================================
+    // GET COURSE ID FROM URL
+    // ============================================
+    function getCourseIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('id');
+    }
+    
+    // ============================================
+    // LOAD COURSE DETAILS
+    // ============================================
+    async function loadCourse(courseId) {
+        try {
+            // Try to get from database
+            let { data: course, error } = await supabase
+                .from('courses')
+                .select('*')
+                .eq('id', courseId)
+                .single();
+            
+            if (error || !course) {
+                // Fallback demo courses
+                const demoCourses = {
+                    1: { id: 1, name: 'Learner Hub', description: 'Complete training for new drivers - from basics to road readiness.', price: 0, type: 'free' },
+                    2: { id: 2, name: 'Defensive Driving', description: 'Advanced hazard perception and accident prevention techniques.', price: 5000, type: 'premium' },
+                    3: { id: 3, name: 'PSV License Prep', description: 'Professional Service Vehicle license preparation.', price: 7500, type: 'premium' },
+                    4: { id: 4, name: 'EV Driving Course', description: 'Electric vehicle handling and eco-driving techniques.', price: 6000, type: 'premium' },
+                    5: { id: 5, name: 'Boda Boda Safety', description: 'Motorcycle safety and defensive riding.', price: 3500, type: 'premium' }
+                };
+                course = demoCourses[courseId];
+                if (!course) throw new Error('Course not found');
+            }
+            
+            currentCourse = course;
+            return course;
+        } catch (err) {
+            console.error('Error loading course:', err);
+            showToast('Course not found', true);
+            return null;
+        }
+    }
+    
+    // ============================================
+    // GENERATE COURSE UNITS (8 units per course)
+    // ============================================
+    function generateCourseUnits(courseId, courseName) {
+        const unitTemplates = {
+            1: [ // Learner Hub
+                'Introduction to Driving - Vehicle controls, cockpit drill, and safety checks',
+                'Road Signs & Rules - Understanding Kenyan road signs and traffic rules',
+                'Basic Maneuvers - Steering, clutch control, gear changes, and braking',
+                'Parking Techniques - Parallel parking, reverse parking, and bay parking',
+                'Roundabouts & Junctions - Navigating roundabouts and junctions safely',
+                'Highway Driving - Motorway and highway driving techniques',
+                'Defensive Driving - Anticipating hazards and staying safe',
+                'NTSA Final Assessment - Prepare for your driving test'
+            ],
+            2: [ // Defensive Driving
+                'Hazard Perception - Identifying potential dangers on the road',
+                'Safe Following Distance - The 2-second and 4-second rules',
+                'Emergency Maneuvers - Evasive steering and emergency braking',
+                'Night Driving - Dealing with reduced visibility and fatigue',
+                'Weather Conditions - Driving in rain, fog, and adverse weather',
+                'Distraction Management - Avoiding phone and in-car distractions',
+                'Aggressive Drivers - Dealing with road rage and aggressive behavior',
+                'Final Assessment - Defensive driving certification test'
+            ],
+            3: [ // PSV License Prep
+                'PSV Regulations - Kenyan PSV laws and requirements',
+                'Passenger Safety - Safe loading, unloading, and passenger management',
+                'Route Planning - Efficient navigation and time management',
+                'Vehicle Inspections - Daily checks and maintenance requirements',
+                'Defensive PSV Driving - Safety with passengers on board',
+                'Emergency Procedures - Handling breakdowns and emergencies',
+                'Customer Service - Professional conduct with passengers',
+                'PSV Final Exam - Mock test for PSV license'
+            ],
+            4: [ // EV Driving Course
+                'EV Basics - Understanding electric vehicle components',
+                'Charging Infrastructure - Types of chargers and charging stations',
+                'Range Management - Maximizing battery range and efficiency',
+                'Regenerative Braking - One-pedal driving techniques',
+                'EV Safety - High-voltage safety and emergency response',
+                'Eco-Driving Techniques - Maximizing efficiency in EVs',
+                'EV Maintenance - Battery care and EV-specific maintenance',
+                'EV Final Assessment - Electric vehicle certification'
+            ],
+            5: [ // Boda Boda Safety
+                'Basic Motorcycle Control - Balance, throttle, and braking',
+                'Defensive Riding - Staying visible and avoiding hazards',
+                'Passenger Safety - Carrying passengers safely',
+                'Helmet & Gear - Proper protective equipment',
+                'Road Positioning - Lane discipline for motorcycles',
+                'Emergency Braking - Stopping quickly and safely',
+                'Night Riding - Visibility and caution techniques',
+                'Boda Boda Final Test - Riding certification'
+            ]
+        };
+        
+        const templates = unitTemplates[courseId] || unitTemplates[1];
+        
+        return templates.map((desc, index) => ({
+            id: index + 1,
+            unit_number: index + 1,
+            title: desc.split(' - ')[0],
+            description: desc.split(' - ')[1] || desc,
+            content: `In this unit, you will learn about ${desc}. This comprehensive lesson covers all the essential knowledge and practical skills needed to master this topic. Complete the interactive exercises and quiz to test your understanding.`
+        }));
+    }
+    
+    // ============================================
+    // LOAD USER PROGRESS
+    // ============================================
+    async function loadProgress(courseId) {
+        if (!currentUser) return;
+        
+        try {
+            const { data } = await supabase
+                .from('user_progress')
+                .select('unit_id, completed')
+                .eq('user_id', currentUser.id)
+                .eq('course_id', courseId);
+            
+            if (data) {
+                completedUnits.clear();
+                data.forEach(p => {
+                    if (p.completed) completedUnits.add(p.unit_id);
+                });
+            }
+        } catch (err) {
+            // Try localStorage fallback
+            const saved = localStorage.getItem(`progress_${courseId}_${currentUser.id}`);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                completedUnits.clear();
+                parsed.forEach(id => completedUnits.add(id));
+            }
+        }
+    }
+    
+    // ============================================
+    // SAVE PROGRESS
+    // ============================================
+    async function saveProgress(courseId, unitId) {
+        if (!currentUser) return;
+        
+        try {
+            const { error } = await supabase
+                .from('user_progress')
+                .upsert({
+                    user_id: currentUser.id,
+                    course_id: courseId,
+                    unit_id: unitId,
+                    completed: true,
+                    updated_at: new Date().toISOString()
+                });
+            
+            if (error && error.code !== '42P01') {
+                console.error('Save error:', error);
+            }
+        } catch (err) {
+            // Save to localStorage fallback
+            const saved = localStorage.getItem(`progress_${courseId}_${currentUser.id}`);
+            let progress = saved ? JSON.parse(saved) : [];
+            if (!progress.includes(unitId)) {
+                progress.push(unitId);
+                localStorage.setItem(`progress_${courseId}_${currentUser.id}`, JSON.stringify(progress));
+            }
+        }
+        
+        if (!completedUnits.has(unitId)) {
+            completedUnits.add(unitId);
+        }
+    }
+    
+    // ============================================
+    // RENDER COURSE
+    // ============================================
+    function renderCourse() {
+        if (!currentCourse) return;
+        
+        const totalUnits = courseUnits.length;
+        const completedCount = completedUnits.size;
+        const progressPercent = totalUnits > 0 ? Math.floor((completedCount / totalUnits) * 100) : 0;
+        
+        let unitsHtml = '';
+        courseUnits.forEach((unit, index) => {
+            const isCompleted = completedUnits.has(unit.id);
+            const isLocked = index > 0 && !completedUnits.has(courseUnits[index - 1].id);
+            
+            unitsHtml += `
+                <div class="unit-item">
+                    <div class="unit-number ${isCompleted ? 'completed' : (isLocked ? 'locked' : '')}">
+                        ${isCompleted ? '<i class="fas fa-check"></i>' : unit.unit_number}
+                    </div>
+                    <div class="unit-details">
+                        <div class="unit-title">${escapeHtml(unit.title)}</div>
+                        <div class="unit-description">${escapeHtml(unit.description)}</div>
+                    </div>
+                    <div class="unit-status">
+                        ${isCompleted ? '<i class="fas fa-check-circle"></i>' : (isLocked ? '<i class="fas fa-lock"></i>' : '')}
+                    </div>
+                    <button class="btn-start-unit" data-unit-id="${unit.id}" data-unit-title="${escapeHtml(unit.title)}" ${isLocked ? 'disabled' : ''}>
+                        ${isCompleted ? 'Review' : 'Start'}
+                    </button>
+                </div>
+            `;
+        });
+        
+        courseContainer.innerHTML = `
+            <div class="course-header">
+                <h1><i class="fas fa-graduation-cap"></i> ${escapeHtml(currentCourse.name)}</h1>
+                <p>${escapeHtml(currentCourse.description)}</p>
+                <div class="course-meta">
+                    <span><i class="fas fa-layer-group"></i> ${totalUnits} Units</span>
+                    <span><i class="fas fa-clock"></i> Self-paced</span>
+                    <span><i class="fas fa-certificate"></i> NTSA Certified</span>
+                </div>
+                <div class="progress-section">
+                    <div class="progress-label">Your Progress: ${progressPercent}% (${completedCount}/${totalUnits} completed)</div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${progressPercent}%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="course-content">
+                <div class="section-title"><i class="fas fa-list"></i> Course Units</div>
+                <div class="units-list">
+                    ${unitsHtml}
+                </div>
+            </div>
+        `;
+        
+        // Attach unit button events
+        document.querySelectorAll('.btn-start-unit').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const unitId = parseInt(btn.dataset.unitId);
+                const unitTitle = btn.dataset.unitTitle;
+                const unit = courseUnits.find(u => u.id === unitId);
+                if (unit) openLesson(unit);
+            });
+        });
+    }
+    
+    // ============================================
+    // OPEN LESSON MODAL
+    // ============================================
+    function openLesson(unit) {
+        currentUnitId = unit.id;
+        modalTitle.textContent = `Unit ${unit.unit_number}: ${unit.title}`;
+        modalBody.innerHTML = `
+            <div style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 16px;">
+                <p style="margin-bottom: 1rem;">${escapeHtml(unit.content)}</p>
+                <div style="background: rgba(0,255,136,0.1); padding: 1rem; border-radius: 12px; margin-top: 1rem;">
+                    <i class="fas fa-quiz"></i> <strong>Quick Check:</strong> After completing this unit, you'll be ready for the next lesson!
+                </div>
+            </div>
+        `;
+        lessonModal.classList.add('active');
+    }
+    
+    // ============================================
+    // COMPLETE UNIT
+    // ============================================
+    async function completeCurrentUnit() {
+        if (!currentUnitId) return;
+        
+        if (!completedUnits.has(currentUnitId)) {
+            await saveProgress(currentCourse.id, currentUnitId);
+            showToast('🎉 Unit completed! Great job!', false);
+            renderCourse();
+        }
+        lessonModal.classList.remove('active');
+        currentUnitId = null;
+    }
+    
+    // ============================================
+    // LOGOUT
+    // ============================================
+    async function handleLogout() {
+        setLoading(true);
+        await supabase.auth.signOut();
+        window.location.href = '/';
+    }
+    
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    async function init() {
+        const authenticated = await checkAuth();
+        if (!authenticated) return;
+        
+        const courseId = getCourseIdFromUrl();
+        if (!courseId) {
+            showToast('No course selected', true);
+            setTimeout(() => { window.location.href = '/dashboard.html'; }, 1500);
+            return;
+        }
+        
+        const course = await loadCourse(courseId);
+        if (!course) {
+            window.location.href = '/dashboard.html';
+            return;
+        }
+        
+        courseUnits = generateCourseUnits(course.id, course.name);
+        await loadProgress(course.id);
+        renderCourse();
+    }
+    
+    // Event listeners
+    document.getElementById('backToCourses')?.addEventListener('click', () => {
+        window.location.href = '/dashboard.html';
+    });
+    
+    document.getElementById('logoutBtnNav')?.addEventListener('click', handleLogout);
+    document.getElementById('closeModalBtn')?.addEventListener('click', () => {
+        lessonModal.classList.remove('active');
+    });
+    document.getElementById('modalCloseBtn')?.addEventListener('click', () => {
+        lessonModal.classList.remove('active');
+    });
+    document.getElementById('modalCompleteBtn')?.addEventListener('click', completeCurrentUnit);
+    
+    lessonModal.addEventListener('click', (e) => {
+        if (e.target === lessonModal) lessonModal.classList.remove('active');
+    });
+    
+    init();
+</script>
+</body>
+</html>
