@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Dashboard | MEI DRIVE AFRICA</title>
-    <!-- Supabase JS - global object window.supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -21,7 +20,6 @@
             overflow-x: hidden;
         }
 
-        /* Navigation */
         .navbar {
             position: fixed;
             top: 0;
@@ -97,7 +95,6 @@
             border-color: #ff4d4f;
         }
 
-        /* Main Layout */
         .main {
             padding-top: 100px;
             padding-bottom: 50px;
@@ -110,7 +107,6 @@
             padding: 0 24px;
         }
 
-        /* Welcome Banner */
         .welcome-card {
             background: linear-gradient(125deg, #0F2B55, #041B3D);
             border-radius: 32px;
@@ -121,7 +117,7 @@
         }
 
         .welcome-card h1 {
-            font-size: 2.1rem;
+            font-size: 2rem;
             margin-bottom: 8px;
         }
 
@@ -133,29 +129,6 @@
         .welcome-card p {
             color: #c0d4f5;
             font-size: 1rem;
-            margin-bottom: 24px;
-        }
-
-        .btn-explore {
-            background: #00FF88;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 40px;
-            font-weight: 700;
-            color: #041B3D;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 10px rgba(0, 255, 136, 0.2);
-        }
-
-        .btn-explore:hover {
-            transform: translateY(-2px);
-            background: #2eff9a;
-            box-shadow: 0 8px 18px rgba(0, 255, 136, 0.3);
         }
 
         /* Stats Row */
@@ -197,8 +170,8 @@
             letter-spacing: 0.5px;
         }
 
-        /* Progress Section */
-        .progress-section {
+        /* Courses Section */
+        .courses-section {
             background: #0F2B55;
             border-radius: 28px;
             padding: 28px 30px;
@@ -208,7 +181,7 @@
 
         .section-title {
             font-size: 1.6rem;
-            margin-bottom: 18px;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -220,76 +193,155 @@
             color: #00FF88;
         }
 
-        .progress-track {
-            background: #041B3D;
-            border-radius: 40px;
-            height: 14px;
-            width: 100%;
-            margin: 20px 0 12px;
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 10px;
+        }
+
+        .course-card {
+            background: rgba(4, 27, 61, 0.8);
+            border-radius: 24px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 255, 136, 0.15);
+            position: relative;
             overflow: hidden;
         }
 
-        .progress-fill {
-            background: linear-gradient(90deg, #00FF88, #2ecc71);
+        .course-card:hover {
+            transform: translateY(-4px);
+            border-color: #00FF88;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+        }
+
+        .course-icon {
+            font-size: 2.5rem;
+            color: #00FF88;
+            margin-bottom: 16px;
+        }
+
+        .course-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .course-description {
+            color: #b8cce8;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+            color: #8aa3c2;
+        }
+
+        .course-meta i {
+            margin-right: 5px;
+            color: #00FF88;
+        }
+
+        .course-progress {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            font-size: 0.75rem;
+            margin-bottom: 6px;
+            color: #9bb5da;
+        }
+
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: #00FF88;
             width: 0%;
             height: 100%;
-            border-radius: 40px;
-            transition: width 0.5s ease;
+            border-radius: 20px;
+            transition: width 0.3s;
         }
 
-        .progress-stats {
+        .course-actions {
             display: flex;
-            justify-content: space-between;
-            color: #bfd6ff;
-            font-size: 0.85rem;
-            margin-top: 8px;
+            gap: 12px;
         }
 
-        .course-shortcut {
-            margin-top: 28px;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .btn-learner-hub {
-            background: rgba(0, 255, 136, 0.12);
-            border: 1px solid #00FF88;
-            padding: 10px 28px;
+        .btn-enroll, .btn-continue {
+            flex: 1;
+            padding: 10px 16px;
             border-radius: 40px;
-            color: #00FF88;
             font-weight: 600;
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            transition: all 0.2s;
+            text-align: center;
+            border: none;
         }
 
-        .btn-learner-hub:hover {
+        .btn-enroll {
             background: #00FF88;
             color: #041B3D;
-            transform: scale(1.02);
         }
 
-        .support-note {
-            background: rgba(0, 255, 136, 0.05);
+        .btn-enroll:hover {
+            background: #2eff9a;
+            transform: translateY(-2px);
+        }
+
+        .btn-continue {
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid #00FF88;
+            color: #00FF88;
+        }
+
+        .btn-continue:hover {
+            background: #00FF88;
+            color: #041B3D;
+        }
+
+        .enrolled-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #00FF88;
+            color: #041B3D;
+            padding: 4px 12px;
             border-radius: 20px;
-            padding: 18px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-top: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
         }
 
-        footer {
+        .loading-spinner {
             text-align: center;
-            padding: 28px;
-            color: #8aa3c2;
-            background: #051d3a;
-            border-top: 1px solid rgba(0, 255, 136, 0.1);
-            margin-top: 40px;
+            padding: 60px;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(0, 255, 136, 0.2);
+            border-top-color: #00FF88;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .toast-msg {
@@ -314,6 +366,21 @@
             border-left-color: #ff4d4f;
         }
 
+        .empty-courses {
+            text-align: center;
+            padding: 60px;
+            color: #9bb5da;
+        }
+
+        footer {
+            text-align: center;
+            padding: 28px;
+            color: #8aa3c2;
+            background: #051d3a;
+            border-top: 1px solid rgba(0, 255, 136, 0.1);
+            margin-top: 40px;
+        }
+
         @media (max-width: 700px) {
             .navbar {
                 padding: 0.8rem 1rem;
@@ -323,6 +390,9 @@
             }
             .stats-row {
                 flex-direction: column;
+            }
+            .courses-grid {
+                grid-template-columns: 1fr;
             }
             .section-title {
                 font-size: 1.3rem;
@@ -347,8 +417,7 @@
         <!-- Welcome Hero -->
         <div class="welcome-card">
             <h1><i class="fas fa-car-side"></i> Welcome back, <span id="userNameDisplay">Driver</span>!</h1>
-            <p>Track your journey to becoming a certified driver with MEI DRIVE AFRICA.</p>
-            <button class="btn-explore" id="exploreCoursesBtn"><i class="fas fa-rocket"></i> Explore New Courses</button>
+            <p>Track your journey to becoming a certified driver with MEI DRIVE AFRICA. Browse and enroll in courses below.</p>
         </div>
 
         <!-- Stats Cards -->
@@ -366,58 +435,44 @@
             <div class="stat-card">
                 <i class="fas fa-chart-line"></i>
                 <div class="stat-number" id="overallPercent">0%</div>
-                <div class="stat-label">Overall Progress</div>
+                <div class="stat-label">Average Progress</div>
             </div>
         </div>
 
-        <!-- My Driving Progress Section -->
-        <div class="progress-section">
+        <!-- Available Courses Section -->
+        <div class="courses-section">
             <div class="section-title">
-                <i class="fas fa-road"></i> My Driving Progress
+                <i class="fas fa-graduation-cap"></i> Available Courses
             </div>
-            <p style="margin-bottom: 8px; color: #cfe2ff;">Track your journey to becoming a certified driver with MEI DRIVE AFRICA.</p>
-            <div class="progress-track">
-                <div class="progress-fill" id="mainProgressFill"></div>
+            <div id="coursesContainer">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading courses...</p>
+                </div>
             </div>
-            <div class="progress-stats">
-                <span><i class="fas fa-flag-checkered"></i> Learner Hub progress</span>
-                <span id="progressPercentLabel">0% Complete</span>
-            </div>
-            <div class="course-shortcut">
-                <button class="btn-learner-hub" id="goToLearnerHubBtn"><i class="fas fa-graduation-cap"></i> Continue Learning →</button>
-            </div>
-        </div>
-
-        <!-- Support / Quick info -->
-        <div class="support-note">
-            <div><i class="fas fa-headset"></i> Need help? Contact our support team 24/7</div>
-            <div><i class="fas fa-envelope"></i> support@meidriveafrica.com</div>
         </div>
     </div>
 </div>
 
 <footer>
-    <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved | Drive Safe, Drive Smart</p>
+    <p>© 2026 MEI DRIVE AFRICA | NTSA Approved | Drive Safe, Drive Smart</p>
 </footer>
 
 <script>
-    // ------------------------------
-    // FIX: Use window.supabase ONLY once, no redeclaration.
-    // No "let supabase" or "const supabase" redefinition.
-    // We'll create a single client instance and reuse it.
-    // ------------------------------
+    // SUPABASE CREDENTIALS
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
     
-    // Create supabase client (global variable to be used across functions)
-    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Create Supabase client - SINGLE INSTANCE
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     // Global state
-    let currentSessionUser = null;
-    let learnerCourseId = 1;      // Learner Hub course ID
-
-    // Helper: toast messages
-    function showDashboardMessage(message, isError = false) {
+    let currentUser = null;
+    let allCourses = [];           // All available courses
+    let userEnrollments = new Map(); // course_id -> { enrolled, completedUnits, totalUnits, progress }
+    
+    // ----- HELPER: Show toast -----
+    function showToast(message, isError = false) {
         const existing = document.querySelector('.toast-msg');
         if (existing) existing.remove();
         const toast = document.createElement('div');
@@ -427,7 +482,7 @@
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3200);
     }
-
+    
     function escapeHtml(str) {
         if (!str) return '';
         return String(str).replace(/[&<>]/g, function(m) {
@@ -437,198 +492,353 @@
             return m;
         });
     }
-
-    // Authentication check & get current user
+    
+    // ----- AUTH CHECK -----
     async function checkAuthAndGetUser() {
         try {
-            const { data: { session }, error } = await _supabase.auth.getSession();
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
             if (error || !session) {
-                console.warn("No active session, redirecting to login");
-                showDashboardMessage("Session expired, redirecting...", true);
-                setTimeout(() => {
-                    window.location.href = '/login.html';
-                }, 1200);
+                showToast("Session expired, redirecting to login...", true);
+                setTimeout(() => { window.location.href = '/login.html'; }, 1200);
                 return null;
             }
-            currentSessionUser = session.user;
-            // Update welcome name
+            currentUser = session.user;
             const nameElem = document.getElementById('userNameDisplay');
-            if (nameElem && currentSessionUser) {
-                const displayName = currentSessionUser.user_metadata?.full_name || currentSessionUser.email?.split('@')[0] || "Driver";
+            if (nameElem && currentUser) {
+                const displayName = currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || "Driver";
                 nameElem.innerText = displayName;
             }
-            return currentSessionUser;
+            return currentUser;
         } catch (err) {
             console.error("Auth error:", err);
             window.location.href = '/login.html';
             return null;
         }
     }
-
-    // Fetch aggregated progress: For Learner Hub (course_id = 1)
-    // Get total units count, and user completed units
-    async function fetchLearnerProgress(userId) {
+    
+    // ----- DEFINE AVAILABLE COURSES (with 8 units each for consistency) -----
+    const DEFAULT_COURSES = [
+        { id: 1, title: "Learner Hub", description: "Complete training for new drivers - from basics to road readiness. Includes 8 modules covering everything you need to pass your test.", icon: "fa-car", total_units: 8, color: "#00FF88" },
+        { id: 2, title: "Defensive Driving", description: "Advanced hazard perception, emergency maneuvers, and accident prevention techniques for experienced drivers.", icon: "fa-shield-hal", total_units: 8, color: "#FFB347" },
+        { id: 3, title: "Highway Code Pro", description: "Master Kenyan traffic laws, road signs, and regulations with interactive scenarios and mock tests.", icon: "fa-book", total_units: 8, color: "#6C63FF" }
+    ];
+    
+    // ----- LOAD COURSES (from DB or fallback) -----
+    async function loadCourses() {
+        const container = document.getElementById('coursesContainer');
+        
         try {
-            // 1) get units from course_units (or fallback mock stats)
-            let totalUnits = 8; // fallback
-            let { data: unitsData, error: unitsErr } = await _supabase
-                .from('course_units')
-                .select('id, unit_number')
-                .eq('course_id', learnerCourseId)
-                .order('unit_number', { ascending: true });
-
-            if (unitsErr || !unitsData || unitsData.length === 0) {
-                // mock fallback unit count (consistent with learner hub)
-                totalUnits = 9;
+            // Try to fetch from Supabase courses table
+            let { data: dbCourses, error } = await supabaseClient
+                .from('courses')
+                .select('*')
+                .order('id', { ascending: true });
+            
+            if (error || !dbCourses || dbCourses.length === 0) {
+                console.log('Using default courses (no courses table found)');
+                allCourses = [...DEFAULT_COURSES];
             } else {
-                totalUnits = unitsData.length;
+                allCourses = dbCourses;
             }
             
-            // 2) get user progress for this course
-            let completedUnitsSet = new Set();
-            let { data: progressData } = await _supabase
-                .from('user_progress')
-                .select('unit_id, completed')
-                .eq('user_id', userId)
-                .eq('course_id', learnerCourseId);
+            // Now load user enrollments and progress
+            await loadUserEnrollments();
             
-            if (progressData && progressData.length) {
-                progressData.forEach(p => {
-                    if (p.completed === true) completedUnitsSet.add(p.unit_id);
-                });
-            }
+            // Render courses
+            renderCourses();
+            updateStats();
             
-            const completedCount = completedUnitsSet.size;
-            const percent = totalUnits > 0 ? Math.floor((completedCount / totalUnits) * 100) : 0;
-            
-            // Enrolled courses: For now assume user has enrolled in the Learner Hub (at least 1)
-            // For demo, we count Learner Hub as enrolled if any progress exists OR just 1 active course.
-            // If user has at least started we mark as enrolled.
-            const hasAnyProgress = (progressData && progressData.length > 0);
-            let enrolledCourses = hasAnyProgress ? 1 : 0;
-            // If total completed units > 0 OR visited dashboard, user is effectively enrolled
-            if (!hasAnyProgress && completedCount === 0) {
-                // check if there is ANY record for this user-course, if not, they might not have started.
-                // but we treat enrolledCourses as 1 if they have a session because they are on dashboard.
-                // For better UX: if user logged in, we assume they are enrolled in at least the free Learner Hub.
-                const { data: anyRecord } = await _supabase
-                    .from('user_progress')
-                    .select('id')
-                    .eq('user_id', userId)
-                    .limit(1);
-                if (anyRecord && anyRecord.length > 0) enrolledCourses = 1;
-                else enrolledCourses = 1;   // default: every authenticated user is enrolled in Learner Hub
-            } else {
-                enrolledCourses = 1;
-            }
-            
-            // completed courses: if overall progress 100% we consider the course completed
-            let completedCourses = 0;
-            if (percent === 100 && totalUnits > 0) completedCourses = 1;
-            
-            return {
-                totalUnits,
-                completedUnitsCount: completedCount,
-                percentComplete: percent,
-                enrolledCourses: enrolledCourses,
-                completedCourses: completedCourses
-            };
         } catch (err) {
-            console.error("Error fetching progress:", err);
-            return {
-                totalUnits: 9,
-                completedUnitsCount: 0,
-                percentComplete: 0,
-                enrolledCourses: 1,
-                completedCourses: 0
-            };
+            console.error("Error loading courses:", err);
+            allCourses = [...DEFAULT_COURSES];
+            await loadUserEnrollments();
+            renderCourses();
+            updateStats();
+            showToast("Using default course catalog", false);
         }
     }
-
-    // Update Dashboard UI with dynamic stats
-    async function updateDashboardStats() {
-        if (!currentSessionUser) return;
+    
+    // Load user's enrolled courses and progress from user_progress table
+    async function loadUserEnrollments() {
+        if (!currentUser) return;
         
-        const stats = await fetchLearnerProgress(currentSessionUser.id);
-        
-        // Update UI elements
-        const enrolledSpan = document.getElementById('enrolledCount');
-        const completedSpan = document.getElementById('completedCount');
-        const overallPercentSpan = document.getElementById('overallPercent');
-        const progressFill = document.getElementById('mainProgressFill');
-        const progressLabel = document.getElementById('progressPercentLabel');
-        
-        if (enrolledSpan) enrolledSpan.innerText = stats.enrolledCourses;
-        if (completedSpan) completedSpan.innerText = stats.completedCourses;
-        if (overallPercentSpan) overallPercentSpan.innerText = `${stats.percentComplete}%`;
-        if (progressFill) progressFill.style.width = `${stats.percentComplete}%`;
-        if (progressLabel) progressLabel.innerText = `${stats.percentComplete}% Complete`;
-        
-        // Also update secondary info if needed
-        // Save into localStorage for cross-page sync (optional)
-        localStorage.setItem('mei_last_progress', JSON.stringify({
-            percent: stats.percentComplete,
-            enrolled: stats.enrolledCourses,
-            completedCourses: stats.completedCourses
-        }));
+        try {
+            // Get all progress records for this user across courses
+            const { data: progressData, error: progErr } = await supabaseClient
+                .from('user_progress')
+                .select('course_id, unit_id, completed')
+                .eq('user_id', currentUser.id);
+            
+            if (progErr) {
+                console.warn("Progress table might not exist, using localStorage fallback");
+                loadFromLocalStorage();
+                return;
+            }
+            
+            if (progressData && progressData.length > 0) {
+                // Group by course_id
+                const courseProgress = new Map();
+                progressData.forEach(record => {
+                    if (!courseProgress.has(record.course_id)) {
+                        courseProgress.set(record.course_id, { completedUnits: new Set(), totalUnits: 0 });
+                    }
+                    if (record.completed) {
+                        courseProgress.get(record.course_id).completedUnits.add(record.unit_id);
+                    }
+                });
+                
+                // Set total units for each course
+                allCourses.forEach(course => {
+                    const courseId = course.id;
+                    if (courseProgress.has(courseId)) {
+                        const prog = courseProgress.get(courseId);
+                        prog.totalUnits = course.total_units || 8;
+                        const percent = prog.totalUnits > 0 ? Math.floor((prog.completedUnits.size / prog.totalUnits) * 100) : 0;
+                        userEnrollments.set(courseId, {
+                            enrolled: true,
+                            completedUnits: prog.completedUnits.size,
+                            totalUnits: prog.totalUnits,
+                            percentComplete: percent
+                        });
+                    } else {
+                        // Check if user ever started this course (any progress record)
+                        const hasAny = progressData.some(p => p.course_id === courseId);
+                        if (hasAny) {
+                            userEnrollments.set(courseId, {
+                                enrolled: true,
+                                completedUnits: 0,
+                                totalUnits: course.total_units || 8,
+                                percentComplete: 0
+                            });
+                        }
+                    }
+                });
+                
+                // Save to localStorage for offline fallback
+                saveToLocalStorage();
+            } else {
+                loadFromLocalStorage();
+            }
+        } catch (err) {
+            console.warn("Failed to load enrollments from DB, using localStorage");
+            loadFromLocalStorage();
+        }
     }
     
-    // Handle logout
-    async function performLogout() {
+    function loadFromLocalStorage() {
+        const saved = localStorage.getItem('mei_user_enrollments');
+        if (saved) {
+            try {
+                const enrollments = JSON.parse(saved);
+                userEnrollments.clear();
+                Object.keys(enrollments).forEach(courseId => {
+                    userEnrollments.set(parseInt(courseId), enrollments[courseId]);
+                });
+            } catch(e) {}
+        }
+    }
+    
+    function saveToLocalStorage() {
+        const enrollmentsObj = {};
+        userEnrollments.forEach((value, key) => {
+            enrollmentsObj[key] = value;
+        });
+        localStorage.setItem('mei_user_enrollments', JSON.stringify(enrollmentsObj));
+    }
+    
+    // Enroll in a course
+    async function enrollInCourse(courseId) {
+        if (!currentUser) {
+            showToast("Please login to enroll", true);
+            return;
+        }
+        
+        const course = allCourses.find(c => c.id === courseId);
+        if (!course) return;
+        
+        // Check if already enrolled
+        if (userEnrollments.has(courseId) && userEnrollments.get(courseId).enrolled) {
+            showToast(`You are already enrolled in ${course.title}`, false);
+            goToCourse(courseId);
+            return;
+        }
+        
+        // Create enrollment record in user_progress (initial record)
         try {
-            await _supabase.auth.signOut();
-            showDashboardMessage("Logged out successfully", false);
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 800);
+            // Insert a placeholder progress record for the course
+            const { error } = await supabaseClient
+                .from('user_progress')
+                .upsert({
+                    user_id: currentUser.id,
+                    course_id: courseId,
+                    overall_progress: 0,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id, course_id' });
+            
+            if (error) {
+                console.warn("DB enrollment sync issue, but will store locally:", error);
+            }
+            
+            // Update local state
+            userEnrollments.set(courseId, {
+                enrolled: true,
+                completedUnits: 0,
+                totalUnits: course.total_units || 8,
+                percentComplete: 0
+            });
+            saveToLocalStorage();
+            
+            showToast(`✅ Enrolled in ${course.title}! Start learning now.`, false);
+            renderCourses();
+            updateStats();
+            
         } catch (err) {
-            console.error("Logout error", err);
+            console.error("Enrollment error:", err);
+            // Still allow local enrollment
+            userEnrollments.set(courseId, {
+                enrolled: true,
+                completedUnits: 0,
+                totalUnits: course.total_units || 8,
+                percentComplete: 0
+            });
+            saveToLocalStorage();
+            showToast(`✅ Enrolled in ${course.title} (offline mode)`, false);
+            renderCourses();
+            updateStats();
+        }
+    }
+    
+    // Navigate to course learner page
+    function goToCourse(courseId) {
+        if (courseId === 1) {
+            window.location.href = '/course-learner.html';
+        } else {
+            // For other courses, we can create dynamic pages or use same learner hub with different course ID
+            // For now, redirect to learner hub with course param
+            window.location.href = `/course-learner.html?course=${courseId}`;
+        }
+    }
+    
+    // Render all courses with enrollment status and progress
+    function renderCourses() {
+        const container = document.getElementById('coursesContainer');
+        
+        if (!allCourses.length) {
+            container.innerHTML = '<div class="empty-courses"><i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 16px; display: block;"></i>No courses available at the moment.</div>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        allCourses.forEach(course => {
+            const enrollment = userEnrollments.get(course.id);
+            const isEnrolled = enrollment && enrollment.enrolled;
+            const progressPercent = isEnrolled ? (enrollment.percentComplete || 0) : 0;
+            const completedUnits = isEnrolled ? (enrollment.completedUnits || 0) : 0;
+            const totalUnits = course.total_units || 8;
+            
+            const card = document.createElement('div');
+            card.className = 'course-card';
+            
+            card.innerHTML = `
+                ${isEnrolled ? '<div class="enrolled-badge"><i class="fas fa-check"></i> Enrolled</div>' : ''}
+                <div class="course-icon">
+                    <i class="fas ${course.icon || 'fa-car'}"></i>
+                </div>
+                <h3 class="course-title">${escapeHtml(course.title)}</h3>
+                <p class="course-description">${escapeHtml(course.description)}</p>
+                <div class="course-meta">
+                    <span><i class="fas fa-layer-group"></i> ${totalUnits} Units</span>
+                    ${isEnrolled ? `<span><i class="fas fa-chart-simple"></i> ${completedUnits}/${totalUnits} completed</span>` : ''}
+                </div>
+                ${isEnrolled ? `
+                    <div class="course-progress">
+                        <div class="progress-label">Your Progress: ${progressPercent}%</div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: ${progressPercent}%;"></div>
+                        </div>
+                    </div>
+                ` : ''}
+                <div class="course-actions">
+                    ${isEnrolled ? 
+                        `<button class="btn-continue" data-course-id="${course.id}"><i class="fas fa-play"></i> Continue</button>` :
+                        `<button class="btn-enroll" data-course-id="${course.id}"><i class="fas fa-plus-circle"></i> Enroll Now</button>`
+                    }
+                </div>
+            `;
+            
+            container.appendChild(card);
+        });
+        
+        // Attach event listeners
+        document.querySelectorAll('.btn-enroll').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const courseId = parseInt(btn.dataset.courseId);
+                enrollInCourse(courseId);
+            });
+        });
+        
+        document.querySelectorAll('.btn-continue').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const courseId = parseInt(btn.dataset.courseId);
+                goToCourse(courseId);
+            });
+        });
+    }
+    
+    // Update dashboard stats (enrolled count, completed courses, avg progress)
+    function updateStats() {
+        let enrolledCount = 0;
+        let completedCourses = 0;
+        let totalProgress = 0;
+        let coursesWithProgress = 0;
+        
+        userEnrollments.forEach((enrollment, courseId) => {
+            if (enrollment.enrolled) {
+                enrolledCount++;
+                if (enrollment.percentComplete === 100) {
+                    completedCourses++;
+                }
+                totalProgress += enrollment.percentComplete || 0;
+                coursesWithProgress++;
+            }
+        });
+        
+        const avgProgress = coursesWithProgress > 0 ? Math.floor(totalProgress / coursesWithProgress) : 0;
+        
+        document.getElementById('enrolledCount').innerText = enrolledCount;
+        document.getElementById('completedCount').innerText = completedCourses;
+        document.getElementById('overallPercent').innerText = `${avgProgress}%`;
+    }
+    
+    // Logout handler
+    async function handleLogout() {
+        try {
+            await supabaseClient.auth.signOut();
+            showToast("Logged out successfully", false);
+            setTimeout(() => { window.location.href = '/'; }, 600);
+        } catch(e) {
+            console.error(e);
             window.location.href = '/';
         }
     }
     
-    // Navigation: go to learner hub
-    function goToLearnerHub() {
-        window.location.href = '/course-learner.html';
-    }
-    
-    // Explore courses (redirect to learner hub)
-    function exploreCourses() {
-        window.location.href = '/course-learner.html';
-    }
-    
-    // Helper: inject fallback in case of network flaky but still keep supabase reference
-    async function bootstrapDashboard() {
+    // Initialize dashboard
+    async function init() {
         const user = await checkAuthAndGetUser();
         if (!user) return;
         
-        // Show loading progress fetching
-        await updateDashboardStats();
-        
-        // Add event listeners
-        const logoutBtn = document.getElementById('logoutBtnNav');
-        if (logoutBtn) logoutBtn.addEventListener('click', performLogout);
-        
-        const exploreBtn = document.getElementById('exploreCoursesBtn');
-        if (exploreBtn) exploreBtn.addEventListener('click', exploreCourses);
-        
-        const learnerHubBtn = document.getElementById('goToLearnerHubBtn');
-        if (learnerHubBtn) learnerHubBtn.addEventListener('click', goToLearnerHub);
-        
-        // Optional: realtime subscription for progress updates (lightweight)
-        // for demonstration no heavy sub
+        await loadCourses();
     }
     
-    // start everything
-    bootstrapDashboard().catch(err => {
-        console.error("Dashboard bootstrap error", err);
-        showDashboardMessage("Error loading dashboard, refresh page", true);
-    });
+    // Event listeners
+    const logoutBtn = document.getElementById('logoutBtnNav');
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     
-    // Manual expose for debugging if needed (no supabase redeclaration)
-    window.dashboardRefresh = function() {
-        if (currentSessionUser) updateDashboardStats();
-    };
+    // Start app
+    init();
 </script>
 </body>
 </html>
