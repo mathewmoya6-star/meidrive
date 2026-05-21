@@ -9,19 +9,6 @@
     <meta name="theme-color" content="#041B3D">
     <meta name="color-scheme" content="dark">
     
-    <!-- Open Graph / Social Media -->
-    <meta property="og:title" content="MEI DRIVE AFRICA - Professional Driver Training">
-    <meta property="og:description" content="NTSA-approved driver training courses for all vehicle categories in Kenya">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://meidriveafrica.com">
-    <meta property="og:image" content="https://meidriveafrica.com/og-image.jpg">
-    <meta property="og:locale" content="en_KE">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MEI DRIVE AFRICA - Professional Driver Training">
-    <meta name="twitter:description" content="NTSA-approved driver training courses in Kenya">
-    
     <link rel="canonical" href="https://meidriveafrica.com">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2300FF88'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='%23041B3D'%3E🚗%3C/text%3E%3C/svg%3E">
     
@@ -721,7 +708,6 @@
 </footer>
 
 <script>
-    // Supabase Configuration
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
     
@@ -730,7 +716,6 @@
     
     console.log('Supabase client initialized');
     
-    // DOM Elements
     const toast = document.getElementById('toast');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const coursesContainer = document.getElementById('coursesContainer');
@@ -814,9 +799,15 @@
             
             const card = document.createElement('div');
             card.className = 'course-card';
+            
+            // FIXED: Redirect Refresher Course to professional-driver-course.html
             card.onclick = () => {
                 if (currentUser) {
-                    window.location.href = `/course-learner.html`;
+                    if (title === 'Refresher Course') {
+                        window.location.href = '/professional-driver-course.html';
+                    } else {
+                        window.location.href = `/course-learner.html`;
+                    }
                 } else {
                     showToast('Please login to view course details', true);
                     window.location.href = '/login.html';
