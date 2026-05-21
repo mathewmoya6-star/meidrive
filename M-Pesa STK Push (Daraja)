@@ -1,0 +1,33 @@
+const router = require('express').Router();
+const axios = require('axios');
+
+router.post('/stk', async (req,res)=>{
+  try{
+    // ⚠️ Replace with your real credentials
+    const token = "YOUR_ACCESS_TOKEN";
+
+    const response = await axios.post(
+      "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+      {
+        BusinessShortCode: "4095377",
+        Password: "BASE64_PASSWORD",
+        Timestamp: "20260101010101",
+        TransactionType: "CustomerPayBillOnline",
+        Amount: req.body.amount,
+        PartyA: req.body.phone,
+        PartyB: "4095377",
+        PhoneNumber: req.body.phone,
+        CallBackURL: "https://yourdomain.com/api/mpesa/callback",
+        AccountReference: "MeiPress",
+        TransactionDesc: "Application Payment"
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    res.json(response.data);
+  }catch(e){
+    res.status(500).json({error:e.message});
+  }
+});
+
+module.exports = router;
