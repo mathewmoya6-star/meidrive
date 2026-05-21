@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Learner Hub | MEI DRIVE AFRICA</title>
+    <!-- Supabase JS CDN - global 'supabase' object will be available as window.supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             background: #041B3D;
             color: #fff;
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -21,9 +23,10 @@
             width: 100%;
             background: rgba(4, 27, 61, 0.96);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 255, 136, 0.15);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.25);
             padding: 1rem 2rem;
             z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .nav-container {
             max-width: 1200px;
@@ -31,12 +34,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         .logo {
             font-size: 1.6rem;
             font-weight: 700;
             color: #00FF88;
             cursor: pointer;
+            letter-spacing: -0.3px;
         }
         .logo span { color: #fff; }
         .nav-links {
@@ -48,145 +54,183 @@
             color: #fff;
             text-decoration: none;
             transition: all 0.3s;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .nav-links a:hover { color: #00FF88; }
+        .nav-links a:hover { color: #00FF88; transform: translateY(-1px);}
         .logout-btn {
-            background: rgba(255, 68, 68, 0.2);
+            background: rgba(255, 68, 68, 0.15);
             border: 1px solid #ff4d4f;
-            color: #ff4d4f;
-            padding: 6px 14px;
+            color: #ff8c8c;
+            padding: 6px 16px;
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .logout-btn:hover { background: #ff4d4f; color: #fff; }
+        .logout-btn:hover { background: #ff4d4f; color: #fff; border-color: #ff4d4f;}
 
         .main {
-            padding-top: 80px;
+            padding-top: 90px;
             padding-bottom: 40px;
+            min-height: calc(100vh - 120px);
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
         }
 
         .course-header {
-            background: linear-gradient(135deg, #0A234F, #041B3D);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(0, 255, 136, 0.2);
+            background: linear-gradient(135deg, #0F2B55, #041B3D);
+            border-radius: 28px;
+            padding: 32px 28px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            box-shadow: 0 12px 25px -8px rgba(0,0,0,0.3);
         }
         .course-header h1 {
             color: #00FF88;
             font-size: 2rem;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         .progress-bar-container {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            height: 10px;
-            margin: 20px 0;
+            background: rgba(255,255,255,0.12);
+            border-radius: 40px;
+            height: 12px;
+            margin: 24px 0 12px;
             overflow: hidden;
         }
         .progress-bar {
-            background: #00FF88;
+            background: linear-gradient(90deg, #00FF88, #2ecc71);
             width: 0%;
             height: 100%;
-            transition: width 0.3s ease;
+            transition: width 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-radius: 40px;
         }
         .progress-text {
-            color: #B7C4D6;
+            color: #C0D4F0;
             font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .units-container {
-            background: #0A234F;
-            border-radius: 16px;
-            padding: 20px;
+            background: #0F2B55;
+            border-radius: 24px;
+            padding: 24px;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(0, 255, 136, 0.1);
         }
         .units-title {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
+            font-size: 1.4rem;
+            margin-bottom: 22px;
             color: #00FF88;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid #00FF88;
+            padding-left: 16px;
         }
         .unit-card {
-            background: rgba(4, 27, 61, 0.8);
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 12px;
+            background: rgba(4, 27, 61, 0.75);
+            border-radius: 20px;
+            padding: 18px 22px;
+            margin-bottom: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s;
-            border: 1px solid rgba(0, 255, 136, 0.1);
+            transition: all 0.25s ease;
+            border: 1px solid rgba(0, 255, 136, 0.08);
+            backdrop-filter: blur(2px);
         }
         .unit-card:hover {
             border-color: #00FF88;
-            transform: translateX(5px);
+            transform: translateX(6px);
+            background: rgba(4, 27, 61, 0.9);
         }
         .unit-info {
             flex: 1;
         }
         .unit-number {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             color: #00FF88;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
         .unit-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 5px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #fff;
         }
         .unit-description {
-            font-size: 0.8rem;
-            color: #B7C4D6;
+            font-size: 0.85rem;
+            color: #B7D0F0;
+            line-height: 1.3;
         }
         .unit-status {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 18px;
+            margin-left: 16px;
         }
         .unit-status i {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
         }
         .completed-icon {
             color: #00FF88;
+            filter: drop-shadow(0 0 3px #00ff8840);
         }
         .locked-icon {
-            color: #ff4d4f;
+            color: #ff8a7a;
         }
         .btn-view-unit {
             background: #00FF88;
             color: #041B3D;
             border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
+            padding: 8px 22px;
+            border-radius: 40px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
+            font-weight: 700;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .btn-view-unit:hover {
+        .btn-view-unit:hover:not(:disabled) {
             transform: translateY(-2px);
+            background: #1eff96;
+            box-shadow: 0 6px 14px rgba(0,255,136,0.3);
         }
         .btn-view-unit:disabled {
-            background: #555;
+            background: #4a627a;
+            color: #c0cfe0;
             cursor: not-allowed;
+            opacity: 0.6;
         }
 
         .loading-spinner {
             text-align: center;
-            padding: 40px;
+            padding: 50px 20px;
         }
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(0, 255, 136, 0.3);
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(0, 255, 136, 0.2);
             border-top-color: #00FF88;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 15px;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 20px;
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -194,33 +238,50 @@
 
         .toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #0A234F;
-            border-left: 4px solid #00FF88;
-            padding: 12px 20px;
-            border-radius: 8px;
-            z-index: 1000;
+            bottom: 28px;
+            right: 28px;
+            background: #0e2a4a;
+            backdrop-filter: blur(12px);
+            border-left: 5px solid #00FF88;
+            padding: 12px 22px;
+            border-radius: 50px;
+            z-index: 1100;
+            font-weight: 500;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            font-size: 0.9rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        .toast.error { border-left-color: #ff4d4f; }
+        .toast.error { border-left-color: #ff4d4f; background: #2c1820; }
+        .toast i { font-size: 1.2rem; }
 
         footer {
-            background: #0A234F;
+            background: #0A1C38;
             text-align: center;
-            padding: 30px;
-            color: #B7C4D6;
-            margin-top: 40px;
+            padding: 28px;
+            color: #99aec9;
+            margin-top: 50px;
+            border-top: 1px solid rgba(0, 255, 136, 0.1);
+            font-size: 0.85rem;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 700px) {
+            .navbar { padding: 0.8rem 1rem; }
+            .main { padding-top: 80px; }
             .unit-card {
                 flex-direction: column;
                 text-align: center;
-                gap: 10px;
+                gap: 14px;
+                align-items: stretch;
             }
             .unit-status {
                 justify-content: center;
+                margin-left: 0;
             }
+            .course-header h1 { font-size: 1.6rem; }
+            .container { padding: 0 16px; }
         }
     </style>
 </head>
@@ -239,7 +300,7 @@
 <div class="main">
     <div class="container">
         <div class="course-header">
-            <h1><i class="fas fa-car"></i> Learner Hub</h1>
+            <h1><i class="fas fa-graduation-cap"></i> Learner Hub</h1>
             <p>Complete training for new drivers - from basics to road readiness</p>
             <div class="progress-bar-container">
                 <div class="progress-bar" id="progressBar"></div>
@@ -248,7 +309,7 @@
         </div>
 
         <div class="units-container">
-            <div class="units-title"><i class="fas fa-book"></i> Course Units</div>
+            <div class="units-title"><i class="fas fa-layer-group"></i> Course Units</div>
             <div id="unitsContainer">
                 <div class="loading-spinner">
                     <div class="spinner"></div>
@@ -260,228 +321,330 @@
 </div>
 
 <footer>
-    <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training</p>
+    <p>© 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training <i class="fas fa-road"></i></p>
 </footer>
 
 <script>
+    // SUPABASE CREDENTIALS
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
     
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // IMPORTANT: Use window.supabase.createClient once — no redeclaration
+    // Ensure supabaseClient is the only instance variable used everywhere.
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
+    // Global state
     let currentUser = null;
     let units = [];
-    let completedUnits = new Set();
-    let currentCourseId = 1; // Learner Hub course ID
+    let completedUnitsSet = new Set();   // store unit IDs that are completed
+    let currentCourseId = 1;              // Learner Hub Course ID
     
-    async function checkAuth() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            window.location.href = '/login.html';
-            return false;
-        }
-        currentUser = session.user;
-        return true;
-    }
-    
-    async function loadUnits() {
-        const container = document.getElementById('unitsContainer');
-        
-        try {
-            console.log('Fetching units from Supabase...');
-            
-            // First, try to get units from database
-            let { data: dbUnits, error } = await supabase
-                .from('course_units')
-                .select('*')
-                .eq('course_id', currentCourseId)
-                .order('unit_number', { ascending: true });
-            
-            // If no units in database, use mock data
-            if (error || !dbUnits || dbUnits.length === 0) {
-                console.log('Using mock units data');
-                units = [
-                    { id: 1, unit_number: 1, title: 'Introduction to Driving', description: 'Basic vehicle controls, cockpit drill, and safety checks', content: 'unit1.html' },
-                    { id: 2, unit_number: 2, title: 'Road Signs & Rules', description: 'Understanding Kenyan road signs, traffic rules, and right of way', content: 'unit2.html' },
-                    { id: 3, unit_number: 3, title: 'Basic Maneuvers', description: 'Steering, clutch control, gear changes, and braking', content: 'unit3.html' },
-                    { id: 4, unit_number: 4, title: 'Parking Techniques', description: 'Parallel parking, reverse parking, and bay parking', content: 'unit4.html' },
-                    { id: 5, unit_number: 5, title: 'Roundabouts & Junctions', description: 'Navigating roundabouts and junctions safely', content: 'unit5.html' },
-                    { id: 6, unit_number: 6, title: 'Highway Driving', description: 'Motorway and highway driving techniques', content: 'unit6.html' },
-                    { id: 7, unit_number: 7, title: 'Defensive Driving', description: 'Anticipating hazards and staying safe', content: 'unit7.html' },
-                    { id: 8, unit_number: 8, title: 'NTSA Final Assessment', description: 'Prepare for your driving test', content: 'unit8.html' }
-                ];
-            } else {
-                units = dbUnits;
-            }
-            
-            // Get user progress
-            const { data: progress } = await supabase
-                .from('user_progress')
-                .select('unit_id, completed')
-                .eq('user_id', currentUser?.id)
-                .eq('course_id', currentCourseId);
-            
-            if (progress && progress.length) {
-                progress.forEach(p => {
-                    if (p.completed) completedUnits.add(p.unit_id);
-                });
-            }
-            
-            renderUnits();
-            updateProgress();
-            
-        } catch (err) {
-            console.error('Error loading units:', err);
-            container.innerHTML = `
-                <div style="text-align:center; padding:40px; color:#ff4d4f;">
-                    <i class="fas fa-exclamation-circle"></i> Error loading units
-                    <button onclick="location.reload()" style="display:block; margin:20px auto; padding:10px 20px; background:#00FF88; border:none; border-radius:8px; cursor:pointer;">Retry</button>
-                </div>
-            `;
-        }
-    }
-    
-    function renderUnits() {
-        const container = document.getElementById('unitsContainer');
-        
-        if (!units.length) {
-            container.innerHTML = '<div style="text-align:center; padding:40px;">No units available yet.</div>';
-            return;
-        }
-        
-        container.innerHTML = '';
-        
-        units.forEach((unit, index) => {
-            const isCompleted = completedUnits.has(unit.id);
-            const isLocked = index > 0 && !completedUnits.has(units[index - 1]?.id) && index > 0;
-            
-            const card = document.createElement('div');
-            card.className = 'unit-card';
-            card.innerHTML = `
-                <div class="unit-info">
-                    <div class="unit-number">Unit ${unit.unit_number}</div>
-                    <div class="unit-title">${escapeHtml(unit.title)}</div>
-                    <div class="unit-description">${escapeHtml(unit.description)}</div>
-                </div>
-                <div class="unit-status">
-                    ${isCompleted ? '<i class="fas fa-check-circle completed-icon"></i>' : (isLocked ? '<i class="fas fa-lock locked-icon"></i>' : '')}
-                    <button class="btn-view-unit" data-unit-id="${unit.id}" data-unit-number="${unit.unit_number}" ${isLocked ? 'disabled' : ''}>
-                        ${isCompleted ? 'Review' : (isLocked ? 'Locked' : 'Start')}
-                    </button>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-        
-        // Add event listeners to buttons
-        document.querySelectorAll('.btn-view-unit').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const unitId = parseInt(btn.dataset.unitId);
-                const unitNumber = btn.dataset.unitNumber;
-                await startUnit(unitId, unitNumber);
-            });
-        });
-    }
-    
-    async function startUnit(unitId, unitNumber) {
-        try {
-            // Mark as started in progress
-            const { error } = await supabase
-                .from('user_progress')
-                .upsert({
-                    user_id: currentUser.id,
-                    course_id: currentCourseId,
-                    unit_id: unitId,
-                    overall_progress: Math.floor((unitNumber / units.length) * 100),
-                    updated_at: new Date()
-                });
-            
-            if (error) console.error('Progress update error:', error);
-            
-            // Show unit content (you can expand this to show actual content)
-            showToast(`Opening Unit ${unitNumber}...`, 'success');
-            
-            // For now, just mark as completed (in production, you'd show the actual content)
-            await markUnitCompleted(unitId);
-            
-        } catch (err) {
-            console.error('Error starting unit:', err);
-            showToast('Error loading unit content', 'error');
-        }
-    }
-    
-    async function markUnitCompleted(unitId) {
-        try {
-            const { error } = await supabase
-                .from('user_progress')
-                .upsert({
-                    user_id: currentUser.id,
-                    course_id: currentCourseId,
-                    unit_id: unitId,
-                    completed: true,
-                    overall_progress: Math.floor((completedUnits.size + 1) / units.length * 100),
-                    updated_at: new Date()
-                });
-            
-            if (!error) {
-                completedUnits.add(unitId);
-                renderUnits();
-                updateProgress();
-                showToast('Unit completed! 🎉', 'success');
-            }
-        } catch (err) {
-            console.error('Error marking unit completed:', err);
-        }
-    }
-    
-    function updateProgress() {
-        const percentComplete = units.length > 0 ? Math.floor((completedUnits.size / units.length) * 100) : 0;
-        document.getElementById('progressBar').style.width = `${percentComplete}%`;
-        document.getElementById('progressText').textContent = `${percentComplete}% Complete`;
-        
-        // Update overall progress in database
-        if (currentUser) {
-            supabase
-                .from('user_progress')
-                .upsert({
-                    user_id: currentUser.id,
-                    course_id: currentCourseId,
-                    overall_progress: percentComplete,
-                    updated_at: new Date()
-                });
-        }
-    }
-    
-    async function handleLogout() {
-        await supabase.auth.signOut();
-        window.location.href = '/';
-    }
-    
+    // Helper: show toast messages
     function showToast(message, type = 'info') {
         const existingToast = document.querySelector('.toast');
         if (existingToast) existingToast.remove();
         
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        const icon = type === 'error' ? 'fa-circle-exclamation' : (type === 'success' ? 'fa-circle-check' : 'fa-info-circle');
+        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${escapeHtml(message)}</span>`;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        setTimeout(() => toast.remove(), 3200);
     }
     
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
     }
     
-    document.getElementById('logoutButton').addEventListener('click', handleLogout);
+    // Authentication check (redirect if not logged in)
+    async function checkAuth() {
+        try {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                showToast('Session expired, redirecting to login...', 'error');
+                setTimeout(() => { window.location.href = '/login.html'; }, 1200);
+                return false;
+            }
+            currentUser = session.user;
+            return true;
+        } catch (err) {
+            console.error("Auth error:", err);
+            window.location.href = '/login.html';
+            return false;
+        }
+    }
     
+    // Fetch or fallback to rich unit list
+    async function loadUnits() {
+        const container = document.getElementById('unitsContainer');
+        try {
+            // 1) Try fetch from Supabase 'course_units'
+            let { data: dbUnits, error } = await supabaseClient
+                .from('course_units')
+                .select('*')
+                .eq('course_id', currentCourseId)
+                .order('unit_number', { ascending: true });
+            
+            if (error || !dbUnits || dbUnits.length === 0) {
+                // Mock units if table empty — comprehensive realistic driving curriculum
+                console.log("Using fallback units (table empty or error).");
+                units = [
+                    { id: 1, unit_number: 1, title: 'The Driver & Cockpit Drill', description: 'Seat position, mirrors, steering grip & pre-drive safety checklist.', content_url: 'unit1.html' },
+                    { id: 2, unit_number: 2, title: 'Understanding Controls', description: 'Clutch, accelerator, brakes, gears & indicators – smooth operation.', content_url: 'unit2.html' },
+                    { id: 3, unit_number: 3, title: 'Road Signs & Markings (Kenya)', description: 'Mandatory, warning & informational signs, road markings explained.', content_url: 'unit3.html' },
+                    { id: 4, unit_number: 4, title: 'Moving Off & Stopping', description: 'OMS routine (Observe, Mirror, Signal), hill starts & emergency stop.', content_url: 'unit4.html' },
+                    { id: 5, unit_number: 5, title: 'Junctions & Roundabouts', description: 'Right of way, lane positioning, roundabout rules & filtering.', content_url: 'unit5.html' },
+                    { id: 6, unit_number: 6, title: 'Parking & Reversing', description: 'Parallel parking, bay parking, reversing around a corner.', content_url: 'unit6.html' },
+                    { id: 7, unit_number: 7, title: 'Defensive Driving & Hazard Perception', description: 'Anticipating risks, safe following distance, scanning techniques.', content_url: 'unit7.html' },
+                    { id: 8, unit_number: 8, title: 'Highway & Night Driving', description: 'Motorway merging, high beams, fatigue management.', content_url: 'unit8.html' },
+                    { id: 9, unit_number: 9, title: 'NTSA Final Assessment Prep', description: 'Mock tests, common errors & test day tips.', content_url: 'unit9.html' }
+                ];
+            } else {
+                units = dbUnits;
+            }
+            
+            // 2) Fetch user progress from 'user_progress' table
+            if (currentUser) {
+                const { data: progressData, error: progErr } = await supabaseClient
+                    .from('user_progress')
+                    .select('unit_id, completed')
+                    .eq('user_id', currentUser.id)
+                    .eq('course_id', currentCourseId);
+                
+                if (!progErr && progressData) {
+                    completedUnitsSet.clear();
+                    progressData.forEach(item => {
+                        if (item.completed === true) {
+                            completedUnitsSet.add(item.unit_id);
+                        }
+                    });
+                } else {
+                    // fallback empty set
+                    completedUnitsSet.clear();
+                }
+            }
+            
+            renderUnitsList();
+            updateOverallProgress();
+        } catch (err) {
+            console.error("loadUnits catastrophic:", err);
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px; background:#0A1F42; border-radius:24px;">
+                    <i class="fas fa-database" style="font-size:2rem; color:#ff7b6e;"></i>
+                    <p style="margin-top:12px;">Unable to load course content. Check your connection.</p>
+                    <button onclick="location.reload()" style="margin-top:16px; background:#00FF88; border:none; padding:8px 20px; border-radius:30px; cursor:pointer; font-weight:bold;">Retry</button>
+                </div>
+            `;
+        }
+    }
+    
+    // render all unit cards with lock logic (sequential unlocking)
+    function renderUnitsList() {
+        const container = document.getElementById('unitsContainer');
+        if (!units.length) {
+            container.innerHTML = '<div style="text-align:center; padding:40px;">📘 No training units available at the moment.</div>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        // iterate through sorted units
+        units.forEach((unit, idx) => {
+            const isCompleted = completedUnitsSet.has(unit.id);
+            // Lock logic: if this is NOT the first unit, previous unit must be completed
+            let isLocked = false;
+            if (idx > 0) {
+                const prevUnitId = units[idx - 1].id;
+                if (!completedUnitsSet.has(prevUnitId)) {
+                    isLocked = true;
+                }
+            }
+            
+            const unitCard = document.createElement('div');
+            unitCard.className = 'unit-card';
+            
+            let statusIconHtml = '';
+            let buttonText = 'Start';
+            let disabledAttr = isLocked ? 'disabled' : '';
+            
+            if (isCompleted) {
+                statusIconHtml = '<i class="fas fa-check-circle completed-icon" title="Completed"></i>';
+                buttonText = 'Review';
+            } else if (isLocked) {
+                statusIconHtml = '<i class="fas fa-lock locked-icon" title="Locked"></i>';
+                buttonText = 'Locked';
+            } else {
+                statusIconHtml = '<i class="fas fa-play-circle" style="color:#00FF88; opacity:0.8;"></i>';
+                buttonText = 'Start';
+            }
+            
+            unitCard.innerHTML = `
+                <div class="unit-info">
+                    <div class="unit-number"><i class="far fa-file-alt"></i> Unit ${unit.unit_number}</div>
+                    <div class="unit-title">${escapeHtml(unit.title)}</div>
+                    <div class="unit-description">${escapeHtml(unit.description)}</div>
+                </div>
+                <div class="unit-status">
+                    ${statusIconHtml}
+                    <button class="btn-view-unit" data-unit-id="${unit.id}" data-unit-num="${unit.unit_number}" ${disabledAttr}>
+                        ${buttonText}
+                    </button>
+                </div>
+            `;
+            container.appendChild(unitCard);
+        });
+        
+        // attach event listeners to all "Start/Review" buttons
+        document.querySelectorAll('.btn-view-unit').forEach(btn => {
+            btn.addEventListener('click', async (event) => {
+                if (btn.disabled) {
+                    showToast('Complete previous unit first 🔓', 'error');
+                    return;
+                }
+                const unitId = parseInt(btn.dataset.unitId);
+                const unitNum = btn.dataset.unitNum;
+                await handleStartOrReviewUnit(unitId, unitNum);
+            });
+        });
+    }
+    
+    // Handles viewing unit (in a real scenario: open modal or redirect)
+    // For this demo, we automatically mark as completed to show progression,
+    // but we also give option to "review" without double-marking.
+    // This replicates a "mark complete when opened" for simplicity but better UX: offer immediate completion.
+    async function handleStartOrReviewUnit(unitId, unitNumber) {
+        const targetUnit = units.find(u => u.id === unitId);
+        if (!targetUnit) return;
+        
+        // If already completed, just notify and re-render no double-complete
+        if (completedUnitsSet.has(unitId)) {
+            showToast(`📖 Reviewing: ${targetUnit.title} — Great job!`, 'success');
+            // optional: In production you'd open unit content
+            return;
+        }
+        
+        // Check if unit is locked (additional safety)
+        const idx = units.findIndex(u => u.id === unitId);
+        if (idx > 0 && !completedUnitsSet.has(units[idx-1].id)) {
+            showToast('⚠️ Previous unit must be completed first', 'error');
+            return;
+        }
+        
+        // Mark as completed
+        await markUnitCompleted(unitId, targetUnit.title);
+    }
+    
+    async function markUnitCompleted(unitId, unitTitle) {
+        try {
+            // Upsert into user_progress: set completed = true
+            const { error } = await supabaseClient
+                .from('user_progress')
+                .upsert({
+                    user_id: currentUser.id,
+                    course_id: currentCourseId,
+                    unit_id: unitId,
+                    completed: true,
+                    overall_progress: Math.floor(((completedUnitsSet.size + 1) / units.length) * 100),
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id, course_id, unit_id' });
+            
+            if (error) {
+                console.error("Upsert error:", error);
+                showToast('Failed to save progress', 'error');
+                return;
+            }
+            
+            // Update local state
+            if (!completedUnitsSet.has(unitId)) {
+                completedUnitsSet.add(unitId);
+                showToast(`✅ Unit "${unitTitle}" completed! 🎉`, 'success');
+            } else {
+                showToast(`📘 ${unitTitle} already completed!`, 'success');
+            }
+            
+            // Re-render to reflect new completion status and unlock next unit
+            renderUnitsList();
+            updateOverallProgress();
+            
+            // Also update the overall progress in DB (separate record per user-course)
+            const newPercent = Math.floor((completedUnitsSet.size / units.length) * 100);
+            await supabaseClient
+                .from('user_progress')
+                .upsert({
+                    user_id: currentUser.id,
+                    course_id: currentCourseId,
+                    overall_progress: newPercent,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id, course_id' });
+            
+        } catch (err) {
+            console.error("markUnitCompleted error:", err);
+            showToast('Error saving completion', 'error');
+        }
+    }
+    
+    // Update UI progress bar and text
+    function updateOverallProgress() {
+        const percentComplete = units.length > 0 ? Math.floor((completedUnitsSet.size / units.length) * 100) : 0;
+        const progressBar = document.getElementById('progressBar');
+        const progressTextSpan = document.getElementById('progressText');
+        if (progressBar) progressBar.style.width = `${percentComplete}%`;
+        if (progressTextSpan) progressTextSpan.textContent = `${percentComplete}% Complete`;
+        
+        // Optionally store in DB as fallback
+        if (currentUser && units.length) {
+            supabaseClient
+                .from('user_progress')
+                .upsert({
+                    user_id: currentUser.id,
+                    course_id: currentCourseId,
+                    overall_progress: percentComplete,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id, course_id' })
+                .catch(e => console.warn("non-critical overall update error", e));
+        }
+    }
+    
+    // logout handler
+    async function handleLogout() {
+        try {
+            await supabaseClient.auth.signOut();
+            showToast('Logged out successfully', 'success');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 600);
+        } catch(e) {
+            console.error(e);
+            window.location.href = '/';
+        }
+    }
+    
+    // manual "retry" connection helper
+    window.retryLoadUnits = function() {
+        loadUnits();
+    };
+    
+    // initialization: authentication then load data
     async function init() {
-        const isAuthenticated = await checkAuth();
-        if (!isAuthenticated) return;
+        const authValid = await checkAuth();
+        if (!authValid) return;
         await loadUnits();
     }
     
+    // attach logout listener
+    const logoutBtn = document.getElementById('logoutButton');
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    
+    // start app
     init();
+    
+    // expose refresh for debugging
+    window.refreshProgress = () => { loadUnits(); };
 </script>
 </body>
 </html>
