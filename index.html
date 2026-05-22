@@ -18,6 +18,7 @@
             --gray: #B7C4D6;
             --error: #ff4444;
             --success: #00C851;
+            --warning: #ff9800;
         }
         
         body {
@@ -125,6 +126,7 @@
             cursor: pointer;
             transition: all 0.3s;
         }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,255,136,0.3); }
         
         .container {
             max-width: 1200px;
@@ -150,9 +152,8 @@
             padding: 25px;
             border: 1px solid rgba(0,255,136,0.1);
             transition: all 0.3s;
-            cursor: pointer;
         }
-        .course-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .course-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 30px rgba(0,255,136,0.15); }
         .course-icon { font-size: 2.8rem; margin-bottom: 15px; }
         .course-badge {
             display: inline-block;
@@ -162,21 +163,31 @@
             font-weight: bold;
             margin-bottom: 12px;
         }
-        .badge-free { background: #ff9800; color: var(--dark); }
+        .badge-free { background: var(--warning); color: var(--dark); }
         .badge-premium { background: var(--primary); color: var(--dark); }
-        .badge-enrolled { background: #00C851; color: white; }
+        .badge-enrolled { background: var(--success); color: white; }
+        .course-card h3 { margin-bottom: 10px; font-size: 1.2rem; }
+        .course-card p { color: var(--gray); font-size: 0.85rem; line-height: 1.5; margin-bottom: 15px; }
+        .course-price { font-weight: bold; margin: 10px 0; font-size: 1.1rem; }
+        .course-price.free { color: var(--warning); }
+        .course-price.premium { color: var(--primary); }
         
-        .btn-view {
+        .btn-view, .btn-enroll, .btn-continue {
             width: 100%;
             padding: 12px;
             border-radius: 30px;
-            border: 1px solid var(--primary);
-            background: transparent;
-            color: white;
+            border: none;
             cursor: pointer;
             font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s;
         }
+        .btn-view { background: transparent; border: 1px solid var(--primary); color: white; }
         .btn-view:hover { background: var(--primary); color: var(--dark); }
+        .btn-enroll { background: linear-gradient(135deg, var(--primary), #00ccff); color: var(--dark); }
+        .btn-enroll:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,255,136,0.3); }
+        .btn-continue { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-continue:hover { background: var(--primary); color: var(--dark); }
         
         .dashboard-container { display: none; background: var(--dark); min-height: 100vh; }
         
@@ -199,6 +210,7 @@
             padding: 20px;
             margin-bottom: 30px;
             text-align: center;
+            border: 1px solid rgba(0,255,136,0.15);
         }
         .profile-avatar {
             width: 70px;
@@ -211,8 +223,31 @@
             margin: 0 auto 12px;
             font-size: 2rem;
         }
-        .profile-name { font-size: 1.1rem; font-weight: bold; }
+        .profile-name { font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; }
         .profile-email { font-size: 0.7rem; color: var(--gray); word-break: break-all; }
+        .edit-profile-btn {
+            margin-top: 12px;
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            width: 100%;
+        }
+        .edit-profile-btn:hover { background: var(--primary); color: var(--dark); }
+        
+        .sidebar h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,255,136,0.1);
+        }
         
         .sidebar a {
             display: flex;
@@ -226,7 +261,7 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .sidebar a:hover, .sidebar a.active { background: var(--primary); color: var(--dark); }
+        .sidebar a:hover, .sidebar a.active { background: var(--primary); color: var(--dark); transform: translateX(5px); }
         
         .main-content {
             margin-left: 280px;
@@ -245,9 +280,11 @@
             border-radius: 20px;
             text-align: center;
             border: 1px solid rgba(0,255,136,0.1);
+            transition: all 0.3s;
         }
+        .stat-card:hover { transform: translateY(-3px); border-color: var(--primary); }
         .stat-card i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
-        .stat-card h3 { font-size: 2rem; color: var(--primary); }
+        .stat-card h3 { font-size: 2rem; color: var(--primary); margin-bottom: 5px; }
         .stat-card p { color: var(--gray); }
         
         .progress-bar {
@@ -264,18 +301,6 @@
             transition: width 0.5s ease;
         }
         
-        .btn-enroll, .btn-continue {
-            width: 100%;
-            padding: 12px;
-            border-radius: 30px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .btn-enroll { background: linear-gradient(135deg, var(--primary), #00ccff); color: var(--dark); }
-        .btn-continue { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
-        
         .modal {
             display: none;
             position: fixed;
@@ -287,6 +312,7 @@
             z-index: 10000;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
         .modal.active { display: flex; }
         .modal-content {
@@ -296,9 +322,22 @@
             width: 90%;
             max-width: 450px;
             border: 1px solid var(--primary);
+            animation: modalFadeIn 0.3s ease;
         }
-        .modal-content h2 { color: var(--primary); margin-bottom: 25px; text-align: center; }
-        .modal-content input {
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-content h2 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .modal-content input, .modal-content textarea {
             width: 100%;
             padding: 14px;
             margin-bottom: 15px;
@@ -308,6 +347,10 @@
             color: white;
             font-size: 15px;
         }
+        .modal-content input:focus, .modal-content textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
         .modal-content button {
             width: 100%;
             padding: 14px;
@@ -316,11 +359,12 @@
             border: none;
             font-weight: bold;
             cursor: pointer;
+            font-size: 16px;
         }
         .btn-modal-primary { background: var(--primary); color: var(--dark); }
         .btn-modal-secondary { background: transparent; border: 1px solid var(--gray); color: white; }
         .modal-footer { margin-top: 20px; text-align: center; font-size: 14px; }
-        .modal-footer a { color: var(--primary); cursor: pointer; }
+        .modal-footer a { color: var(--primary); cursor: pointer; text-decoration: none; }
         
         .loading { text-align: center; padding: 60px; }
         .spinner {
@@ -335,7 +379,8 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; width: 85%; }
+            .hero h1 { font-size: 1.8rem; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s; width: 85%; z-index: 1002; }
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-left: 0; padding: 80px 15px 20px; }
             .courses-grid { grid-template-columns: 1fr; }
@@ -371,7 +416,7 @@
     </div>
 </div>
 
-<!-- LANDING PAGE -->
+<!-- LANDING PAGE (Public) -->
 <div id="landingPage">
     <nav class="navbar">
         <div class="nav-container">
@@ -399,7 +444,7 @@
     </section>
 </div>
 
-<!-- DASHBOARD PAGE -->
+<!-- DASHBOARD PAGE (Logged In) -->
 <div id="dashboardPage" class="dashboard-container">
     <nav class="navbar">
         <div class="nav-container">
@@ -415,18 +460,21 @@
             <div class="profile-avatar" id="profileAvatar">👤</div>
             <div class="profile-name" id="profileName">Loading...</div>
             <div class="profile-email" id="profileEmail">user@example.com</div>
-            <button class="edit-profile-btn" onclick="openEditProfileModal()" style="margin-top:12px; padding:6px 12px; background:transparent; border:1px solid var(--primary); color:var(--primary); border-radius:20px; cursor:pointer; width:100%;">Edit Profile</button>
+            <button class="edit-profile-btn" onclick="openEditProfileModal()"><i class="fas fa-edit"></i> Edit Profile</button>
         </div>
         
-        <h2 style="color:var(--primary); margin-bottom:20px;"><i class="fas fa-tachometer-alt"></i> MY DASHBOARD</h2>
+        <h2><i class="fas fa-tachometer-alt"></i> MENU</h2>
         <a href="javascript:void(0)" class="active" onclick="showDashboardSection('overview')">
             <i class="fas fa-chart-line"></i> Overview
         </a>
-        <a href="javascript:void(0)" onclick="showDashboardSection('courses')">
+        <a href="javascript:void(0)" onclick="showDashboardSection('mycourses')">
             <i class="fas fa-book"></i> My Courses
         </a>
+        <a href="javascript:void(0)" onclick="showDashboardSection('allcourses')">
+            <i class="fas fa-store"></i> All Courses
+        </a>
         <a href="javascript:void(0)" onclick="showDashboardSection('completed')">
-            <i class="fas fa-check-circle"></i> Completed
+            <i class="fas fa-trophy"></i> Completed
         </a>
     </div>
     
@@ -459,17 +507,27 @@
                 </div>
             </div>
             
-            <h3><i class="fas fa-star" style="color: #ff9800;"></i> Your Enrolled Courses</h3>
+            <h3><i class="fas fa-star" style="color: var(--warning);"></i> Your Enrolled Courses</h3>
             <div id="enrolledCoursesPreview" class="courses-grid"></div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn-primary" onclick="showDashboardSection('allcourses')" style="padding: 12px 30px;">
+                    <i class="fas fa-plus-circle"></i> Browse More Courses
+                </button>
+            </div>
         </div>
         
         <!-- My Courses Section -->
-        <div id="dashboardCourses" style="display:none;">
+        <div id="dashboardMyCourses" style="display:none;">
             <h2><i class="fas fa-book-open"></i> My Enrolled Courses</h2>
             <div id="enrolledCoursesList" class="courses-grid"></div>
-            
-            <h2 style="margin-top: 50px;"><i class="fas fa-store"></i> Available Courses to Enroll</h2>
-            <div id="availableCoursesList" class="courses-grid"></div>
+        </div>
+        
+        <!-- All Courses Section (where you can enroll) -->
+        <div id="dashboardAllCourses" style="display:none;">
+            <h2><i class="fas fa-store"></i> All Available Courses</h2>
+            <p style="color: var(--gray); margin-bottom: 30px;">Browse and enroll in new courses to advance your driving skills.</p>
+            <div id="allCoursesList" class="courses-grid"></div>
         </div>
         
         <!-- Completed Section -->
@@ -496,7 +554,6 @@
         await loadCourses();
         await checkUserSession();
         
-        // Set up auth listener
         supabase.auth.onAuthStateChange(async (event, session) => {
             console.log('Auth event:', event);
             if (event === 'SIGNED_IN' && session) {
@@ -562,7 +619,6 @@
     async function loadUserData() {
         if (!currentUser) return;
         
-        // Load profile
         const { data: profile } = await supabase
             .from('profiles')
             .select('*')
@@ -580,7 +636,6 @@
             document.getElementById('editBio').value = profile.bio || '';
         }
         
-        // Load enrollments
         await loadEnrollments();
     }
     
@@ -595,18 +650,15 @@
             
             if (data && data.length > 0) {
                 allCourses = data;
-                console.log('Courses loaded:', allCourses.length);
+                console.log('✅ Courses loaded:', allCourses.length);
             } else {
-                // Fallback default courses
-                allCourses = [
-                    { id: 1, name: 'Learner Hub - Complete Driver Training', description: 'NTSA-approved curriculum from basics to road readiness.', price: 0, type: 'free', icon: '📚', duration: '40 hours', level: 'Beginner' },
-                    { id: 2, name: 'Defensive Driving Course', description: 'Master advanced driving techniques and hazard perception.', price: 1999, type: 'premium', icon: '🛡️', duration: '16 hours', level: 'Advanced' },
-                    { id: 3, name: 'Professional Driver Course', description: 'Comprehensive training for commercial drivers.', price: 4999, type: 'premium', icon: '🚛', duration: '32 hours', level: 'Professional' }
-                ];
+                console.log('⚠️ No courses found in database');
+                allCourses = [];
             }
             
             document.getElementById('dashTotalCourses').textContent = allCourses.length;
-            renderCourses();
+            renderPublicCourses();
+            renderAllCoursesList();
         } catch (err) {
             console.error('Error loading courses:', err);
             showToast('Error loading courses', 'error');
@@ -625,11 +677,11 @@
             if (error) throw error;
             
             userEnrollments = data || [];
-            console.log('Enrollments loaded:', userEnrollments.length);
+            console.log('✅ Enrollments loaded:', userEnrollments.length);
             
             updateDashboardStats();
             renderEnrolledCourses();
-            renderAvailableCourses();
+            renderAllCoursesList();
             renderCompletedCourses();
         } catch (err) {
             console.error('Error loading enrollments:', err);
@@ -657,8 +709,8 @@
             if (error) throw error;
             
             await loadEnrollments();
-            showToast('Successfully enrolled!', 'success');
-            showDashboardSection('courses');
+            showToast('Successfully enrolled! 🎉', 'success');
+            showDashboardSection('mycourses');
         } catch (err) {
             showToast('Enrollment failed: ' + err.message, 'error');
         }
@@ -699,7 +751,7 @@
         document.getElementById('dashOverallProgress').textContent = `${avgProgress}%`;
     }
     
-    function renderCourses() {
+    function renderPublicCourses() {
         const container = document.getElementById('coursesContainer');
         if (!allCourses.length) {
             container.innerHTML = '<div class="course-card"><p>No courses available</p></div>';
@@ -708,8 +760,6 @@
         
         container.innerHTML = allCourses.map(course => {
             const isFree = course.type === 'free' || course.price === 0;
-            const isEnrolled = currentUser && userEnrollments.some(e => e.course_id === course.id);
-            
             return `
                 <div class="course-card">
                     <div class="course-icon">${course.icon || '📚'}</div>
@@ -724,15 +774,62 @@
                     <div class="course-price ${isFree ? 'free' : 'premium'}">
                         ${isFree ? 'FREE' : `KES ${(course.price || 0).toLocaleString()}`}
                     </div>
-                    ${!currentUser ? 
-                        `<button class="btn-view" onclick="showAuthModal('login')">Login to Enroll</button>` :
-                        (isEnrolled ? 
-                            `<button class="btn-view" style="background: var(--success); border-color: var(--success);" onclick="showDashboard(); showDashboardSection('courses')">Go to Course →</button>` :
-                            `<button class="btn-view" onclick="enrollInCourse(${course.id})">Enroll Now →</button>`
-                        )
-                    }
+                    <button class="btn-view" onclick="showAuthModal('login')">Login to Enroll →</button>
                 </div>
             `;
+        }).join('');
+    }
+    
+    function renderAllCoursesList() {
+        const container = document.getElementById('allCoursesList');
+        if (!allCourses.length) {
+            container.innerHTML = '<div class="course-card"><p>No courses available</p></div>';
+            return;
+        }
+        
+        const enrolledIds = userEnrollments.map(e => e.course_id);
+        
+        container.innerHTML = allCourses.map(course => {
+            const isFree = course.type === 'free' || course.price === 0;
+            const isEnrolled = enrolledIds.includes(course.id);
+            const enrollment = userEnrollments.find(e => e.course_id === course.id);
+            const progress = enrollment?.progress || 0;
+            
+            if (isEnrolled) {
+                return `
+                    <div class="course-card">
+                        <div class="course-icon">${course.icon || '📚'}</div>
+                        <span class="course-badge badge-enrolled">✅ ENROLLED</span>
+                        <h3>${escapeHtml(course.name)}</h3>
+                        <p>${escapeHtml((course.description || '').substring(0, 100))}...</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <p style="text-align: center; margin: 10px 0;">${progress}% Complete</p>
+                        <button class="btn-continue" onclick="updateProgress(${course.id}, ${progress + 10})">
+                            ${progress === 100 ? '📋 Review Course' : '▶️ Continue Learning'}
+                        </button>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="course-card">
+                        <div class="course-icon">${course.icon || '📚'}</div>
+                        <span class="course-badge ${isFree ? 'badge-free' : 'badge-premium'}">
+                            ${isFree ? 'FREE' : 'PREMIUM'}
+                        </span>
+                        <h3>${escapeHtml(course.name)}</h3>
+                        <p>${escapeHtml((course.description || '').substring(0, 100))}...</p>
+                        <div style="font-size: 0.85rem; color: var(--gray); margin: 10px 0;">
+                            <i class="fas fa-clock"></i> ${course.duration || 'Self-paced'}
+                        </div>
+                        <div class="course-price ${isFree ? 'free' : 'premium'}">
+                            ${isFree ? 'FREE' : `KES ${(course.price || 0).toLocaleString()}`}
+                        </div>
+                        <button class="btn-enroll" onclick="enrollInCourse(${course.id})">🎓 Enroll Now</button>
+                    </div>
+                `;
+            }
         }).join('');
     }
     
@@ -741,7 +838,7 @@
         const previewContainer = document.getElementById('enrolledCoursesPreview');
         
         if (!currentUser || userEnrollments.length === 0) {
-            const emptyMsg = '<div class="course-card"><p><i class="fas fa-info-circle"></i> No enrolled courses yet. Browse courses from the homepage!</p></div>';
+            const emptyMsg = '<div class="course-card"><p><i class="fas fa-info-circle"></i> No enrolled courses yet. <a href="#" onclick="showDashboardSection(\'allcourses\')" style="color: var(--primary);">Browse courses →</a></p></div>';
             if (container) container.innerHTML = emptyMsg;
             if (previewContainer) previewContainer.innerHTML = emptyMsg;
             return;
@@ -775,37 +872,6 @@
         if (previewContainer) previewContainer.innerHTML = enrolledHTML.slice(0, 3);
     }
     
-    function renderAvailableCourses() {
-        const container = document.getElementById('availableCoursesList');
-        if (!currentUser) return;
-        
-        const enrolledIds = userEnrollments.map(e => e.course_id);
-        const availableCourses = allCourses.filter(course => !enrolledIds.includes(course.id));
-        
-        if (availableCourses.length === 0) {
-            container.innerHTML = '<div class="course-card"><p><i class="fas fa-trophy"></i> Amazing! You\'re enrolled in all courses!</p></div>';
-            return;
-        }
-        
-        container.innerHTML = availableCourses.map(course => {
-            const isFree = course.type === 'free' || course.price === 0;
-            return `
-                <div class="course-card">
-                    <div class="course-icon">${course.icon || '📚'}</div>
-                    <span class="course-badge ${isFree ? 'badge-free' : 'badge-premium'}">
-                        ${isFree ? 'FREE' : 'PREMIUM'}
-                    </span>
-                    <h3>${escapeHtml(course.name)}</h3>
-                    <p>${escapeHtml((course.description || '').substring(0, 80))}...</p>
-                    <div class="course-price ${isFree ? 'free' : 'premium'}">
-                        ${isFree ? 'FREE' : `KES ${(course.price || 0).toLocaleString()}`}
-                    </div>
-                    <button class="btn-enroll" onclick="enrollInCourse(${course.id})">🎓 Enroll Now</button>
-                </div>
-            `;
-        }).join('');
-    }
-    
     function renderCompletedCourses() {
         const container = document.getElementById('completedCoursesList');
         if (!currentUser) return;
@@ -827,7 +893,7 @@
                 <h3>${escapeHtml(course.name)}</h3>
                 <p>${escapeHtml((course.description || '').substring(0, 100))}</p>
                 <i class="fas fa-check-circle" style="color: var(--success); font-size: 2rem; margin-top: 10px;"></i>
-                <p style="color: var(--success); margin-top: 5px;">Course Completed!</p>
+                <p style="color: var(--success); margin-top: 5px;">Course Completed! 🎉</p>
             </div>
         `).join('');
     }
@@ -862,7 +928,7 @@
     function showLanding() {
         document.getElementById('landingPage').style.display = 'block';
         document.getElementById('dashboardPage').style.display = 'none';
-        renderCourses();
+        renderPublicCourses();
     }
     
     function showDashboard() {
@@ -870,24 +936,32 @@
         document.getElementById('dashboardPage').style.display = 'block';
         updateDashboardStats();
         renderEnrolledCourses();
-        renderAvailableCourses();
+        renderAllCoursesList();
         renderCompletedCourses();
         showDashboardSection('overview');
     }
     
     function showDashboardSection(section) {
         document.getElementById('dashboardOverview').style.display = section === 'overview' ? 'block' : 'none';
-        document.getElementById('dashboardCourses').style.display = section === 'courses' ? 'block' : 'none';
+        document.getElementById('dashboardMyCourses').style.display = section === 'mycourses' ? 'block' : 'none';
+        document.getElementById('dashboardAllCourses').style.display = section === 'allcourses' ? 'block' : 'none';
         document.getElementById('dashboardCompleted').style.display = section === 'completed' ? 'block' : 'none';
         
         document.querySelectorAll('#dashboardSidebar a').forEach(a => a.classList.remove('active'));
+        
         if (section === 'overview') {
-            document.querySelector('#dashboardSidebar a:first-child').classList.add('active');
-        } else if (section === 'courses') {
             document.querySelector('#dashboardSidebar a:nth-child(2)').classList.add('active');
-        } else {
+        } else if (section === 'mycourses') {
             document.querySelector('#dashboardSidebar a:nth-child(3)').classList.add('active');
+        } else if (section === 'allcourses') {
+            document.querySelector('#dashboardSidebar a:nth-child(4)').classList.add('active');
+        } else if (section === 'completed') {
+            document.querySelector('#dashboardSidebar a:nth-child(5)').classList.add('active');
         }
+        
+        if (section === 'allcourses') renderAllCoursesList();
+        if (section === 'mycourses') renderEnrolledCourses();
+        if (section === 'completed') renderCompletedCourses();
     }
     
     function showAuthModal(mode) {
@@ -920,7 +994,7 @@
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}`;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3500);
     }
