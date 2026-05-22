@@ -720,6 +720,64 @@
     console.log('✅ Supabase client initialized');
     
     // ============================================
+    // COURSE FILE MAPPING (8 specific course files)
+    // ============================================
+    const COURSE_FILE_MAPPING = {
+        // Boda Boda
+        "boda": "boda-course.html",
+        "boda boda": "boda-course.html",
+        "motorcycle": "boda-course.html",
+        
+        // Defensive Driving
+        "defensive": "defensive-driving-course.html",
+        "defensive driving": "defensive-driving-course.html",
+        
+        // E-Safety Library
+        "e-safety": "e-safety-library.html",
+        "e safety": "e-safety-library.html",
+        "safety library": "e-safety-library.html",
+        
+        // Electric Vehicle
+        "electric": "ev-course-dynamic.html",
+        "ev": "ev-course-dynamic.html",
+        "electric vehicle": "ev-course-dynamic.html",
+        
+        // Learner Hub
+        "learner": "learner-hub.html",
+        "learner hub": "learner-hub.html",
+        "complete driver": "learner-hub.html",
+        
+        // Professional Driver
+        "professional": "professional-driver-course.html",
+        "professional driver": "professional-driver-course.html",
+        "psv": "professional-driver-course.html",
+        
+        // Quiz Bank
+        "quiz": "quiz-bank.html",
+        "quiz bank": "quiz-bank.html",
+        "exam": "quiz-bank.html",
+        
+        // School Transport
+        "school": "school-transport-course.html",
+        "school transport": "school-transport-course.html",
+        "school bus": "school-transport-course.html"
+    };
+    
+    // Helper function to get course filename
+    function getCourseFileName(courseName) {
+        const lowerName = courseName.toLowerCase();
+        for (const [key, filename] of Object.entries(COURSE_FILE_MAPPING)) {
+            if (lowerName.includes(key)) {
+                console.log(`✅ Mapping "${courseName}" → ${filename}`);
+                return filename;
+            }
+        }
+        // Default fallback for any new courses
+        console.log(`⚠️ No mapping found for "${courseName}", using default`);
+        return `course.html?id=${encodeURIComponent(courseName)}`;
+    }
+    
+    // ============================================
     // DOM ELEMENTS
     // ============================================
     const toast = document.getElementById('toast');
@@ -776,7 +834,6 @@
             currentUser = session?.user || null;
             
             if (currentUser) {
-                // Try to get profile, but don't fail if table doesn't exist
                 let displayName = currentUser.email.split('@')[0];
                 try {
                     const { data: profile } = await supabaseClient
@@ -807,8 +864,78 @@
     }
     
     // ============================================
-    // COURSE FUNCTIONS
+    // COURSE FUNCTIONS - MODIFIED FOR REDIRECTS
     // ============================================
+    async function handleCourseAccess(course) {
+        setLoading(true);
+        
+        // Get the correct HTML file for this course
+        const courseFile = getCourseFileName(course.name);
+        
+        // Store course info in localStorage for the course page to use
+        localStorage.setItem('currentCourse', JSON.stringify({
+            id: course.id,
+            name: course.name,
+            description: course.description,
+            type: course.type,
+            price: course.price,
+            icon: course.icon
+        }));
+        
+        try {
+            // If user is logged in, create enrollment record
+            if (currentUser) {
+                try {
+                    // Check if already enrolled
+                    const { data: existingEnrollment } = await supabaseClient
+                        .from('enrollments')
+                        .select('id')
+                        .eq('user_id', currentUser.id)
+                        .eq('course_id', course.id)
+                        .maybeSingle();
+                    
+                    if (!existingEnrollment) {
+                        // Create enrollment record
+                        const { error: enrollError } = await supabaseClient
+                            .from('enrollments')
+                            .insert([{
+                                user_id: currentUser.id,
+                                course_id: course.id,
+                                status: 'active',
+                                enrolled_at: new Date().toISOString()
+                            }]);
+                        
+                        if (enrollError && enrollError.code !== '42P01') {
+                            console.error('Enrollment error:', enrollError);
+                        } else {
+                            console.log('✅ User enrolled in course:', course.name);
+                        }
+                    }
+                } catch (err) {
+                    console.log('Enrollment tracking optional:', err.message);
+                }
+                
+                // Redirect to the specific course page
+                console.log(`📚 Redirecting to: ${courseFile}`);
+                window.location.href = `/${courseFile}`;
+            } else {
+                // Not logged in - store intended course and redirect to login
+                localStorage.setItem('redirectAfterLogin', courseFile);
+                localStorage.setItem('intendedCourse', JSON.stringify(course));
+                showToast('Please login to access this course', true);
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 1000);
+            }
+        } catch (err) {
+            console.error('Error in course access:', err);
+            // Still try to redirect even if enrollment fails
+            window.location.href = `/${courseFile}`;
+        } finally {
+            setLoading(false);
+        }
+    }
+    
     function displayCourses(courses) {
         coursesContainer.innerHTML = '';
         
@@ -834,70 +961,21 @@
             const card = document.createElement('div');
             card.className = 'course-card';
             
-            card.onclick = () => {
-                if (currentUser) {
-                    handleCourseAccess(course);
-                } else {
-                    showToast('Please login to view course details', true);
-                    setTimeout(() => { window.location.href = '/login.html'; }, 1500);
-                }
+            card.onclick = (e) => {
+                e.stopPropagation();
+                handleCourseAccess(course);
             };
             
             card.innerHTML = `
                 <div class="course-icon">${icon}</div>
                 ${!isFree ? '<div class="course-badge">PREMIUM</div>' : '<div class="course-badge" style="background:#ff9800;">FREE</div>'}
                 <h3>${escapeHtml(title)}</h3>
-                <p>${escapeHtml(desc.substring(0, 80))}...</p>
+                <p>${escapeHtml(desc.substring(0, 80))}${desc.length > 80 ? '...' : ''}</p>
                 <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${price.toLocaleString()}`}</div>
                 <button class="btn-view">View Course →</button>
             `;
             coursesContainer.appendChild(card);
         });
-    }
-    
-    async function handleCourseAccess(course) {
-        setLoading(true);
-        try {
-            // Check if already enrolled (if enrollments table exists)
-            let isEnrolled = false;
-            try {
-                const { data: existingEnrollment } = await supabaseClient
-                    .from('enrollments')
-                    .select('id')
-                    .eq('user_id', currentUser.id)
-                    .eq('course_id', course.id)
-                    .maybeSingle();
-                isEnrolled = !!existingEnrollment;
-            } catch (err) {
-                console.log('Enrollments table not ready yet');
-            }
-            
-            if (!isEnrolled) {
-                try {
-                    const { error: enrollError } = await supabaseClient
-                        .from('enrollments')
-                        .insert([{
-                            user_id: currentUser.id,
-                            course_id: course.id,
-                            status: 'active',
-                            enrolled_at: new Date().toISOString()
-                        }]);
-                    
-                    if (enrollError && enrollError.code !== '42P01') {
-                        console.error('Enrollment error:', enrollError);
-                    }
-                } catch (err) {
-                    console.log('Enrollment table may not exist yet');
-                }
-            }
-            
-            window.location.href = `/course.html?id=${course.id}`;
-        } catch (err) {
-            console.error('Error:', err);
-            window.location.href = `/course.html?id=${course.id}`;
-        } finally {
-            setLoading(false);
-        }
     }
     
     async function fetchCourses() {
@@ -919,6 +997,12 @@
                 totalCoursesSpan.textContent = data.length.toString();
                 displayCourses(data);
                 console.log(`✅ Loaded ${data.length} courses from database`);
+                
+                // Log the course mappings for debugging
+                console.log('📋 Course to File Mappings:');
+                data.forEach(course => {
+                    console.log(`   "${course.name}" → ${getCourseFileName(course.name)}`);
+                });
             } else {
                 console.log('No courses found in database');
                 totalCoursesSpan.textContent = '0';
@@ -933,24 +1017,6 @@
             setLoading(false);
         }
     }
-    
-    // ============================================
-    // RLS POLICY SETUP (Run once in Supabase)
-    // ============================================
-    // To fix RLS issues, run this SQL in your Supabase SQL editor:
-    /*
-    -- Allow public read access to courses
-    CREATE POLICY "Enable read access for all users" ON courses
-        FOR SELECT USING (true);
-    
-    -- Allow authenticated users to enroll
-    CREATE POLICY "Enable insert for authenticated users" ON enrollments
-        FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-    
-    -- Allow users to view their own enrollments
-    CREATE POLICY "Enable read for own enrollments" ON enrollments
-        FOR SELECT USING (auth.uid() = user_id);
-    */
     
     // ============================================
     // INITIALIZATION
