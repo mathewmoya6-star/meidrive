@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Dashboard | MEI DRIVE AFRICA</title>
+    <title>My Dashboard | MEI DRIVE AFRICA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -16,8 +16,8 @@
             --white: #FFFFFF;
             --soft-gray: #B7C4D6;
             --error: #ff4444;
-            --success: #00FF88;
             --warning: #ff9800;
+            --success: #00FF88;
             --transition: all 0.3s ease;
         }
         
@@ -28,93 +28,141 @@
             overflow-x: hidden;
         }
         
-        .loading-overlay {
+        .loading-spinner {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 9999; display: none;
-            justify-content: center; align-items: center; flex-direction: column;
+            justify-content: center; align-items: center;
         }
-        .loading-overlay.active { display: flex; }
+        .loading-spinner.active { display: flex; }
         .spinner {
             width: 50px; height: 50px; border: 3px solid var(--dark-navy);
             border-top-color: var(--neon-green); border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { margin-top: 15px; color: var(--neon-green); font-weight: 600; }
         
         .toast {
             position: fixed; bottom: 30px; right: 30px; z-index: 10000;
             background: var(--dark-navy); padding: 14px 24px; border-radius: 12px;
-            transform: translateX(400px); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: translateX(400px); transition: transform 0.3s;
             border-left: 4px solid var(--neon-green);
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
         .toast.error { border-left-color: var(--error); }
         .toast.show { transform: translateX(0); }
         
         .navbar {
-            position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(4, 27, 61, 0.96); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 255, 136, 0.15);
+            background: var(--dark-navy);
             padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(0,255,136,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .nav-container {
-            max-width: 1200px; margin: auto; display: flex;
-            justify-content: space-between; align-items: center;
-            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            cursor: pointer;
+        }
+        .logo span { color: var(--white); }
+        .user-greeting {
+            display: flex;
+            align-items: center;
             gap: 1rem;
         }
-        .logo { font-size: 1.6rem; font-weight: 700; color: var(--neon-green); cursor: pointer; }
-        .logo span { color: var(--white); }
-        .nav-links { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
-        .nav-links a { color: var(--white); text-decoration: none; transition: var(--transition); font-weight: 500; }
-        .nav-links a:hover, .nav-links a.active { color: var(--neon-green); }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-navy);
+            font-weight: bold;
+        }
         .logout-btn {
-            background: rgba(255,68,68,0.2); border: 1px solid var(--error);
-            color: var(--error); padding: 8px 20px; border-radius: 30px;
-            cursor: pointer; font-weight: 600; transition: var(--transition);
-        }
-        .logout-btn:hover { background: var(--error); color: var(--white); }
-        .user-info { display: flex; align-items: center; gap: 1rem; }
-        .user-name { color: var(--neon-green); font-weight: 600; }
-        
-        .hero {
-            min-height: 30vh;
-            background: linear-gradient(135deg, rgba(4,27,61,0.95), rgba(10,35,79,0.98));
-            display: flex; align-items: center; text-align: center; padding-top: 80px;
-        }
-        .hero-content { max-width: 800px; margin: 0 auto; padding: 0 20px; }
-        .hero h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        .hero h1 span { color: var(--neon-green); }
-        .hero p { color: var(--soft-gray); }
-        
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        
-        .stats-row {
-            display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        .stat-card {
-            background: var(--dark-navy); border-radius: 20px; padding: 1.5rem 2rem;
-            text-align: center; min-width: 160px; border: 1px solid rgba(0,255,136,0.2);
+            background: rgba(255,68,68,0.2);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
             transition: var(--transition);
         }
-        .stat-card:hover { transform: translateY(-3px); border-color: var(--neon-green); }
-        .stat-card i { font-size: 2rem; color: var(--neon-green); margin-bottom: 0.5rem; }
-        .stat-number { font-size: 2rem; font-weight: 700; }
-        .stat-label { color: var(--soft-gray); font-size: 0.8rem; }
+        .logout-btn:hover { background: var(--error); color: var(--white); }
         
-        .section-title {
-            text-align: center; font-size: 1.8rem; margin-bottom: 2rem;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
-        .section-title span { color: var(--neon-green); }
-        .section-title:after {
-            content: ''; display: block; width: 60px; height: 3px;
-            background: var(--neon-green); margin: 10px auto 0; border-radius: 2px;
+        
+        .welcome-section {
+            background: linear-gradient(135deg, var(--dark-navy), var(--secondary-dark));
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0,255,136,0.2);
+        }
+        .welcome-section h1 {
+            color: var(--neon-green);
+            margin-bottom: 0.5rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .stat-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--neon-green);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+        .tab {
+            background: none;
+            border: none;
+            color: var(--soft-gray);
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            position: relative;
+        }
+        .tab.active {
+            color: var(--neon-green);
+        }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--neon-green);
         }
         
         .courses-grid {
@@ -125,222 +173,511 @@
         
         .course-card {
             background: var(--dark-navy);
-            border-radius: 20px;
+            border-radius: 16px;
             padding: 1.5rem;
             border: 1px solid rgba(0,255,136,0.15);
             transition: var(--transition);
             position: relative;
         }
         .course-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             border-color: var(--neon-green);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
-        .course-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
         .course-badge {
             display: inline-block;
-            padding: 3px 12px;
+            padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: bold;
             margin-bottom: 0.75rem;
         }
-        .course-badge.free { background: var(--neon-green); color: var(--dark-navy); }
-        .course-badge.premium { background: var(--warning); color: var(--dark-navy); }
-        .enrolled-badge {
-            position: absolute; top: 1rem; right: 1rem;
-            background: var(--neon-green); color: var(--dark-navy);
-            padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold;
+        .badge-free { background: var(--warning); color: var(--dark-navy); }
+        .badge-premium { background: var(--neon-green); color: var(--dark-navy); }
+        .badge-enrolled { background: var(--success); color: var(--dark-navy); }
+        
+        .course-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
         }
-        .course-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
-        .course-card p {
-            color: var(--soft-gray); font-size: 0.85rem;
-            line-height: 1.5; margin-bottom: 1rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+        .course-description {
+            color: var(--soft-gray);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        .course-progress {
+            margin: 1rem 0;
+        }
+        .progress-bar-bg {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            height: 6px;
             overflow: hidden;
         }
-        .course-price {
-            font-weight: bold; margin-bottom: 1rem;
+        .progress-bar-fill {
+            background: var(--neon-green);
+            height: 100%;
+            transition: width 0.3s;
         }
-        .course-price.free { color: var(--neon-green); }
-        .course-price.premium { color: var(--warning); }
-        .progress-section { margin-bottom: 1rem; }
-        .progress-bar-small {
-            background: rgba(255,255,255,0.1); border-radius: 10px;
-            height: 6px; overflow: hidden; margin: 0.5rem 0;
+        .progress-text {
+            font-size: 0.7rem;
+            color: var(--soft-gray);
+            margin-top: 0.25rem;
         }
-        .progress-fill-small {
-            background: var(--neon-green); width: 0%; height: 100%;
-            border-radius: 10px; transition: width 0.3s;
-        }
-        .progress-text { font-size: 0.7rem; color: var(--soft-gray); text-align: center; }
-        .btn-action {
-            width: 100%; background: transparent; border: 1px solid var(--neon-green);
-            color: var(--white); padding: 10px; border-radius: 30px;
-            cursor: pointer; transition: var(--transition); font-weight: 600;
+        
+        .btn-enroll, .btn-continue {
+            width: 100%;
+            padding: 10px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
             margin-top: 0.5rem;
         }
-        .btn-action:hover { background: var(--neon-green); color: var(--dark-navy); }
-        .btn-action.enrolled { background: var(--neon-green); color: var(--dark-navy); }
-        
-        .skeleton-card {
-            background: var(--dark-navy); border-radius: 20px; padding: 1.5rem;
-            animation: pulse 1.5s infinite;
+        .btn-enroll {
+            background: var(--neon-green);
+            color: var(--dark-navy);
         }
-        .skeleton-icon { width: 50px; height: 50px; background: var(--secondary-dark); border-radius: 12px; margin-bottom: 1rem; }
-        .skeleton-title { width: 70%; height: 20px; background: var(--secondary-dark); border-radius: 4px; margin-bottom: 0.75rem; }
-        .skeleton-text { width: 100%; height: 60px; background: var(--secondary-dark); border-radius: 4px; margin-bottom: 1rem; }
-        .skeleton-price { width: 40%; height: 18px; background: var(--secondary-dark); border-radius: 4px; margin-bottom: 1rem; }
-        .skeleton-button { width: 100%; height: 38px; background: var(--secondary-dark); border-radius: 30px; }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 0.8; }
+        .btn-enroll:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,255,136,0.3);
+        }
+        .btn-continue {
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+        }
+        .btn-continue:hover {
+            background: var(--neon-green);
+            color: var(--dark-navy);
         }
         
         .empty-state {
-            text-align: center; padding: 60px; background: var(--dark-navy);
-            border-radius: 20px; grid-column: 1/-1;
+            text-align: center;
+            padding: 4rem;
+            background: var(--dark-navy);
+            border-radius: 20px;
         }
-        .empty-state i { font-size: 4rem; color: var(--warning); margin-bottom: 1rem; }
-        .empty-state button {
-            background: var(--neon-green); color: var(--dark-navy);
-            border: none; padding: 10px 30px; border-radius: 30px;
-            margin-top: 1rem; cursor: pointer; font-weight: bold;
-        }
-        
-        .footer {
-            background: var(--dark-navy); text-align: center;
-            padding: 2rem; color: var(--soft-gray);
-            border-top: 1px solid rgba(0,255,136,0.1); margin-top: 2rem;
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--soft-gray);
+            margin-bottom: 1rem;
         }
         
         @media (max-width: 768px) {
-            .courses-grid { grid-template-columns: 1fr; }
-            .hero h1 { font-size: 1.5rem; }
-            .stat-card { padding: 1rem; min-width: 120px; }
-            .stat-number { font-size: 1.5rem; }
             .container { padding: 1rem; }
+            .courses-grid { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+            .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<div id="loadingOverlay" class="loading-overlay">
-    <div class="spinner"></div>
-    <div class="loading-text">Loading your dashboard...</div>
-</div>
+<div id="loadingSpinner" class="loading-spinner"><div class="spinner"></div></div>
 <div id="toast" class="toast"></div>
 
 <nav class="navbar">
     <div class="nav-container">
         <div class="logo" onclick="location.href='/'">MEI DRIVE <span>AFRICA</span></div>
-        <div class="nav-links">
-            <a href="/dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="#"><i class="fas fa-book-open"></i> My Courses</a>
-            <a href="#"><i class="fas fa-headset"></i> Support</a>
-            <div id="userInfoNav" class="user-info">
-                <span class="user-name" id="userNameDisplay"></span>
-                <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
+        <div class="user-greeting">
+            <div class="user-avatar" id="userAvatar">👤</div>
+            <span id="userName">Loading...</span>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
         </div>
     </div>
 </nav>
 
-<section class="hero">
-    <div class="hero-content">
-        <h1>Welcome back, <span id="heroUserName">Driver</span>!</h1>
-        <p>Track your journey to becoming a certified driver with MEI DRIVE AFRICA</p>
-    </div>
-</section>
-
 <div class="container">
-    <div class="stats-row">
-        <div class="stat-card">
-            <i class="fas fa-book-open"></i>
-            <div class="stat-number" id="totalCourses">0</div>
-            <div class="stat-label">Total Courses</div>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-graduation-cap"></i>
-            <div class="stat-number" id="enrolledCount">0</div>
-            <div class="stat-label">Enrolled</div>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-chart-line"></i>
-            <div class="stat-number" id="avgProgress">0%</div>
-            <div class="stat-label">Avg Progress</div>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-certificate"></i>
-            <div class="stat-number" id="completedCourses">0</div>
-            <div class="stat-label">Completed</div>
+    <div class="welcome-section">
+        <h1 id="welcomeMessage">Welcome back, <span id="welcomeName">Learner</span>! 👋</h1>
+        <p>Continue your driving journey. Track progress and enroll in new courses.</p>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCoursesCount">0</div>
+                <div>Available Courses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="enrolledCount">0</div>
+                <div>Enrolled Courses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedCount">0</div>
+                <div>Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="overallProgress">0%</div>
+                <div>Overall Progress</div>
+            </div>
         </div>
     </div>
-    
-    <h2 class="section-title">Our <span>Courses</span></h2>
+
+    <div class="tabs">
+        <button class="tab active" data-tab="all">📚 All Courses</button>
+        <button class="tab" data-tab="enrolled">✅ My Courses</button>
+        <button class="tab" data-tab="completed">🏆 Completed</button>
+    </div>
+
     <div id="coursesContainer" class="courses-grid">
-        <!-- Skeleton loaders -->
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div><div class="skeleton-button"></div></div>
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div><div class="skeleton-button"></div></div>
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div><div class="skeleton-button"></div></div>
-        <div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-title"></div><div class="skeleton-text"></div><div class="skeleton-price"></div><div class="skeleton-button"></div></div>
+        <!-- Dynamic content loads here -->
     </div>
 </div>
-
-<footer class="footer">
-    <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training | Instructor: ILR-7WA1P62</p>
-</footer>
 
 <script>
     // ============================================
     // SUPABASE CONFIGURATION
     // ============================================
     const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
     
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
-    // DOM Elements
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const toast = document.getElementById('toast');
-    const coursesContainer = document.getElementById('coursesContainer');
-    
-    let currentUser = null;
-    let allCourses = [];
-    let userEnrollments = new Map();
-    
-    // Icon mapping for display
-    const getIconClass = (iconName) => {
-        const icons = {
-            'car': 'fa-car',
-            'bus': 'fa-bus',
-            'bolt': 'fa-bolt',
-            'bike': 'fa-motorcycle',
-            'book': 'fa-book',
-            'quiz': 'fa-clipboard-list',
-            'shield': 'fa-shield-alt',
-            'sync': 'fa-sync-alt'
-        };
-        return icons[iconName] || 'fa-car';
+    // ============================================
+    // COURSE FILE MAPPING
+    // ============================================
+    const COURSE_FILE_MAPPING = {
+        "boda": "boda-course.html",
+        "defensive": "defensive-driving-course.html",
+        "e-safety": "e-safety-library.html",
+        "electric": "ev-course-dynamic.html",
+        "learner": "learner-hub.html",
+        "professional": "professional-driver-course.html",
+        "quiz": "quiz-bank.html",
+        "school": "school-transport-course.html"
     };
     
-    function showLoading(show, message = 'Loading...') {
-        if (show) {
-            document.querySelector('.loading-text').textContent = message;
-            loadingOverlay.classList.add('active');
-        } else {
-            loadingOverlay.classList.remove('active');
+    function getCourseFileName(courseName) {
+        const lowerName = courseName.toLowerCase();
+        for (const [key, filename] of Object.entries(COURSE_FILE_MAPPING)) {
+            if (lowerName.includes(key)) {
+                return filename;
+            }
         }
+        return `course.html?id=${encodeURIComponent(courseName)}`;
     }
     
+    // ============================================
+    // STATE
+    // ============================================
+    let currentUser = null;
+    let allCourses = [];
+    let userEnrollments = new Map(); // course_id -> { enrolled, completed, progress }
+    let currentTab = 'all';
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
     function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
         toast.textContent = message;
         toast.className = `toast ${isError ? 'error' : ''}`;
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 4000);
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    function setLoading(loading) {
+        document.getElementById('loadingSpinner').classList.toggle('active', loading);
+    }
+    
+    // ============================================
+    // AUTHENTICATION
+    // ============================================
+    async function checkAuth() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.href = '/login.html';
+            return false;
+        }
+        currentUser = session.user;
+        
+        // Get user profile
+        let displayName = currentUser.email.split('@')[0];
+        try {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', currentUser.id)
+                .maybeSingle();
+            if (profile?.full_name) displayName = profile.full_name;
+        } catch (err) {
+            console.log('Profile fetch error:', err);
+        }
+        
+        document.getElementById('userName').textContent = displayName;
+        document.getElementById('welcomeName').textContent = displayName.split(' ')[0];
+        document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+        
+        return true;
+    }
+    
+    // ============================================
+    // FETCH COURSES FROM SUPABASE
+    // ============================================
+    async function fetchCourses() {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('courses')
+                .select('*')
+                .order('id', { ascending: true });
+            
+            if (error) throw error;
+            
+            allCourses = data || [];
+            document.getElementById('totalCoursesCount').textContent = allCourses.length;
+            
+            return allCourses;
+        } catch (error) {
+            console.error('Error fetching courses:', error);
+            showToast('Failed to load courses', true);
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    }
+    
+    // ============================================
+    // FETCH USER ENROLLMENTS & PROGRESS
+    // ============================================
+    async function fetchUserEnrollments() {
+        if (!currentUser) return;
+        
+        try {
+            // Fetch enrollments
+            const { data: enrollments, error: enrollError } = await supabase
+                .from('enrollments')
+                .select('course_id, status, enrolled_at, progress')
+                .eq('user_id', currentUser.id);
+            
+            if (enrollError && enrollError.code !== '42P01') {
+                console.error('Enrollments error:', enrollError);
+            }
+            
+            if (enrollments) {
+                enrollments.forEach(enrollment => {
+                    userEnrollments.set(enrollment.course_id, {
+                        enrolled: true,
+                        status: enrollment.status,
+                        progress: enrollment.progress || 0,
+                        enrolledAt: enrollment.enrolled_at
+                    });
+                });
+            }
+            
+            // Fetch completed units from user_progress if table exists
+            try {
+                const { data: completedUnits } = await supabase
+                    .from('user_progress')
+                    .select('course_id, unit_id')
+                    .eq('user_id', currentUser.id)
+                    .eq('completed', true);
+                
+                if (completedUnits) {
+                    // Group by course_id
+                    const courseCompletions = new Map();
+                    completedUnits.forEach(unit => {
+                        if (!courseCompletions.has(unit.course_id)) {
+                            courseCompletions.set(unit.course_id, []);
+                        }
+                        courseCompletions.get(unit.course_id).push(unit.unit_id);
+                    });
+                    
+                    // Update progress for each course
+                    for (const [courseId, completedUnitsList] of courseCompletions) {
+                        const course = allCourses.find(c => c.id === courseId);
+                        if (course && course.total_units) {
+                            const progress = Math.round((completedUnitsList.length / course.total_units) * 100);
+                            if (userEnrollments.has(courseId)) {
+                                userEnrollments.get(courseId).progress = progress;
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.log('Progress table not ready');
+            }
+            
+            updateStats();
+        } catch (error) {
+            console.error('Error fetching enrollments:', error);
+        }
+    }
+    
+    // ============================================
+    // ENROLL IN COURSE
+    // ============================================
+    async function enrollInCourse(courseId) {
+        setLoading(true);
+        try {
+            // Check if already enrolled
+            if (userEnrollments.has(courseId)) {
+                showToast('You are already enrolled in this course!');
+                setLoading(false);
+                return;
+            }
+            
+            // Insert enrollment
+            const { error } = await supabase
+                .from('enrollments')
+                .insert([{
+                    user_id: currentUser.id,
+                    course_id: courseId,
+                    status: 'active',
+                    progress: 0,
+                    enrolled_at: new Date().toISOString()
+                }]);
+            
+            if (error) throw error;
+            
+            // Update local state
+            userEnrollments.set(courseId, {
+                enrolled: true,
+                status: 'active',
+                progress: 0,
+                enrolledAt: new Date().toISOString()
+            });
+            
+            updateStats();
+            renderCourses();
+            showToast('Successfully enrolled! 🎉');
+            
+        } catch (error) {
+            console.error('Enrollment error:', error);
+            showToast('Failed to enroll. Please try again.', true);
+        } finally {
+            setLoading(false);
+        }
+    }
+    
+    // ============================================
+    // CONTINUE/VIEW COURSE
+    // ============================================
+    function continueCourse(course) {
+        localStorage.setItem('currentCourse', JSON.stringify({
+            id: course.id,
+            name: course.name,
+            description: course.description
+        }));
+        
+        const courseFile = getCourseFileName(course.name);
+        window.location.href = `/${courseFile}`;
+    }
+    
+    // ============================================
+    // UPDATE STATISTICS
+    // ============================================
+    function updateStats() {
+        const enrolledCount = Array.from(userEnrollments.values()).filter(e => e.enrolled).length;
+        const completedCount = Array.from(userEnrollments.values()).filter(e => e.progress === 100).length;
+        const totalProgress = Array.from(userEnrollments.values()).reduce((sum, e) => sum + (e.progress || 0), 0);
+        const avgProgress = enrolledCount > 0 ? Math.round(totalProgress / enrolledCount) : 0;
+        
+        document.getElementById('enrolledCount').textContent = enrolledCount;
+        document.getElementById('completedCount').textContent = completedCount;
+        document.getElementById('overallProgress').textContent = `${avgProgress}%`;
+    }
+    
+    // ============================================
+    // RENDER COURSES BASED ON ACTIVE TAB
+    // ============================================
+    function renderCourses() {
+        const container = document.getElementById('coursesContainer');
+        
+        let filteredCourses = [];
+        
+        switch(currentTab) {
+            case 'enrolled':
+                filteredCourses = allCourses.filter(course => userEnrollments.has(course.id));
+                break;
+            case 'completed':
+                filteredCourses = allCourses.filter(course => {
+                    const enrollment = userEnrollments.get(course.id);
+                    return enrollment && enrollment.progress === 100;
+                });
+                break;
+            default: // 'all'
+                filteredCourses = allCourses;
+        }
+        
+        if (filteredCourses.length === 0) {
+            let emptyMessage = '';
+            if (currentTab === 'enrolled') {
+                emptyMessage = `
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <h3>No enrolled courses yet</h3>
+                        <p>Browse the "All Courses" tab and enroll in a course to get started!</p>
+                    </div>
+                `;
+            } else if (currentTab === 'completed') {
+                emptyMessage = `
+                    <div class="empty-state">
+                        <i class="fas fa-trophy"></i>
+                        <h3>No completed courses yet</h3>
+                        <p>Keep learning and complete your enrolled courses!</p>
+                    </div>
+                `;
+            } else {
+                emptyMessage = `
+                    <div class="empty-state">
+                        <i class="fas fa-database"></i>
+                        <h3>No courses available</h3>
+                        <p>Please add courses to your database.</p>
+                    </div>
+                `;
+            }
+            container.innerHTML = emptyMessage;
+            return;
+        }
+        
+        container.innerHTML = filteredCourses.map(course => {
+            const isEnrolled = userEnrollments.has(course.id);
+            const enrollment = userEnrollments.get(course.id);
+            const progress = enrollment?.progress || 0;
+            const isCompleted = progress === 100;
+            const isFree = course.type === 'free' || course.price === 0;
+            
+            let badge = '';
+            if (isCompleted) {
+                badge = '<span class="course-badge badge-enrolled">✅ COMPLETED</span>';
+            } else if (isEnrolled) {
+                badge = '<span class="course-badge badge-enrolled">📖 ENROLLED</span>';
+            } else if (isFree) {
+                badge = '<span class="course-badge badge-free">FREE</span>';
+            } else {
+                badge = '<span class="course-badge badge-premium">PREMIUM</span>';
+            }
+            
+            return `
+                <div class="course-card">
+                    <div class="course-icon" style="font-size: 2rem; margin-bottom: 0.5rem;">${course.icon || '🚗'}</div>
+                    ${badge}
+                    <h3 class="course-title">${escapeHtml(course.name)}</h3>
+                    <p class="course-description">${escapeHtml((course.description || '').substring(0, 120))}${(course.description || '').length > 120 ? '...' : ''}</p>
+                    ${isEnrolled ? `
+                        <div class="course-progress">
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-text">${progress}% Complete</div>
+                        </div>
+                    ` : `
+                        <div class="course-price" style="margin: 0.5rem 0; font-weight: bold; color: ${isFree ? 'var(--neon-green)' : 'var(--warning)'}">
+                            ${isFree ? 'FREE' : `KES ${(course.price || 0).toLocaleString()}`}
+                        </div>
+                    `}
+                    ${isEnrolled ? 
+                        `<button class="btn-continue" onclick="continueCourse(${JSON.stringify(course).replace(/"/g, '&quot;')})">
+                            ${isCompleted ? '📋 Review Course' : '▶️ Continue Learning'}
+                        </button>` :
+                        `<button class="btn-enroll" onclick="enrollInCourse(${course.id})">
+                            ${isFree ? '🎓 Enroll Now - FREE' : '💰 Enroll Now'}
+                        </button>`
+                    }
+                </div>
+            `;
+        }).join('');
     }
     
     function escapeHtml(str) {
@@ -349,283 +686,36 @@
     }
     
     // ============================================
-    // AUTHENTICATION
-    // ============================================
-    async function checkAuth() {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                showToast('Please login to continue', true);
-                setTimeout(() => { window.location.href = '/login.html'; }, 1500);
-                return false;
-            }
-            currentUser = session.user;
-            let displayName = currentUser.email?.split('@')[0] || 'Driver';
-            document.getElementById('userNameDisplay').textContent = displayName;
-            document.getElementById('heroUserName').textContent = displayName;
-            console.log('✅ User authenticated:', currentUser.email);
-            return true;
-        } catch (err) {
-            console.error('Auth error:', err);
-            window.location.href = '/login.html';
-            return false;
-        }
-    }
-    
-    // ============================================
-    // FETCH COURSES FROM SUPABASE
-    // ============================================
-    async function fetchCoursesFromSupabase() {
-        try {
-            console.log('📚 Fetching courses from Supabase...');
-            const { data, error } = await supabase
-                .from('courses')
-                .select('*')
-                .order('id', { ascending: true });
-            
-            if (error) {
-                console.error('Supabase error:', error);
-                showToast('Error loading courses from database', true);
-                return false;
-            }
-            
-            if (data && data.length > 0) {
-                allCourses = data;
-                console.log(`✅ Loaded ${data.length} courses from Supabase`);
-                return true;
-            } else {
-                console.warn('⚠️ No courses found in database');
-                showToast('No courses found. Please add courses to the database.', true);
-                return false;
-            }
-        } catch (err) {
-            console.error('Fetch error:', err);
-            showToast('Failed to connect to Supabase', true);
-            return false;
-        }
-    }
-    
-    // ============================================
-    // LOAD USER ENROLLMENTS
-    // ============================================
-    async function loadUserEnrollments() {
-        if (!currentUser) return;
-        
-        try {
-            const { data, error } = await supabase
-                .from('enrollments')
-                .select('course_id, progress')
-                .eq('user_id', currentUser.id);
-            
-            if (!error && data) {
-                userEnrollments.clear();
-                data.forEach(e => {
-                    userEnrollments.set(e.course_id, {
-                        enrolled: true,
-                        progress: e.progress || 0
-                    });
-                });
-                console.log(`📊 Loaded ${data.length} enrollments`);
-            }
-        } catch (err) {
-            console.log('Enrollments table not ready yet');
-        }
-    }
-    
-    // ============================================
-    // ENROLL IN COURSE
-    // ============================================
-    async function enrollInCourse(courseId, courseTitle, coursePrice) {
-        if (!currentUser) {
-            showToast('Please login to enroll', true);
-            return false;
-        }
-        
-        if (userEnrollments.has(courseId)) {
-            goToCourse(courseId);
-            return true;
-        }
-        
-        showLoading(true, `Enrolling in ${courseTitle}...`);
-        
-        try {
-            const { error } = await supabase
-                .from('enrollments')
-                .insert([{
-                    user_id: currentUser.id,
-                    course_id: courseId,
-                    status: 'active',
-                    progress: 0,
-                    completed_units: 0,
-                    enrolled_at: new Date().toISOString()
-                }]);
-            
-            if (error) {
-                console.error('Enrollment error:', error);
-                showToast('Enrollment failed. Please try again.', true);
-                return false;
-            }
-            
-            userEnrollments.set(courseId, { enrolled: true, progress: 0 });
-            showToast(`✅ Enrolled in ${courseTitle}!`, false);
-            renderCourses();
-            updateStats();
-            
-            setTimeout(() => { goToCourse(courseId); }, 1000);
-            return true;
-        } catch (err) {
-            console.error('Enrollment error:', err);
-            showToast('Enrollment failed', true);
-            return false;
-        } finally {
-            showLoading(false);
-        }
-    }
-    
-    // ============================================
-    // GO TO COURSE
-    // ============================================
-    function goToCourse(courseId) {
-        window.location.href = `/learn.html?id=${courseId}`;
-    }
-    
-    // ============================================
-    // RENDER COURSES
-    // ============================================
-    function renderCourses() {
-        if (!coursesContainer) return;
-        
-        if (!allCourses.length) {
-            coursesContainer.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-database"></i>
-                    <h3>No Courses Found</h3>
-                    <p>Please run the SQL script to insert courses into your database.</p>
-                    <button onclick="location.reload()">Refresh</button>
-                </div>
-            `;
-            return;
-        }
-        
-        coursesContainer.innerHTML = '';
-        
-        allCourses.forEach(course => {
-            const enrollment = userEnrollments.get(course.id);
-            const isEnrolled = !!enrollment;
-            const progressPercent = isEnrolled ? (enrollment.progress || 0) : 0;
-            const isFree = course.type === 'free' || course.price === 0;
-            const price = course.price || 0;
-            const iconClass = getIconClass(course.icon);
-            
-            const card = document.createElement('div');
-            card.className = 'course-card';
-            
-            card.innerHTML = `
-                ${isEnrolled ? '<div class="enrolled-badge"><i class="fas fa-check"></i> Enrolled</div>' : ''}
-                <div class="course-icon"><i class="fas ${iconClass}"></i></div>
-                <div class="course-badge ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : 'PREMIUM'}</div>
-                <h3>${escapeHtml(course.name)}</h3>
-                <p>${escapeHtml(course.description || 'Professional driver training course')}</p>
-                <div class="course-price ${isFree ? 'free' : 'premium'}">
-                    ${isFree ? 'FREE' : `KES ${price.toLocaleString()}`}
-                </div>
-                ${isEnrolled ? `
-                    <div class="progress-section">
-                        <div class="progress-bar-small">
-                            <div class="progress-fill-small" style="width: ${progressPercent}%;"></div>
-                        </div>
-                        <div class="progress-text">Progress: ${progressPercent}%</div>
-                    </div>
-                ` : ''}
-                <button class="btn-action ${isEnrolled ? 'enrolled' : ''}" data-course-id="${course.id}">
-                    ${isEnrolled ? '<i class="fas fa-play"></i> View Course →' : '<i class="fas fa-plus-circle"></i> Enroll Now'}
-                </button>
-            `;
-            
-            const button = card.querySelector('.btn-action');
-            button.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                if (isEnrolled) {
-                    goToCourse(course.id);
-                } else {
-                    await enrollInCourse(course.id, course.name, price);
-                }
-            });
-            
-            coursesContainer.appendChild(card);
-        });
-        
-        console.log(`🎓 Displayed ${allCourses.length} courses`);
-    }
-    
-    // ============================================
-    // UPDATE STATISTICS
-    // ============================================
-    function updateStats() {
-        document.getElementById('totalCourses').textContent = allCourses.length;
-        
-        let enrolledCount = 0;
-        let totalProgress = 0;
-        let completedCourses = 0;
-        
-        userEnrollments.forEach((value) => {
-            if (value.enrolled) {
-                enrolledCount++;
-                totalProgress += value.progress || 0;
-                if ((value.progress || 0) >= 100) {
-                    completedCourses++;
-                }
-            }
-        });
-        
-        document.getElementById('enrolledCount').textContent = enrolledCount;
-        const avgProgressVal = enrolledCount > 0 ? Math.floor(totalProgress / enrolledCount) : 0;
-        document.getElementById('avgProgress').textContent = `${avgProgressVal}%`;
-        document.getElementById('completedCourses').textContent = completedCourses;
-    }
-    
-    // ============================================
-    // LOGOUT
-    // ============================================
-    async function handleLogout() {
-        showLoading(true, 'Logging out...');
-        await supabase.auth.signOut();
-        window.location.href = '/';
-    }
-    
-    // ============================================
     // INITIALIZATION
     // ============================================
-    document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
-    
     async function init() {
-        showLoading(true, 'Connecting to Supabase...');
+        if (!await checkAuth()) return;
         
-        const authenticated = await checkAuth();
-        if (!authenticated) {
-            showLoading(false);
-            return;
-        }
+        await fetchCourses();
+        await fetchUserEnrollments();
+        renderCourses();
         
-        showLoading(true, 'Fetching courses...');
-        const coursesLoaded = await fetchCoursesFromSupabase();
-        
-        if (coursesLoaded) {
-            showLoading(true, 'Loading your progress...');
-            await loadUserEnrollments();
-            renderCourses();
-            updateStats();
-        }
-        
-        showLoading(false);
-        console.log('✅ Dashboard ready');
-        
-        supabase.auth.onAuthStateChange(async (event) => {
-            if (event === 'SIGNED_OUT') {
-                window.location.href = '/';
-            }
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab = tab.dataset.tab;
+                renderCourses();
+            });
         });
     }
+    
+    // Logout handler
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        setLoading(true);
+        await supabase.auth.signOut();
+        window.location.href = '/';
+    });
+    
+    // Make functions global for onclick handlers
+    window.enrollInCourse = enrollInCourse;
+    window.continueCourse = continueCourse;
     
     init();
 </script>
