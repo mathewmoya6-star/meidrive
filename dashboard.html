@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Learner Dashboard | MEI Drive Africa</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -376,12 +375,9 @@
             </div>
         </div>
 
-        <!-- Featured/Recommended Courses -->
         <div class="card">
             <h3><i class="fas fa-star"></i> Recommended For You</h3>
-            <div id="recommendedCourses" class="courses-grid">
-                <div class="loading"><div class="spinner"></div></div>
-            </div>
+            <div id="recommendedCourses" class="courses-grid"></div>
         </div>
     </div>
 
@@ -390,17 +386,12 @@
         <div class="card">
             <h2><i class="fas fa-book"></i> My Courses</h2>
             <button class="btn-primary" onclick="loadEnrolledCourses()"><i class="fas fa-sync-alt"></i> Refresh</button>
-            <div id="enrolledCoursesContainer" class="courses-grid">
-                <div class="loading"><div class="spinner"></div></div>
-            </div>
+            <div id="enrolledCoursesContainer" class="courses-grid"></div>
         </div>
 
-        <!-- Available Courses to Enroll -->
         <div class="card">
             <h3><i class="fas fa-store"></i> Available Courses</h3>
-            <div id="availableCoursesContainer" class="courses-grid">
-                <div class="loading"><div class="spinner"></div></div>
-            </div>
+            <div id="availableCoursesContainer" class="courses-grid"></div>
         </div>
     </div>
 
@@ -408,119 +399,178 @@
     <div id="progressSection" style="display:none">
         <div class="card">
             <h2><i class="fas fa-chart-line"></i> My Learning Progress</h2>
-            <div id="progressTable" class="table-wrapper">
-                <div class="loading"><div class="spinner"></div></div>
-            </div>
+            <div id="progressTable" class="table-wrapper"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
-    
-    let supabaseClient;
-    let currentUser = null;
-    let allCourses = [];
-    let userEnrollments = new Map();
-
-    // COURSES DATA (Hardcoded for immediate display)
+    // COMPLETE COURSES DATA - FULLY HARDCODED, NO DATABASE NEEDED
     const COURSES = [
-        { id: 1, name: 'Learner Hub - Complete Driver Training', description: 'NTSA-approved curriculum from basics to road readiness. Covers traffic rules, vehicle controls, defensive driving, and complete exam preparation.', price: 0, type: 'free', icon: '📚', file: 'learner-hub.html', total_units: 21 },
-        { id: 2, name: 'Boda Boda Professional Course', description: 'Professional motorcycle taxi training including safety, customer service, road regulations, and defensive riding techniques.', price: 0, type: 'free', icon: '🏍️', file: 'boda-course.html', total_units: 15 },
-        { id: 3, name: 'Defensive Driving Course', description: 'Master advanced driving techniques, hazard perception, emergency maneuvers, and accident avoidance strategies.', price: 1999, type: 'premium', icon: '🛡️', file: 'defensive-driving-course.html', total_units: 12 },
-        { id: 4, name: 'Professional Driver Course', description: 'Comprehensive training for PSV, logistics, and commercial drivers including customer care and regulations.', price: 4999, type: 'premium', icon: '🚛', file: 'professional-driver-course.html', total_units: 20 },
-        { id: 5, name: 'Electric Vehicle Course', description: 'Master EV technology, charging systems, battery maintenance, and safety procedures for electric vehicles.', price: 2999, type: 'premium', icon: '⚡', file: 'ev-course-dynamic.html', total_units: 10 },
-        { id: 6, name: 'School Transport Safety', description: 'Specialized certification for school bus drivers including child safety protocols, emergency procedures, and regulations.', price: 1999, type: 'premium', icon: '🚸', file: 'school-transport-course.html', total_units: 8 },
-        { id: 7, name: 'E-Safety Library', description: 'Digital safety for drivers - online records management, apps, cybersecurity awareness, and digital compliance.', price: 0, type: 'free', icon: '💻', file: 'e-safety-library.html', total_units: 6 },
-        { id: 8, name: 'Quiz Bank - Exam Preparation', description: '1000+ NTSA practice questions to prepare for your driving theory test with detailed explanations.', price: 0, type: 'free', icon: '📝', file: 'quiz-bank.html', total_units: 10 }
+        { 
+            id: 1, 
+            name: 'Learner Hub - Complete Driver Training', 
+            description: 'NTSA-approved curriculum from basics to road readiness. Covers traffic rules, vehicle controls, defensive driving, and complete exam preparation. Perfect for first-time drivers.', 
+            price: 0, 
+            type: 'free', 
+            icon: '📚', 
+            file: 'learner-hub.html', 
+            totalUnits: 21,
+            units: ['Introduction to Driving', 'Traffic Rules & Regulations', 'Vehicle Controls', 'Road Signs', 'Defensive Driving', 'Parking Techniques', 'Highway Driving', 'Night Driving', 'Emergency Procedures', 'Final Assessment']
+        },
+        { 
+            id: 2, 
+            name: 'Boda Boda Professional Course', 
+            description: 'Professional motorcycle taxi training including safety, customer service, road regulations, and defensive riding techniques. NTSA certified curriculum for commercial boda boda operators.', 
+            price: 0, 
+            type: 'free', 
+            icon: '🏍️', 
+            file: 'boda-course.html', 
+            totalUnits: 15,
+            units: ['Motorcycle Basics', 'Safety Gear', 'Traffic Rules for Boda', 'Passenger Safety', 'Customer Service', 'Route Planning', 'Emergency Handling', 'Maintenance Basics']
+        },
+        { 
+            id: 3, 
+            name: 'Defensive Driving Course', 
+            description: 'Master advanced driving techniques, hazard perception, emergency maneuvers, and accident avoidance strategies. Essential for all experienced drivers.', 
+            price: 1999, 
+            type: 'premium', 
+            icon: '🛡️', 
+            file: 'defensive-driving-course.html', 
+            totalUnits: 12,
+            units: ['Hazard Perception', 'Space Management', 'Emergency Braking', 'Skid Control', 'Night Driving', 'Weather Driving', 'Distraction Management', 'Final Test']
+        },
+        { 
+            id: 4, 
+            name: 'Professional Driver Course', 
+            description: 'Comprehensive training for PSV, logistics, and commercial drivers including customer care, vehicle inspection, and transport regulations.', 
+            price: 4999, 
+            type: 'premium', 
+            icon: '🚛', 
+            file: 'professional-driver-course.html', 
+            totalUnits: 20,
+            units: ['Commercial Regulations', 'Vehicle Inspection', 'Logistics Planning', 'Customer Care', 'Route Management', 'Safety Protocols']
+        },
+        { 
+            id: 5, 
+            name: 'Electric Vehicle Course', 
+            description: 'Master EV technology, charging systems, battery maintenance, and safety procedures for electric vehicles. Future-proof your driving career.', 
+            price: 2999, 
+            type: 'premium', 
+            icon: '⚡', 
+            file: 'ev-course-dynamic.html', 
+            totalUnits: 10,
+            units: ['EV Technology', 'Battery Systems', 'Charging Infrastructure', 'Range Management', 'Maintenance', 'Safety Procedures']
+        },
+        { 
+            id: 6, 
+            name: 'School Transport Safety', 
+            description: 'Specialized certification for school bus drivers including child safety protocols, emergency procedures, and student management.', 
+            price: 1999, 
+            type: 'premium', 
+            icon: '🚸', 
+            file: 'school-transport-course.html', 
+            totalUnits: 8,
+            units: ['Child Safety', 'Loading Procedures', 'Emergency Protocols', 'Route Planning', 'Parent Communication', 'First Aid']
+        },
+        { 
+            id: 7, 
+            name: 'E-Safety Library', 
+            description: 'Digital safety for drivers - online records management, apps, cybersecurity awareness, and digital compliance for modern driving.', 
+            price: 0, 
+            type: 'free', 
+            icon: '💻', 
+            file: 'e-safety-library.html', 
+            totalUnits: 6,
+            units: ['Digital Records', 'Mobile Apps', 'Cybersecurity', 'Online Compliance', 'Data Privacy']
+        },
+        { 
+            id: 8, 
+            name: 'Quiz Bank - Exam Preparation', 
+            description: '1000+ NTSA practice questions to prepare for your driving theory test with detailed explanations and mock exams.', 
+            price: 0, 
+            type: 'free', 
+            icon: '📝', 
+            file: 'quiz-bank.html', 
+            totalUnits: 10,
+            units: ['Traffic Rules Quiz', 'Road Signs Quiz', 'Emergency Procedures', 'Mock Test 1', 'Mock Test 2']
+        }
     ];
 
-    document.addEventListener('DOMContentLoaded', function() {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        init();
-    });
+    // Local storage keys
+    const STORAGE_KEY = 'mei_enrollments';
+    const USER_KEY = 'mei_current_user';
 
-    function showToast(message, type = 'info') {
+    let currentUser = null;
+    let userEnrollments = new Map();
+
+    // Load from localStorage
+    function loadUserData() {
+        const savedUser = localStorage.getItem(USER_KEY);
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+        } else {
+            // Demo user for testing - remove in production
+            currentUser = { id: 'demo-user', email: 'learner@meidrive.com', name: 'Demo Learner' };
+            localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+        }
+
+        const savedEnrollments = localStorage.getItem(`${STORAGE_KEY}_${currentUser.id}`);
+        if (savedEnrollments) {
+            const enrollments = JSON.parse(savedEnrollments);
+            userEnrollments.clear();
+            enrollments.forEach(e => {
+                userEnrollments.set(e.courseId, { enrolled: true, progress: e.progress || 0 });
+            });
+        }
+    }
+
+    // Save enrollments to localStorage
+    function saveEnrollments() {
+        const enrollmentsArray = Array.from(userEnrollments.entries()).map(([courseId, data]) => ({
+            courseId: courseId,
+            progress: data.progress
+        }));
+        localStorage.setItem(`${STORAGE_KEY}_${currentUser.id}`, JSON.stringify(enrollmentsArray));
+    }
+
+    function showToast(message, isError = false) {
         const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
+        toast.className = `toast ${isError ? 'error' : ''}`;
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${message}`;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 4000);
+        setTimeout(() => toast.remove(), 3000);
     }
 
-    async function checkAuth() {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session) {
-            window.location.href = '/login.html';
-            return false;
-        }
-        currentUser = session.user;
-        
-        // Get user profile
-        let displayName = currentUser.email.split('@')[0];
-        try {
-            const { data: profile } = await supabaseClient
-                .from('profiles')
-                .select('full_name')
-                .eq('id', currentUser.id)
-                .maybeSingle();
-            if (profile?.full_name) displayName = profile.full_name;
-        } catch (err) {}
-        
-        return true;
-    }
-
-    async function loadEnrollments() {
-        try {
-            const { data } = await supabaseClient
-                .from('enrollments')
-                .select('course_id, progress')
-                .eq('user_id', currentUser.id);
-            
-            if (data) {
-                userEnrollments.clear();
-                data.forEach(e => {
-                    userEnrollments.set(e.course_id, { enrolled: true, progress: e.progress || 0 });
-                });
-            }
-            updateStats();
-        } catch (err) {
-            console.log('Enrollments table may not exist yet');
-        }
-    }
-
-    async function enrollInCourse(courseId, courseName) {
+    function enrollInCourse(courseId, courseName) {
         if (userEnrollments.has(courseId)) {
-            showToast('Already enrolled in this course!');
+            showToast('You are already enrolled in this course!');
             return;
         }
         
-        try {
-            const { error } = await supabaseClient
-                .from('enrollments')
-                .insert([{
-                    user_id: currentUser.id,
-                    course_id: courseId,
-                    status: 'active',
-                    progress: 0,
-                    enrolled_at: new Date()
-                }]);
-            
-            if (error) throw error;
-            
-            userEnrollments.set(courseId, { enrolled: true, progress: 0 });
+        userEnrollments.set(courseId, { enrolled: true, progress: 0 });
+        saveEnrollments();
+        updateStats();
+        renderAllCourseSections();
+        showToast(`✅ Successfully enrolled in ${courseName}!`);
+    }
+
+    function updateProgress(courseId, progress) {
+        if (userEnrollments.has(courseId)) {
+            const enrollment = userEnrollments.get(courseId);
+            enrollment.progress = Math.min(100, progress);
+            userEnrollments.set(courseId, enrollment);
+            saveEnrollments();
             updateStats();
             renderAllCourseSections();
-            showToast(`✅ Successfully enrolled in ${courseName}!`);
-        } catch (err) {
-            showToast('Enrollment failed: ' + err.message, 'error');
         }
     }
 
     function openCourse(course) {
         localStorage.setItem('currentCourse', JSON.stringify(course));
-        window.location.href = `/${course.file}`;
+        // For demo, just show alert - replace with actual navigation
+        alert(`Opening course: ${course.name}\n\nCourse content would load here.\nFile: ${course.file}\nTotal units: ${course.totalUnits}\n\nIn production, this would navigate to the course page.`);
+        showToast(`Opening ${course.name}...`);
     }
 
     function updateStats() {
@@ -538,7 +588,6 @@
 
     function renderRecommendedCourses() {
         const container = document.getElementById('recommendedCourses');
-        // Show first 3 courses as recommendations
         const recommended = COURSES.slice(0, 3);
         
         container.innerHTML = recommended.map(course => {
@@ -633,13 +682,15 @@
             const status = progress === 100 ? '✅ Completed' : '🔄 In Progress';
             
             html += `<tr>
-                <td data-label="Course">${escapeHtml(course.name)}</td>
-                <td data-label="Progress">
-                    <div class="progress-bar-bg" style="width: 150px;"><div class="progress-bar-fill" style="width: ${progress}%"></div></div>
-                    ${progress}%
+                <td>${escapeHtml(course.name)}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="progress-bar-bg" style="width: 150px;"><div class="progress-bar-fill" style="width: ${progress}%"></div></div>
+                        <span>${progress}%</span>
+                    </div>
                 </td>
-                <td data-label="Status">${status}</td>
-                <td data-label="Action"><button class="btn-continue" onclick="openCourse(${JSON.stringify(course).replace(/"/g, '&quot;')})">Continue</button></td>
+                <td>${status}</td>
+                <td><button class="btn-continue" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openCourse(${JSON.stringify(course).replace(/"/g, '&quot;')})">Continue</button></td>
             </tr>`;
         });
         html += `</tbody></table>`;
@@ -654,9 +705,9 @@
         updateStats();
     }
 
-    async function loadEnrolledCourses() {
-        await loadEnrollments();
+    function loadEnrolledCourses() {
         renderAllCourseSections();
+        showToast('Courses refreshed!');
     }
 
     function escapeHtml(str) {
@@ -664,31 +715,30 @@
         return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
 
-    async function showSection(section) {
+    function showSection(section) {
         document.getElementById('dashboardSection').style.display = section === 'dashboard' ? 'block' : 'none';
         document.getElementById('coursesSection').style.display = section === 'courses' ? 'block' : 'none';
         document.getElementById('progressSection').style.display = section === 'progress' ? 'block' : 'none';
         
-        // Update active state in sidebar
         document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-        document.querySelector(`.sidebar a[data-section="${section}"]`)?.classList.add('active');
+        const activeLink = document.querySelector(`.sidebar a[data-section="${section}"]`);
+        if (activeLink) activeLink.classList.add('active');
         
-        if (section === 'dashboard') {
-            await loadEnrollments();
-            renderRecommendedCourses();
-            updateStats();
-        }
-        if (section === 'courses') {
-            await loadEnrolledCourses();
-        }
         if (section === 'progress') {
             renderProgressTable();
         }
     }
 
-    async function handleLogout() {
-        await supabaseClient.auth.signOut();
-        window.location.href = '/login.html';
+    function handleLogout() {
+        if (confirm('Are you sure you want to logout?')) {
+            // Clear demo user data
+            localStorage.removeItem(USER_KEY);
+            localStorage.removeItem(`${STORAGE_KEY}_demo-user`);
+            showToast('Logged out successfully!');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
     }
 
     function openMobileMenu() {
@@ -701,27 +751,22 @@
         document.getElementById('overlay').classList.remove('active');
     }
 
-    async function init() {
-        if (!await checkAuth()) return;
-        
-        // Set all courses
-        allCourses = COURSES;
-        
-        await loadEnrollments();
-        renderRecommendedCourses();
-        updateStats();
-        
-        document.getElementById('mobileMenuBtn').addEventListener('click', openMobileMenu);
-        document.getElementById('overlay').addEventListener('click', closeMobileMenu);
-        
-        await showSection('dashboard');
-    }
-
+    // Initialize
+    loadUserData();
+    updateStats();
+    renderRecommendedCourses();
+    
+    // Event listeners
+    document.getElementById('mobileMenuBtn').addEventListener('click', openMobileMenu);
+    document.getElementById('overlay').addEventListener('click', closeMobileMenu);
+    
+    // Make functions global
     window.showSection = showSection;
     window.handleLogout = handleLogout;
     window.enrollInCourse = enrollInCourse;
     window.openCourse = openCourse;
     window.loadEnrolledCourses = loadEnrolledCourses;
+    window.updateProgress = updateProgress;
 </script>
 </body>
 </html>
