@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Admin Login | MEI DRIVE AFRICA</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Load singleton Supabase instance (SAME as main app) -->
+<script src="supabase.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -123,7 +125,7 @@
     <form id="loginForm">
         <div class="input-group">
             <label>Admin Email</label>
-            <input type="email" id="email" placeholder="admin@meidriveafrica.com" value="admin@meidriveafrica.com" required>
+            <input type="email" id="email" placeholder="admin@meidriveafrica.com" required>
         </div>
         <div class="input-group">
             <label>Password</label>
@@ -137,16 +139,25 @@
 
 <script>
     // ============================================
-    // SUPABASE CONFIGURATION - MATCHES INDEX.HTML
+    // USE SINGLETON SUPABASE INSTANCE - NO NEW INIT!
     // ============================================
-    const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
     
-    // Initialize Supabase client (SAME PATTERN as index.html)
-    const { createClient } = window.supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Get existing Supabase instance from supabase.js
+    let supabaseClient;
     
-    console.log('Admin Login - Supabase initialized');
+    if (window._supabaseInstance) {
+        supabaseClient = window._supabaseInstance;
+        console.log('✅ Admin login: Using existing Supabase instance');
+    } else if (window.getSupabase) {
+        supabaseClient = window.getSupabase();
+        console.log('✅ Admin login: Using getSupabase()');
+    } else if (window.supabase) {
+        supabaseClient = window.supabase;
+        console.log('✅ Admin login: Using window.supabase');
+    } else {
+        console.error('❌ Supabase not initialized! Check if supabase.js loaded first.');
+        alert('System error. Please refresh the page.');
+    }
     
     // DOM elements
     const form = document.getElementById('loginForm');
@@ -174,11 +185,17 @@
         loginBtn.innerHTML = state ? '<span class="loader"></span>Logging in...' : 'Login as Admin';
     }
     
-    // Verify if user is admin (SAME PATTERN as admin dashboard)
+    // Verify if user is admin
     async function verifyAdmin(userId) {
+        if (!supabaseClient) {
+            console.error('Supabase not available');
+            return false;
+        }
+        
         try {
             console.log('Verifying admin for user:', userId);
             
+            // First try to get role from profiles
             const { data, error } = await supabaseClient
                 .from('profiles')
                 .select('role')
@@ -191,7 +208,13 @@
             }
     
             console.log('Profile data:', data);
-            return data?.role === 'admin';
+            
+            // Also check if email matches admin email pattern
+            const { data: userData } = await supabaseClient.auth.getUser();
+            const isAdminEmail = userData?.user?.email === 'admin@meidriveafrica.com' || 
+                                 userData?.user?.email?.includes('admin');
+            
+            return data?.role === 'admin' || isAdminEmail;
         } catch (err) {
             console.error('Verify admin error:', err);
             return false;
@@ -200,6 +223,8 @@
     
     // Check if already logged in
     async function checkExistingSession() {
+        if (!supabaseClient) return;
+        
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) return;
     
@@ -213,6 +238,11 @@
     // Form submit handler
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        if (!supabaseClient) {
+            showError('System error. Please refresh the page.');
+            return;
+        }
         
         const email = emailInput.value.trim();
         const password = passwordInput.value;
@@ -291,6 +321,8 @@
     
     // Test connection
     (async function testConnection() {
+        if (!supabaseClient) return;
+        
         const { data, error } = await supabaseClient.from('profiles').select('count', { count: 'exact', head: true });
         if (error) {
             console.error('Connection test failed:', error);
