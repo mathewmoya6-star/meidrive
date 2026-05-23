@@ -240,7 +240,6 @@
 </head>
 <body>
 
-<!-- Auth Modal -->
 <div id="authModal" class="modal">
     <div class="modal-content">
         <h2 id="modalTitle" style="color:#00ff88; text-align:center;">Login</h2>
@@ -255,7 +254,6 @@
     </div>
 </div>
 
-<!-- Landing Page (shown when logged out) -->
 <div id="landingPage">
     <nav class="navbar">
         <a href="/" class="logo">MEI DRIVE <span>AFRICA</span></a>
@@ -276,7 +274,6 @@
     <footer class="footer">© 2026 MEI DRIVE AFRICA | NTSA Approved</footer>
 </div>
 
-<!-- Dashboard (shown when logged in) -->
 <div id="dashboard" class="dashboard">
     <nav class="navbar">
         <a href="#" class="logo" onclick="showLanding()">MEI DRIVE <span>AFRICA</span></a>
@@ -312,11 +309,11 @@
 </div>
 
 <script>
-    // Get Supabase instance from singleton
-    const supabase = window._supabase || window.getSupabase?.() || window.supabase;
+    // Get Supabase instance - simplified
+    const supabase = window._supabase;
     
     if (!supabase) {
-        console.error('Supabase not loaded!');
+        console.error('❌ Supabase not loaded!');
         alert('Error: Database connection failed. Please refresh.');
     }
     
@@ -333,52 +330,73 @@
         setTimeout(() => toast.remove(), 3000);
     }
     
-    // Load all courses from Supabase
     async function loadCourses() {
         console.log('📚 Loading courses from Supabase...');
         const { data, error } = await supabase.from('courses').select('*').order('id');
         
         if (error) {
-            console.error('Error loading courses:', error);
+            console.error('❌ Error loading courses:', error);
             showToast('Error loading courses', true);
             return;
         }
         
         allCourses = data || [];
+        console.log('✅ Courses loaded:', allCourses);
         console.log(`✅ Loaded ${allCourses.length} courses`);
         document.getElementById('statTotal').textContent = allCourses.length;
         
-        // Render both public and dashboard views
         renderPublicCourses();
         renderAllCourses();
     }
     
-    // Load user's enrollments
+    // FIXED loadEnrollments function
     async function loadEnrollments() {
-        if (!currentUser) return;
-        
-        console.log('📋 Loading enrollments for:', currentUser.email);
-        const { data, error } = await supabase.from('enrollments').select('*').eq('user_id', currentUser.id);
-        
-        if (error) {
-            console.error('Error loading enrollments:', error);
+        if (!currentUser) {
+            console.log('❌ No current user');
             return;
         }
-        
-        userEnrollments.clear();
-        if (data) {
-            data.forEach(e => userEnrollments.set(e.course_id, { progress: e.progress || 0 }));
+
+        console.log('📋 Loading enrollments for:', currentUser.email);
+
+        try {
+            const { data, error } = await supabase
+                .from('enrollments')
+                .select('*')
+                .eq('user_id', currentUser.id);
+
+            if (error) {
+                console.error('❌ Enrollment error:', error);
+                showToast('Failed to load enrollments', true);
+                return;
+            }
+
+            console.log('✅ Raw enrollments:', data);
+
+            userEnrollments.clear();
+
+            if (data && data.length > 0) {
+                data.forEach(e => {
+                    userEnrollments.set(Number(e.course_id), {
+                        progress: Number(e.progress) || 0
+                    });
+                });
+            }
+
+            console.log('✅ Enrollment Map:', userEnrollments);
+
+            updateStats();
+
+            renderMyCourses();
+            renderCompleted();
+            renderPreview();
+            renderAllCourses();
+
+        } catch (err) {
+            console.error('❌ Unexpected enrollment error:', err);
         }
-        console.log(`✅ Loaded ${userEnrollments.size} enrollments`);
-        
-        updateStats();
-        renderMyCourses();
-        renderCompleted();
-        renderPreview();
-        renderAllCourses();
     }
     
-    // Enroll in a course
+    // FIXED enrollCourse function
     async function enrollCourse(courseId) {
         if (!currentUser) {
             showToast('Please login first', true);
@@ -386,50 +404,58 @@
             return;
         }
         
-        if (userEnrollments.has(courseId)) {
+        if (userEnrollments.has(Number(courseId))) {
             showToast('Already enrolled in this course!');
             return;
         }
         
-        const { error } = await supabase.from('enrollments').insert([{
-            user_id: currentUser.id,
-            course_id: courseId,
-            progress: 0,
-            status: 'active'
-        }]);
+        console.log('📋 Enrolling in course:', courseId);
+        
+        const { data, error } = await supabase
+            .from('enrollments')
+            .insert([{
+                user_id: currentUser.id,
+                course_id: Number(courseId),
+                progress: 0,
+                status: 'active'
+            }])
+            .select();
+        
+        console.log('Enrollment insert:', data, error);
         
         if (error) {
+            console.error('❌ Enrollment error:', error);
             showToast('Error: ' + error.message, true);
         } else {
+            console.log('✅ Enrollment successful!');
             await loadEnrollments();
             showToast('Successfully enrolled! 🎉');
             showSection('mycourses');
         }
     }
     
-    // Update course progress
     async function updateProgress(courseId, newProgress) {
         if (!currentUser) return;
         
-        const enrollment = userEnrollments.get(courseId);
+        const enrollment = userEnrollments.get(Number(courseId));
         if (!enrollment) return;
         
         const progress = Math.min(100, newProgress);
         const { error } = await supabase.from('enrollments')
             .update({ progress: progress, last_accessed: new Date() })
             .eq('user_id', currentUser.id)
-            .eq('course_id', courseId);
+            .eq('course_id', Number(courseId));
         
         if (!error) {
-            userEnrollments.set(courseId, { progress: progress });
+            userEnrollments.set(Number(courseId), { progress: progress });
             updateStats();
             renderMyCourses();
             renderPreview();
+            renderAllCourses();
             if (progress === 100) showToast('🎉 Course completed! Congratulations!');
         }
     }
     
-    // Update dashboard statistics
     function updateStats() {
         const enrolled = userEnrollments.size;
         const completed = Array.from(userEnrollments.values()).filter(e => e.progress === 100).length;
@@ -441,12 +467,10 @@
         document.getElementById('statProgress').textContent = `${avgProgress}%`;
     }
     
-    // View course details
     window.viewCourse = (courseId) => {
         window.location.href = `course.html?id=${courseId}`;
     };
     
-    // Render public courses on landing page
     function renderPublicCourses() {
         const container = document.getElementById('coursesList');
         if (!allCourses.length) {
@@ -466,14 +490,13 @@
         `).join('');
     }
     
-    // Render all courses in dashboard
     function renderAllCourses() {
         const container = document.getElementById('allCoursesList');
         if (!allCourses.length) return;
         
         container.innerHTML = allCourses.map(course => {
-            const isEnrolled = userEnrollments.has(course.id);
-            const progress = userEnrollments.get(course.id)?.progress || 0;
+            const isEnrolled = userEnrollments.has(Number(course.id));
+            const progress = userEnrollments.get(Number(course.id))?.progress || 0;
             
             if (isEnrolled) {
                 return `
@@ -500,10 +523,11 @@
         }).join('');
     }
     
-    // Render user's enrolled courses
     function renderMyCourses() {
         const container = document.getElementById('myCoursesList');
-        const enrolledCourses = allCourses.filter(c => userEnrollments.has(c.id));
+        const enrolledCourses = allCourses.filter(c => userEnrollments.has(Number(c.id)));
+        
+        console.log('Rendering enrolled courses:', enrolledCourses);
         
         if (enrolledCourses.length === 0) {
             container.innerHTML = '<div class="course-card"><p>No enrolled courses yet. Browse "All Courses" to get started!</p></div>';
@@ -511,7 +535,7 @@
         }
         
         container.innerHTML = enrolledCourses.map(course => {
-            const progress = userEnrollments.get(course.id)?.progress || 0;
+            const progress = userEnrollments.get(Number(course.id))?.progress || 0;
             return `
                 <div class="course-card">
                     <div class="course-icon">${course.icon || '📚'}</div>
@@ -525,11 +549,10 @@
         }).join('');
     }
     
-    // Render completed courses
     function renderCompleted() {
         const container = document.getElementById('completedList');
         const completedCourses = allCourses.filter(c => {
-            const p = userEnrollments.get(c.id)?.progress;
+            const p = userEnrollments.get(Number(c.id))?.progress;
             return p === 100;
         });
         
@@ -549,10 +572,9 @@
         `).join('');
     }
     
-    // Render preview of enrolled courses on overview
     function renderPreview() {
         const container = document.getElementById('previewCourses');
-        const enrolledCourses = allCourses.filter(c => userEnrollments.has(c.id)).slice(0, 3);
+        const enrolledCourses = allCourses.filter(c => userEnrollments.has(Number(c.id))).slice(0, 3);
         
         if (enrolledCourses.length === 0) {
             container.innerHTML = '<div class="course-card"><p>No enrolled courses. <a href="#" onclick="showSection(\'allcourses\')" style="color:#00ff88;">Browse courses →</a></p></div>';
@@ -560,7 +582,7 @@
         }
         
         container.innerHTML = enrolledCourses.map(course => {
-            const progress = userEnrollments.get(course.id)?.progress || 0;
+            const progress = userEnrollments.get(Number(course.id))?.progress || 0;
             return `
                 <div class="course-card">
                     <div class="course-icon">${course.icon || '📚'}</div>
@@ -572,7 +594,6 @@
         }).join('');
     }
     
-    // Show different dashboard sections
     function showSection(section) {
         document.getElementById('overviewSection').style.display = section === 'overview' ? 'block' : 'none';
         document.getElementById('allcoursesSection').style.display = section === 'allcourses' ? 'block' : 'none';
@@ -592,7 +613,6 @@
         if (section === 'completed') renderCompleted();
     }
     
-    // Toggle between landing and dashboard
     function showLanding() {
         document.getElementById('landingPage').style.display = 'block';
         document.getElementById('dashboard').style.display = 'none';
@@ -618,7 +638,6 @@
         showSection('overview');
     }
     
-    // Auth modal functions
     function showAuthModal(mode) {
         authMode = mode;
         document.getElementById('modalTitle').textContent = mode === 'login' ? 'Login' : 'Create Account';
@@ -643,7 +662,6 @@
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
-    // Event listeners
     document.getElementById('authBtn').onclick = async () => {
         const email = document.getElementById('authEmail').value;
         const password = document.getElementById('authPassword').value;
@@ -679,7 +697,6 @@
         toggleAuthMode();
     };
     
-    // Make functions global
     window.enrollCourse = enrollCourse;
     window.updateProgress = updateProgress;
     window.viewCourse = viewCourse;
@@ -688,18 +705,23 @@
     window.closeAuthModal = closeAuthModal;
     window.showLanding = showLanding;
     
-    // Initialize the app
     async function init() {
         console.log('🚀 Initializing MEI Drive Africa...');
         
-        // Check for existing session
-        const { data: { session } } = await supabase.auth.getSession();
+        // FIXED session check with error handling
+        const {
+            data: { session },
+            error: sessionError
+        } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+            console.error('Session error:', sessionError);
+        }
+        
         currentUser = session?.user || null;
         
-        // Load courses first
         await loadCourses();
         
-        // If user is logged in, load their enrollments and show dashboard
         if (currentUser) {
             await loadEnrollments();
             showDashboard();
@@ -707,7 +729,6 @@
             showLanding();
         }
         
-        // Listen for auth changes
         supabase.auth.onAuthStateChange(async (event, session) => {
             console.log('Auth state changed:', event);
             if (event === 'SIGNED_IN' && session) {
@@ -724,7 +745,6 @@
         });
     }
     
-    // Start the app
     init();
 </script>
 </body>
