@@ -1,12 +1,11 @@
-// supabase.js - Clean Singleton Pattern
+// supabase.js - MEI DRIVE AFRICA
+// Updated with your new Supabase project credentials
 
 // ============================================
-// 1. CONFIGURATION
+// 1. CONFIGURATION (UPDATED)
 // ============================================
-const SUPABASE_CONFIG = {
-    url: 'https://jeksrwrzzrczamxijvwl.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MTg1MDAwMDAwMH0.example' // Replace with your actual key
-};
+const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
 
 // ============================================
 // 2. SINGLETON CLIENT
@@ -33,12 +32,12 @@ function initSupabase() {
     const supabaseLib = window.supabase || supabase;
     
     // Validate config
-    if (!SUPABASE_CONFIG.url || SUPABASE_CONFIG.url === 'YOUR_SUPABASE_URL') {
+    if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
         console.error('✗ Invalid Supabase URL');
         return null;
     }
     
-    if (!SUPABASE_CONFIG.anonKey || SUPABASE_CONFIG.anonKey === 'YOUR_ANON_KEY_HERE') {
+    if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_ANON_KEY_HERE') {
         console.error('✗ Invalid Supabase Anon Key');
         return null;
     }
@@ -46,8 +45,8 @@ function initSupabase() {
     // Create client
     try {
         supabaseClient = supabaseLib.createClient(
-            SUPABASE_CONFIG.url,
-            SUPABASE_CONFIG.anonKey,
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY,
             {
                 auth: {
                     autoRefreshToken: true,
@@ -58,6 +57,7 @@ function initSupabase() {
         );
         
         console.log('✓ Supabase initialized successfully');
+        console.log('✓ Project:', SUPABASE_URL);
         return supabaseClient;
         
     } catch (error) {
@@ -144,27 +144,7 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 // ============================================
-// 6. USAGE EXAMPLE (commented)
+// 6. QUICK TEST (Remove in production)
 // ============================================
-/*
-// In your HTML:
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase.js"></script>
-
-// Then anywhere in your code:
-const supabase = window.supabase.client;
-
-async function fetchCourses() {
-    if (!window.supabase.ready) {
-        console.log('Waiting for Supabase...');
-        return;
-    }
-    
-    const { data, error } = await supabase
-        .from('courses')
-        .select('*');
-    
-    if (error) console.error(error);
-    else console.log(data);
-}
-*/
+console.log('🚀 MEI DRIVE AFRICA - Supabase configured');
+console.log('📡 Endpoint:', SUPABASE_URL);
