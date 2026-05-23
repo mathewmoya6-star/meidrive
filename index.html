@@ -1,1 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MEI Drive Africa | NTSA Approved Driver Training</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #00FF88;
+            --primary-dark: #00cc6a;
+            --dark: #041B3D;
+            --dark-light: #0A234F;
+            --darker: #020f24;
+            --gray: #B7C4D6;
+            --error: #ff4444;
+            --success: #00C851;
+            --warning: #ff9800;
+            --gradient: linear-gradient(135deg, var(--primary), #00ccff);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark);
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--dark-light);
+            border-left: 4px solid var(--primary);
+            padding: 14px 22px;
+            border-radius: 12px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        .toast.error { border-left-color: var(--error); }
+        .toast.success { border-left-color: var(--success); }
+        .toast.warning { border-left-color: var(--warning); }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(4, 27, 61, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.15);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo i { font-size: 1.8rem; }
+        .logo span { color: white; }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--primary); }
+        
+        .ntsa-badge {
+            background: rgba(0,255,136,0.1);
+            border-radius: 30px;
+            padding: 5px 15px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-nav {
+            padding: 8px 20px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-login { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-login:hover { background: var(--primary); color: var(--dark); transform: translateY(-2px); }
+        .btn-register { background: var(--primary); color: var(--dark); }
+        .btn-register:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,255,136,0.3); }
+        .btn-logout { background: rgba(255,68,68,0.2); border: 1px solid var(--error); color: var(--error); }
+        .btn-logout:hover { background: var(--error); color: white; transform: translateY(-2px); }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(4,27,61,0.92), rgba(10,35,79,0.96)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format') center/cover fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 20px 80px;
+        }
+        .hero-content { max-width: 800px; }
+        .hero h1 { font-size: 2.8rem; margin-bottom: 20px; }
+        .hero h1 span { color: var(--primary); display: block; font-size: 2rem; margin-top: 10px; }
+        .hero p { color: var(--gray); margin-bottom: 30px; font-size: 1.1rem; line-height: 1.6; }
+        .btn-primary {
+            background: var(--primary);
+            color: var(--dark);
+            padding: 14px 40px;
+            border-radius: 40px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,255,136,0.3); }
+        
+        /* Stats Section */
+        .stats {
+            margin-top: -60px;
+            position: relative;
+            z-index: 10;
+            padding: 0 20px;
+        }
+        .stats-container {
+            max-width: 900px;
+            margin: auto;
+            background: var(--dark-light);
+            border-radius: 24px;
+            padding: 35px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            text-align: center;
+            border: 1px solid rgba(0,255,136,0.1);
+        }
+        .stat h2 { font-size: 2.2rem; color: var(--primary); }
+        .stat p { color: var(--gray); margin-top: 5px; }
+        
+        /* Courses Section */
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 80px 20px;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 50px;
+        }
+        .section-title span { color: var(--primary); }
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 70px;
+            height: 3px;
+            background: var(--gradient);
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+        
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        
+        .course-card {
+            background: var(--dark-light);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(0,255,136,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .course-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,136,0.05), transparent);
+            transition: left 0.5s;
+        }
+        .course-card:hover:before { left: 100%; }
+        .course-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 30px rgba(0,255,136,0.15); }
+        .course-icon { font-size: 2.8rem; margin-bottom: 15px; }
+        .course-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        .badge-free { background: var(--warning); color: var(--dark); }
+        .badge-premium { background: var(--primary); color: var(--dark); }
+        .badge-enrolled { background: var(--success); color: white; }
+        .course-card h3 { margin-bottom: 10px; font-size: 1.2rem; }
+        .course-card p { color: var(--gray); font-size: 0.85rem; line-height: 1.5; margin-bottom: 15px; }
+        .course-price { font-weight: bold; margin: 10px 0; font-size: 1.1rem; }
+        .course-price.free { color: var(--warning); }
+        .course-price.premium { color: var(--primary); }
+        
+        .btn-view {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            border: 1px solid var(--primary);
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .btn-view:hover { background: var(--primary); color: var(--dark); }
+        
+        /* Dashboard Styles */
+        .dashboard-container { display: none; background: var(--dark); min-height: 100vh; }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--dark-light) 0%, var(--darker) 100%);
+            padding: 30px 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(0,255,136,0.1);
+            z-index: 100;
+        }
+        .sidebar h2 {
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0,255,136,0.1);
+        }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: var(--gray);
+            text-decoration: none;
+            border-radius: 12px;
+            margin-top: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .sidebar a:hover, .sidebar a.active { background: var(--primary); color: var(--dark); transform: translateX(5px); }
+        
+        /* Profile Card in Sidebar */
+        .profile-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(0,255,136,0.15);
+        }
+        .profile-avatar {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 2rem;
+        }
+        .profile-name { font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; }
+        .profile-email { font-size: 0.7rem; color: var(--gray); word-break: break-all; }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 90px 30px 30px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--dark-light), var(--darker));
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(0,255,136,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .stat-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .stat-card i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
+        .stat-card h3 { font-size: 2rem; color: var(--primary); margin-bottom: 5px; }
+        .stat-card p { color: var(--gray); }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            height: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: var(--gradient);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .btn-enroll, .btn-continue {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        .btn-enroll { background: var(--gradient); color: var(--dark); }
+        .btn-enroll:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,255,136,0.3); }
+        .btn-continue { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-continue:hover { background: var(--primary); color: var(--dark); transform: translateY(-2px); }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: linear-gradient(135deg, var(--dark-light), var(--darker));
+            padding: 40px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid var(--primary);
+            animation: modalFadeIn 0.3s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-content h2 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: none;
+            background: var(--dark);
+            color: white;
+            font-size: 15px;
+        }
+        .modal-content input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+        .modal-content button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .btn-modal-primary { background: var(--primary); color: var(--dark); }
+        .btn-modal-secondary { background: transparent; border: 1px solid var(--gray); color: white; }
+        .btn-modal-primary:hover, .btn-modal-secondary:hover { transform: translateY(-2px); }
+        .modal-footer { margin-top: 20px; text-align: center; font-size: 14px; }
+        .modal-footer a { color: var(--primary); cursor: pointer; text-decoration: none; }
+        
+        /* Loading */
+        .loading { text-align: center; padding: 60px; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0,255,136,0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Contact Section */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        .contact-card {
+            background: var(--dark-light);
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(0,255,136,0.1);
+            transition: all 0.3s;
+        }
+        .contact-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .contact-card i { font-size: 2.5rem; margin-bottom: 15px; display: block; }
+        .contact-card.whatsapp i { color: #25D366; }
+        .contact-card.call i { color: var(--primary); }
+        .contact-card.email i { color: var(--warning); }
+        .contact-card h3 { margin-bottom: 10px; }
+        .contact-card p { color: var(--gray); margin-bottom: 15px; }
+        .contact-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .whatsapp-btn { background: #25D366; color: white; }
+        .call-btn { background: var(--primary); color: var(--dark); }
+        .contact-btn:hover { transform: translateY(-2px); }
+        
+        .footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            font-size: 14px;
+            border-top: 1px solid rgba(0,255,136,0.1);
+        }
+        
+        /* Mobile Responsive */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 15px;
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero h1 span { font-size: 1.2rem; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s; width: 85%; z-index: 1002; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 80px 15px 20px; }
+            .mobile-menu-btn { display: block; }
+            .stats-container { flex-direction: column; }
+            .courses-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
 
+<!-- Auth Modal -->
+<div id="authModal" class="modal">
+    <div class="modal-content">
+        <h2><i class="fas fa-user-circle"></i> <span id="modalTitle">Login</span></h2>
+        <input type="email" id="authEmail" placeholder="Email Address">
+        <input type="password" id="authPassword" placeholder="Password">
+        <button id="authSubmitBtn" class="btn-modal-primary">Login</button>
+        <div class="modal-footer">
+            <span id="authToggleText">Don't have an account?</span>
+            <a href="javascript:void(0)" onclick="toggleAuthMode()"> Register Now</a>
+        </div>
+        <button onclick="closeAuthModal()" class="btn-modal-secondary">Cancel</button>
+    </div>
+</div>
+
+<!-- Course Detail Modal -->
+<div id="courseDetailModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <h2><i class="fas fa-book-open"></i> <span id="courseModalTitle">Course Details</span></h2>
+        <div id="courseModalContent"></div>
+        <button onclick="closeCourseModal()" class="btn-modal-secondary">Close</button>
+    </div>
+</div>
+
+<!-- LANDING PAGE -->
+<div id="landingPage">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo" onclick="showLanding()"><i class="fas fa-car"></i> MEI DRIVE <span>AFRICA</span></div>
+            <div class="nav-links">
+                <a onclick="showLanding()">Home</a>
+                <a onclick="document.getElementById('coursesSection').scrollIntoView({behavior:'smooth'})">Courses</a>
+                <a onclick="document.getElementById('contactSection').scrollIntoView({behavior:'smooth'})">Contact</a>
+                <div class="ntsa-badge"><i class="fas fa-id-card"></i> NTSA: ILR-7WA1P62</div>
+                <button class="btn-nav btn-login" onclick="showAuthModal('login')">Login</button>
+                <button class="btn-nav btn-register" onclick="showAuthModal('register')">Register</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
+            <p>For Learners and Experienced Drivers — Refresh Your Skills with MEI DRIVE AFRICA. NTSA-approved courses.</p>
+            <button class="btn-primary" onclick="document.getElementById('coursesSection').scrollIntoView({behavior:'smooth'})">Explore Courses →</button>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stats-container">
+            <div class="stat"><h2 id="totalStudents">10K+</h2><p>Happy Students</p></div>
+            <div class="stat"><h2 id="totalCourses">0</h2><p>Premium Courses</p></div>
+            <div class="stat"><h2>98%</h2><p>Pass Rate</p></div>
+            <div class="stat"><h2>500+</h2><p>5-Star Reviews</p></div>
+        </div>
+    </section>
+
+    <section class="container" id="coursesSection">
+        <h2 class="section-title">Our <span>Courses</span></h2>
+        <div id="coursesContainer" class="courses-grid">
+            <div class="loading"><div class="spinner"></div> Loading courses...</div>
+        </div>
+    </section>
+
+    <section class="container" id="contactSection">
+        <h2 class="section-title">Get In <span>Touch</span></h2>
+        <div class="contact-grid">
+            <div class="contact-card whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                <h3>WhatsApp</h3>
+                <p>Fastest response - Chat with us</p>
+                <p><strong>0703 738 707</strong></p>
+                <a href="https://wa.me/254703738707" class="contact-btn whatsapp-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat Now</a>
+            </div>
+            <div class="contact-card call">
+                <i class="fas fa-phone-alt"></i>
+                <h3>Call Us</h3>
+                <p>Mon-Sat: 8am - 6pm</p>
+                <p><strong>0703 738 707</strong></p>
+                <a href="tel:+254703738707" class="contact-btn call-btn"><i class="fas fa-phone"></i> Call Now</a>
+            </div>
+            <div class="contact-card email">
+                <i class="fas fa-envelope"></i>
+                <h3>Email Us</h3>
+                <p>We'll respond within 24hrs</p>
+                <p><strong>info@meidriveafrica.com</strong></p>
+                <a href="mailto:info@meidriveafrica.com" class="contact-btn call-btn"><i class="fas fa-envelope"></i> Send Email</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training</p>
+        <p style="margin-top: 10px; font-size: 12px;"><i class="fas fa-certificate"></i> NTSA Certified Instructor: ILR-7WA1P62</p>
+    </footer>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="dashboardPage" class="dashboard-container">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo" onclick="showLanding()"><i class="fas fa-car"></i> MEI DRIVE <span>AFRICA</span></div>
+            <div class="nav-links">
+                <button class="btn-nav btn-logout" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </nav>
+    
+    <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+    
+    <div class="sidebar" id="dashboardSidebar">
+        <div class="profile-card" id="profileCard">
+            <div class="profile-avatar" id="profileAvatar">👤</div>
+            <div class="profile-name" id="profileName">Loading...</div>
+            <div class="profile-email" id="profileEmail">user@example.com</div>
+        </div>
+        
+        <h2><i class="fas fa-tachometer-alt"></i> MY DASHBOARD</h2>
+        <a href="javascript:void(0)" class="active" onclick="showDashboardSection('overview')">
+            <i class="fas fa-chart-line"></i> Overview
+        </a>
+        <a href="javascript:void(0)" onclick="showDashboardSection('courses')">
+            <i class="fas fa-book"></i> My Courses
+        </a>
+        <a href="javascript:void(0)" onclick="showDashboardSection('achievements')">
+            <i class="fas fa-trophy"></i> Achievements
+        </a>
+    </div>
+    
+    <div class="main-content">
+        <!-- Overview Section -->
+        <div id="dashboardOverview">
+            <h2>Welcome Back, <span id="dashboardUserName">Learner</span>! 🎉</h2>
+            <p style="color: var(--gray); margin-top: 5px;">Continue your driving journey. Track progress and enroll in new courses.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card" onclick="showDashboardSection('courses')">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3 id="dashTotalCourses">0</h3>
+                    <p>Available Courses</p>
+                </div>
+                <div class="stat-card" onclick="showDashboardSection('courses')">
+                    <i class="fas fa-check-circle"></i>
+                    <h3 id="dashEnrolledCount">0</h3>
+                    <p>Enrolled Courses</p>
+                </div>
+                <div class="stat-card" onclick="showDashboardSection('courses')">
+                    <i class="fas fa-trophy"></i>
+                    <h3 id="dashCompletedCount">0</h3>
+                    <p>Completed</p>
+                </div>
+                <div class="stat-card" onclick="showDashboardSection('achievements')">
+                    <i class="fas fa-chart-line"></i>
+                    <h3 id="dashOverallProgress">0%</h3>
+                    <p>Overall Progress</p>
+                </div>
+            </div>
+            
+            <h3><i class="fas fa-star" style="color: var(--warning);"></i> Your Selected Course</h3>
+            <div id="selectedCourseCard" class="courses-grid">
+                <div class="course-card"><p>📌 Select a course from the homepage to start learning</p></div>
+            </div>
+            
+            <h3 style="margin-top: 40px;"><i class="fas fa-fire" style="color: var(--warning);"></i> Recommended For You</h3>
+            <div id="recommendedCourses" class="courses-grid"></div>
+        </div>
+        
+        <!-- My Courses Section -->
+        <div id="dashboardCourses" style="display:none;">
+            <h2><i class="fas fa-book-open"></i> My Enrolled Courses</h2>
+            <div id="enrolledCoursesList" class="courses-grid"></div>
+            
+            <h2 style="margin-top: 50px;"><i class="fas fa-store"></i> Available Courses to Enroll</h2>
+            <div id="availableCoursesList" class="courses-grid"></div>
+        </div>
+        
+        <!-- Achievements Section -->
+        <div id="dashboardAchievements" style="display:none;">
+            <h2><i class="fas fa-medal"></i> Your Achievements</h2>
+            <div id="achievementsList" class="courses-grid"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // SUPABASE CONFIGURATION (YOUR EXISTING SETUP)
+    // ============================================
+    const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+    
+    let supabase;
+    let currentUser = null;
+    let allCourses = [];
+    let userEnrollments = new Map(); // course_id -> progress
+    let selectedCourseId = null;
+    let authMode = 'login';
+    
+    // Default fallback courses in case Supabase courses table is empty
+    const DEFAULT_COURSES = [
+        { id: 1, name: 'Learner Hub - Complete Driver Training', description: 'NTSA-approved curriculum from basics to road readiness. Covers traffic rules, vehicle controls, defensive driving, and exam preparation.', price: 0, type: 'free', icon: '📚', duration: '40 hours', level: 'Beginner', total_units: 21 },
+        { id: 2, name: 'Boda Boda Professional Course', description: 'Professional motorcycle taxi training including safety, customer service, road regulations, and defensive riding techniques.', price: 0, type: 'free', icon: '🏍️', duration: '20 hours', level: 'Beginner', total_units: 15 },
+        { id: 3, name: 'Defensive Driving Course', description: 'Master advanced driving techniques, hazard perception, emergency maneuvers, and accident avoidance strategies.', price: 1999, type: 'premium', icon: '🛡️', duration: '16 hours', level: 'Advanced', total_units: 12 },
+        { id: 4, name: 'Professional Driver Course', description: 'Comprehensive training for PSV, logistics, and commercial drivers including customer care and transport regulations.', price: 4999, type: 'premium', icon: '🚛', duration: '32 hours', level: 'Professional', total_units: 20 },
+        { id: 5, name: 'Electric Vehicle Course', description: 'Master EV technology, charging systems, battery maintenance, and safety procedures for electric vehicles.', price: 2999, type: 'premium', icon: '⚡', duration: '12 hours', level: 'Intermediate', total_units: 10 },
+        { id: 6, name: 'School Transport Safety', description: 'Specialized certification for school bus drivers including child safety protocols and emergency procedures.', price: 1999, type: 'premium', icon: '🚸', duration: '24 hours', level: 'Professional', total_units: 8 },
+        { id: 7, name: 'E-Safety Library', description: 'Digital safety for drivers - online records management, cybersecurity awareness, and digital compliance.', price: 0, type: 'free', icon: '💻', duration: 'Self-paced', level: 'All Levels', total_units: 6 },
+        { id: 8, name: 'Quiz Bank - Exam Preparation', description: '1000+ NTSA practice questions to prepare for your driving theory test with detailed explanations.', price: 0, type: 'free', icon: '📝', duration: 'Self-paced', level: 'All Levels', total_units: 10 }
+    ];
+    
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    async function init() {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        await loadCourses();
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            currentUser = session.user;
+            await loadEnrollments();
+            showDashboard();
+            showToast(`Welcome back, ${currentUser.email.split('@')[0]}!`, 'success');
+        } else {
+            showLanding();
+        }
+        
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                currentUser = session.user;
+                await loadEnrollments();
+                showDashboard();
+                showToast('Logged in successfully!', 'success');
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                userEnrollments.clear();
+                selectedCourseId = null;
+                showLanding();
+                showToast('Logged out successfully', 'success');
+            }
+        });
+        
+        document.getElementById('mobileMenuBtn').onclick = () => {
+            document.getElementById('dashboardSidebar').classList.toggle('active');
+        };
+        
+        document.getElementById('logoutBtn').onclick = async () => {
+            await supabase.auth.signOut();
+        };
+        
+        document.getElementById('authSubmitBtn').onclick = async () => {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            
+            if (!email || !password) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                if (authMode === 'login') {
+                    const { error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    closeAuthModal();
+                } else {
+                    const { error } = await supabase.auth.signUp({ email, password });
+                    if (error) throw error;
+                    showToast('Account created! Please check your email to confirm.', 'success');
+                    closeAuthModal();
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        };
+    }
+    
+    // ============================================
+    // DATA LOADING FROM SUPABASE
+    // ============================================
+    async function loadCourses() {
+        try {
+            const { data, error } = await supabase.from('courses').select('*').order('id');
+            if (!error && data && data.length > 0) {
+                allCourses = data;
+                console.log(`✅ Loaded ${data.length} courses from Supabase`);
+            } else {
+                allCourses = DEFAULT_COURSES;
+                console.log('📚 Using default courses (Supabase courses table empty)');
+            }
+        } catch (err) {
+            allCourses = DEFAULT_COURSES;
+            console.log('📚 Using default courses (connection issue)');
+        }
+        
+        document.getElementById('totalCourses').textContent = allCourses.length;
+        renderCourses();
+    }
+    
+    async function loadEnrollments() {
+        if (!currentUser) return;
+        
+        try {
+            const { data, error } = await supabase
+                .from('enrollments')
+                .select('course_id, progress')
+                .eq('user_id', currentUser.id);
+            
+            userEnrollments.clear();
+            if (!error && data) {
+                data.forEach(e => userEnrollments.set(e.course_id, e.progress || 0));
+                console.log(`✅ Loaded ${data.length} enrollments from Supabase`);
+            }
+        } catch (err) {
+            console.log('Enrollments table might not exist yet');
+        }
+        
+        updateDashboardStats();
+        renderEnrolledCourses();
+        renderAvailableCourses();
+        renderAchievements();
+    }
+    
+    async function enrollInCourse(courseId) {
+        if (!currentUser) {
+            selectedCourseId = courseId;
+            showAuthModal('login');
+            return;
+        }
+        
+        if (userEnrollments.has(courseId)) {
+            showToast('Already enrolled in this course!', 'warning');
+            return;
+        }
+        
+        try {
+            const { error } = await supabase
+                .from('enrollments')
+                .insert([{ user_id: currentUser.id, course_id: courseId, progress: 0 }]);
+            
+            if (error) throw error;
+            
+            userEnrollments.set(courseId, 0);
+            showToast('Successfully enrolled! Start learning now.', 'success');
+            updateDashboardStats();
+            renderSelectedCourse();
+            renderEnrolledCourses();
+            renderAvailableCourses();
+            renderAchievements();
+        } catch (err) {
+            showToast('Enrollment failed: ' + err.message, 'error');
+        }
+    }
+    
+    async function updateProgress(courseId, newProgress) {
+        if (!currentUser || !userEnrollments.has(courseId)) return;
+        
+        const progress = Math.min(100, newProgress);
+        userEnrollments.set(courseId, progress);
+        
+        try {
+            await supabase
+                .from('enrollments')
+                .update({ progress })
+                .eq('user_id', currentUser.id)
+                .eq('course_id', courseId);
+            
+            if (progress === 100) {
+                showToast('🎉 Congratulations! Course completed!', 'success');
+                renderAchievements();
+            }
+            
+            updateDashboardStats();
+            renderSelectedCourse();
+            renderEnrolledCourses();
+        } catch (err) {}
+    }
+    
+    // ============================================
+    // RENDER FUNCTIONS
+    // ============================================
+    function renderCourses() {
+        const container = document.getElementById('coursesContainer');
+        
+        if (!allCourses || allCourses.length === 0) {
+            container.innerHTML = '<div class="course-card"><p>No courses found. Please add courses to your database.</p></div>';
+            return;
+        }
+        
+        container.innerHTML = allCourses.map(course => {
+            const isFree = course.type === 'free' || course.price === 0;
+            return `
+                <div class="course-card" onclick="showCourseDetail(${course.id})">
+                    <div class="course-icon">${course.icon || '📚'}</div>
+                    <span class="course-badge ${isFree ? 'badge-free' : 'badge-premium'}">${isFree ? 'FREE' : 'PREMIUM'}</span>
+                    <h3>${escapeHtml(course.name)}</h3>
+                    <p>${escapeHtml((course.description || '').substring(0, 100))}${(course.description || '').length > 100 ? '...' : ''}</p>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--gray); margin-bottom: 10px;">
+                        <span><i class="fas fa-clock"></i> ${course.duration || 'Self-paced'}</span>
+                        <span><i class="fas fa-signal"></i> ${course.level || 'All Levels'}</span>
+                    </div>
+                    <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${(course.price || 0).toLocaleString()}`}</div>
+                    <button class="btn-view" onclick="event.stopPropagation(); showCourseDetail(${course.id})">View Course →</button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function showCourseDetail(courseId) {
+        const course = allCourses.find(c => c.id === courseId);
+        if (!course) return;
+        
+        const isFree = course.type === 'free' || course.price === 0;
+        const isEnrolled = currentUser && userEnrollments.has(course.id);
+        const progress = currentUser ? (userEnrollments.get(course.id) || 0) : 0;
+        
+        document.getElementById('courseModalTitle').textContent = course.name;
+        document.getElementById('courseModalContent').innerHTML = `
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 4rem;">${course.icon || '📚'}</div>
+                <span class="course-badge ${isFree ? 'badge-free' : 'badge-premium'}" style="margin-top: 10px;">${isFree ? 'FREE' : 'PREMIUM'}</span>
+            </div>
+            <p style="margin-bottom: 15px; line-height: 1.6;">${escapeHtml(course.description || '')}</p>
+            <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                <p><i class="fas fa-clock"></i> <strong>Duration:</strong> ${course.duration || 'Self-paced'}</p>
+                <p><i class="fas fa-signal"></i> <strong>Level:</strong> ${course.level || 'All Levels'}</p>
+                <p><i class="fas fa-layer-group"></i> <strong>Units:</strong> ${course.total_units || 'N/A'}</p>
+                <p><i class="fas fa-tag"></i> <strong>Price:</strong> ${isFree ? 'FREE' : `KES ${(course.price || 0).toLocaleString()}`}</p>
+            </div>
+            ${!currentUser ? 
+                `<button class="btn-enroll" onclick="showAuthModal('login'); closeCourseModal();">Login to Enroll</button>` :
+                (isEnrolled ? 
+                    `<div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                        <p style="text-align: center;">${progress}% Complete</p>
+                        <button class="btn-continue" onclick="updateProgress(${course.id}, ${progress + 10}); closeCourseModal();">Continue Learning →</button>
+                    </div>` :
+                    `<button class="btn-enroll" onclick="enrollInCourse(${course.id}); closeCourseModal();">Enroll Now →</button>`
+                )
+            }
+        `;
+        
+        document.getElementById('courseDetailModal').classList.add('active');
+    }
+    
+    function closeCourseModal() {
+        document.getElementById('courseDetailModal').classList.remove('active');
+    }
+    
+    function selectCourse(courseId) {
+        selectedCourseId = courseId;
+        if (currentUser) {
+            showDashboard();
+            renderSelectedCourse();
+            showToast('Course loaded to dashboard', 'success');
+        } else {
+            showAuthModal('login');
+        }
+    }
+    
+    function renderSelectedCourse() {
+        const container = document.getElementById('selectedCourseCard');
+        if (!selectedCourseId) {
+            container.innerHTML = '<div class="course-card"><p><i class="fas fa-info-circle"></i> Select a course from the homepage to start learning</p></div>';
+            return;
+        }
+        
+        const course = allCourses.find(c => c.id === selectedCourseId);
+        if (!course) return;
+        
+        const isEnrolled = currentUser && userEnrollments.has(course.id);
+        const progress = currentUser ? (userEnrollments.get(course.id) || 0) : 0;
+        const isFree = course.type === 'free' || course.price === 0;
+        
+        container.innerHTML = `
+            <div class="course-card">
+                <div class="course-icon">${course.icon || '📚'}</div>
+                <span class="course-badge ${isEnrolled ? 'badge-enrolled' : (isFree ? 'badge-free' : 'badge-premium')}">
+                    ${isEnrolled ? '✅ ENROLLED' : (isFree ? 'FREE' : 'PREMIUM')}
+                </span>
+                <h3>${escapeHtml(course.name)}</h3>
+                <p>${escapeHtml(course.description || '')}</p>
+                <div style="display: flex; gap: 15px; font-size: 0.8rem; color: var(--gray); margin: 10px 0;">
+                    <span><i class="fas fa-clock"></i> ${course.duration || 'Self-paced'}</span>
+                    <span><i class="fas fa-signal"></i> ${course.level || 'All Levels'}</span>
+                    <span><i class="fas fa-layer-group"></i> ${course.total_units || 'N/A'} units</span>
+                </div>
+                ${!currentUser ? 
+                    `<button class="btn-enroll" onclick="showAuthModal('login')">Login to Enroll</button>` :
+                    (isEnrolled ? `
+                        <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                        <p style="text-align: center; margin: 10px 0;">${progress}% Complete</p>
+                        <button class="btn-continue" onclick="updateProgress(${course.id}, ${progress + 10})">${progress === 100 ? '📋 Review Course' : '▶️ Continue Learning'}</button>
+                    ` : `
+                        <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${(course.price || 0).toLocaleString()}`}</div>
+                        <button class="btn-enroll" onclick="enrollInCourse(${course.id})">🎓 Enroll Now</button>
+                    `)
+                }
+            </div>
+        `;
+    }
+    
+    function renderRecommendedCourses() {
+        const container = document.getElementById('recommendedCourses');
+        const recommended = allCourses.slice(0, 3);
+        
+        container.innerHTML = recommended.map(course => {
+            const isFree = course.type === 'free' || course.price === 0;
+            const isEnrolled = currentUser && userEnrollments.has(course.id);
+            
+            return `
+                <div class="course-card">
+                    <div class="course-icon">${course.icon || '📚'}</div>
+                    <span class="course-badge ${isFree ? 'badge-free' : 'badge-premium'}">${isFree ? 'FREE' : 'PREMIUM'}</span>
+                    <h3>${escapeHtml(course.name)}</h3>
+                    <p>${escapeHtml((course.description || '').substring(0, 80))}...</p>
+                    ${!currentUser ? 
+                        `<button class="btn-enroll" onclick="showAuthModal('login')">Login to Enroll</button>` :
+                        (isEnrolled ? 
+                            `<button class="btn-continue" onclick="updateProgress(${course.id}, ${(userEnrollments.get(course.id) || 0) + 10})">Continue Learning</button>` :
+                            `<button class="btn-enroll" onclick="enrollInCourse(${course.id})">Enroll Now →</button>`
+                        )
+                    }
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function renderEnrolledCourses() {
+        const container = document.getElementById('enrolledCoursesList');
+        if (!currentUser) {
+            container.innerHTML = '<div class="course-card"><p>Login to see your enrolled courses</p></div>';
+            return;
+        }
+        
+        const enrolled = allCourses.filter(c => userEnrollments.has(c.id));
+        
+        if (enrolled.length === 0) {
+            container.innerHTML = '<div class="course-card"><p><i class="fas fa-info-circle"></i> No enrolled courses yet. Browse and enroll from Available Courses!</p></div>';
+            return;
+        }
+        
+        container.innerHTML = enrolled.map(course => {
+            const progress = userEnrollments.get(course.id) || 0;
+            return `
+                <div class="course-card">
+                    <div class="course-icon">${course.icon || '📚'}</div>
+                    <span class="course-badge badge-enrolled">✅ ENROLLED</span>
+                    <h3>${escapeHtml(course.name)}</h3>
+                    <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                    <p style="text-align: center;">${progress}% Complete</p>
+                    <button class="btn-continue" onclick="updateProgress(${course.id}, ${progress + 10})">Continue Learning →</button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function renderAvailableCourses() {
+        const container = document.getElementById('availableCoursesList');
+        if (!currentUser) {
+            container.innerHTML = '<div class="course-card"><p>Login to see available courses</p></div>';
+            return;
+        }
+        
+        const available = allCourses.filter(c => !userEnrollments.has(c.id));
+        
+        if (available.length === 0) {
+            container.innerHTML = '<div class="course-card"><p><i class="fas fa-trophy"></i> 🎉 Amazing! You\'re enrolled in all courses! Keep learning and complete them all.</p></div>';
+            return;
+        }
+        
+        container.innerHTML = available.map(course => {
+            const isFree = course.type === 'free' || course.price === 0;
+            return `
+                <div class="course-card">
+                    <div class="course-icon">${course.icon || '📚'}</div>
+                    <span class="course-badge ${isFree ? 'badge-free' : 'badge-premium'}">${isFree ? 'FREE' : 'PREMIUM'}</span>
+                    <h3>${escapeHtml(course.name)}</h3>
+                    <p>${escapeHtml((course.description || '').substring(0, 80))}...</p>
+                    <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${(course.price || 0).toLocaleString()}`}</div>
+                    <button class="btn-enroll" onclick="enrollInCourse(${course.id})">🎓 Enroll Now</button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function renderAchievements() {
+        const container = document.getElementById('achievementsList');
+        if (!currentUser) {
+            container.innerHTML = '<div class="course-card"><p>Login to see your achievements</p></div>';
+            return;
+        }
+        
+        const completed = Array.from(userEnrollments.entries()).filter(([id, progress]) => progress === 100);
+        const totalCompleted = completed.length;
+        const totalEnrolled = userEnrollments.size;
+        
+        const achievements = [
+            { icon: '🎓', name: 'First Steps', description: 'Enroll in your first course', achieved: totalEnrolled >= 1 },
+            { icon: '📚', name: 'Dedicated Learner', description: 'Enroll in 3 courses', achieved: totalEnrolled >= 3 },
+            { icon: '🏆', name: 'Course Master', description: 'Complete 1 course', achieved: totalCompleted >= 1 },
+            { icon: '👑', name: 'Elite Driver', description: 'Complete 3 courses', achieved: totalCompleted >= 3 },
+            { icon: '🔥', name: 'Learning Streak', description: 'Reach 50% progress in any course', achieved: Array.from(userEnrollments.values()).some(p => p >= 50) },
+            { icon: '💯', name: 'Perfect Score', description: 'Get 100% in any course', achieved: totalCompleted >= 1 }
+        ];
+        
+        container.innerHTML = achievements.map(ach => `
+            <div class="course-card" style="text-align: center; ${ach.achieved ? 'border-color: var(--primary);' : 'opacity: 0.6;'}">
+                <div class="course-icon" style="font-size: 2rem;">${ach.icon}</div>
+                <h3>${ach.name}</h3>
+                <p style="font-size: 0.8rem;">${ach.description}</p>
+                ${ach.achieved ? '<span class="course-badge badge-enrolled" style="margin-top: 10px;">🏅 ACHIEVED</span>' : '<span class="course-badge badge-free">🔒 LOCKED</span>'}
+            </div>
+        `).join('');
+    }
+    
+    function updateDashboardStats() {
+        if (!currentUser) return;
+        
+        const enrolledCount = userEnrollments.size;
+        const completedCount = Array.from(userEnrollments.values()).filter(p => p === 100).length;
+        const totalProgress = Array.from(userEnrollments.values()).reduce((sum, p) => sum + p, 0);
+        const avgProgress = enrolledCount > 0 ? Math.round(totalProgress / enrolledCount) : 0;
+        
+        document.getElementById('dashTotalCourses').textContent = allCourses.length;
+        document.getElementById('dashEnrolledCount').textContent = enrolledCount;
+        document.getElementById('dashCompletedCount').textContent = completedCount;
+        document.getElementById('dashOverallProgress').textContent = `${avgProgress}%`;
+    }
+    
+    // ============================================
+    // NAVIGATION
+    // ============================================
+    function showLanding() {
+        document.getElementById('landingPage').style.display = 'block';
+        document.getElementById('dashboardPage').style.display = 'none';
+        document.getElementById('dashboardSidebar').classList.remove('active');
+        renderCourses();
+    }
+    
+    function showDashboard() {
+        document.getElementById('landingPage').style.display = 'none';
+        document.getElementById('dashboardPage').style.display = 'block';
+        updateDashboardStats();
+        renderSelectedCourse();
+        renderRecommendedCourses();
+        renderEnrolledCourses();
+        renderAvailableCourses();
+        renderAchievements();
+        document.getElementById('dashboardSidebar').classList.remove('active');
+        showDashboardSection('overview');
+    }
+    
+    function showDashboardSection(section) {
+        document.getElementById('dashboardOverview').style.display = section === 'overview' ? 'block' : 'none';
+        document.getElementById('dashboardCourses').style.display = section === 'courses' ? 'block' : 'none';
+        document.getElementById('dashboardAchievements').style.display = section === 'achievements' ? 'block' : 'none';
+        
+        document.querySelectorAll('#dashboardSidebar a').forEach(a => a.classList.remove('active'));
+        if (section === 'overview') {
+            document.querySelector('#dashboardSidebar a:first-child').classList.add('active');
+        } else if (section === 'courses') {
+            document.querySelector('#dashboardSidebar a:nth-child(2)').classList.add('active');
+        } else {
+            document.querySelector('#dashboardSidebar a:nth-child(3)').classList.add('active');
+        }
+        
+        if (section === 'achievements') renderAchievements();
+        if (section === 'courses') {
+            renderEnrolledCourses();
+            renderAvailableCourses();
+        }
+    }
+    
+    // ============================================
+    // AUTHENTICATION UI
+    // ============================================
+    function showAuthModal(mode) {
+        authMode = mode;
+        const modal = document.getElementById('authModal');
+        document.getElementById('modalTitle').textContent = mode === 'login' ? 'Login' : 'Create Account';
+        document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Login' : 'Register';
+        document.getElementById('authToggleText').innerHTML = mode === 'login' ? "Don't have an account?" : "Already have an account?";
+        modal.classList.add('active');
+    }
+    
+    function closeAuthModal() {
+        document.getElementById('authModal').classList.remove('active');
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authPassword').value = '';
+    }
+    
+    function toggleAuthMode() {
+        authMode = authMode === 'login' ? 'register' : 'login';
+        showAuthModal(authMode);
+    }
+    
+    // ============================================
+    // HELPERS
+    // ============================================
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+    
+    // Make functions global
+    window.selectCourse = selectCourse;
+    window.enrollInCourse = enrollInCourse;
+    window.updateProgress = updateProgress;
+    window.showAuthModal = showAuthModal;
+    window.closeAuthModal = closeAuthModal;
+    window.toggleAuthMode = toggleAuthMode;
+    window.showLanding = showLanding;
+    window.showDashboard = showDashboard;
+    window.showDashboardSection = showDashboardSection;
+    window.showCourseDetail = showCourseDetail;
+    window.closeCourseModal = closeCourseModal;
+    
+    init();
+</script>
+</body>
+</html>
