@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEI DRIVE AFRICA - Professional Driver Training</title>
+    <title>MEI DRIVE AFRICA | Professional Driver Training</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -13,17 +13,29 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0a;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+            background: #0A192F;
             color: #fff;
             overflow-x: hidden;
         }
 
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0D2137;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00FF88;
+            border-radius: 4px;
+        }
+
         /* Navigation */
         .navbar {
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 5%;
+            background: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 16px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -33,67 +45,71 @@
             top: 0;
             width: 100%;
             z-index: 1000;
-            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
         }
 
         .logo {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
         .logo span {
-            color: #00ff88;
+            color: #00FF88;
         }
 
         .nav-links {
             display: flex;
-            gap: 30px;
+            gap: 35px;
             align-items: center;
         }
 
         .nav-links a {
-            color: white;
+            color: #fff;
             text-decoration: none;
-            transition: color 0.3s;
+            transition: all 0.3s;
             font-weight: 500;
+            font-size: 16px;
         }
 
         .nav-links a:hover {
-            color: #00ff88;
+            color: #00FF88;
         }
 
         .auth-buttons {
             display: flex;
-            gap: 15px;
+            gap: 12px;
         }
 
         .btn-login, .btn-register {
             padding: 8px 24px;
-            border-radius: 25px;
+            border-radius: 8px;
             text-decoration: none;
             transition: all 0.3s;
             font-weight: 600;
+            font-size: 14px;
         }
 
         .btn-login {
             background: transparent;
-            border: 1px solid #00ff88;
-            color: #00ff88;
+            border: 1.5px solid #00FF88;
+            color: #00FF88;
         }
 
         .btn-login:hover {
-            background: #00ff88;
-            color: #0a0a0a;
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateY(-2px);
         }
 
         .btn-register {
-            background: #00ff88;
-            color: #0a0a0a;
+            background: #00FF88;
+            color: #0A192F;
         }
 
         .btn-register:hover {
             background: #00cc6a;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
         }
 
         /* Hero Section */
@@ -103,9 +119,9 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            background: linear-gradient(135deg, #0a0a0a 0%, #0d1f1a 50%, #0a2e1f 100%);
+            background: linear-gradient(135deg, #0A192F 0%, #0D2137 50%, #0A192F 100%);
             position: relative;
-            padding: 100px 20px;
+            padding: 120px 20px 80px;
         }
 
         .hero::before {
@@ -115,85 +131,89 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.03"><path fill="%2300ff88" d="M50,0 L61.8,38.2 L100,38.2 L69.1,61.8 L80.9,100 L50,75.4 L19.1,100 L30.9,61.8 L0,38.2 L38.2,38.2 L50,0 Z"/></svg>') repeat;
-            opacity: 0.1;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .hero-content {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
         }
 
         .hero h1 {
-            font-size: 64px;
-            margin-bottom: 20px;
+            font-size: 68px;
+            margin-bottom: 24px;
             line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: -1px;
         }
 
         .hero h1 span {
-            color: #00ff88;
+            color: #00FF88;
         }
 
         .hero p {
             font-size: 20px;
-            opacity: 0.9;
-            margin-bottom: 25px;
+            opacity: 0.85;
+            margin-bottom: 24px;
             line-height: 1.6;
         }
 
         .hero-subtitle {
             font-size: 16px;
-            opacity: 0.8;
-            margin-bottom: 30px;
+            opacity: 0.7;
+            margin-bottom: 32px;
         }
 
         .hero-buttons {
             display: flex;
             gap: 20px;
             justify-content: center;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
         }
 
         .btn-primary {
-            background: #00ff88;
-            color: #0a0a0a;
-            padding: 14px 35px;
-            border-radius: 40px;
+            background: #00FF88;
+            color: #0A192F;
+            padding: 14px 38px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 700;
             transition: all 0.3s;
             display: inline-block;
+            font-size: 16px;
         }
 
         .btn-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,255,136,0.3);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+            background: #00cc6a;
         }
 
         .btn-secondary {
             background: transparent;
-            border: 2px solid #00ff88;
-            color: #00ff88;
-            padding: 12px 35px;
-            border-radius: 40px;
+            border: 2px solid #00FF88;
+            color: #00FF88;
+            padding: 12px 38px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 700;
             transition: all 0.3s;
             display: inline-block;
+            font-size: 16px;
         }
 
         .btn-secondary:hover {
-            background: rgba(0,255,136,0.1);
+            background: rgba(0, 255, 136, 0.1);
             transform: translateY(-3px);
         }
 
         .stats {
             display: flex;
             justify-content: center;
-            gap: 60px;
-            margin-top: 40px;
+            gap: 80px;
         }
 
         .stat-item {
@@ -201,75 +221,78 @@
         }
 
         .stat-number {
-            font-size: 36px;
-            font-weight: bold;
-            color: #00ff88;
+            font-size: 42px;
+            font-weight: 800;
+            color: #00FF88;
         }
 
         .stat-label {
             font-size: 14px;
             opacity: 0.7;
+            letter-spacing: 0.5px;
         }
 
         /* Courses Section */
         .courses-section {
             padding: 80px 5%;
-            background: #0a0a0a;
+            background: #0A192F;
         }
 
         .section-title {
             text-align: center;
             font-size: 42px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            font-weight: 700;
         }
 
         .section-title span {
-            color: #00ff88;
+            color: #00FF88;
         }
 
         .section-subtitle {
             text-align: center;
-            color: #aaa;
+            color: rgba(255,255,255,0.6);
             margin-bottom: 50px;
             font-size: 18px;
         }
 
         .courses-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
             gap: 30px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
         .course-card {
-            background: linear-gradient(135deg, rgba(0,255,136,0.05) 0%, rgba(0,255,136,0.01) 100%);
+            background: rgba(13, 33, 55, 0.8);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
+            border-radius: 16px;
             padding: 30px;
             transition: all 0.3s;
             cursor: pointer;
-            border: 1px solid rgba(0,255,136,0.2);
+            border: 1px solid rgba(0, 255, 136, 0.15);
         }
 
         .course-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,255,136,0.1);
-            border-color: rgba(0,255,136,0.5);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.1);
+            border-color: rgba(0, 255, 136, 0.4);
         }
 
         .course-icon {
-            font-size: 48px;
+            font-size: 52px;
             margin-bottom: 20px;
         }
 
         .course-card h3 {
             font-size: 24px;
             margin-bottom: 12px;
+            font-weight: 700;
         }
 
         .course-card p {
-            opacity: 0.8;
+            opacity: 0.7;
             line-height: 1.6;
             margin-bottom: 20px;
         }
@@ -280,26 +303,27 @@
             align-items: center;
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid rgba(0,255,136,0.2);
+            border-top: 1px solid rgba(0, 255, 136, 0.15);
         }
 
         .duration {
             font-size: 14px;
-            opacity: 0.7;
+            opacity: 0.6;
             display: flex;
             align-items: center;
             gap: 5px;
         }
 
         .start-btn {
-            background: #00ff88;
-            color: #0a0a0a;
+            background: #00FF88;
+            color: #0A192F;
             border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
+            padding: 8px 22px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
             transition: all 0.3s;
+            font-size: 14px;
         }
 
         .start-btn:hover {
@@ -307,17 +331,61 @@
             background: #00cc6a;
         }
 
-        /* Loading Spinner */
+        /* Features Section */
+        .features-section {
+            padding: 80px 5%;
+            background: #0D2137;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 30px;
+            background: rgba(10, 25, 47, 0.6);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            transition: all 0.3s;
+        }
+
+        .feature:hover {
+            border-color: rgba(0, 255, 136, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature h4 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .feature p {
+            opacity: 0.7;
+            line-height: 1.5;
+        }
+
+        /* Loading */
         .loading {
             text-align: center;
-            padding: 50px;
+            padding: 60px;
         }
 
         .spinner {
             width: 50px;
             height: 50px;
-            border: 3px solid rgba(0,255,136,0.3);
-            border-top-color: #00ff88;
+            border: 3px solid rgba(0, 255, 136, 0.2);
+            border-top-color: #00FF88;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
@@ -329,13 +397,14 @@
 
         /* Footer */
         .footer {
-            background: #050505;
+            background: #051020;
             text-align: center;
             padding: 40px;
+            border-top: 1px solid rgba(0, 255, 136, 0.1);
         }
 
         .footer p {
-            opacity: 0.7;
+            opacity: 0.6;
             font-size: 14px;
         }
 
@@ -369,13 +438,33 @@
             }
             
             .stats {
-                gap: 30px;
+                gap: 40px;
                 flex-wrap: wrap;
             }
             
             .stat-number {
-                font-size: 24px;
+                font-size: 28px;
             }
+
+            .nav-links {
+                gap: 20px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .course-card {
+            animation: fadeInUp 0.5s ease-out forwards;
         }
     </style>
 </head>
@@ -385,7 +474,7 @@
         <div class="nav-links">
             <a href="#home">Home</a>
             <a href="#courses">Courses</a>
-            <a href="#quiz">Quiz Bank</a>
+            <a href="quiz.html">Quiz Bank</a>
             <a href="#contact">Contact</a>
         </div>
         <div class="auth-buttons">
@@ -412,7 +501,7 @@
                     <div class="stat-label">Practice Questions</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="studentsCount">10K+</div>
+                    <div class="stat-number">10K+</div>
                     <div class="stat-label">Active Students</div>
                 </div>
             </div>
@@ -430,35 +519,59 @@
         </div>
     </section>
 
+    <section class="features-section">
+        <h2 class="section-title">Why Choose <span>Us</span></h2>
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">✅</div>
+                <h4>NTSA Approved</h4>
+                <p>Officially certified curriculum meeting Kenyan standards</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📚</div>
+                <h4>1000+ Quiz Bank</h4>
+                <p>Practice with real exam-style questions</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">👨‍🏫</div>
+                <h4>Expert Instructors</h4>
+                <p>Learn from certified professional drivers</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💻</div>
+                <h4>Learn Anywhere</h4>
+                <p>Access courses online, anytime, anywhere</p>
+            </div>
+        </div>
+    </section>
+
     <footer class="footer">
         <p>&copy; 2026 MEI DRIVE AFRICA. All rights reserved. | NTSA Approved Training Provider</p>
         <p style="margin-top: 10px; font-size: 12px;">Activate Windows - Go to Settings to activate Windows</p>
     </footer>
 
     <script>
-        // SINGLE SUPABASE INITIALIZATION - NO DUPLICATION
-        const SUPABASE_CONFIG = {
+        // SINGLE SUPABASE CONFIGURATION - NO DUPLICATION
+        const SUPABASE = {
             url: 'https://qpqkmmkrzxlhcpccefjn.supabase.co',
             anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s'
         };
         
-        const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+        const supabase = window.supabase.createClient(SUPABASE.url, SUPABASE.anonKey);
         
-        // Course mapping for navigation
-        const COURSE_PAGES = {
+        // Course navigation mapping
+        const COURSE_LINKS = {
             'Learner Driving Course': 'learner.html',
             'Boda Rider Course': 'boda.html',
             'Electric Vehicle Course': 'ev.html',
             'Refresher Course': 'refresher.html'
         };
 
-        // Global state
         let coursesData = [];
-        let questionsData = [];
 
         // Load courses from Supabase
         async function loadCourses() {
-            const coursesGrid = document.getElementById('coursesGrid');
+            const grid = document.getElementById('coursesGrid');
             
             try {
                 const { data: courses, error } = await supabase
@@ -469,16 +582,14 @@
                 if (error) throw error;
                 
                 coursesData = courses || [];
-                
-                // Update stats
-                document.getElementById('coursesCount').textContent = coursesData.length;
+                document.getElementById('coursesCount').innerText = coursesData.length;
                 
                 if (!coursesData.length) {
-                    coursesGrid.innerHTML = '<div class="loading">No courses available at the moment.</div>';
+                    grid.innerHTML = '<div class="loading">No courses available. Please check back later.</div>';
                     return;
                 }
                 
-                coursesGrid.innerHTML = coursesData.map(course => `
+                grid.innerHTML = coursesData.map(course => `
                     <div class="course-card" onclick="navigateToCourse('${course.title.replace(/'/g, "\\'")}')">
                         <div class="course-icon">${course.icon || '📚'}</div>
                         <h3>${course.title}</h3>
@@ -491,72 +602,42 @@
                     </div>
                 `).join('');
                 
-            } catch (error) {
-                console.error('Error loading courses:', error);
-                coursesGrid.innerHTML = '<div class="loading">Error loading courses. Please refresh the page.</div>';
+            } catch (err) {
+                console.error('Error:', err);
+                grid.innerHTML = '<div class="loading">Error loading courses. Please refresh the page.</div>';
             }
         }
 
-        // Load quiz questions count
-        async function loadQuestionsCount() {
+        // Load quiz count
+        async function loadQuizCount() {
             try {
                 const { count, error } = await supabase
                     .from('quiz_questions')
                     .select('*', { count: 'exact', head: true });
                 
                 if (!error && count) {
-                    document.getElementById('questionsCount').textContent = count;
-                } else {
-                    document.getElementById('questionsCount').textContent = '500+';
+                    document.getElementById('questionsCount').innerText = count;
                 }
-            } catch (error) {
-                console.error('Error loading questions count:', error);
-                document.getElementById('questionsCount').textContent = '500+';
+            } catch (err) {
+                console.error('Error loading quiz count:', err);
+                document.getElementById('questionsCount').innerText = '500+';
             }
         }
 
-        // Navigation function
-        function navigateToCourse(courseTitle) {
-            sessionStorage.setItem('selectedCourse', courseTitle);
+        // Navigate to course
+        function navigateToCourse(title) {
+            sessionStorage.setItem('selectedCourse', title);
             
-            if (COURSE_PAGES[courseTitle]) {
-                window.location.href = COURSE_PAGES[courseTitle];
+            if (COURSE_LINKS[title]) {
+                window.location.href = COURSE_LINKS[title];
             } else {
-                // Create dynamic course page if needed
-                createDynamicCoursePage(courseTitle);
+                window.location.href = 'course.html';
             }
         }
 
-        // Create dynamic course page on the fly
-        async function createDynamicCoursePage(courseTitle) {
-            const course = coursesData.find(c => c.title === courseTitle);
-            if (!course) return;
-            
-            const { data: units, error } = await supabase
-                .from('units')
-                .select('*')
-                .eq('course_id', course.id)
-                .order('unit_number');
-            
-            if (error) {
-                alert('Error loading course content');
-                return;
-            }
-            
-            // Store units in session storage and redirect
-            sessionStorage.setItem('currentUnits', JSON.stringify(units));
-            sessionStorage.setItem('currentCourse', JSON.stringify(course));
-            window.location.href = 'course.html';
-        }
-
-        // Initialize everything when page loads
-        async function init() {
-            await loadCourses();
-            await loadQuestionsCount();
-        }
-        
-        // Start the app
-        init();
+        // Initialize
+        loadCourses();
+        loadQuizCount();
     </script>
 </body>
 </html>
