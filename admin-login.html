@@ -1,335 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin Login | MEI DRIVE AFRICA</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Load singleton Supabase instance (SAME as main app) -->
-<script src="supabase.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - MEI Drive Africa</title>
     
-    :root {
-        --primary: #041B3D;
-        --secondary: #0A234F;
-        --accent: #00FF88;
-        --white: #ffffff;
-        --gray: #B7C4D6;
-        --danger: #ff4d4d;
-    }
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
     
-    body {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        font-family: 'Segoe UI', sans-serif;
-        background: linear-gradient(rgba(4,27,61,.92), rgba(10,35,79,.92)),
-                    url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format&fit=crop') center/cover;
-    }
-    
-    .login-card {
-        width: 100%;
-        max-width: 420px;
-        background: rgba(4,27,61,.96);
-        border: 1px solid rgba(0,255,136,.15);
-        border-radius: 24px;
-        padding: 40px 30px;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 10px 40px rgba(0,0,0,.4);
-    }
-    
-    .logo { font-size: 58px; text-align: center; margin-bottom: 12px; }
-    h1 { color: var(--accent); text-align: center; font-size: 1.9rem; }
-    .subtitle { text-align: center; color: var(--gray); margin-top: 8px; margin-bottom: 24px; }
-    
-    .badge {
-        width: max-content;
-        margin: auto;
-        margin-bottom: 30px;
-        background: var(--accent);
-        color: var(--primary);
-        padding: 7px 18px;
-        border-radius: 30px;
-        font-size: .75rem;
-        font-weight: 700;
-    }
-    
-    .input-group { margin-bottom: 18px; }
-    .input-group label { display: block; color: white; margin-bottom: 8px; font-size: .92rem; font-weight: 600; }
-    .input-group input {
-        width: 100%;
-        padding: 14px;
-        border-radius: 14px;
-        border: 2px solid rgba(0,255,136,.15);
-        background: #08172e;
-        color: white;
-        font-size: 15px;
-        transition: .3s;
-    }
-    .input-group input:focus { outline: none; border-color: var(--accent); }
-    
-    .btn {
-        width: 100%;
-        padding: 14px;
-        border: none;
-        border-radius: 14px;
-        background: var(--accent);
-        color: var(--primary);
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: .3s;
-    }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,255,136,.25); }
-    .btn:disabled { opacity: .6; cursor: not-allowed; }
-    
-    .message { display: none; padding: 12px; border-radius: 12px; margin-bottom: 18px; font-size: .9rem; }
-    .error { background: rgba(255,77,77,.12); color: #ffb3b3; border: 1px solid rgba(255,77,77,.3); }
-    .success { background: rgba(0,255,136,.12); color: #b7ffe1; border: 1px solid rgba(0,255,136,.3); }
-    
-    .back-link { display: block; margin-top: 22px; text-align: center; color: var(--gray); text-decoration: none; }
-    .back-link:hover { color: var(--accent); }
-    
-    .loader {
-        width: 18px;
-        height: 18px;
-        border: 2px solid #041B3D;
-        border-top-color: white;
-        border-radius: 50%;
-        display: inline-block;
-        animation: spin .7s linear infinite;
-        vertical-align: middle;
-        margin-right: 8px;
-    }
-    
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    @media (max-width: 480px) { .login-card { padding: 30px 22px; } h1 { font-size: 1.5rem; } }
-</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e27, #1a1f3a);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-card {
+            background: #1a1f3a;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        .login-card h2 { color: #00ff88; margin-bottom: 20px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            background: #0a0e27;
+            color: white;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #00ff88;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        .error { background: rgba(255,68,68,0.2); color: #ff4444; }
+        .success { background: rgba(0,255,136,0.1); color: #00ff88; }
+        a { display: block; margin-top: 20px; color: #00ff88; text-decoration: none; }
+    </style>
 </head>
 <body>
+    <div class="login-card">
+        <h2>Admin Login</h2>
+        <input type="email" id="email" placeholder="Admin Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div id="message" class="message"></div>
+        <a href="/">← Back to Home</a>
+    </div>
 
-<div class="login-card">
-    <div class="logo">🚗</div>
-    <h1>MEI DRIVE AFRICA</h1>
-    <p class="subtitle">Secure Administrator Access</p>
-    <div class="badge">ADMIN PANEL</div>
-    
-    <div id="errorBox" class="message error"></div>
-    <div id="successBox" class="message success"></div>
-    
-    <form id="loginForm">
-        <div class="input-group">
-            <label>Admin Email</label>
-            <input type="email" id="email" placeholder="admin@meidriveafrica.com" required>
-        </div>
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="password" placeholder="Enter password" required>
-        </div>
-        <button type="submit" class="btn" id="loginBtn">Login as Admin</button>
-    </form>
-    
-    <a href="/" class="back-link">← Back Home</a>
-</div>
-
-<script>
-    // ============================================
-    // USE SINGLETON SUPABASE INSTANCE - NO NEW INIT!
-    // ============================================
-    
-    // Get existing Supabase instance from supabase.js
-    let supabaseClient;
-    
-    if (window._supabaseInstance) {
-        supabaseClient = window._supabaseInstance;
-        console.log('✅ Admin login: Using existing Supabase instance');
-    } else if (window.getSupabase) {
-        supabaseClient = window.getSupabase();
-        console.log('✅ Admin login: Using getSupabase()');
-    } else if (window.supabase) {
-        supabaseClient = window.supabase;
-        console.log('✅ Admin login: Using window.supabase');
-    } else {
-        console.error('❌ Supabase not initialized! Check if supabase.js loaded first.');
-        alert('System error. Please refresh the page.');
-    }
-    
-    // DOM elements
-    const form = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const errorBox = document.getElementById('errorBox');
-    const successBox = document.getElementById('successBox');
-    
-    function showError(message) {
-        errorBox.textContent = message;
-        errorBox.style.display = 'block';
-        successBox.style.display = 'none';
-        setTimeout(() => errorBox.style.display = 'none', 5000);
-    }
-    
-    function showSuccess(message) {
-        successBox.textContent = message;
-        successBox.style.display = 'block';
-        errorBox.style.display = 'none';
-    }
-    
-    function setLoading(state) {
-        loginBtn.disabled = state;
-        loginBtn.innerHTML = state ? '<span class="loader"></span>Logging in...' : 'Login as Admin';
-    }
-    
-    // Verify if user is admin
-    async function verifyAdmin(userId) {
-        if (!supabaseClient) {
-            console.error('Supabase not available');
-            return false;
-        }
+    <script>
+        // ✅ CORRECT - Use existing Supabase instance
+        const supabase = window._supabase || window.getSupabase?.() || window.supabase;
         
-        try {
-            console.log('Verifying admin for user:', userId);
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msgDiv = document.getElementById('message');
             
-            // First try to get role from profiles
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .select('role')
-                .eq('id', userId)
-                .maybeSingle();
-    
-            if (error) {
-                console.error('Error verifying admin:', error);
-                return false;
+            if (!email || !password) {
+                msgDiv.textContent = 'Please enter email and password';
+                msgDiv.className = 'message error';
+                msgDiv.style.display = 'block';
+                return;
             }
-    
-            console.log('Profile data:', data);
             
-            // Also check if email matches admin email pattern
-            const { data: userData } = await supabaseClient.auth.getUser();
-            const isAdminEmail = userData?.user?.email === 'admin@meidriveafrica.com' || 
-                                 userData?.user?.email?.includes('admin');
-            
-            return data?.role === 'admin' || isAdminEmail;
-        } catch (err) {
-            console.error('Verify admin error:', err);
-            return false;
-        }
-    }
-    
-    // Check if already logged in
-    async function checkExistingSession() {
-        if (!supabaseClient) return;
-        
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session) return;
-    
-        const isAdmin = await verifyAdmin(session.user.id);
-        if (isAdmin) {
-            console.log('Already logged in as admin, redirecting...');
-            window.location.href = 'admin-dashboard.html';
-        }
-    }
-    
-    // Form submit handler
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        if (!supabaseClient) {
-            showError('System error. Please refresh the page.');
-            return;
-        }
-        
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        
-        if (!email || !password) {
-            return showError('Please enter email and password');
-        }
-        
-        setLoading(true);
-        errorBox.style.display = 'none';
-        successBox.style.display = 'none';
-        
-        try {
-            console.log('Attempting login for:', email);
-            
-            // Attempt login
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-    
-            if (error) {
-                console.error('Login error:', error);
-                setLoading(false);
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
                 
-                if (error.message === 'Invalid login credentials') {
-                    return showError('Invalid email or password');
-                } else if (error.message.includes('Email not confirmed')) {
-                    return showError('Please verify your email before logging in');
+                // Check if admin
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', data.user.id)
+                    .single();
+                
+                if (profile?.role !== 'admin') {
+                    await supabase.auth.signOut();
+                    throw new Error('Admin access required');
                 }
-                return showError(error.message);
+                
+                msgDiv.textContent = 'Login successful! Redirecting...';
+                msgDiv.className = 'message success';
+                msgDiv.style.display = 'block';
+                setTimeout(() => window.location.href = '/admin-dashboard.html', 1000);
+            } catch (err) {
+                msgDiv.textContent = err.message;
+                msgDiv.className = 'message error';
+                msgDiv.style.display = 'block';
             }
-    
-            if (!data.user) {
-                setLoading(false);
-                return showError('Login failed. Please try again.');
-            }
-    
-            console.log('Login successful, verifying admin role...');
-            
-            // Verify admin role
-            const isAdmin = await verifyAdmin(data.user.id);
-    
-            if (!isAdmin) {
-                console.log('User is not admin, signing out');
-                await supabaseClient.auth.signOut();
-                setLoading(false);
-                return showError('Access denied. Admin privileges required.');
-            }
-    
-            console.log('Admin verified, redirecting to dashboard...');
-            
-            // Login successful
-            showSuccess('Login successful! Redirecting to admin dashboard...');
-    
-            setTimeout(() => {
-                window.location.href = 'admin-dashboard.html';
-            }, 1200);
-    
-        } catch (err) {
-            console.error('Login error:', err);
-            showError('Network error. Please check your connection.');
-            setLoading(false);
         }
-    });
-    
-    // Add enter key support
-    passwordInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            form.dispatchEvent(new Event('submit'));
-        }
-    });
-    
-    // Check existing session on page load
-    checkExistingSession();
-    
-    // Test connection
-    (async function testConnection() {
-        if (!supabaseClient) return;
-        
-        const { data, error } = await supabaseClient.from('profiles').select('count', { count: 'exact', head: true });
-        if (error) {
-            console.error('Connection test failed:', error);
-        } else {
-            console.log('Supabase connection OK');
-        }
-    })();
-</script>
+    </script>
 </body>
 </html>
