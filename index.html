@@ -2,385 +2,186 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    
-    <!-- CACHE PREVENTION - Force fresh load -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
-    <title>MEI Drive Africa | NTSA Approved Driver Training</title>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="NTSA-approved driver training courses. Learn defensive driving, professional driving, and road safety with MEI Drive Africa.">
-    <meta name="keywords" content="driving school, NTSA approved, driver training, defensive driving, Kenya">
-    <meta name="author" content="MEI Drive Africa">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Cache-busting version for scripts -->
-    <script>
-        // Cache buster - forces fresh load
-        const VERSION = Date.now();
-        console.log('🚀 MEI Drive Africa v' + VERSION);
-    </script>
-    
-    <!-- Supabase Library (load first) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEI Drive Africa</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Singleton Supabase Instance (ONLY source of truth) -->
-    <script src="supabase.js?v=2"></script>
-    
-    <!-- Main App Logic -->
-    <script src="js/app.js?v=2"></script>
-    
+    <script src="supabase.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --primary: #00FF88;
-            --primary-dark: #00cc6a;
-            --dark: #041B3D;
-            --dark-light: #0A234F;
-            --darker: #020f24;
-            --gray: #B7C4D6;
-            --error: #ff4444;
-            --success: #00C851;
-            --warning: #ff9800;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--dark);
+            font-family: 'Segoe UI', sans-serif;
+            background: #0a0e27;
             color: white;
-            overflow-x: hidden;
         }
-        
-        /* Toast Notifications */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--dark-light);
-            border-left: 4px solid var(--primary);
-            padding: 14px 22px;
-            border-radius: 12px;
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-        }
-        
-        .toast.error { border-left-color: var(--error); }
-        .toast.success { border-left-color: var(--success); }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        /* Navbar */
         .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(4, 27, 61, 0.95);
-            backdrop-filter: blur(10px);
+            background: #1a1f3a;
             padding: 1rem 2rem;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(0, 255, 136, 0.15);
-        }
-        
-        .nav-container {
-            max-width: 1200px;
-            margin: auto;
+            border-bottom: 1px solid #00ff8820;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
         }
-        
         .logo {
             font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .logo i { font-size: 1.8rem; }
-        .logo span { color: white; }
-        
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover { color: var(--primary); }
-        
-        .ntsa-badge {
-            background: rgba(0,255,136,0.1);
-            border-radius: 30px;
-            padding: 5px 15px;
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-nav {
-            padding: 8px 20px;
-            border-radius: 25px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-login {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-        
-        .btn-login:hover {
-            background: var(--primary);
-            color: var(--dark);
-            transform: translateY(-2px);
-        }
-        
-        .btn-register {
-            background: var(--primary);
-            color: var(--dark);
-        }
-        
-        .btn-register:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,255,136,0.3);
-        }
-        
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            background: linear-gradient(135deg, rgba(4,27,61,0.92), rgba(10,35,79,0.96)), 
-                        url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format') center/cover fixed;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 120px 20px 80px;
-        }
-        
-        .hero-content { max-width: 800px; }
-        
-        .hero h1 {
-            font-size: 2.8rem;
-            margin-bottom: 20px;
-        }
-        
-        .hero h1 span {
-            color: var(--primary);
-            display: block;
-            font-size: 2rem;
-            margin-top: 10px;
-        }
-        
-        .hero p {
-            color: var(--gray);
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: var(--dark);
-            padding: 14px 40px;
-            border-radius: 40px;
             font-weight: bold;
+            color: #00ff88;
+            text-decoration: none;
+        }
+        .logo span { color: white; }
+        .btn {
+            padding: 8px 20px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1rem;
+            font-weight: bold;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,255,136,0.3);
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #00ff88;
+            color: #00ff88;
         }
-        
-        /* Stats Section */
-        .stats {
-            margin-top: -60px;
-            position: relative;
-            z-index: 10;
-            padding: 0 20px;
+        .btn-primary {
+            background: #00ff88;
+            color: #0a0e27;
         }
-        
-        .stats-container {
-            max-width: 900px;
-            margin: auto;
-            background: var(--dark-light);
-            border-radius: 24px;
-            padding: 35px;
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 20px;
+        .btn-danger {
+            background: #ff4444;
+            color: white;
+        }
+        .hero {
             text-align: center;
-            border: 1px solid rgba(0,255,136,0.1);
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #0a0e27, #1a1f3a);
         }
-        
-        .stat h2 {
-            font-size: 2.2rem;
-            color: var(--primary);
-        }
-        
-        .stat p {
-            color: var(--gray);
-            margin-top: 5px;
-        }
-        
-        /* Courses Section */
+        .hero h1 { font-size: 2.5rem; margin-bottom: 20px; }
+        .hero h1 span { color: #00ff88; }
         .container {
             max-width: 1200px;
-            margin: auto;
-            padding: 80px 20px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
-        
         .section-title {
             text-align: center;
-            font-size: 2.2rem;
-            margin-bottom: 50px;
+            font-size: 2rem;
+            margin-bottom: 40px;
         }
-        
-        .section-title span { color: var(--primary); }
-        
-        .section-title:after {
-            content: '';
-            display: block;
-            width: 70px;
-            height: 3px;
-            background: linear-gradient(135deg, var(--primary), #00ccff);
-            margin: 15px auto 0;
-            border-radius: 2px;
-        }
-        
+        .section-title span { color: #00ff88; }
         .courses-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 25px;
         }
-        
         .course-card {
-            background: var(--dark-light);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(0,255,136,0.1);
-            transition: all 0.3s;
+            background: #1a1f3a;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #00ff8820;
+            transition: 0.3s;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
         }
-        
-        .course-card:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0,255,136,0.05), transparent);
-            transition: left 0.5s;
-        }
-        
-        .course-card:hover:before { left: 100%; }
-        
         .course-card:hover {
             transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0,255,136,0.15);
+            border-color: #00ff88;
         }
-        
-        .course-icon { font-size: 2.8rem; margin-bottom: 15px; }
-        
-        .course-badge {
+        .course-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .badge {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: bold;
-            margin-bottom: 12px;
-        }
-        
-        .badge-free { background: var(--warning); color: var(--dark); }
-        .badge-premium { background: var(--primary); color: var(--dark); }
-        
-        .course-card h3 {
             margin-bottom: 10px;
-            font-size: 1.2rem;
         }
-        
-        .course-card p {
-            color: var(--gray);
-            font-size: 0.85rem;
-            line-height: 1.5;
-            margin-bottom: 15px;
-        }
-        
-        .course-price {
-            font-weight: bold;
-            margin: 10px 0;
-            font-size: 1.1rem;
-        }
-        
-        .course-price.free { color: var(--warning); }
-        .course-price.premium { color: var(--primary); }
-        
+        .badge-free { background: #ff9800; color: #0a0e27; }
+        .badge-premium { background: #00ff88; color: #0a0e27; }
+        .course-card h3 { margin-bottom: 10px; }
+        .course-card p { color: #a0a0c0; font-size: 0.85rem; margin-bottom: 15px; }
+        .price { font-weight: bold; margin: 10px 0; }
         .btn-view {
             width: 100%;
-            padding: 12px;
-            border-radius: 30px;
-            border: 1px solid var(--primary);
+            padding: 10px;
             background: transparent;
-            color: white;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
         }
-        
-        .btn-view:hover {
-            background: var(--primary);
-            color: var(--dark);
+        .dashboard { display: none; }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: #1a1f3a;
+            padding: 80px 20px 20px;
+            border-right: 1px solid #00ff8820;
         }
-        
-        /* Modal */
+        .main-content {
+            margin-left: 260px;
+            padding: 80px 30px 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .stat-card {
+            background: #1a1f3a;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        .profile-card {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #0a0e27;
+            border-radius: 16px;
+        }
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background: #00ff88;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 1.5rem;
+            color: #0a0e27;
+        }
+        .menu-item {
+            padding: 12px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .menu-item:hover, .menu-item.active {
+            background: #00ff88;
+            color: #0a0e27;
+        }
+        .progress-bar {
+            background: #333;
+            border-radius: 10px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #00ff88;
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -388,172 +189,52 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 10000;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(5px);
         }
-        
         .modal.active { display: flex; }
-        
         .modal-content {
-            background: linear-gradient(135deg, var(--dark-light), var(--darker));
-            padding: 40px;
-            border-radius: 24px;
+            background: #1a1f3a;
+            padding: 30px;
+            border-radius: 16px;
             width: 90%;
-            max-width: 450px;
-            border: 1px solid var(--primary);
-            animation: modalFadeIn 0.3s ease;
+            max-width: 400px;
+            border: 1px solid #00ff88;
         }
-        
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        .modal-content h2 {
-            color: var(--primary);
-            margin-bottom: 25px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
         .modal-content input {
             width: 100%;
-            padding: 14px;
-            margin-bottom: 15px;
-            border-radius: 12px;
-            border: none;
-            background: var(--dark);
-            color: white;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-        
-        .modal-content input:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px var(--primary);
-        }
-        
-        .modal-content button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-            border-radius: 12px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .btn-modal-primary {
-            background: var(--primary);
-            color: var(--dark);
-        }
-        
-        .btn-modal-secondary {
-            background: transparent;
-            border: 1px solid var(--gray);
+            padding: 12px;
+            margin: 10px 0;
+            background: #0a0e27;
+            border: 1px solid #00ff88;
+            border-radius: 8px;
             color: white;
         }
-        
-        .modal-footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 14px;
-        }
-        
-        .modal-footer a {
-            color: var(--primary);
-            cursor: pointer;
-            text-decoration: none;
-        }
-        
-        /* Loading */
-        .loading { text-align: center; padding: 60px; }
-        
+        .loading { text-align: center; padding: 40px; }
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(0,255,136,0.2);
-            border-top-color: var(--primary);
+            width: 40px;
+            height: 40px;
+            border: 3px solid #00ff8820;
+            border-top-color: #00ff88;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-            margin: auto;
+            margin: 0 auto;
         }
-        
         @keyframes spin { to { transform: rotate(360deg); } }
-        
-        /* Contact Section */
-        .contact-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 25px;
-            margin-top: 40px;
-        }
-        
-        .contact-card {
-            background: var(--dark-light);
-            padding: 35px;
-            border-radius: 20px;
-            text-align: center;
-            border: 1px solid rgba(0,255,136,0.1);
-            transition: all 0.3s;
-        }
-        
-        .contact-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-        }
-        
-        .contact-card i {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            display: block;
-        }
-        
-        .contact-card.whatsapp i { color: #25D366; }
-        .contact-card.call i { color: var(--primary); }
-        .contact-card.email i { color: var(--warning); }
-        
-        .contact-card h3 { margin-bottom: 10px; }
-        .contact-card p { color: var(--gray); margin-bottom: 15px; }
-        
-        .contact-btn {
-            display: inline-block;
-            padding: 10px 25px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        
-        .whatsapp-btn { background: #25D366; color: white; }
-        .call-btn { background: var(--primary); color: var(--dark); }
-        .contact-btn:hover { transform: translateY(-2px); }
-        
-        /* Footer */
         .footer {
             text-align: center;
-            padding: 40px;
-            color: var(--gray);
-            font-size: 14px;
-            border-top: 1px solid rgba(0,255,136,0.1);
+            padding: 30px;
+            color: #a0a0c0;
+            border-top: 1px solid #00ff8820;
         }
-        
-        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 1.8rem; }
-            .hero h1 span { font-size: 1.2rem; }
-            .stats-container { flex-direction: column; }
+            .sidebar { transform: translateX(-100%); transition: 0.3s; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 80px 15px 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
             .courses-grid { grid-template-columns: 1fr; }
-            .nav-links { display: none; }
-            .contact-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -562,101 +243,387 @@
 <!-- Auth Modal -->
 <div id="authModal" class="modal">
     <div class="modal-content">
-        <h2><i class="fas fa-user-circle"></i> <span id="modalTitle">Login</span></h2>
-        <input type="email" id="authEmail" placeholder="Email Address">
+        <h2 id="modalTitle" style="color:#00ff88; text-align:center;">Login</h2>
+        <input type="email" id="authEmail" placeholder="Email">
         <input type="password" id="authPassword" placeholder="Password">
-        <button id="authSubmitBtn" class="btn-modal-primary">Login</button>
-        <div class="modal-footer">
-            <span id="authToggleText">Don't have an account?</span>
-            <a href="javascript:void(0)" onclick="toggleAuthMode()"> Register Now</a>
-        </div>
-        <button onclick="closeAuthModal()" class="btn-modal-secondary">Cancel</button>
+        <button id="authBtn" class="btn-primary" style="width:100%;">Login</button>
+        <p style="text-align:center; margin-top:15px;">
+            <span id="authSwitchText">Don't have an account?</span>
+            <a href="#" id="toggleAuthLink" style="color:#00ff88;"> Register</a>
+        </p>
+        <button onclick="closeAuthModal()" class="btn-outline" style="width:100%; margin-top:10px;">Cancel</button>
     </div>
 </div>
 
-<!-- LANDING PAGE -->
+<!-- Landing Page (shown when logged out) -->
 <div id="landingPage">
     <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo" onclick="location.reload()"><i class="fas fa-car"></i> MEI DRIVE <span>AFRICA</span></div>
-            <div class="nav-links">
-                <a href="#coursesSection">Courses</a>
-                <a href="#contactSection">Contact</a>
-                <div class="ntsa-badge"><i class="fas fa-id-card"></i> NTSA: ILR-7WA1P62</div>
-                <button class="btn-nav btn-login" onclick="showAuthModal('login')">Login</button>
-                <button class="btn-nav btn-register" onclick="showAuthModal('register')">Register</button>
-            </div>
+        <a href="/" class="logo">MEI DRIVE <span>AFRICA</span></a>
+        <div>
+            <button class="btn btn-outline" onclick="showAuthModal('login')">Login</button>
+            <button class="btn btn-primary" onclick="showAuthModal('register')">Register</button>
         </div>
     </nav>
-
     <section class="hero">
-        <div class="hero-content">
-            <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
-            <p>For Learners and Experienced Drivers — Refresh Your Skills with MEI DRIVE AFRICA. NTSA-approved courses.</p>
-            <button class="btn-primary" onclick="document.getElementById('coursesSection').scrollIntoView({behavior:'smooth'})">Explore Courses →</button>
-        </div>
+        <h1>Drive Safe.<br><span>Learn with Confidence.</span></h1>
+        <p>NTSA-approved driver training courses</p>
+        <button class="btn btn-primary" onclick="document.getElementById('coursesSection').scrollIntoView({behavior:'smooth'})">Explore Courses →</button>
     </section>
-
-    <section class="stats">
-        <div class="stats-container">
-            <div class="stat"><h2 id="totalStudents">10K+</h2><p>Happy Students</p></div>
-            <div class="stat"><h2 id="totalCourses">0</h2><p>Premium Courses</p></div>
-            <div class="stat"><h2>98%</h2><p>Pass Rate</p></div>
-            <div class="stat"><h2>500+</h2><p>5-Star Reviews</p></div>
-        </div>
-    </section>
-
     <section class="container" id="coursesSection">
         <h2 class="section-title">Our <span>Courses</span></h2>
-        <div id="coursesContainer" class="courses-grid">
-            <div class="loading"><div class="spinner"></div> Loading courses...</div>
-        </div>
+        <div id="coursesList" class="courses-grid"><div class="loading"><div class="spinner"></div> Loading courses...</div></div>
     </section>
+    <footer class="footer">© 2026 MEI DRIVE AFRICA | NTSA Approved</footer>
+</div>
 
-    <section class="container" id="contactSection">
-        <h2 class="section-title">Get In <span>Touch</span></h2>
-        <div class="contact-grid">
-            <div class="contact-card whatsapp">
-                <i class="fab fa-whatsapp"></i>
-                <h3>WhatsApp</h3>
-                <p>Fastest response - Chat with us</p>
-                <p><strong>0703 738 707</strong></p>
-                <a href="https://wa.me/254703738707" class="contact-btn whatsapp-btn" target="_blank"><i class="fab fa-whatsapp"></i> Chat Now</a>
-            </div>
-            <div class="contact-card call">
-                <i class="fas fa-phone-alt"></i>
-                <h3>Call Us</h3>
-                <p>Mon-Sat: 8am - 6pm</p>
-                <p><strong>0703 738 707</strong></p>
-                <a href="tel:+254703738707" class="contact-btn call-btn"><i class="fas fa-phone"></i> Call Now</a>
-            </div>
-            <div class="contact-card email">
-                <i class="fas fa-envelope"></i>
-                <h3>Email Us</h3>
-                <p>We'll respond within 24hrs</p>
-                <p><strong>info@meidriveafrica.com</strong></p>
-                <a href="mailto:info@meidriveafrica.com" class="contact-btn call-btn"><i class="fas fa-envelope"></i> Send Email</a>
-            </div>
+<!-- Dashboard (shown when logged in) -->
+<div id="dashboard" class="dashboard">
+    <nav class="navbar">
+        <a href="#" class="logo" onclick="showLanding()">MEI DRIVE <span>AFRICA</span></a>
+        <button id="logoutBtn" class="btn btn-danger">Logout</button>
+    </nav>
+    <div class="sidebar" id="sidebar">
+        <div class="profile-card">
+            <div class="avatar" id="userAvatar">👤</div>
+            <div id="userName">Loading...</div>
+            <div id="userEmail" style="font-size:0.7rem; color:#a0a0c0;"></div>
         </div>
-    </section>
-
-    <footer class="footer">
-        <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training</p>
-        <p style="margin-top: 10px; font-size: 12px;"><i class="fas fa-certificate"></i> NTSA Certified Instructor: ILR-7WA1P62</p>
-    </footer>
+        <div class="menu-item active" onclick="showSection('overview')">📊 Overview</div>
+        <div class="menu-item" onclick="showSection('allcourses')">📚 All Courses</div>
+        <div class="menu-item" onclick="showSection('mycourses')">✅ My Courses</div>
+        <div class="menu-item" onclick="showSection('completed')">🏆 Completed</div>
+    </div>
+    <div class="main-content">
+        <div id="overviewSection">
+            <h2>Welcome, <span id="welcomeName">Learner</span>! 🎉</h2>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-number" id="statTotal">0</div><p>Available Courses</p></div>
+                <div class="stat-card"><div class="stat-number" id="statEnrolled">0</div><p>Enrolled Courses</p></div>
+                <div class="stat-card"><div class="stat-number" id="statCompleted">0</div><p>Completed</p></div>
+                <div class="stat-card"><div class="stat-number" id="statProgress">0%</div><p>Overall Progress</p></div>
+            </div>
+            <h3>Your Enrolled Courses</h3>
+            <div id="previewCourses" class="courses-grid"></div>
+        </div>
+        <div id="allcoursesSection" style="display:none;"><h2>All Courses</h2><div id="allCoursesList" class="courses-grid"></div></div>
+        <div id="mycoursesSection" style="display:none;"><h2>My Courses</h2><div id="myCoursesList" class="courses-grid"></div></div>
+        <div id="completedSection" style="display:none;"><h2>Completed Courses</h2><div id="completedList" class="courses-grid"></div></div>
+    </div>
 </div>
 
 <script>
-    // ============================================
-    // AUTH MODAL FUNCTIONS
-    // ============================================
+    // Get Supabase instance from singleton
+    const supabase = window._supabase || window.getSupabase?.() || window.supabase;
+    
+    if (!supabase) {
+        console.error('Supabase not loaded!');
+        alert('Error: Database connection failed. Please refresh.');
+    }
+    
+    let currentUser = null;
+    let allCourses = [];
+    let userEnrollments = new Map();
     let authMode = 'login';
     
+    function showToast(msg, isErr) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `position:fixed; bottom:20px; right:20px; background:#1a1f3a; border-left:4px solid ${isErr ? '#ff4444' : '#00ff88'}; padding:12px 20px; border-radius:8px; z-index:10000;`;
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // Load all courses from Supabase
+    async function loadCourses() {
+        console.log('📚 Loading courses from Supabase...');
+        const { data, error } = await supabase.from('courses').select('*').order('id');
+        
+        if (error) {
+            console.error('Error loading courses:', error);
+            showToast('Error loading courses', true);
+            return;
+        }
+        
+        allCourses = data || [];
+        console.log(`✅ Loaded ${allCourses.length} courses`);
+        document.getElementById('statTotal').textContent = allCourses.length;
+        
+        // Render both public and dashboard views
+        renderPublicCourses();
+        renderAllCourses();
+    }
+    
+    // Load user's enrollments
+    async function loadEnrollments() {
+        if (!currentUser) return;
+        
+        console.log('📋 Loading enrollments for:', currentUser.email);
+        const { data, error } = await supabase.from('enrollments').select('*').eq('user_id', currentUser.id);
+        
+        if (error) {
+            console.error('Error loading enrollments:', error);
+            return;
+        }
+        
+        userEnrollments.clear();
+        if (data) {
+            data.forEach(e => userEnrollments.set(e.course_id, { progress: e.progress || 0 }));
+        }
+        console.log(`✅ Loaded ${userEnrollments.size} enrollments`);
+        
+        updateStats();
+        renderMyCourses();
+        renderCompleted();
+        renderPreview();
+        renderAllCourses();
+    }
+    
+    // Enroll in a course
+    async function enrollCourse(courseId) {
+        if (!currentUser) {
+            showToast('Please login first', true);
+            showAuthModal('login');
+            return;
+        }
+        
+        if (userEnrollments.has(courseId)) {
+            showToast('Already enrolled in this course!');
+            return;
+        }
+        
+        const { error } = await supabase.from('enrollments').insert([{
+            user_id: currentUser.id,
+            course_id: courseId,
+            progress: 0,
+            status: 'active'
+        }]);
+        
+        if (error) {
+            showToast('Error: ' + error.message, true);
+        } else {
+            await loadEnrollments();
+            showToast('Successfully enrolled! 🎉');
+            showSection('mycourses');
+        }
+    }
+    
+    // Update course progress
+    async function updateProgress(courseId, newProgress) {
+        if (!currentUser) return;
+        
+        const enrollment = userEnrollments.get(courseId);
+        if (!enrollment) return;
+        
+        const progress = Math.min(100, newProgress);
+        const { error } = await supabase.from('enrollments')
+            .update({ progress: progress, last_accessed: new Date() })
+            .eq('user_id', currentUser.id)
+            .eq('course_id', courseId);
+        
+        if (!error) {
+            userEnrollments.set(courseId, { progress: progress });
+            updateStats();
+            renderMyCourses();
+            renderPreview();
+            if (progress === 100) showToast('🎉 Course completed! Congratulations!');
+        }
+    }
+    
+    // Update dashboard statistics
+    function updateStats() {
+        const enrolled = userEnrollments.size;
+        const completed = Array.from(userEnrollments.values()).filter(e => e.progress === 100).length;
+        const totalProgress = Array.from(userEnrollments.values()).reduce((sum, e) => sum + e.progress, 0);
+        const avgProgress = enrolled > 0 ? Math.round(totalProgress / enrolled) : 0;
+        
+        document.getElementById('statEnrolled').textContent = enrolled;
+        document.getElementById('statCompleted').textContent = completed;
+        document.getElementById('statProgress').textContent = `${avgProgress}%`;
+    }
+    
+    // View course details
+    window.viewCourse = (courseId) => {
+        window.location.href = `course.html?id=${courseId}`;
+    };
+    
+    // Render public courses on landing page
+    function renderPublicCourses() {
+        const container = document.getElementById('coursesList');
+        if (!allCourses.length) {
+            container.innerHTML = '<div class="loading">No courses available</div>';
+            return;
+        }
+        
+        container.innerHTML = allCourses.map(course => `
+            <div class="course-card" onclick="viewCourse(${course.id})">
+                <div class="course-icon">${course.icon || '📚'}</div>
+                <span class="badge ${course.type === 'free' ? 'badge-free' : 'badge-premium'}">${course.type === 'free' ? 'FREE' : 'PREMIUM'}</span>
+                <h3>${escapeHtml(course.name)}</h3>
+                <p>${escapeHtml((course.description || '').substring(0, 100))}...</p>
+                <div class="price">${course.type === 'free' ? 'FREE' : 'KES ' + (course.price || 0).toLocaleString()}</div>
+                <button class="btn-view" onclick="event.stopPropagation(); viewCourse(${course.id})">View Course →</button>
+            </div>
+        `).join('');
+    }
+    
+    // Render all courses in dashboard
+    function renderAllCourses() {
+        const container = document.getElementById('allCoursesList');
+        if (!allCourses.length) return;
+        
+        container.innerHTML = allCourses.map(course => {
+            const isEnrolled = userEnrollments.has(course.id);
+            const progress = userEnrollments.get(course.id)?.progress || 0;
+            
+            if (isEnrolled) {
+                return `
+                    <div class="course-card">
+                        <div class="course-icon">${course.icon || '📚'}</div>
+                        <span class="badge" style="background:#00c851; color:white;">ENROLLED</span>
+                        <h3>${escapeHtml(course.name)}</h3>
+                        <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                        <button class="btn-view" onclick="updateProgress(${course.id}, ${progress + 10})">Continue Learning →</button>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="course-card">
+                    <div class="course-icon">${course.icon || '📚'}</div>
+                    <span class="badge ${course.type === 'free' ? 'badge-free' : 'badge-premium'}">${course.type === 'free' ? 'FREE' : 'PREMIUM'}</span>
+                    <h3>${escapeHtml(course.name)}</h3>
+                    <p>${escapeHtml((course.description || '').substring(0, 80))}...</p>
+                    <div class="price">${course.type === 'free' ? 'FREE' : 'KES ' + (course.price || 0).toLocaleString()}</div>
+                    <button class="btn-view" onclick="enrollCourse(${course.id})">Enroll Now →</button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Render user's enrolled courses
+    function renderMyCourses() {
+        const container = document.getElementById('myCoursesList');
+        const enrolledCourses = allCourses.filter(c => userEnrollments.has(c.id));
+        
+        if (enrolledCourses.length === 0) {
+            container.innerHTML = '<div class="course-card"><p>No enrolled courses yet. Browse "All Courses" to get started!</p></div>';
+            return;
+        }
+        
+        container.innerHTML = enrolledCourses.map(course => {
+            const progress = userEnrollments.get(course.id)?.progress || 0;
+            return `
+                <div class="course-card">
+                    <div class="course-icon">${course.icon || '📚'}</div>
+                    <span class="badge" style="background:#00c851; color:white;">ENROLLED</span>
+                    <h3>${escapeHtml(course.name)}</h3>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                    <p>${progress}% Complete</p>
+                    <button class="btn-view" onclick="updateProgress(${course.id}, ${progress + 10})">Continue Learning →</button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Render completed courses
+    function renderCompleted() {
+        const container = document.getElementById('completedList');
+        const completedCourses = allCourses.filter(c => {
+            const p = userEnrollments.get(c.id)?.progress;
+            return p === 100;
+        });
+        
+        if (completedCourses.length === 0) {
+            container.innerHTML = '<div class="course-card"><p>No completed courses yet. Keep learning!</p></div>';
+            return;
+        }
+        
+        container.innerHTML = completedCourses.map(course => `
+            <div class="course-card">
+                <div class="course-icon">🏆</div>
+                <span class="badge" style="background:#00c851; color:white;">COMPLETED</span>
+                <h3>${escapeHtml(course.name)}</h3>
+                <p>${escapeHtml((course.description || '').substring(0, 100))}</p>
+                <p style="color:#00ff88;">✅ Course Completed!</p>
+            </div>
+        `).join('');
+    }
+    
+    // Render preview of enrolled courses on overview
+    function renderPreview() {
+        const container = document.getElementById('previewCourses');
+        const enrolledCourses = allCourses.filter(c => userEnrollments.has(c.id)).slice(0, 3);
+        
+        if (enrolledCourses.length === 0) {
+            container.innerHTML = '<div class="course-card"><p>No enrolled courses. <a href="#" onclick="showSection(\'allcourses\')" style="color:#00ff88;">Browse courses →</a></p></div>';
+            return;
+        }
+        
+        container.innerHTML = enrolledCourses.map(course => {
+            const progress = userEnrollments.get(course.id)?.progress || 0;
+            return `
+                <div class="course-card">
+                    <div class="course-icon">${course.icon || '📚'}</div>
+                    <h3>${escapeHtml(course.name)}</h3>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                    <button class="btn-view" onclick="updateProgress(${course.id}, ${progress + 10})">Continue →</button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Show different dashboard sections
+    function showSection(section) {
+        document.getElementById('overviewSection').style.display = section === 'overview' ? 'block' : 'none';
+        document.getElementById('allcoursesSection').style.display = section === 'allcourses' ? 'block' : 'none';
+        document.getElementById('mycoursesSection').style.display = section === 'mycourses' ? 'block' : 'none';
+        document.getElementById('completedSection').style.display = section === 'completed' ? 'block' : 'none';
+        
+        document.querySelectorAll('.menu-item').forEach((item, index) => {
+            const isActive = (section === 'overview' && index === 0) ||
+                            (section === 'allcourses' && index === 1) ||
+                            (section === 'mycourses' && index === 2) ||
+                            (section === 'completed' && index === 3);
+            item.classList.toggle('active', isActive);
+        });
+        
+        if (section === 'allcourses') renderAllCourses();
+        if (section === 'mycourses') renderMyCourses();
+        if (section === 'completed') renderCompleted();
+    }
+    
+    // Toggle between landing and dashboard
+    function showLanding() {
+        document.getElementById('landingPage').style.display = 'block';
+        document.getElementById('dashboard').style.display = 'none';
+    }
+    
+    function showDashboard() {
+        document.getElementById('landingPage').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        
+        if (currentUser) {
+            const name = currentUser.email.split('@')[0];
+            document.getElementById('userName').textContent = name;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('welcomeName').textContent = name;
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        }
+        
+        updateStats();
+        renderMyCourses();
+        renderAllCourses();
+        renderPreview();
+        renderCompleted();
+        showSection('overview');
+    }
+    
+    // Auth modal functions
     function showAuthModal(mode) {
         authMode = mode;
         document.getElementById('modalTitle').textContent = mode === 'login' ? 'Login' : 'Create Account';
-        document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Login' : 'Register';
-        document.getElementById('authToggleText').innerHTML = mode === 'login' ? "Don't have an account?" : "Already have an account?";
+        document.getElementById('authBtn').textContent = mode === 'login' ? 'Login' : 'Register';
+        document.getElementById('authSwitchText').innerHTML = mode === 'login' ? "Don't have an account?" : "Already have an account?";
         document.getElementById('authModal').classList.add('active');
     }
     
@@ -671,27 +638,94 @@
         showAuthModal(authMode);
     }
     
-    // Make functions global
-    window.showAuthModal = showAuthModal;
-    window.closeAuthModal = closeAuthModal;
-    window.toggleAuthMode = toggleAuthMode;
-    
-    // Check if user is already logged in
-    async function checkUserSession() {
-        const supabase = window._supabase || window.getSupabase?.();
-        if (supabase) {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                // User is logged in - update UI or redirect to dashboard
-                console.log('User already logged in:', session.user.email);
-            }
-        }
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
-    // Run after page loads
-    document.addEventListener('DOMContentLoaded', () => {
-        checkUserSession();
-    });
+    // Event listeners
+    document.getElementById('authBtn').onclick = async () => {
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+        
+        if (!email || !password) {
+            showToast('Please enter email and password', true);
+            return;
+        }
+        
+        try {
+            if (authMode === 'login') {
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                closeAuthModal();
+            } else {
+                const { error } = await supabase.auth.signUp({ email, password });
+                if (error) throw error;
+                showToast('Account created! Please check your email to confirm.');
+                closeAuthModal();
+            }
+        } catch (error) {
+            showToast(error.message, true);
+        }
+    };
+    
+    document.getElementById('logoutBtn').onclick = async () => {
+        await supabase.auth.signOut();
+        showLanding();
+    };
+    
+    document.getElementById('toggleAuthLink').onclick = (e) => {
+        e.preventDefault();
+        toggleAuthMode();
+    };
+    
+    // Make functions global
+    window.enrollCourse = enrollCourse;
+    window.updateProgress = updateProgress;
+    window.viewCourse = viewCourse;
+    window.showSection = showSection;
+    window.showAuthModal = showAuthModal;
+    window.closeAuthModal = closeAuthModal;
+    window.showLanding = showLanding;
+    
+    // Initialize the app
+    async function init() {
+        console.log('🚀 Initializing MEI Drive Africa...');
+        
+        // Check for existing session
+        const { data: { session } } = await supabase.auth.getSession();
+        currentUser = session?.user || null;
+        
+        // Load courses first
+        await loadCourses();
+        
+        // If user is logged in, load their enrollments and show dashboard
+        if (currentUser) {
+            await loadEnrollments();
+            showDashboard();
+        } else {
+            showLanding();
+        }
+        
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth state changed:', event);
+            if (event === 'SIGNED_IN' && session) {
+                currentUser = session.user;
+                await loadEnrollments();
+                showDashboard();
+                showToast('Logged in successfully!');
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                userEnrollments.clear();
+                showLanding();
+                showToast('Logged out');
+            }
+        });
+    }
+    
+    // Start the app
+    init();
 </script>
 </body>
 </html>
