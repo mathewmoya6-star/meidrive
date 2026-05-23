@@ -4,114 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - MEI Drive Africa</title>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0a0e27, #1a1f3a);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .login-card {
-            background: #1a1f3a;
-            padding: 40px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            border: 1px solid rgba(0, 255, 136, 0.2);
-        }
-        .login-card h2 { color: #00ff88; margin-bottom: 20px; }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #00ff88;
-            border-radius: 8px;
-            background: #0a0e27;
-            color: white;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #00ff88;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .message {
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 8px;
-            display: none;
-        }
-        .error { background: rgba(255,68,68,0.2); color: #ff4444; }
-        .success { background: rgba(0,255,136,0.1); color: #00ff88; }
-        a { display: block; margin-top: 20px; color: #00ff88; text-decoration: none; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0e27; color: white; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .login-card { background: #1a1f3a; padding: 40px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid rgba(0,255,136,0.2); }
+        .login-card h1 { color: #00ff88; margin-bottom: 10px; }
+        .login-card input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid #00ff88; background: #0a0e27; color: white; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-primary { background: #00ff88; color: #0a0e27; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 8px; }
+        .error { background: rgba(255,68,68,0.2); color: #ff8888; }
     </style>
 </head>
 <body>
     <div class="login-card">
-        <h2>Admin Login</h2>
+        <h1>Admin Login</h1>
+        <p style="margin-bottom: 20px; color: #a0a0c0;">Access MEI Drive Africa Dashboard</p>
         <input type="email" id="email" placeholder="Admin Email">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-        <div id="message" class="message"></div>
-        <a href="/">← Back to Home</a>
+        <button class="btn btn-primary" onclick="adminLogin()">Login as Admin</button>
+        <div id="message"></div>
     </div>
-
     <script>
-        // ✅ CORRECT - Use existing Supabase instance
-        const supabase = window._supabase || window.getSupabase?.() || window.supabase;
-        
-        async function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const msgDiv = document.getElementById('message');
-            
-            if (!email || !password) {
-                msgDiv.textContent = 'Please enter email and password';
-                msgDiv.className = 'message error';
-                msgDiv.style.display = 'block';
-                return;
-            }
-            
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                
-                // Check if admin
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', data.user.id)
-                    .single();
-                
-                if (profile?.role !== 'admin') {
-                    await supabase.auth.signOut();
-                    throw new Error('Admin access required');
-                }
-                
-                msgDiv.textContent = 'Login successful! Redirecting...';
-                msgDiv.className = 'message success';
-                msgDiv.style.display = 'block';
-                setTimeout(() => window.location.href = '/admin-dashboard.html', 1000);
-            } catch (err) {
-                msgDiv.textContent = err.message;
-                msgDiv.className = 'message error';
-                msgDiv.style.display = 'block';
-            }
-        }
+        async function adminLogin() { const email = document.getElementById('email').value; const password = document.getElementById('password').value; if (!email || !password) { showMessage('Enter email and password', 'error'); return; } const result = await window.MEIDrive.loginUser(email, password); if (result.success) { const user = await window.MEIDrive.getCurrentUser(); const { data } = await window.MEIDrive.supabase.from('profiles').select('role').eq('id', user.id).single(); if (data?.role === 'admin') window.location.href = 'admin-dashboard.html'; else { await window.MEIDrive.logoutUser(); showMessage('Access denied. Admin only.', 'error'); } } else showMessage('Invalid credentials', 'error'); }
+        function showMessage(msg, type) { const div = document.getElementById('message'); div.innerHTML = `<div class="message ${type}">${msg}</div>`; setTimeout(() => div.innerHTML = '', 3000); }
     </script>
 </body>
 </html>
