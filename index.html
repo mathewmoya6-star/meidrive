@@ -124,10 +124,12 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            transition: 0.2s;
         }
         .btn-primary { background: var(--gradient-green); color: #0a192f; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,255,136,0.3); }
         .btn-outline { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
+        .btn-outline:hover { background: rgba(0,255,136,0.1); transform: translateY(-2px); }
         .stats-bar {
             background: #0d2137;
             border-bottom: 1px solid var(--border);
@@ -220,8 +222,6 @@
         .quiz-option:hover { background: #1a2a40; }
         .quiz-option.selected { background: var(--primary); color: #0a192f; font-weight: bold; }
         .unit-content { white-space: pre-wrap; line-height: 1.6; margin: 20px 0; }
-        
-        /* Dashboard Specific Styles */
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -260,7 +260,13 @@
             padding: 1rem;
             margin-bottom: 1rem;
         }
-        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
         @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -298,6 +304,7 @@
     let currentRoute = 'home';
     let routeParams = {};
     let coursesList = [];
+    let allUnits = []; // Store all units for navigation
     let currentQuizQuestions = [];
     let currentQuizIndex = 0;
     let userAnswers = [];
@@ -329,6 +336,27 @@
     
     async function fetchUnitById(unitId) {
         const { data, error } = await supabase.from('units').select('*').eq('id', unitId).single();
+        if (error) return null;
+        return data;
+    }
+    
+    async function fetchNextUnit(currentUnitNumber) {
+        const { data, error } = await supabase
+            .from('units')
+            .select('*')
+            .eq('unit_number', currentUnitNumber + 1)
+            .single();
+        if (error) return null;
+        return data;
+    }
+    
+    async function fetchPreviousUnit(currentUnitNumber) {
+        if (currentUnitNumber <= 1) return null;
+        const { data, error } = await supabase
+            .from('units')
+            .select('*')
+            .eq('unit_number', currentUnitNumber - 1)
+            .single();
         if (error) return null;
         return data;
     }
@@ -399,6 +427,8 @@
         
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         coursesList = await fetchCourses();
+        allUnits = await fetchUnits();
+        
         const { data: { session } } = await supabase.auth.getSession();
         if (session) await handleUserLogin(session.user);
         updateAuthUI();
@@ -477,7 +507,7 @@
     
     function showSignupModal() {
         document.getElementById('authModal')?.remove();
-        const modalHtml = `<div class="modal active" id="authModal"><div class="modal-content"><h2>Sign Up</h2><input type="text" id="signupName" placeholder="Full Name"><input type="email" id="signupEmail" placeholder="Email"><input type="password" id="signupPassword" placeholder="Password (min 6 characters)"><button class="btn btn-primary" onclick="handleSignupSubmit()">Sign Up</button><button class="btn btn-outline btn" onclick="closeModal()">Cancel</button><p style="margin-top:12px;font-size:12px;">Already have an account? <a href="#" onclick="showLoginModal(); return false;">Login</a></p></div></div>`;
+        const modalHtml = `<div class="modal active" id="authModal"><div class="modal-content"><h2>Sign Up</h2><input type="text" id="signupName" placeholder="Full Name"><input type="email" id="signupEmail" placeholder="Email"><input type="password" id="signupPassword" placeholder="Password (min 6 characters)"><button class="btn btn-primary" onclick="handleSignupSubmit()">Sign Up</button><button class="btn-outline btn" onclick="closeModal()">Cancel</button><p style="margin-top:12px;font-size:12px;">Already have an account? <a href="#" onclick="showLoginModal(); return false;">Login</a></p></div></div>`;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
     
@@ -494,6 +524,32 @@
         }
     }
     
+    // ==================== UNIT NAVIGATION FUNCTIONS ====================
+    window.goToNextUnit = async function(currentUnitNumber) {
+        const nextUnit = await fetchNextUnit(currentUnitNumber);
+        if (nextUnit) {
+            // Auto-mark current unit as complete when moving to next
+            const currentUnit = allUnits.find(u => u.unit_number === currentUnitNumber);
+            if (currentUnit && currentUser) {
+                await updateUnitProgress(currentUnit.id, true);
+                showToast(`Unit ${currentUnitNumber} marked as complete!`, 'success');
+            }
+            navigate('unit', { unitId: nextUnit.id, unitNumber: nextUnit.unit_number, title: nextUnit.title });
+        } else {
+            showToast('🎉 Congratulations! You\'ve completed all units!', 'success');
+            navigate('dashboard');
+        }
+    };
+    
+    window.goToPreviousUnit = async function(currentUnitNumber) {
+        const prevUnit = await fetchPreviousUnit(currentUnitNumber);
+        if (prevUnit) {
+            navigate('unit', { unitId: prevUnit.id, unitNumber: prevUnit.unit_number, title: prevUnit.title });
+        } else {
+            showToast('This is the first unit', 'info');
+        }
+    };
+    
     // ==================== USER DASHBOARD ====================
     async function renderDashboard() {
         if (!currentUser) {
@@ -502,21 +558,18 @@
             return;
         }
         
-        // Refresh data
         userEnrollments = await fetchUserEnrollments();
         userProgress = await fetchUserProgress();
-        const units = await fetchUnits();
+        const units = allUnits;
         
-        // Calculate stats
         const totalEnrolled = userEnrollments.length;
         const totalUnits = units.length;
         const completedUnits = userProgress.filter(p => p.completed).length;
         const overallProgress = totalUnits > 0 ? (completedUnits / totalUnits) * 100 : 0;
         
-        // Get enrolled courses with progress
         const enrolledCourses = [];
         for (const enrollment of userEnrollments) {
-            const courseUnits = units.filter(u => u.unit_number <= 21); // All units are for learner hub
+            const courseUnits = units;
             const courseProgress = userProgress.filter(p => p.completed).length;
             enrolledCourses.push({
                 ...enrollment.courses,
@@ -529,8 +582,6 @@
         const dashboardHtml = `
             <div class="container" style="padding-top: 100px;">
                 <h1 class="section-title">My <span>Dashboard</span></h1>
-                
-                <!-- Stats Overview -->
                 <div class="dashboard-stats">
                     <div class="dashboard-stat-card">
                         <i class="fas fa-graduation-cap" style="font-size: 2rem; color: var(--primary);"></i>
@@ -554,7 +605,6 @@
                     </div>
                 </div>
                 
-                <!-- Overall Progress Bar -->
                 <div class="card">
                     <h2><i class="fas fa-chart-simple"></i> Learning Progress</h2>
                     <div class="progress-bar">
@@ -563,7 +613,6 @@
                     <p>You have completed ${completedUnits} out of ${totalUnits} units (${Math.round(overallProgress)}%)</p>
                 </div>
                 
-                <!-- Enrolled Courses -->
                 <div class="card">
                     <h2><i class="fas fa-book"></i> My Courses</h2>
                     ${enrolledCourses.length === 0 ? 
@@ -589,7 +638,6 @@
                     }
                 </div>
                 
-                <!-- Recent Activity / Units to Continue -->
                 <div class="card">
                     <h2><i class="fas fa-clock"></i> Continue Learning</h2>
                     <div class="grid" id="continueGrid"></div>
@@ -599,7 +647,6 @@
         
         document.getElementById('page-content').innerHTML = dashboardHtml;
         
-        // Show units not completed yet
         const incompleteUnits = units.filter(u => !userProgress.find(p => p.unit_id === u.id && p.completed)).slice(0, 6);
         const continueGrid = document.getElementById('continueGrid');
         if (continueGrid) {
@@ -617,7 +664,7 @@
         }
     }
     
-    // ==================== EXISTING RENDER FUNCTIONS ====================
+    // ==================== RENDER FUNCTIONS ====================
     async function renderHome() {
         const html = `<section class="hero"><div class="hero-content"><h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1><p>For Learners and Experienced Drivers — Refresh Your Skills with MEI DRIVE AFRICA. NTSA-approved courses.</p><div><button class="btn btn-primary" onclick="navigate('courses')"><i class="fas fa-road"></i> Explore Courses</button><button class="btn btn-outline" onclick="showLoginModal()"><i class="fas fa-user-graduate"></i> Get Started</button></div></div></section><div class="stats-bar"><div class="stat-item"><h3>10K+</h3><p>Students</p></div><div class="stat-item"><h3>${coursesList.length}</h3><p>Courses</p></div><div class="stat-item"><h3>98%</h3><p>Pass Rate</p></div></div><div class="container section"><h2 class="section-title">Our <span>Courses</span></h2><div class="grid" id="homeCoursesGrid"></div></div>`;
         document.getElementById('page-content').innerHTML = html;
@@ -655,7 +702,7 @@
     
     async function renderLearnerHub() {
         document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><h1 class="section-title">Learner Hub <span>Units</span></h1><div id="unitsGrid" class="grid"><div class="loading-spinner"></div></div></div>`;
-        const units = await fetchUnits();
+        const units = allUnits;
         if (!units.length) { document.getElementById('unitsGrid').innerHTML = `<p>No units found.</p>`; return; }
         document.getElementById('unitsGrid').innerHTML = units.map(u => {
             const isCompleted = userProgress.find(p => p.unit_id === u.id && p.completed);
@@ -668,29 +715,58 @@
     }
     
     async function renderUnit() {
-        const { unitId } = routeParams;
+        const { unitId, unitNumber, title } = routeParams;
         if (!unitId) { navigate('learner-hub'); return; }
-        const unit = await fetchUnitById(unitId);
-        if (!unit) { showToast('Unit not found', 'error'); navigate('learner-hub'); return; }
+        
+        let unit = await fetchUnitById(unitId);
+        if (!unit) { 
+            // Try to find in allUnits array
+            unit = allUnits.find(u => u.id === unitId);
+            if (!unit) {
+                showToast('Unit not found', 'error');
+                navigate('learner-hub');
+                return;
+            }
+        }
+        
         const isCompleted = userProgress.find(p => p.unit_id === unit.id && p.completed);
+        const currentUnitNumber = unit.unit_number;
+        const totalUnits = allUnits.length;
+        
         document.getElementById('page-content').innerHTML = `
             <div class="container" style="padding-top:100px;">
                 <div class="card">
-                    <h2>Unit ${unit.unit_number}: ${escapeHtml(unit.title)}</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <h2>Unit ${unit.unit_number}: ${escapeHtml(unit.title)}</h2>
+                        <span class="badge">${currentUnitNumber} of ${totalUnits}</span>
+                    </div>
                     <div class="unit-content">${escapeHtml(unit.content).replace(/\n/g, '<br>')}</div>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
-                        <button class="btn btn-outline" onclick="navigate('learner-hub')"><i class="fas fa-arrow-left"></i> Back to Units</button>
-                        ${!isCompleted ? `<button class="btn btn-primary" onclick="markUnitComplete(${unit.id})"><i class="fas fa-check-circle"></i> Mark as Complete</button>` : '<button class="btn btn-primary" disabled>✅ Completed</button>'}
+                    
+                    <div class="navigation-buttons">
+                        <button class="btn btn-outline" onclick="goToPreviousUnit(${currentUnitNumber})" ${currentUnitNumber <= 1 ? 'disabled' : ''}>
+                            <i class="fas fa-chevron-left"></i> Previous Unit
+                        </button>
+                        <div>
+                            ${!isCompleted && currentUser ? `<button class="btn btn-primary" onclick="markCurrentUnitComplete(${unit.id}, ${currentUnitNumber})"><i class="fas fa-check-circle"></i> Mark Complete</button>` : ''}
+                            <button class="btn btn-outline" onclick="navigate('learner-hub')"><i class="fas fa-list"></i> All Units</button>
+                        </div>
+                        <button class="btn btn-primary" onclick="goToNextUnit(${currentUnitNumber})">
+                            Next Unit <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         `;
     }
     
-    window.markUnitComplete = async function(unitId) {
+    window.markCurrentUnitComplete = async function(unitId, unitNumber) {
         await updateUnitProgress(unitId, true);
-        showToast('Unit marked as complete!', 'success');
-        navigate('learner-hub');
+        showToast(`Unit ${unitNumber} marked as complete!`, 'success');
+        // Refresh the current unit view to show completed status
+        const unit = await fetchUnitById(unitId);
+        if (unit) {
+            navigate('unit', { unitId: unit.id, unitNumber: unit.unit_number, title: unit.title });
+        }
     };
     
     async function renderSigns() {
