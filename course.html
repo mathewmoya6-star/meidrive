@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course - MEI Drive Africa</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SINGLE SOURCE OF TRUTH - supabase.js contains ALL credentials and functions -->
     <script src="supabase.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -47,6 +48,10 @@
             border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(0, 255, 136, 0.1);
         }
         .container {
             max-width: 1200px;
@@ -119,6 +124,22 @@
         .unit-title { font-size: 1.1rem; margin-bottom: 10px; }
         .unit-status { font-size: 0.75rem; color: #a0a0c0; margin-top: 10px; }
         .unit-status.completed { color: #00ff88; }
+        .enroll-btn {
+            background: #00ff88;
+            color: #0a0e27;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .enroll-btn:hover {
+            background: #00cc6a;
+            transform: translateY(-2px);
+        }
         .loading { text-align: center; padding: 60px; }
         .spinner {
             width: 50px;
@@ -154,8 +175,8 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="logo">MEI DRIVE <span>AFRICA</span></a>
-            <a href="/" class="back-btn">← All Courses</a>
+            <a href="index.html" class="logo">MEI DRIVE <span>AFRICA</span></a>
+            <a href="index.html" class="back-btn">← All Courses</a>
         </div>
     </nav>
     
@@ -168,42 +189,57 @@
     </div>
 
     <script>
-        // ✅ CORRECT - Use existing Supabase instance (NO createClient!)
-        const supabase = window._supabase || window.getSupabase?.() || window.supabase;
-        
-        if (!supabase) {
-            console.error('❌ Supabase not loaded!');
-            document.getElementById('courseContent').innerHTML = '<div class="error-message"><h3>Error loading database</h3><p>Please refresh the page.</p></div>';
-        } else {
-            console.log('✅ Supabase ready in course.html');
-        }
+        // ============================================
+        // USING supabase.js AS SINGLE SOURCE OF TRUTH
+        // All Supabase functions come from window.MEIDrive
+        // ============================================
         
         let currentUser = null;
         let courseData = null;
         let courseUnits = [];
         let completedUnitIds = new Set();
-        let userEnrollments = new Set();
+        let isEnrolled = false;
         
         function getCourseId() {
             const params = new URLSearchParams(window.location.search);
             return params.get('id') ? parseInt(params.get('id')) : 1;
         }
         
+        // Check if MEIDrive is loaded
+        if (!window.MEIDrive || !window.MEIDrive.supabase) {
+            console.error('❌ MEIDrive not loaded! Check if supabase.js is loaded first.');
+            document.getElementById('courseContent').innerHTML = `
+                <div class="error-message">
+                    <h3>⚠️ Database Connection Error</h3>
+                    <p>Please refresh the page or check your internet connection.</p>
+                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #00ff88; border: none; border-radius: 8px; cursor: pointer;">Retry</button>
+                </div>
+            `;
+        }
+        
+        const supabaseClient = window.MEIDrive.supabase;
+        console.log('✅ Using MEIDrive singleton instance');
+        
         async function loadCourse() {
             const courseId = getCourseId();
             console.log('📚 Loading course ID:', courseId);
             
             try {
-                const { data, error } = await supabase
-                    .from('courses')
-                    .select('*')
-                    .eq('id', courseId)
-                    .single();
+                // Use the fetchCourseById function from supabase.js
+                if (window.MEIDrive.fetchCourseById) {
+                    courseData = await window.MEIDrive.fetchCourseById(courseId);
+                } else {
+                    // Fallback direct query
+                    const { data, error } = await supabaseClient
+                        .from('courses')
+                        .select('*')
+                        .eq('id', courseId)
+                        .single();
+                    if (error) throw error;
+                    courseData = data;
+                }
                 
-                if (error) throw error;
-                
-                courseData = data;
-                console.log('✅ Course loaded:', courseData.name);
+                console.log('✅ Course loaded:', courseData?.name);
                 return courseData;
             } catch (error) {
                 console.error('Error loading course:', error);
@@ -222,16 +258,16 @@
             console.log('📖 Loading units for course:', courseId);
             
             try {
-                const { data, error } = await supabase
-                    .from('course_units')
+                const { data, error } = await supabaseClient
+                    .from('lessons')
                     .select('*')
                     .eq('course_id', courseId)
-                    .order('unit_number', { ascending: true });
+                    .order('order_number', { ascending: true });
                 
                 if (error) throw error;
                 
                 courseUnits = data || [];
-                console.log(`✅ Loaded ${courseUnits.length} units`);
+                console.log(`✅ Loaded ${courseUnits.length} units/lessons`);
                 return courseUnits;
             } catch (error) {
                 console.error('Error loading units:', error);
@@ -240,32 +276,55 @@
             }
         }
         
-        async function checkUser() {
-            const { data: { session } } = await supabase.auth.getSession();
-            currentUser = session?.user || null;
+        async function loadUser() {
+            // Use getCurrentUser from supabase.js
+            if (window.MEIDrive.getCurrentUser) {
+                currentUser = await window.MEIDrive.getCurrentUser();
+            } else {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                currentUser = session?.user || null;
+            }
             console.log('User logged in:', currentUser?.email || 'No user');
             return currentUser;
         }
         
+        async function loadEnrollments() {
+            if (!currentUser) return;
+            
+            // Use fetchEnrollments from supabase.js
+            if (window.MEIDrive.fetchEnrollments) {
+                const enrollments = await window.MEIDrive.fetchEnrollments(currentUser.id);
+                isEnrolled = enrollments.some(e => e.course_id === courseData?.id);
+            } else {
+                const { data, error } = await supabaseClient
+                    .from('enrollments')
+                    .select('course_id')
+                    .eq('user_id', currentUser.id);
+                
+                if (!error && data) {
+                    isEnrolled = data.some(e => e.course_id === courseData?.id);
+                }
+            }
+        }
+        
         async function loadUserProgress(courseId) {
-            if (!currentUser) {
-                console.log('No user logged in');
+            if (!currentUser || !isEnrolled) {
+                console.log('No user or not enrolled');
                 return;
             }
             
             try {
-                const { data, error } = await supabase
-                    .from('user_progress')
-                    .select('unit_id, completed')
+                const { data, error } = await supabaseClient
+                    .from('lesson_progress')
+                    .select('lesson_id, completed')
                     .eq('user_id', currentUser.id)
-                    .eq('course_id', courseId)
                     .eq('completed', true);
                 
                 if (error) throw error;
                 
                 completedUnitIds.clear();
                 if (data) {
-                    data.forEach(p => completedUnitIds.add(p.unit_id));
+                    data.forEach(p => completedUnitIds.add(p.lesson_id));
                 }
                 console.log(`✅ Loaded ${completedUnitIds.size} completed units`);
             } catch (error) {
@@ -279,40 +338,31 @@
             }
         }
         
-        async function loadEnrollments() {
-            if (!currentUser) return;
-            
-            try {
-                const { data, error } = await supabase
-                    .from('enrollments')
-                    .select('course_id')
-                    .eq('user_id', currentUser.id);
-                
-                if (error) throw error;
-                
-                userEnrollments.clear();
-                if (data) {
-                    data.forEach(e => userEnrollments.add(e.course_id));
-                }
-            } catch (error) {
-                console.error('Error loading enrollments:', error);
-            }
-        }
-        
         async function enrollInCourse() {
             if (!currentUser) {
                 alert('Please login to enroll in this course');
-                window.location.href = '/';
+                window.location.href = 'index.html';
                 return;
             }
             
-            if (userEnrollments.has(courseData.id)) {
+            if (isEnrolled) {
                 alert('You are already enrolled in this course!');
                 return;
             }
             
-            try {
-                const { error } = await supabase
+            // Use enrollInCourse from supabase.js
+            if (window.MEIDrive.enrollInCourse) {
+                const result = await window.MEIDrive.enrollInCourse(currentUser.id, courseData.id);
+                if (result.success) {
+                    isEnrolled = true;
+                    alert('Successfully enrolled!');
+                    renderPage();
+                } else {
+                    alert('Error enrolling: ' + result.error);
+                }
+            } else {
+                // Fallback direct insert
+                const { error } = await supabaseClient
                     .from('enrollments')
                     .insert([{
                         user_id: currentUser.id,
@@ -321,50 +371,54 @@
                         status: 'active'
                     }]);
                 
-                if (error) throw error;
-                
-                userEnrollments.add(courseData.id);
-                alert('Successfully enrolled!');
-                renderPage();
-            } catch (error) {
-                console.error('Enrollment error:', error);
-                alert('Error enrolling: ' + error.message);
+                if (error) {
+                    alert('Error enrolling: ' + error.message);
+                } else {
+                    isEnrolled = true;
+                    alert('Successfully enrolled!');
+                    renderPage();
+                }
             }
         }
         
         async function toggleUnit(unitId, completed) {
             if (!currentUser) {
                 alert('Please login to track your progress');
-                window.location.href = '/';
+                window.location.href = 'index.html';
                 return;
             }
             
             try {
                 if (completed) {
-                    await supabase
-                        .from('user_progress')
+                    await supabaseClient
+                        .from('lesson_progress')
                         .upsert({
                             user_id: currentUser.id,
-                            course_id: courseData.id,
-                            unit_id: unitId,
+                            lesson_id: unitId,
                             completed: true,
                             completed_at: new Date().toISOString()
                         });
                     completedUnitIds.add(unitId);
                 } else {
-                    await supabase
-                        .from('user_progress')
+                    await supabaseClient
+                        .from('lesson_progress')
                         .delete()
                         .eq('user_id', currentUser.id)
-                        .eq('course_id', courseData.id)
-                        .eq('unit_id', unitId);
+                        .eq('lesson_id', unitId);
                     completedUnitIds.delete(unitId);
                 }
                 
                 const progress = Math.round((completedUnitIds.size / courseUnits.length) * 100);
-                await supabase
+                
+                // Update enrollment progress
+                await supabaseClient
                     .from('enrollments')
-                    .update({ progress: progress, last_accessed: new Date().toISOString() })
+                    .update({ 
+                        progress: progress, 
+                        last_accessed: new Date().toISOString(),
+                        completed_at: progress === 100 ? new Date().toISOString() : null,
+                        status: progress === 100 ? 'completed' : 'active'
+                    })
                     .eq('user_id', currentUser.id)
                     .eq('course_id', courseData.id);
                 
@@ -400,7 +454,84 @@
             
             const progress = calculateProgress();
             const completedCount = completedUnitIds.size;
-            const isEnrolled = userEnrollments.has(courseData.id);
             
             container.innerHTML = `
-                <div class
+                <div class="course-header">
+                    <h1>${escapeHtml(courseData.name)}</h1>
+                    <p>${escapeHtml(courseData.description || 'No description available')}</p>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">${courseUnits.length}</div>
+                            <div class="stat-label">Total Lessons</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${completedCount}</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${progress}%</div>
+                            <div class="stat-label">Overall Progress</div>
+                        </div>
+                    </div>
+                    ${!isEnrolled ? `
+                        <button class="enroll-btn" onclick="enrollInCourse()">
+                            <i class="fas fa-graduation-cap"></i> Enroll in this Course
+                        </button>
+                    ` : ''}
+                </div>
+                
+                ${isEnrolled ? `
+                    <div class="progress-section">
+                        <h3><i class="fas fa-chart-line"></i> Your Progress</h3>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <p>${completedCount} of ${courseUnits.length} lessons completed (${progress}%)</p>
+                    </div>
+                    
+                    <h3><i class="fas fa-book-open"></i> Course Lessons</h3>
+                    <div class="units-grid">
+                        ${courseUnits.map(unit => `
+                            <div class="unit-card" onclick="viewUnit(${unit.id})">
+                                <div class="unit-number">Lesson ${unit.order_number || unit.id}</div>
+                                <div class="unit-title">${escapeHtml(unit.title)}</div>
+                                <div class="unit-status ${completedUnitIds.has(unit.id) ? 'completed' : ''}">
+                                    ${completedUnitIds.has(unit.id) ? '<i class="fas fa-check-circle"></i> Completed' : '<i class="fas fa-clock"></i> Not started'}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;'
+            }[m]));
+        }
+        
+        async function init() {
+            // Wait for MEIDrive to be ready
+            if (!window.MEIDrive || !window.MEIDrive.supabase) {
+                setTimeout(init, 500);
+                return;
+            }
+            
+            await loadUser();
+            await loadCourse();
+            if (courseData) {
+                await loadUnits(courseData.id);
+                await loadEnrollments();
+                await loadUserProgress(courseData.id);
+                renderPage();
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>
