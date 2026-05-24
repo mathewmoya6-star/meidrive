@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course - MEI DRIVE AFRICA</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Shared Supabase Configuration - Single Source of Truth -->
+    <script src="supabase-config.js"></script>
     <style>
+        /* Same styles as before */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #0A192F; color: #fff; }
         ::-webkit-scrollbar { width: 8px; }
@@ -24,50 +27,19 @@
             border-bottom: 1px solid rgba(0, 255, 136, 0.2);
         }
         .logo { font-size: 26px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .logo-icon {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, #00FF88, #00cc6a);
-            border-radius: 10px;
-            display: inline-flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 18px; color: #0A192F;
-        }
+        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #00FF88, #00cc6a); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; color: #0A192F; }
         .logo span { color: #00FF88; }
-        .back-btn {
-            background: rgba(0, 255, 136, 0.1);
-            color: #00FF88;
-            border: 1px solid #00FF88;
-            padding: 10px 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
+        .back-btn { background: rgba(0, 255, 136, 0.1); color: #00FF88; border: 1px solid #00FF88; padding: 10px 28px; border-radius: 8px; cursor: pointer; text-decoration: none; font-weight: 600; transition: all 0.3s; }
         .back-btn:hover { background: #00FF88; color: #0A192F; }
         .auth-buttons { display: flex; gap: 12px; }
-        .btn-login, .btn-register {
-            padding: 8px 24px;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-        }
+        .btn-login, .btn-register { padding: 8px 24px; border-radius: 8px; transition: all 0.3s; font-weight: 600; font-size: 14px; cursor: pointer; border: none; }
         .btn-login { background: transparent; border: 1.5px solid #00FF88; color: #00FF88; }
         .btn-login:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-2px); }
         .btn-register { background: #00FF88; color: #0A192F; }
         .btn-register:hover { background: #00cc6a; transform: translateY(-2px); }
         .user-info { display: flex; align-items: center; gap: 15px; }
         .user-email { color: #00FF88; font-size: 14px; }
-        .btn-logout {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+        .btn-logout { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 8px 20px; border-radius: 8px; cursor: pointer; }
         .btn-logout:hover { background: rgba(255, 255, 255, 0.2); }
         
         .container { max-width: 1400px; margin: 100px auto 60px; padding: 0 20px; }
@@ -84,37 +56,17 @@
         
         .main-content { display: grid; grid-template-columns: 320px 1fr; gap: 30px; }
         
-        .units-sidebar {
-            background: rgba(13, 33, 55, 0.6);
-            border-radius: 16px;
-            padding: 20px;
-            height: fit-content;
-            position: sticky;
-            top: 100px;
-            border: 1px solid rgba(0, 255, 136, 0.15);
-        }
+        .units-sidebar { background: rgba(13, 33, 55, 0.6); border-radius: 16px; padding: 20px; height: fit-content; position: sticky; top: 100px; border: 1px solid rgba(0, 255, 136, 0.15); }
         .sidebar-title { font-size: 18px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 255, 136, 0.2); }
         .units-list { display: flex; flex-direction: column; gap: 8px; max-height: 70vh; overflow-y: auto; }
-        .unit-item {
-            background: rgba(10, 25, 47, 0.6);
-            border-radius: 10px;
-            padding: 14px 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
-        }
+        .unit-item { background: rgba(10, 25, 47, 0.6); border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: all 0.3s; border-left: 3px solid transparent; }
         .unit-item:hover { background: rgba(0, 255, 136, 0.1); transform: translateX(5px); }
         .unit-item.active { background: rgba(0, 255, 136, 0.15); border-left-color: #00FF88; }
         .unit-number { font-size: 11px; color: #00FF88; font-weight: 600; }
         .unit-title-sidebar { font-size: 14px; margin-top: 4px; font-weight: 500; }
         .unit-time { font-size: 10px; opacity: 0.5; margin-top: 6px; }
         
-        .unit-content-area {
-            background: rgba(13, 33, 55, 0.8);
-            border-radius: 16px;
-            padding: 35px;
-            border: 1px solid rgba(0, 255, 136, 0.15);
-        }
+        .unit-content-area { background: rgba(13, 33, 55, 0.8); border-radius: 16px; padding: 35px; border: 1px solid rgba(0, 255, 136, 0.15); }
         .unit-content-title { font-size: 28px; margin-bottom: 10px; color: #00FF88; }
         .unit-content-meta { display: flex; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .unit-content-meta span { font-size: 13px; opacity: 0.6; }
@@ -122,16 +74,7 @@
         .unit-content-text p { margin-bottom: 15px; }
         
         .nav-buttons { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); gap: 15px; }
-        .nav-btn {
-            background: #00FF88;
-            color: #0A192F;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
+        .nav-btn { background: #00FF88; color: #0A192F; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.3s; }
         .nav-btn:hover:not(:disabled) { transform: scale(1.02); background: #00cc6a; }
         .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         
@@ -144,85 +87,23 @@
         .empty-state h3 { margin-bottom: 10px; }
         .empty-state p { opacity: 0.6; margin-bottom: 20px; }
         
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 2000; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal-content {
-            background: #0D2137;
-            padding: 40px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 450px;
-            border: 1px solid rgba(0, 255, 136, 0.3);
-        }
+        .modal-content { background: #0D2137; padding: 40px; border-radius: 20px; width: 90%; max-width: 450px; border: 1px solid rgba(0, 255, 136, 0.3); }
         .modal-content h2 { margin-bottom: 20px; text-align: center; color: #00FF88; }
-        .modal-content input {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 15px;
-            background: rgba(10, 25, 47, 0.8);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-        }
+        .modal-content input { width: 100%; padding: 14px; margin-bottom: 15px; background: rgba(10, 25, 47, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 8px; color: white; font-size: 16px; }
         .modal-content input:focus { outline: none; border-color: #00FF88; }
-        .modal-content button {
-            width: 100%;
-            padding: 14px;
-            background: #00FF88;
-            color: #0A192F;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-bottom: 15px;
-        }
+        .modal-content button { width: 100%; padding: 14px; background: #00FF88; color: #0A192F; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 15px; }
         .modal-switch { text-align: center; color: rgba(255, 255, 255, 0.6); cursor: pointer; }
         .modal-switch span { color: #00FF88; }
         .close-modal { position: absolute; top: 20px; right: 30px; font-size: 30px; cursor: pointer; color: white; }
         .error-msg { color: #ff4444; text-align: center; margin-bottom: 15px; font-size: 14px; }
         .success-msg { color: #00FF88; text-align: center; margin-bottom: 15px; font-size: 14px; }
         
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a472a;
-            color: #00FF88;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            z-index: 3000;
-            display: none;
-            animation: slideUp 0.3s ease;
-            border: 1px solid #00FF88;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a472a; color: #00FF88; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 3000; display: none; animation: slideUp 0.3s ease; border: 1px solid #00FF88; }
+        @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         
-        @media (max-width: 900px) {
-            .main-content { grid-template-columns: 1fr; }
-            .units-sidebar { position: relative; top: 0; }
-            .container { margin-top: 140px; }
-            .course-title { font-size: 24px; }
-            .unit-content-area { padding: 20px; }
-            .unit-content-title { font-size: 22px; }
-            .navbar { flex-direction: column; text-align: center; }
-            .nav-buttons { flex-wrap: wrap; }
-            .nav-btn { flex: 1; text-align: center; }
-        }
+        @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } .units-sidebar { position: relative; top: 0; } .container { margin-top: 140px; } .course-title { font-size: 24px; } .unit-content-area { padding: 20px; } .unit-content-title { font-size: 22px; } .navbar { flex-direction: column; text-align: center; } .nav-buttons { flex-wrap: wrap; } .nav-btn { flex: 1; text-align: center; } }
     </style>
 </head>
 <body>
@@ -255,402 +136,270 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        (function() {
-            // Initialize Supabase
-            if (!window.__MEI_SUPABASE__) {
-                const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
-                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
-                window.__MEI_SUPABASE__ = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Use the shared supabase instance
+        const supabase = window.supabaseClient;
+        
+        const STATE = {
+            user: null,
+            authModalOpen: false,
+            authMode: 'login',
+            authError: null,
+            authSuccess: null,
+            course: null,
+            units: [],
+            currentUnitIndex: 0,
+            loading: true,
+            error: null,
+            enrollment: null
+        };
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.background = isError ? '#8b0000' : '#1a472a';
+            toast.style.color = isError ? '#ff8888' : '#00FF88';
+            setTimeout(() => { toast.style.display = 'none'; }, 4000);
+        }
+        
+        function escapeHtml(str) { 
+            if (!str) return ''; 
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+        
+        function formatContent(content) {
+            if (!content) return '<p>Content coming soon.</p>';
+            const paragraphs = content.split(/\n\n+/);
+            return paragraphs.map(para => `<p>${escapeHtml(para)}</p>`).join('');
+        }
+        
+        function renderUI() {
+            const authContainer = document.getElementById('authContainer');
+            if (STATE.user) {
+                authContainer.innerHTML = `<div class="user-info"><span class="user-email">${escapeHtml(STATE.user.email)}</span><button class="btn-logout" onclick="window.actions.logout()">Logout</button></div>`;
+            } else {
+                authContainer.innerHTML = `<button class="btn-login" onclick="window.actions.openModal('login')">Login</button><button class="btn-register" onclick="window.actions.openModal('register')">Register</button>`;
             }
-            const supabase = window.__MEI_SUPABASE__;
             
-            const STATE = {
-                user: null,
-                authModalOpen: false,
-                authMode: 'login',
-                authError: null,
-                authSuccess: null,
-                course: null,
-                units: [],
-                currentUnitIndex: 0,
-                loading: true,
-                error: null,
-                enrollment: null
-            };
-            
-            function showToast(message, isError = false) {
-                const toast = document.getElementById('toast');
-                toast.textContent = message;
-                toast.style.display = 'block';
-                toast.style.background = isError ? '#8b0000' : '#1a472a';
-                toast.style.color = isError ? '#ff8888' : '#00FF88';
-                setTimeout(() => { toast.style.display = 'none'; }, 4000);
+            const modal = document.getElementById('authModal');
+            if (STATE.authModalOpen) {
+                modal.classList.add('active');
+                document.getElementById('modalTitle').textContent = STATE.authMode === 'login' ? 'Login' : 'Register';
+                document.getElementById('modalSubmitBtn').textContent = STATE.authMode === 'login' ? 'Login' : 'Register';
+                document.getElementById('modalSwitch').innerHTML = STATE.authMode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
+                document.getElementById('modalError').textContent = STATE.authError || '';
+                document.getElementById('modalSuccess').textContent = STATE.authSuccess || '';
+            } else {
+                modal.classList.remove('active');
             }
             
-            function escapeHtml(str) { 
-                if (!str) return ''; 
-                return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+            const container = document.getElementById('container');
+            
+            if (STATE.loading) {
+                container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading course content...</div>';
+                return;
             }
             
-            function formatContent(content) {
-                if (!content) return '<p>Content coming soon.</p>';
-                // Split by double newlines for paragraphs
-                const paragraphs = content.split(/\n\n+/);
-                return paragraphs.map(para => `<p>${escapeHtml(para)}</p>`).join('');
+            if (STATE.error) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error Loading Course</h3><p>${escapeHtml(STATE.error)}</p><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">← Back to Courses</a></div>`;
+                return;
             }
             
-            function renderUI() {
-                // Auth buttons
-                const authContainer = document.getElementById('authContainer');
-                if (STATE.user) {
-                    authContainer.innerHTML = `<div class="user-info"><span class="user-email">${escapeHtml(STATE.user.email)}</span><button class="btn-logout" onclick="window.actions.logout()">Logout</button></div>`;
-                } else {
-                    authContainer.innerHTML = `<button class="btn-login" onclick="window.actions.openModal('login')">Login</button><button class="btn-register" onclick="window.actions.openModal('register')">Register</button>`;
-                }
-                
-                // Auth Modal
-                const modal = document.getElementById('authModal');
-                if (STATE.authModalOpen) {
-                    modal.classList.add('active');
-                    document.getElementById('modalTitle').textContent = STATE.authMode === 'login' ? 'Login' : 'Register';
-                    document.getElementById('modalSubmitBtn').textContent = STATE.authMode === 'login' ? 'Login' : 'Register';
-                    document.getElementById('modalSwitch').innerHTML = STATE.authMode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
-                    document.getElementById('modalError').textContent = STATE.authError || '';
-                    document.getElementById('modalSuccess').textContent = STATE.authSuccess || '';
-                } else {
-                    modal.classList.remove('active');
-                }
-                
-                // Main content
-                const container = document.getElementById('container');
-                
-                if (STATE.loading) {
-                    container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading course content...</div>';
-                    return;
-                }
-                
-                if (STATE.error) {
-                    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error Loading Course</h3><p>${escapeHtml(STATE.error)}</p><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">← Back to Courses</a></div>`;
-                    return;
-                }
-                
-                if (!STATE.course) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><h3>Course Not Found</h3><p>Please go back and select a course.</p><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">← Back to Courses</a></div>';
-                    return;
-                }
-                
-                // Check if user is enrolled (for premium courses)
-                const isPremium = STATE.course.type !== 'free' && STATE.course.price > 0;
-                const isEnrolled = STATE.enrollment !== null;
-                
-                if (isPremium && !isEnrolled && STATE.user) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">💰</div>
-                            <h3>Premium Course</h3>
-                            <p>You need to purchase this course to access the content.</p>
-                            <p style="font-size: 24px; color: #00FF88; margin: 20px 0;">KES ${(STATE.course.price || 2999).toLocaleString()}</p>
-                            <button class="btn-primary" onclick="window.actions.purchaseCourse()" style="background:#00FF88; color:#0A192F; padding:14px 38px; border:none; border-radius:8px; cursor:pointer; font-weight:700;">💳 Purchase Course</button>
-                            <div style="margin-top: 20px;">
-                                <a href="index.html" style="color:#00FF88;">← Back to Courses</a>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                if (isPremium && !STATE.user) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">🔒</div>
-                            <h3>Login to Access Course</h3>
-                            <p>Please login or register to purchase and access this premium course.</p>
-                            <button class="btn-primary" onclick="window.actions.openModal('login')" style="background:#00FF88; color:#0A192F; padding:14px 38px; border:none; border-radius:8px; cursor:pointer; font-weight:700;">Login to Continue</button>
-                            <div style="margin-top: 20px;">
-                                <a href="index.html" style="color:#00FF88;">← Back to Courses</a>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                if (!STATE.units || STATE.units.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📖</div><h3>No Units Available</h3><p>This course content is being prepared.</p><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">← Back to Courses</a></div>';
-                    return;
-                }
-                
-                // Make sure currentUnitIndex is valid
-                if (STATE.currentUnitIndex >= STATE.units.length) {
-                    STATE.currentUnitIndex = 0;
-                }
-                
-                const currentUnit = STATE.units[STATE.currentUnitIndex];
-                if (!currentUnit) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Unit Not Found</h3><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">← Back to Courses</a></div>';
-                    return;
-                }
-                
-                const progress = ((STATE.currentUnitIndex + 1) / STATE.units.length) * 100;
-                
+            if (!STATE.course) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><h3>Course Not Found</h3><p>Please go back and select a course.</p><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">← Back to Courses</a></div>';
+                return;
+            }
+            
+            const isPremium = STATE.course.type !== 'free' && STATE.course.price > 0;
+            const isEnrolled = STATE.enrollment !== null;
+            
+            if (isPremium && !isEnrolled && STATE.user) {
                 container.innerHTML = `
-                    <div class="course-header">
-                        <h1 class="course-title"><span>${escapeHtml(STATE.course.title)}</span></h1>
-                        <p class="course-description">${escapeHtml(STATE.course.description || 'Professional driver training course')}</p>
-                        <div class="course-meta">
-                            <span class="meta-badge">${escapeHtml(STATE.course.duration || 'Flexible')}</span>
-                            <span class="meta-badge">📚 ${STATE.units.length} Units</span>
-                            ${STATE.enrollment ? '<span class="meta-badge" style="background:#00FF88; color:#0A192F;">✅ Enrolled</span>' : ''}
-                        </div>
-                        <div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div>
-                        <div class="progress-text">Unit ${STATE.currentUnitIndex + 1} of ${STATE.units.length} • ${Math.round(progress)}% Complete</div>
-                    </div>
-                    
-                    <div class="main-content">
-                        <div class="units-sidebar">
-                            <div class="sidebar-title">📖 Course Units</div>
-                            <div class="units-list">
-                                ${STATE.units.map((unit, idx) => `
-                                    <div class="unit-item ${idx === STATE.currentUnitIndex ? 'active' : ''}" onclick="window.actions.loadUnit(${idx})">
-                                        <div class="unit-number">UNIT ${unit.unit_number || (idx + 1)}</div>
-                                        <div class="unit-title-sidebar">${escapeHtml(unit.title || 'Untitled')}</div>
-                                        <div class="unit-time">⏱️ ${unit.estimated_minutes || 15} min</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                        
-                        <div class="unit-content-area">
-                            <h2 class="unit-content-title">Unit ${currentUnit.unit_number || (STATE.currentUnitIndex + 1)}: ${escapeHtml(currentUnit.title || 'Untitled')}</h2>
-                            <div class="unit-content-meta">
-                                <span>⏱️ ${currentUnit.estimated_minutes || 15} minutes to complete</span>
-                                <span>📖 Unit ${STATE.currentUnitIndex + 1} of ${STATE.units.length}</span>
-                            </div>
-                            <div class="unit-content-text">
-                                ${formatContent(currentUnit.content)}
-                            </div>
-                            
-                            <div class="nav-buttons">
-                                <button class="nav-btn" onclick="window.actions.prevUnit()" ${STATE.currentUnitIndex === 0 ? 'disabled' : ''}>← Previous Unit</button>
-                                <button class="nav-btn" onclick="window.actions.nextUnit()" ${STATE.currentUnitIndex === STATE.units.length - 1 ? 'disabled' : ''}>Next Unit →</button>
-                            </div>
-                        </div>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💰</div>
+                        <h3>Premium Course</h3>
+                        <p>You need to purchase this course to access the content.</p>
+                        <p style="font-size: 24px; color: #00FF88; margin: 20px 0;">KES ${(STATE.course.price || 2999).toLocaleString()}</p>
+                        <button class="btn-primary" onclick="window.actions.purchaseCourse()" style="background:#00FF88; color:#0A192F; padding:14px 38px; border:none; border-radius:8px; cursor:pointer; font-weight:700;">💳 Purchase Course</button>
+                        <div style="margin-top: 20px;"><a href="index.html" style="color:#00FF88;">← Back to Courses</a></div>
                     </div>
                 `;
+                return;
             }
             
-            const actions = {
-                async login(email, password) {
-                    STATE.authError = null; STATE.authSuccess = null; renderUI();
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                    if (error) STATE.authError = error.message;
-                    else { STATE.user = data.user; STATE.authSuccess = 'Login successful!'; STATE.authModalOpen = false; await actions.checkEnrollment(); setTimeout(() => { STATE.authSuccess = null; renderUI(); }, 2000); }
-                    renderUI();
-                },
-                async register(email, password) {
-                    STATE.authError = null; STATE.authSuccess = null; renderUI();
-                    const { error } = await supabase.auth.signUp({ email, password });
-                    if (error) STATE.authError = error.message;
-                    else { STATE.authSuccess = 'Registration successful! You can now login.'; setTimeout(() => { STATE.authMode = 'login'; STATE.authSuccess = null; renderUI(); }, 2000); }
-                    renderUI();
-                },
-                async logout() { await supabase.auth.signOut(); STATE.user = null; STATE.enrollment = null; window.location.href = 'index.html'; },
-                openModal(mode) { STATE.authMode = mode; STATE.authModalOpen = true; STATE.authError = null; STATE.authSuccess = null; renderUI(); },
-                closeModal() { STATE.authModalOpen = false; renderUI(); },
-                async handleAuthSubmit() {
-                    const email = document.getElementById('modalEmail').value;
-                    const password = document.getElementById('modalPassword').value;
-                    if (!email || !password) { STATE.authError = 'Please enter both email and password'; renderUI(); return; }
-                    if (password.length < 6) { STATE.authError = 'Password must be at least 6 characters'; renderUI(); return; }
-                    if (STATE.authMode === 'login') await actions.login(email, password);
-                    else await actions.register(email, password);
-                },
-                loadUnit(index) {
-                    if (index >= 0 && index < STATE.units.length) {
-                        STATE.currentUnitIndex = index;
-                        renderUI();
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                },
-                prevUnit() { if (STATE.currentUnitIndex > 0) actions.loadUnit(STATE.currentUnitIndex - 1); },
-                nextUnit() { 
-                    if (STATE.currentUnitIndex < STATE.units.length - 1) {
-                        actions.loadUnit(STATE.currentUnitIndex + 1);
-                    } else {
-                        showToast('🎉 Congratulations! You completed all units in this course!');
-                    }
-                },
-                async purchaseCourse() {
-                    if (!STATE.user) {
-                        showToast('Please login first', true);
-                        actions.openModal('login');
-                        return;
-                    }
+            if (isPremium && !STATE.user) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔒</div>
+                        <h3>Login to Access Course</h3>
+                        <p>Please login or register to purchase and access this premium course.</p>
+                        <button class="btn-primary" onclick="window.actions.openModal('login')" style="background:#00FF88; color:#0A192F; padding:14px 38px; border:none; border-radius:8px; cursor:pointer; font-weight:700;">Login to Continue</button>
+                        <div style="margin-top: 20px;"><a href="index.html" style="color:#00FF88;">← Back to Courses</a></div>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (!STATE.units || STATE.units.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📖</div><h3>No Units Available</h3><p>This course content is being prepared.</p><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">← Back to Courses</a></div>';
+                return;
+            }
+            
+            if (STATE.currentUnitIndex >= STATE.units.length) STATE.currentUnitIndex = 0;
+            
+            const currentUnit = STATE.units[STATE.currentUnitIndex];
+            if (!currentUnit) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Unit Not Found</h3><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">← Back to Courses</a></div>';
+                return;
+            }
+            
+            const progress = ((STATE.currentUnitIndex + 1) / STATE.units.length) * 100;
+            
+            container.innerHTML = `
+                <div class="course-header">
+                    <h1 class="course-title"><span>${escapeHtml(STATE.course.title)}</span></h1>
+                    <p class="course-description">${escapeHtml(STATE.course.description || 'Professional driver training course')}</p>
+                    <div class="course-meta">
+                        <span class="meta-badge">${escapeHtml(STATE.course.duration || 'Flexible')}</span>
+                        <span class="meta-badge">📚 ${STATE.units.length} Units</span>
+                        ${STATE.enrollment ? '<span class="meta-badge" style="background:#00FF88; color:#0A192F;">✅ Enrolled</span>' : ''}
+                    </div>
+                    <div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div>
+                    <div class="progress-text">Unit ${STATE.currentUnitIndex + 1} of ${STATE.units.length} • ${Math.round(progress)}% Complete</div>
+                </div>
+                
+                <div class="main-content">
+                    <div class="units-sidebar">
+                        <div class="sidebar-title">📖 Course Units</div>
+                        <div class="units-list">
+                            ${STATE.units.map((unit, idx) => `
+                                <div class="unit-item ${idx === STATE.currentUnitIndex ? 'active' : ''}" onclick="window.actions.loadUnit(${idx})">
+                                    <div class="unit-number">UNIT ${unit.unit_number || (idx + 1)}</div>
+                                    <div class="unit-title-sidebar">${escapeHtml(unit.title || 'Untitled')}</div>
+                                    <div class="unit-time">⏱️ ${unit.estimated_minutes || 15} min</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
                     
-                    const phone = prompt(`Enter M-Pesa phone number for payment of KES ${STATE.course.price}:\n(e.g., 0712345678)`);
-                    
-                    if (!phone) {
-                        showToast('Payment cancelled', true);
-                        return;
-                    }
-                    
-                    // Format phone number
-                    let formattedPhone = phone.replace(/\D/g, '');
-                    if (formattedPhone.startsWith('0')) {
-                        formattedPhone = '254' + formattedPhone.slice(1);
-                    }
-                    
-                    showToast('Processing payment...');
-                    
-                    try {
-                        const response = await fetch('/api/mpesa/stkpush', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                phoneNumber: formattedPhone,
-                                amount: STATE.course.price,
-                                accountReference: `COURSE_${STATE.course.id}`,
-                                transactionDesc: `Purchase: ${STATE.course.title}`,
-                                userId: STATE.user.id
-                            })
-                        });
+                    <div class="unit-content-area">
+                        <h2 class="unit-content-title">Unit ${currentUnit.unit_number || (STATE.currentUnitIndex + 1)}: ${escapeHtml(currentUnit.title || 'Untitled')}</h2>
+                        <div class="unit-content-meta">
+                            <span>⏱️ ${currentUnit.estimated_minutes || 15} minutes to complete</span>
+                            <span>📖 Unit ${STATE.currentUnitIndex + 1} of ${STATE.units.length}</span>
+                        </div>
+                        <div class="unit-content-text">
+                            ${formatContent(currentUnit.content)}
+                        </div>
                         
-                        const result = await response.json();
-                        
-                        if (result.success) {
-                            showToast('Payment request sent! Check your phone for M-Pesa prompt');
-                            
-                            // Poll for enrollment
-                            let attempts = 0;
-                            const interval = setInterval(async () => {
-                                attempts++;
-                                await actions.checkEnrollment();
-                                
-                                if (STATE.enrollment) {
-                                    clearInterval(interval);
-                                    showToast('✅ Payment successful! Course unlocked!');
-                                    renderUI();
-                                } else if (attempts > 20) {
-                                    clearInterval(interval);
-                                    showToast('Payment confirmation timeout. Check your email for updates.', true);
-                                }
-                            }, 3000);
-                            
-                            setTimeout(() => clearInterval(interval), 60000);
-                        } else {
-                            throw new Error(result.error || 'Payment failed');
-                        }
-                    } catch (error) {
-                        console.error('Payment error:', error);
-                        showToast('Payment failed. Please try again or use Paybill 4095377', true);
-                    }
-                },
-                async checkEnrollment() {
-                    if (!STATE.user || !STATE.course) return;
-                    
-                    const { data, error } = await supabase
-                        .from('enrollments')
-                        .select('*')
-                        .eq('user_id', STATE.user.id)
-                        .eq('course_id', STATE.course.id)
-                        .single();
-                    
-                    if (!error && data) {
-                        STATE.enrollment = data;
-                    } else {
-                        STATE.enrollment = null;
-                    }
-                    renderUI();
-                },
-                async loadCourse() {
-                    STATE.loading = true;
-                    STATE.error = null;
-                    renderUI();
-                    
-                    try {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        let courseId = urlParams.get('id');
-                        const courseTitle = sessionStorage.getItem('selectedCourse');
-                        
-                        if (!courseId && courseTitle) {
-                            // Get course by title
-                            const { data: course, error: courseError } = await supabase
-                                .from('courses')
-                                .select('*')
-                                .eq('title', courseTitle)
-                                .single();
-                            
-                            if (courseError) throw courseError;
-                            courseId = course.id;
-                            STATE.course = course;
-                        } else if (courseId) {
-                            // Get course by ID
-                            const { data: course, error: courseError } = await supabase
-                                .from('courses')
-                                .select('*')
-                                .eq('id', parseInt(courseId))
-                                .single();
-                            
-                            if (courseError) throw courseError;
-                            STATE.course = course;
-                        } else {
-                            throw new Error('No course selected');
-                        }
-                        
-                        // Get units for this course
-                        const { data: units, error: unitsError } = await supabase
-                            .from('units')
-                            .select('*')
-                            .eq('course_id', STATE.course.id)
-                            .eq('is_published', true)
-                            .order('unit_number', { ascending: true });
-                        
-                        if (unitsError) throw unitsError;
-                        
-                        STATE.units = units || [];
-                        STATE.currentUnitIndex = 0;
-                        
-                        // Check enrollment
-                        if (STATE.user) {
+                        <div class="nav-buttons">
+                            <button class="nav-btn" onclick="window.actions.prevUnit()" ${STATE.currentUnitIndex === 0 ? 'disabled' : ''}>← Previous Unit</button>
+                            <button class="nav-btn" onclick="window.actions.nextUnit()" ${STATE.currentUnitIndex === STATE.units.length - 1 ? 'disabled' : ''}>Next Unit →</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const actions = {
+            async login(email, password) {
+                STATE.authError = null; STATE.authSuccess = null; renderUI();
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) STATE.authError = error.message;
+                else { STATE.user = data.user; STATE.authSuccess = 'Login successful!'; STATE.authModalOpen = false; await actions.checkEnrollment(); setTimeout(() => { STATE.authSuccess = null; renderUI(); }, 2000); }
+                renderUI();
+            },
+            async register(email, password) {
+                STATE.authError = null; STATE.authSuccess = null; renderUI();
+                const { error } = await supabase.auth.signUp({ email, password });
+                if (error) STATE.authError = error.message;
+                else { STATE.authSuccess = 'Registration successful! You can now login.'; setTimeout(() => { STATE.authMode = 'login'; STATE.authSuccess = null; renderUI(); }, 2000); }
+                renderUI();
+            },
+            async logout() { await supabase.auth.signOut(); STATE.user = null; STATE.enrollment = null; window.location.href = 'index.html'; },
+            openModal(mode) { STATE.authMode = mode; STATE.authModalOpen = true; STATE.authError = null; STATE.authSuccess = null; renderUI(); },
+            closeModal() { STATE.authModalOpen = false; renderUI(); },
+            async handleAuthSubmit() {
+                const email = document.getElementById('modalEmail').value;
+                const password = document.getElementById('modalPassword').value;
+                if (!email || !password) { STATE.authError = 'Please enter both email and password'; renderUI(); return; }
+                if (password.length < 6) { STATE.authError = 'Password must be at least 6 characters'; renderUI(); return; }
+                if (STATE.authMode === 'login') await actions.login(email, password);
+                else await actions.register(email, password);
+            },
+            loadUnit(index) { if (index >= 0 && index < STATE.units.length) { STATE.currentUnitIndex = index; renderUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+            prevUnit() { if (STATE.currentUnitIndex > 0) actions.loadUnit(STATE.currentUnitIndex - 1); },
+            nextUnit() { if (STATE.currentUnitIndex < STATE.units.length - 1) actions.loadUnit(STATE.currentUnitIndex + 1); else showToast('🎉 Congratulations! You completed all units in this course!'); },
+            async purchaseCourse() {
+                if (!STATE.user) { showToast('Please login first', true); actions.openModal('login'); return; }
+                const phone = prompt(`Enter M-Pesa phone number for payment of KES ${STATE.course.price}:\n(e.g., 0712345678)`);
+                if (!phone) { showToast('Payment cancelled', true); return; }
+                let formattedPhone = phone.replace(/\D/g, '');
+                if (formattedPhone.startsWith('0')) formattedPhone = '254' + formattedPhone.slice(1);
+                showToast('Processing payment...');
+                try {
+                    const response = await fetch('/api/mpesa/stkpush', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phoneNumber: formattedPhone, amount: STATE.course.price, accountReference: `COURSE_${STATE.course.id}`, transactionDesc: `Purchase: ${STATE.course.title}`, userId: STATE.user.id, courseId: STATE.course.id })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        showToast('Payment request sent! Check your phone for M-Pesa prompt');
+                        let attempts = 0;
+                        const interval = setInterval(async () => {
+                            attempts++;
                             await actions.checkEnrollment();
-                        }
-                        
-                        STATE.loading = false;
-                        renderUI();
-                        
-                    } catch(e) {
-                        console.error('Load course error:', e);
-                        STATE.error = e.message || 'An unexpected error occurred. Please try again.';
-                        STATE.loading = false;
-                        renderUI();
-                    }
-                },
-                async syncAuth() { 
-                    const { data: { session } } = await supabase.auth.getSession(); 
-                    STATE.user = session?.user || null; 
-                    renderUI(); 
-                }
-            };
-            
-            window.actions = actions;
-            
-            // Set up event listeners
-            document.getElementById('modalSubmitBtn').onclick = () => actions.handleAuthSubmit();
-            document.getElementById('modalSwitch').onclick = () => { 
-                STATE.authMode = STATE.authMode === 'login' ? 'register' : 'login'; 
-                renderUI(); 
-            };
-            document.querySelector('.close-modal').onclick = () => actions.closeModal();
-            window.onclick = (event) => { 
-                if (event.target === document.getElementById('authModal')) actions.closeModal(); 
-            };
-            
-            // Initialize
-            async function init() { 
-                await actions.syncAuth(); 
-                await actions.loadCourse(); 
-            }
-            init();
-        })();
+                            if (STATE.enrollment) { clearInterval(interval); showToast('✅ Payment successful! Course unlocked!'); renderUI(); }
+                            else if (attempts > 20) { clearInterval(interval); showToast('Payment confirmation timeout. Check your email for updates.', true); }
+                        }, 3000);
+                        setTimeout(() => clearInterval(interval), 60000);
+                    } else throw new Error(result.error || 'Payment failed');
+                } catch (error) { showToast('Payment failed. Please try again or use Paybill 4095377', true); }
+            },
+            async checkEnrollment() {
+                if (!STATE.user || !STATE.course) return;
+                const { data, error } = await supabase.from('enrollments').select('*').eq('user_id', STATE.user.id).eq('course_id', STATE.course.id).single();
+                if (!error && data) STATE.enrollment = data;
+                else STATE.enrollment = null;
+                renderUI();
+            },
+            async loadCourse() {
+                STATE.loading = true; STATE.error = null; renderUI();
+                try {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let courseId = urlParams.get('id');
+                    const courseTitle = sessionStorage.getItem('selectedCourse');
+                    
+                    if (!courseId && courseTitle) {
+                        const { data: course, error: courseError } = await supabase.from('courses').select('*').eq('title', courseTitle).single();
+                        if (courseError) throw courseError;
+                        courseId = course.id; STATE.course = course;
+                    } else if (courseId) {
+                        const { data: course, error: courseError } = await supabase.from('courses').select('*').eq('id', parseInt(courseId)).single();
+                        if (courseError) throw courseError;
+                        STATE.course = course;
+                    } else throw new Error('No course selected');
+                    
+                    const { data: units, error: unitsError } = await supabase.from('units').select('*').eq('course_id', STATE.course.id).eq('is_published', true).order('unit_number', { ascending: true });
+                    if (unitsError) throw unitsError;
+                    STATE.units = units || [];
+                    STATE.currentUnitIndex = 0;
+                    if (STATE.user) await actions.checkEnrollment();
+                    STATE.loading = false; renderUI();
+                } catch(e) { STATE.error = e.message || 'An unexpected error occurred.'; STATE.loading = false; renderUI(); }
+            },
+            async syncAuth() { const { data: { session } } = await supabase.auth.getSession(); STATE.user = session?.user || null; renderUI(); }
+        };
+        
+        window.actions = actions;
+        
+        document.getElementById('modalSubmitBtn').onclick = () => actions.handleAuthSubmit();
+        document.getElementById('modalSwitch').onclick = () => { STATE.authMode = STATE.authMode === 'login' ? 'register' : 'login'; renderUI(); };
+        document.querySelector('.close-modal').onclick = () => actions.closeModal();
+        window.onclick = (event) => { if (event.target === document.getElementById('authModal')) actions.closeModal(); };
+        
+        async function init() { await actions.syncAuth(); await actions.loadCourse(); }
+        init();
     </script>
 </body>
 </html>
