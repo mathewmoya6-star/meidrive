@@ -7,6 +7,8 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%230A192F'/%3E%3Crect x='10' y='10' width='180' height='180' rx='35' fill='none' stroke='%2300FF88' stroke-width='3'/%3E%3Ctext x='100' y='85' font-size='48' text-anchor='middle' fill='%2300FF88' font-weight='800' font-family='Arial, sans-serif'%3EMEI%3C/text%3E%3Ctext x='100' y='135' font-size='28' text-anchor='middle' fill='%2300FF88' font-weight='700' font-family='Arial, sans-serif'%3EDRIVE%3C/text%3E%3Ctext x='100' y='168' font-size='16' text-anchor='middle' fill='%2300FF88' opacity='0.8'%3EAFRICA%3C/text%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%230A192F'/%3E%3Ctext x='100' y='115' font-size='50' text-anchor='middle' fill='%2300FF88' font-weight='800'%3EM%3C/text%3E%3C/svg%3E">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Shared Supabase Configuration - Single Source of Truth -->
+    <script src="supabase-config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #0A192F; color: #fff; overflow-x: hidden; }
@@ -383,10 +385,9 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // Supabase Configuration
-        const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Use the shared supabase instance from supabase-config.js
+        // No need to redeclare - it's already available globally
+        const supabase = window.supabaseClient;
         
         // App State
         let currentUser = null;
@@ -413,10 +414,12 @@
         
         // Auth Functions
         async function checkAuth() {
+            console.log('🔐 Checking authentication...');
             const { data: { session } } = await supabase.auth.getSession();
             currentUser = session?.user || null;
             renderAuthButtons();
             if (currentUser) {
+                console.log('✅ User authenticated:', currentUser.email);
                 await loadEnrollments();
             }
             return currentUser !== null;
@@ -428,14 +431,14 @@
                 authContainer.innerHTML = `
                     <div class="user-info">
                         <span class="user-email">${escapeHtml(currentUser.email)}</span>
-                        <button class="btn-payments" onclick="viewPayments()">💳 Payments</button>
-                        <button class="btn-logout" onclick="logout()">Logout</button>
+                        <button class="btn-payments" onclick="window.viewPayments()">💳 Payments</button>
+                        <button class="btn-logout" onclick="window.logout()">Logout</button>
                     </div>
                 `;
             } else {
                 authContainer.innerHTML = `
-                    <button class="btn-login" onclick="openAuthModal('login')">Login</button>
-                    <button class="btn-register" onclick="openAuthModal('register')">Register</button>
+                    <button class="btn-login" onclick="window.openAuthModal('login')">Login</button>
+                    <button class="btn-register" onclick="window.openAuthModal('register')">Register</button>
                 `;
             }
         }
@@ -510,7 +513,7 @@
         // Course Functions
         async function loadCourses() {
             try {
-                console.log('Loading courses from Supabase...');
+                console.log('📚 Loading courses from Supabase...');
                 const { data, error } = await supabase
                     .from('courses')
                     .select('*')
@@ -524,11 +527,11 @@
                 
                 if (data && data.length > 0) {
                     allCourses = data;
-                    console.log(`Loaded ${allCourses.length} courses from database`);
+                    console.log(`✅ Loaded ${allCourses.length} courses from database`);
                     document.getElementById('coursesCount').textContent = allCourses.length;
                     renderCourses();
                 } else {
-                    console.log('No courses found in database');
+                    console.log('⚠️ No courses found in database');
                     allCourses = [];
                     renderCourses();
                 }
@@ -542,6 +545,7 @@
             if (!currentUser) return;
             
             try {
+                console.log('📋 Loading enrollments...');
                 const { data, error } = await supabase
                     .from('enrollments')
                     .select('*')
@@ -556,7 +560,7 @@
                             enrolled_at: enrollment.enrolled_at
                         });
                     });
-                    console.log(`Loaded ${data.length} enrollments for user`);
+                    console.log(`✅ Loaded ${data.length} enrollments`);
                     renderCourses();
                 }
             } catch (error) {
@@ -674,7 +678,7 @@
                     // Poll for payment completion
                     const checkoutId = result.checkoutRequestID;
                     let attempts = 0;
-                    const maxAttempts = 30; // 90 seconds
+                    const maxAttempts = 30;
                     
                     if (paymentInterval) clearInterval(paymentInterval);
                     
@@ -692,7 +696,6 @@
                                 clearInterval(paymentInterval);
                                 paymentInterval = null;
                                 
-                                // Create enrollment in database
                                 const enrolled = await createEnrollment(selectedCourseForPayment.id);
                                 
                                 if (enrolled) {
@@ -719,15 +722,6 @@
                             console.error('Status check error:', err);
                         }
                     }, 3000);
-                    
-                    // Auto-close after 2 minutes if no response
-                    setTimeout(() => {
-                        if (paymentInterval) {
-                            clearInterval(paymentInterval);
-                            paymentInterval = null;
-                            document.getElementById('paymentInfo').innerHTML = 'Payment confirmation timeout. Check your SMS for status.';
-                        }
-                    }, 120000);
                     
                 } else {
                     throw new Error(result.error || result.responseDescription || 'Payment failed');
@@ -810,7 +804,6 @@
                 const isEnrolled = !!enrollment;
                 const progress = enrollment?.progress || 0;
                 const price = course.price || 2999;
-                const isFree = course.type === 'free' || price === 0;
                 
                 let badge = '';
                 if (isEnrolled) {
@@ -831,12 +824,12 @@
                                     <div class="progress-mini">
                                         <div class="progress-mini-fill" style="width: ${progress}%"></div>
                                     </div>
-                                    <button class="continue-btn" onclick="viewCourse(${course.id}, '${course.title.replace(/'/g, "\\'")}')">
+                                    <button class="continue-btn" onclick="window.viewCourse(${course.id}, '${course.title.replace(/'/g, "\\'")}')">
                                         ${progress === 100 ? '📋 Review Course' : '▶️ Continue Learning'}
                                     </button>
                                 </div>` :
-                                `<button class="enroll-btn" onclick="openPaymentModal({id:${course.id}, title:'${course.title.replace(/'/g, "\\'")}', price:${price}})">
-                                    ${isFree ? '🎓 Enroll Now' : '💰 Enroll Now'}
+                                `<button class="enroll-btn" onclick="window.openPaymentModal({id:${course.id}, title:'${course.title.replace(/'/g, "\\'")}', price:${price}})">
+                                    💰 Enroll Now
                                 </button>`
                             }
                         </div>
@@ -845,7 +838,16 @@
             }).join('');
         }
         
-        // Initialize and Event Listeners
+        // Make functions global
+        window.openAuthModal = openAuthModal;
+        window.closePaymentModal = closePaymentModal;
+        window.processPayment = processPayment;
+        window.viewCourse = viewCourse;
+        window.openPaymentModal = openPaymentModal;
+        window.viewPayments = viewPayments;
+        window.logout = logout;
+        
+        // Event Listeners
         document.getElementById('modalSubmitBtn').onclick = handleAuth;
         document.getElementById('modalSwitch').onclick = () => {
             authMode = authMode === 'login' ? 'register' : 'login';
@@ -869,15 +871,6 @@
             if (event.target === document.getElementById('authModal')) closeAuthModal();
             if (event.target === document.getElementById('paymentModal')) closePaymentModal();
         };
-        
-        // Make functions global
-        window.openAuthModal = openAuthModal;
-        window.closePaymentModal = closePaymentModal;
-        window.processPayment = processPayment;
-        window.viewCourse = viewCourse;
-        window.openPaymentModal = openPaymentModal;
-        window.viewPayments = viewPayments;
-        window.logout = logout;
         
         // Initialize App
         async function init() {
