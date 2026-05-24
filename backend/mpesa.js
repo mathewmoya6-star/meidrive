@@ -1,147 +1,205 @@
-const axios = require('axios');
-const config = require('./config');
+// supabase/functions/mpesa-stkpush/index.ts
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
 
-class MpesaAPI {
-    constructor() {
-        this.accessToken = null;
-        this.tokenExpiry = null;
-    }
-
-    // Get OAuth Token
-    async getAccessToken() {
-        // Check if token is still valid
-        if (this.accessToken && this.tokenExpiry > Date.now()) {
-            return this.accessToken;
-        }
-
-        const auth = Buffer.from(`${config.consumerKey}:${config.consumerSecret}`).toString('base64');
-        const url = config.apiUrls[config.environment].auth;
-
-        try {
-            const response = await axios.get(url, {
-                headers: {
-                    Authorization: `Basic ${auth}`
-                }
-            });
-            
-            this.accessToken = response.data.access_token;
-            this.tokenExpiry = Date.now() + (response.data.expires_in * 1000) - 60000;
-            return this.accessToken;
-        } catch (error) {
-            console.error('Error getting access token:', error.response?.data || error.message);
-            throw new Error('Failed to get access token');
-        }
-    }
-
-    // Generate timestamp
-    getTimestamp() {
-        const date = new Date();
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-        return `${year}${month}${day}${hours}${minutes}${seconds}`;
-    }
-
-    // Generate password
-    getPassword(shortCode, passkey, timestamp) {
-        const str = `${shortCode}${passkey}${timestamp}`;
-        return Buffer.from(str).toString('base64');
-    }
-
-    // STK Push (Lipa Na M-Pesa)
-    async stkPush(phoneNumber, amount, accountReference, transactionDesc) {
-        try {
-            const token = await this.getAccessToken();
-            const timestamp = this.getTimestamp();
-            const password = this.getPassword(config.shortCode, config.passkey, timestamp);
-            
-            // Format phone number: 254XXXXXXXXX
-            let formattedPhone = phoneNumber.replace(/\D/g, '');
-            if (formattedPhone.startsWith('0')) {
-                formattedPhone = '254' + formattedPhone.substring(1);
-            } else if (formattedPhone.startsWith('+')) {
-                formattedPhone = formattedPhone.substring(1);
-            }
-
-            const requestBody = {
-                BusinessShortCode: config.shortCode,
-                Password: password,
-                Timestamp: timestamp,
-                TransactionType: 'CustomerPayBillOnline',
-                Amount: Math.round(parseFloat(amount)),
-                PartyA: formattedPhone,
-                PartyB: config.shortCode,
-                PhoneNumber: formattedPhone,
-                CallBackURL: config.callbackUrl,
-                AccountReference: accountReference,
-                TransactionDesc: transactionDesc
-            };
-
-            const response = await axios.post(
-                config.apiUrls[config.environment].stkPush,
-                requestBody,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            return {
-                success: true,
-                data: response.data,
-                checkoutRequestID: response.data.CheckoutRequestID
-            };
-        } catch (error) {
-            console.error('STK Push Error:', error.response?.data || error.message);
-            return {
-                success: false,
-                error: error.response?.data || error.message
-            };
-        }
-    }
-
-    // Query STK Push Status
-    async queryStatus(checkoutRequestID) {
-        try {
-            const token = await this.getAccessToken();
-            const timestamp = this.getTimestamp();
-            const password = this.getPassword(config.shortCode, config.passkey, timestamp);
-
-            const requestBody = {
-                BusinessShortCode: config.shortCode,
-                Password: password,
-                Timestamp: timestamp,
-                CheckoutRequestID: checkoutRequestID
-            };
-
-            const response = await axios.post(
-                config.apiUrls[config.environment].stkQuery,
-                requestBody,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            return {
-                success: true,
-                data: response.data
-            };
-        } catch (error) {
-            console.error('Query Error:', error.response?.data || error.message);
-            return {
-                success: false,
-                error: error.response?.data || error.message
-            };
-        }
-    }
+// ---------- CORS headers ----------
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 }
 
-module.exports = new MpesaAPI();
+// ---------- In‑memory token cache ----------
+let cachedToken: string | null = null
+let tokenExpiry: number | null = null
+
+// ---------- Helper: Get access token with caching ----------
+async function getAccessToken(): Promise<string> {
+  // Return cached token if still valid
+  if (cachedToken && tokenExpiry && tokenExpiry > Date.now()) {
+    return cachedToken
+  }
+
+  const consumerKey = Deno.env.get('MPESA_CONSUMER_KEY')
+  const consumerSecret = Deno.env.get('MPESA_CONSUMER_SECRET')
+  if (!consumerKey || !consumerSecret) {
+    throw new Error('MPESA_CONSUMER_KEY and MPESA_CONSUMER_SECRET are required')
+  }
+
+  const auth = btoa(`${consumerKey}:${consumerSecret}`)
+  const isProduction = Deno.env.get('MPESA_ENV') === 'production'
+  const url = isProduction
+    ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
+    : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: { Authorization: `Basic ${auth}` },
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Failed to get access token: ${errorText}`)
+  }
+
+  const data = await response.json()
+  cachedToken = data.access_token
+  // Expire 1 minute before actual expiry to be safe
+  tokenExpiry = Date.now() + (data.expires_in - 60) * 1000
+  return cachedToken
+}
+
+// ---------- Helper: Generate timestamp (YYYYMMDDHHmmss) ----------
+function getTimestamp(): string {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+  const seconds = String(now.getSeconds()).padStart(2, '0')
+  return `${year}${month}${day}${hours}${minutes}${seconds}`
+}
+
+// ---------- Helper: Format phone number to 254XXXXXXXXX ----------
+function formatPhoneNumber(raw: string): string {
+  let cleaned = raw.replace(/\D/g, '')
+  if (cleaned.startsWith('0')) {
+    cleaned = '254' + cleaned.substring(1)
+  } else if (cleaned.startsWith('+254')) {
+    cleaned = '254' + cleaned.substring(4)
+  } else if (cleaned.length === 9) {
+    cleaned = '254' + cleaned
+  }
+  return cleaned
+}
+
+// ---------- STK Push Request ----------
+async function stkPush(
+  phone: string,
+  amount: number,
+  accountRef: string,
+  desc: string
+): Promise<any> {
+  const token = await getAccessToken()
+  const shortCode = Deno.env.get('MPESA_SHORTCODE')
+  const passkey = Deno.env.get('MPESA_PASSKEY')
+  const callbackUrl = Deno.env.get('MPESA_CALLBACK_URL')
+
+  if (!shortCode || !passkey || !callbackUrl) {
+    throw new Error('MPESA_SHORTCODE, MPESA_PASSKEY, and MPESA_CALLBACK_URL are required')
+  }
+
+  const timestamp = getTimestamp()
+  const password = btoa(`${shortCode}${passkey}${timestamp}`)
+
+  const isProduction = Deno.env.get('MPESA_ENV') === 'production'
+  const url = isProduction
+    ? 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+    : 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+
+  const requestBody = {
+    BusinessShortCode: shortCode,
+    Password: password,
+    Timestamp: timestamp,
+    TransactionType: 'CustomerPayBillOnline',
+    Amount: Math.round(amount),
+    PartyA: phone,
+    PartyB: shortCode,
+    PhoneNumber: phone,
+    CallBackURL: callbackUrl,
+    AccountReference: accountRef.slice(0, 12),
+    TransactionDesc: desc.slice(0, 13),
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody),
+  })
+
+  const data = await response.json()
+  return data
+}
+
+// ---------- Main handler ----------
+serve(async (req: Request) => {
+  // Handle preflight CORS
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    const { phoneNumber, amount, courseName, userId } = await req.json()
+
+    // Validation
+    if (!phoneNumber || !amount) {
+      return new Response(
+        JSON.stringify({ error: 'Phone number and amount are required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const numericAmount = Number(amount)
+    if (isNaN(numericAmount) || numericAmount < 1 || numericAmount > 150000) {
+      return new Response(
+        JSON.stringify({ error: 'Amount must be between 1 and 150,000 KES' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const formattedPhone = formatPhoneNumber(phoneNumber)
+    const result = await stkPush(
+      formattedPhone,
+      numericAmount,
+      courseName || 'Course',
+      `Payment for ${courseName || 'Course'}`
+    )
+
+    // If a userId is provided, store the transaction in Supabase
+    if (userId) {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_ANON_KEY')!
+      )
+      await supabase.from('mpesa_transactions').insert({
+        user_id: userId,
+        phone_number: formattedPhone,
+        amount: numericAmount,
+        account_reference: courseName,
+        checkout_request_id: result.CheckoutRequestID,
+        merchant_request_id: result.MerchantRequestID,
+        status: 'pending',
+        response_code: result.ResponseCode,
+        response_desc: result.ResponseDescription,
+        created_at: new Date().toISOString(),
+      })
+    }
+
+    // Check if STK Push was successfully initiated
+    if (result.ResponseCode !== '0') {
+      return new Response(
+        JSON.stringify({ success: false, error: result.ResponseDescription }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'STK Push sent. Check your phone.',
+        checkoutRequestId: result.CheckoutRequestID,
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  } catch (err) {
+    console.error('Unhandled error:', err)
+    return new Response(
+      JSON.stringify({ error: err.message || 'Internal server error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+})
