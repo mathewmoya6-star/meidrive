@@ -11,6 +11,7 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0D2137; }
         ::-webkit-scrollbar-thumb { background: #00FF88; border-radius: 4px; }
+        
         .navbar {
             background: rgba(10, 25, 47, 0.95);
             backdrop-filter: blur(12px);
@@ -22,7 +23,14 @@
             gap: 20px;
             border-bottom: 1px solid rgba(0, 255, 136, 0.2);
         }
-        .logo { font-size: 26px; font-weight: 800; }
+        .logo { font-size: 26px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #00FF88, #00cc6a);
+            border-radius: 10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px; color: #0A192F;
+        }
         .logo span { color: #00FF88; }
         .back-btn {
             background: rgba(0, 255, 136, 0.1);
@@ -33,6 +41,7 @@
             cursor: pointer;
             text-decoration: none;
             font-weight: 600;
+            transition: all 0.3s;
         }
         .back-btn:hover { background: #00FF88; color: #0A192F; }
         .auth-buttons { display: flex; gap: 12px; }
@@ -46,9 +55,9 @@
             border: none;
         }
         .btn-login { background: transparent; border: 1.5px solid #00FF88; color: #00FF88; }
-        .btn-login:hover { background: rgba(0, 255, 136, 0.1); }
+        .btn-login:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-2px); }
         .btn-register { background: #00FF88; color: #0A192F; }
-        .btn-register:hover { background: #00cc6a; }
+        .btn-register:hover { background: #00cc6a; transform: translateY(-2px); }
         .user-info { display: flex; align-items: center; gap: 15px; }
         .user-email { color: #00FF88; font-size: 14px; }
         .btn-logout {
@@ -60,30 +69,66 @@
             cursor: pointer;
         }
         .btn-logout:hover { background: rgba(255, 255, 255, 0.2); }
-        .container { max-width: 1000px; margin: 100px auto 60px; padding: 0 20px; }
+        
+        .container { max-width: 1400px; margin: 100px auto 60px; padding: 0 20px; }
         .course-header { background: rgba(13, 33, 55, 0.8); border-radius: 16px; padding: 30px; margin-bottom: 30px; border: 1px solid rgba(0, 255, 136, 0.2); }
         .course-title { font-size: 32px; margin-bottom: 12px; }
         .course-title span { color: #00FF88; }
         .course-description { opacity: 0.8; line-height: 1.6; }
+        .course-meta { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
+        .meta-badge { background: rgba(0, 255, 136, 0.1); padding: 6px 14px; border-radius: 20px; font-size: 14px; color: #00FF88; }
+        
         .progress-container { background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; margin: 25px 0 10px; }
         .progress-bar { background: #00FF88; height: 100%; border-radius: 10px; width: 0%; transition: width 0.3s; }
         .progress-text { font-size: 13px; opacity: 0.6; text-align: right; }
-        .units-list { display: grid; gap: 12px; }
-        .unit-item {
+        
+        .main-content { display: grid; grid-template-columns: 320px 1fr; gap: 30px; }
+        
+        /* Units Sidebar */
+        .units-sidebar {
             background: rgba(13, 33, 55, 0.6);
-            border-radius: 12px;
-            padding: 18px 20px;
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            border: 1px solid rgba(0, 255, 136, 0.15);
+        }
+        .sidebar-title { font-size: 18px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid rgba(0, 255, 136, 0.2); }
+        .units-list { display: flex; flex-direction: column; gap: 8px; max-height: 70vh; overflow-y: auto; }
+        .unit-item {
+            background: rgba(10, 25, 47, 0.6);
+            border-radius: 10px;
+            padding: 14px 16px;
             cursor: pointer;
             transition: all 0.3s;
-            border-left: 4px solid #00FF88;
+            border-left: 3px solid transparent;
         }
-        .unit-item:hover { background: rgba(13, 33, 55, 0.9); transform: translateX(5px); }
-        .unit-number { font-size: 12px; color: #00FF88; font-weight: 600; }
-        .unit-title { font-size: 18px; margin-top: 5px; }
-        .unit-content { background: rgba(13, 33, 55, 0.8); border-radius: 16px; padding: 30px; margin-top: 30px; border: 1px solid rgba(0, 255, 136, 0.15); }
-        .unit-content h2 { color: #00FF88; margin-bottom: 20px; }
-        .unit-content p { line-height: 1.8; opacity: 0.85; }
-        .nav-buttons { display: flex; justify-content: space-between; margin-top: 30px; }
+        .unit-item:hover { background: rgba(0, 255, 136, 0.1); transform: translateX(5px); }
+        .unit-item.active {
+            background: rgba(0, 255, 136, 0.15);
+            border-left-color: #00FF88;
+        }
+        .unit-item.completed { border-left-color: #00FF88; }
+        .unit-number { font-size: 11px; color: #00FF88; font-weight: 600; }
+        .unit-title-sidebar { font-size: 14px; margin-top: 4px; font-weight: 500; }
+        .unit-time { font-size: 10px; opacity: 0.5; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+        .check-icon { color: #00FF88; font-size: 12px; margin-left: 8px; }
+        
+        /* Unit Content Area */
+        .unit-content-area {
+            background: rgba(13, 33, 55, 0.8);
+            border-radius: 16px;
+            padding: 35px;
+            border: 1px solid rgba(0, 255, 136, 0.15);
+        }
+        .unit-content-title { font-size: 28px; margin-bottom: 10px; color: #00FF88; }
+        .unit-content-meta { display: flex; gap: 15px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .unit-content-meta span { font-size: 13px; opacity: 0.6; }
+        .unit-content-text { line-height: 1.8; opacity: 0.85; }
+        .unit-content-text p { margin-bottom: 15px; }
+        
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); }
         .nav-btn {
             background: #00FF88;
             color: #0A192F;
@@ -92,19 +137,32 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 700;
+            transition: all 0.3s;
         }
         .nav-btn:hover:not(:disabled) { transform: scale(1.02); background: #00cc6a; }
         .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        
+        .quiz-btn {
+            background: transparent;
+            border: 2px solid #00FF88;
+            color: #00FF88;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .quiz-btn:hover { background: rgba(0, 255, 136, 0.1); }
+        
         .loading { text-align: center; padding: 60px; }
         .spinner { width: 40px; height: 40px; border: 3px solid rgba(0,255,136,0.2); border-top-color: #00FF88; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8);
             z-index: 2000;
             justify-content: center;
@@ -147,19 +205,29 @@
         .close-modal { position: absolute; top: 20px; right: 30px; font-size: 30px; cursor: pointer; color: white; }
         .error-msg { color: #ff4444; text-align: center; margin-bottom: 15px; font-size: 14px; }
         .success-msg { color: #00FF88; text-align: center; margin-bottom: 15px; font-size: 14px; }
-        @media (max-width: 768px) {
+        
+        @media (max-width: 900px) {
+            .main-content { grid-template-columns: 1fr; }
+            .units-sidebar { position: relative; top: 0; }
             .container { margin-top: 140px; }
             .course-title { font-size: 24px; }
-            .unit-content { padding: 20px; }
-            .nav-buttons { flex-direction: column; gap: 12px; }
-            .nav-btn { width: 100%; }
+            .unit-content-area { padding: 20px; }
+            .unit-content-title { font-size: 22px; }
             .navbar { flex-direction: column; text-align: center; }
         }
+        
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state-icon { font-size: 64px; margin-bottom: 20px; }
+        .empty-state h3 { margin-bottom: 10px; }
+        .empty-state p { opacity: 0.6; }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">MEI DRIVE <span>AFRICA</span></div>
+        <div class="logo" onclick="window.location.href='index.html'">
+            <div class="logo-icon">M</div>
+            MEI DRIVE <span>AFRICA</span>
+        </div>
         <div id="authContainer" class="auth-buttons"></div>
         <a href="index.html" class="back-btn">← Back to Courses</a>
     </nav>
@@ -177,7 +245,9 @@
         </div>
     </div>
 
-    <div class="container" id="container"><div class="loading"><div class="spinner"></div>Loading course...</div></div>
+    <div class="container" id="container">
+        <div class="loading"><div class="spinner"></div>Loading course content...</div>
+    </div>
 
     <script>
         (function() {
@@ -188,15 +258,31 @@
             }
             const supabase = window.__MEI_SUPABASE__;
             
-            const STATE = { user: null, authModalOpen: false, authMode: 'login', authError: null, authSuccess: null, course: null, units: [], currentUnitIndex: 0, loading: true };
+            const STATE = {
+                user: null,
+                authModalOpen: false,
+                authMode: 'login',
+                authError: null,
+                authSuccess: null,
+                course: null,
+                units: [],
+                currentUnitIndex: 0,
+                loading: true,
+                completedUnits: []
+            };
             
             function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m); }
             
             function renderUI() {
+                // Auth buttons
                 const authContainer = document.getElementById('authContainer');
-                if (STATE.user) authContainer.innerHTML = `<div class="user-info"><span class="user-email">${escapeHtml(STATE.user.email)}</span><button class="btn-logout" onclick="window.actions.logout()">Logout</button></div>`;
-                else authContainer.innerHTML = `<button class="btn-login" onclick="window.actions.openModal('login')">Login</button><button class="btn-register" onclick="window.actions.openModal('register')">Register</button>`;
+                if (STATE.user) {
+                    authContainer.innerHTML = `<div class="user-info"><span class="user-email">${escapeHtml(STATE.user.email)}</span><button class="btn-logout" onclick="window.actions.logout()">Logout</button></div>`;
+                } else {
+                    authContainer.innerHTML = `<button class="btn-login" onclick="window.actions.openModal('login')">Login</button><button class="btn-register" onclick="window.actions.openModal('register')">Register</button>`;
+                }
                 
+                // Auth Modal
                 const modal = document.getElementById('authModal');
                 if (STATE.authModalOpen) {
                     modal.classList.add('active');
@@ -205,18 +291,68 @@
                     document.getElementById('modalSwitch').innerHTML = STATE.authMode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
                     document.getElementById('modalError').textContent = STATE.authError || '';
                     document.getElementById('modalSuccess').textContent = STATE.authSuccess || '';
-                } else modal.classList.remove('active');
+                } else {
+                    modal.classList.remove('active');
+                }
                 
+                // Main content
                 const container = document.getElementById('container');
-                if (STATE.loading) { container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading course...</div>'; return; }
-                if (!STATE.course) { container.innerHTML = '<div class="loading">Course not found. <a href="index.html" style="color:#00FF88">Go back</a></div>'; return; }
+                if (STATE.loading) {
+                    container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading course content...</div>';
+                    return;
+                }
+                if (!STATE.course) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📚</div><h3>Course not found</h3><p>Please go back and select a course.</p><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">← Back to Courses</a></div>';
+                    return;
+                }
                 
+                const currentUnit = STATE.units[STATE.currentUnitIndex];
                 const progress = STATE.units.length > 0 ? ((STATE.currentUnitIndex + 1) / STATE.units.length) * 100 : 0;
+                
                 container.innerHTML = `
-                    <div class="course-header"><h1 class="course-title"><span>${escapeHtml(STATE.course.title)}</span></h1><p class="course-description">${escapeHtml(STATE.course.description || '')}</p>
-                    <div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div><div class="progress-text">${Math.round(progress)}% Complete</div></div>
-                    <div class="units-list">${STATE.units.map(unit => `<div class="unit-item" onclick="window.actions.loadUnit(${unit.unit_number - 1})"><div class="unit-number">UNIT ${unit.unit_number}</div><div class="unit-title">${escapeHtml(unit.title)}</div></div>`).join('')}</div>
-                    <div id="unitContent">${STATE.currentUnitIndex >= 0 && STATE.units[STATE.currentUnitIndex] ? `<div class="unit-content"><h2>Unit ${STATE.units[STATE.currentUnitIndex].unit_number}: ${escapeHtml(STATE.units[STATE.currentUnitIndex].title)}</h2><p>${escapeHtml(STATE.units[STATE.currentUnitIndex].content || 'Content coming soon.')}</p><div class="nav-buttons"><button class="nav-btn" onclick="window.actions.prevUnit()" ${STATE.currentUnitIndex === 0 ? 'disabled' : ''}>← Previous</button><button class="nav-btn" onclick="window.actions.nextUnit()" ${STATE.currentUnitIndex === STATE.units.length - 1 ? 'disabled' : ''}>Next →</button></div></div>` : ''}</div>
+                    <div class="course-header">
+                        <h1 class="course-title"><span>${escapeHtml(STATE.course.title)}</span></h1>
+                        <p class="course-description">${escapeHtml(STATE.course.description || '')}</p>
+                        <div class="course-meta">
+                            <span class="meta-badge">${escapeHtml(STATE.course.duration || 'Flexible')}</span>
+                            <span class="meta-badge">📚 ${STATE.units.length} Units</span>
+                            <span class="meta-badge">⭐ ${STATE.course.units_count || STATE.units.length} Lessons</span>
+                        </div>
+                        <div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div>
+                        <div class="progress-text">Unit ${STATE.currentUnitIndex + 1} of ${STATE.units.length} • ${Math.round(progress)}% Complete</div>
+                    </div>
+                    
+                    <div class="main-content">
+                        <div class="units-sidebar">
+                            <div class="sidebar-title">📖 Course Units</div>
+                            <div class="units-list">
+                                ${STATE.units.map((unit, idx) => `
+                                    <div class="unit-item ${idx === STATE.currentUnitIndex ? 'active' : ''}" onclick="window.actions.loadUnit(${idx})">
+                                        <div class="unit-number">UNIT ${unit.unit_number}</div>
+                                        <div class="unit-title-sidebar">${escapeHtml(unit.title)}</div>
+                                        <div class="unit-time">⏱️ ${unit.estimated_minutes || 15} min</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="unit-content-area">
+                            <h2 class="unit-content-title">Unit ${currentUnit.unit_number}: ${escapeHtml(currentUnit.title)}</h2>
+                            <div class="unit-content-meta">
+                                <span>⏱️ ${currentUnit.estimated_minutes || 15} minutes to complete</span>
+                                <span>📖 Unit ${currentUnit.unit_number} of ${STATE.units.length}</span>
+                            </div>
+                            <div class="unit-content-text">
+                                ${currentUnit.content.split('\n').map(para => `<p>${escapeHtml(para)}</p>`).join('')}
+                            </div>
+                            
+                            <div class="nav-buttons">
+                                <button class="nav-btn" onclick="window.actions.prevUnit()" ${STATE.currentUnitIndex === 0 ? 'disabled' : ''}>← Previous Unit</button>
+                                <button class="quiz-btn" onclick="window.actions.openQuiz()">📝 Take Quiz</button>
+                                <button class="nav-btn" onclick="window.actions.nextUnit()" ${STATE.currentUnitIndex === STATE.units.length - 1 ? 'disabled' : ''}>Next Unit →</button>
+                            </div>
+                        </div>
+                    </div>
                 `;
             }
             
@@ -245,20 +381,35 @@
                     if (STATE.authMode === 'login') await actions.login(email, password);
                     else await actions.register(email, password);
                 },
-                loadUnit(index) { if (index >= 0 && index < STATE.units.length) { STATE.currentUnitIndex = index; renderUI(); } },
+                loadUnit(index) {
+                    if (index >= 0 && index < STATE.units.length) {
+                        STATE.currentUnitIndex = index;
+                        renderUI();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                },
                 prevUnit() { if (STATE.currentUnitIndex > 0) actions.loadUnit(STATE.currentUnitIndex - 1); },
-                nextUnit() { if (STATE.currentUnitIndex < STATE.units.length - 1) actions.loadUnit(STATE.currentUnitIndex + 1); else alert('🎉 Congratulations! You completed the course!'); },
+                nextUnit() { if (STATE.currentUnitIndex < STATE.units.length - 1) actions.loadUnit(STATE.currentUnitIndex + 1); else alert('🎉 Congratulations! You completed all units in this course!'); },
+                openQuiz() { alert('Quiz feature coming soon! Unit ' + (STATE.currentUnitIndex + 1) + ' quiz will be available shortly.'); },
                 async loadCourse() {
                     STATE.loading = true; renderUI();
                     const courseTitle = sessionStorage.getItem('selectedCourse');
                     if (!courseTitle) { STATE.loading = false; renderUI(); return; }
                     try {
-                        const { data: course } = await supabase.from('courses').select('*').eq('title', courseTitle).single();
-                        if (course) STATE.course = course;
-                        const { data: units } = await supabase.from('units').select('*').eq('course_id', STATE.course?.id).order('unit_number');
+                        const { data: course, error: courseError } = await supabase.from('courses').select('*').eq('title', courseTitle).single();
+                        if (courseError) throw courseError;
+                        STATE.course = course;
+                        
+                        const { data: units, error: unitsError } = await supabase
+                            .from('units')
+                            .select('*')
+                            .eq('course_id', STATE.course.id)
+                            .eq('is_published', true)
+                            .order('unit_number');
+                        if (unitsError) throw unitsError;
                         STATE.units = units || [];
                         STATE.currentUnitIndex = 0;
-                    } catch(e) { console.error(e); }
+                    } catch(e) { console.error('Error loading course:', e); }
                     finally { STATE.loading = false; renderUI(); }
                 },
                 async syncAuth() { const { data: { session } } = await supabase.auth.getSession(); STATE.user = session?.user || null; renderUI(); }
