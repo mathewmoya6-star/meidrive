@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course - MEI DRIVE AFRICA</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Shared Supabase Configuration - Single Source of Truth -->
-    <script src="supabase-config.js"></script>
+    <!-- SINGLE SOURCE OF TRUTH -->
+    <script src="supabase.js"></script>
     <style>
-        /* Same styles as before */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #0A192F; color: #fff; }
         ::-webkit-scrollbar { width: 8px; }
@@ -136,8 +135,8 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // Use the shared supabase instance
-        const supabase = window.supabaseClient;
+        // Use MEIDrive global from supabase.js
+        const MEI = window.MEIDrive;
         
         const STATE = {
             user: null,
@@ -304,19 +303,19 @@
         const actions = {
             async login(email, password) {
                 STATE.authError = null; STATE.authSuccess = null; renderUI();
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) STATE.authError = error.message;
-                else { STATE.user = data.user; STATE.authSuccess = 'Login successful!'; STATE.authModalOpen = false; await actions.checkEnrollment(); setTimeout(() => { STATE.authSuccess = null; renderUI(); }, 2000); }
+                const result = await MEI.loginUser(email, password);
+                if (!result.success) STATE.authError = result.error;
+                else { STATE.user = await MEI.getCurrentUser(); STATE.authSuccess = 'Login successful!'; STATE.authModalOpen = false; await actions.checkEnrollment(); setTimeout(() => { STATE.authSuccess = null; renderUI(); }, 2000); }
                 renderUI();
             },
             async register(email, password) {
                 STATE.authError = null; STATE.authSuccess = null; renderUI();
-                const { error } = await supabase.auth.signUp({ email, password });
-                if (error) STATE.authError = error.message;
+                const result = await MEI.registerUser(email, password);
+                if (!result.success) STATE.authError = result.error;
                 else { STATE.authSuccess = 'Registration successful! You can now login.'; setTimeout(() => { STATE.authMode = 'login'; STATE.authSuccess = null; renderUI(); }, 2000); }
                 renderUI();
             },
-            async logout() { await supabase.auth.signOut(); STATE.user = null; STATE.enrollment = null; window.location.href = 'index.html'; },
+            async logout() { await MEI.logoutUser(); STATE.user = null; STATE.enrollment = null; window.location.href = 'index.html'; },
             openModal(mode) { STATE.authMode = mode; STATE.authModalOpen = true; STATE.authError = null; STATE.authSuccess = null; renderUI(); },
             closeModal() { STATE.authModalOpen = false; renderUI(); },
             async handleAuthSubmit() {
@@ -358,8 +357,9 @@
             },
             async checkEnrollment() {
                 if (!STATE.user || !STATE.course) return;
-                const { data, error } = await supabase.from('enrollments').select('*').eq('user_id', STATE.user.id).eq('course_id', STATE.course.id).single();
-                if (!error && data) STATE.enrollment = data;
+                const enrollments = await MEI.fetchEnrollments(STATE.user.id);
+                const enrollment = enrollments.find(e => e.course_id === STATE.course.id);
+                if (enrollment) STATE.enrollment = enrollment;
                 else STATE.enrollment = null;
                 renderUI();
             },
@@ -371,24 +371,29 @@
                     const courseTitle = sessionStorage.getItem('selectedCourse');
                     
                     if (!courseId && courseTitle) {
-                        const { data: course, error: courseError } = await supabase.from('courses').select('*').eq('title', courseTitle).single();
-                        if (courseError) throw courseError;
-                        courseId = course.id; STATE.course = course;
+                        const courses = await MEI.fetchCourses();
+                        const course = courses.find(c => c.title === courseTitle);
+                        if (!course) throw new Error('Course not found');
+                        courseId = course.id;
+                        STATE.course = course;
                     } else if (courseId) {
-                        const { data: course, error: courseError } = await supabase.from('courses').select('*').eq('id', parseInt(courseId)).single();
-                        if (courseError) throw courseError;
+                        const course = await MEI.fetchCourseById(parseInt(courseId));
+                        if (!course) throw new Error('Course not found');
                         STATE.course = course;
                     } else throw new Error('No course selected');
                     
-                    const { data: units, error: unitsError } = await supabase.from('units').select('*').eq('course_id', STATE.course.id).eq('is_published', true).order('unit_number', { ascending: true });
-                    if (unitsError) throw unitsError;
+                    const units = await MEI.fetchLessons(STATE.course.id);
                     STATE.units = units || [];
                     STATE.currentUnitIndex = 0;
                     if (STATE.user) await actions.checkEnrollment();
                     STATE.loading = false; renderUI();
                 } catch(e) { STATE.error = e.message || 'An unexpected error occurred.'; STATE.loading = false; renderUI(); }
             },
-            async syncAuth() { const { data: { session } } = await supabase.auth.getSession(); STATE.user = session?.user || null; renderUI(); }
+            async syncAuth() { 
+                const user = await MEI.getCurrentUser();
+                STATE.user = user; 
+                renderUI(); 
+            }
         };
         
         window.actions = actions;
@@ -398,7 +403,14 @@
         document.querySelector('.close-modal').onclick = () => actions.closeModal();
         window.onclick = (event) => { if (event.target === document.getElementById('authModal')) actions.closeModal(); };
         
-        async function init() { await actions.syncAuth(); await actions.loadCourse(); }
+        async function init() { 
+            if (MEI.isReady()) {
+                await actions.syncAuth(); 
+                await actions.loadCourse(); 
+            } else {
+                console.error('MEIDrive not ready');
+            }
+        }
         init();
     </script>
 </body>
