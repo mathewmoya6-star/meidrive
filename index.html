@@ -7,7 +7,6 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%230A192F'/%3E%3Crect x='10' y='10' width='180' height='180' rx='35' fill='none' stroke='%2300FF88' stroke-width='3'/%3E%3Ctext x='100' y='85' font-size='48' text-anchor='middle' fill='%2300FF88' font-weight='800' font-family='Arial, sans-serif'%3EMEI%3C/text%3E%3Ctext x='100' y='135' font-size='28' text-anchor='middle' fill='%2300FF88' font-weight='700' font-family='Arial, sans-serif'%3EDRIVE%3C/text%3E%3Ctext x='100' y='168' font-size='16' text-anchor='middle' fill='%2300FF88' opacity='0.8'%3EAFRICA%3C/text%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%230A192F'/%3E%3Ctext x='100' y='115' font-size='50' text-anchor='middle' fill='%2300FF88' font-weight='800'%3EM%3C/text%3E%3C/svg%3E">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- SINGLE SOURCE OF TRUTH -->
     <script src="supabase.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,58 +30,22 @@
             z-index: 1000;
             border-bottom: 1px solid rgba(0, 255, 136, 0.2);
         }
-        .logo { 
-            font-size: 26px; 
-            font-weight: 800; 
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #00FF88, #00cc6a);
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 18px;
-            color: #0A192F;
-        }
+        .logo { font-size: 26px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #00FF88, #00cc6a); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; color: #0A192F; }
         .logo span { color: #00FF88; }
         .nav-links { display: flex; gap: 35px; align-items: center; flex-wrap: wrap; }
         .nav-links a { color: #fff; text-decoration: none; transition: all 0.3s; font-weight: 500; cursor: pointer; }
         .nav-links a:hover { color: #00FF88; }
         .auth-buttons { display: flex; gap: 12px; }
-        .btn-login, .btn-register {
-            padding: 8px 24px;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-        }
+        .btn-login, .btn-register { padding: 8px 24px; border-radius: 8px; transition: all 0.3s; font-weight: 600; font-size: 14px; cursor: pointer; border: none; }
         .btn-login { background: transparent; border: 1.5px solid #00FF88; color: #00FF88; }
         .btn-login:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-2px); }
         .btn-register { background: #00FF88; color: #0A192F; }
         .btn-register:hover { background: #00cc6a; transform: translateY(-2px); }
         .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .user-email { color: #00FF88; font-size: 14px; }
-        .btn-logout, .btn-payments {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-payments { background: rgba(0, 255, 136, 0.15); border-color: #00FF88; color: #00FF88; }
+        .btn-logout { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 8px 20px; border-radius: 8px; cursor: pointer; }
         .btn-logout:hover { background: rgba(255, 255, 255, 0.2); }
-        .btn-payments:hover { background: rgba(0, 255, 136, 0.3); }
         
         .hero {
             min-height: 100vh;
@@ -109,31 +72,9 @@
         .hero h1 span { color: #00FF88; }
         .hero p { font-size: 20px; opacity: 0.85; margin-bottom: 24px; }
         .hero-buttons { display: flex; gap: 20px; justify-content: center; margin-bottom: 60px; flex-wrap: wrap; }
-        .btn-primary {
-            background: #00FF88;
-            color: #0A192F;
-            padding: 14px 38px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-            display: inline-block;
-            cursor: pointer;
-            border: none;
-        }
+        .btn-primary { background: #00FF88; color: #0A192F; padding: 14px 38px; border-radius: 8px; text-decoration: none; font-weight: 700; transition: all 0.3s; display: inline-block; cursor: pointer; border: none; }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3); }
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid #00FF88;
-            color: #00FF88;
-            padding: 12px 38px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-            display: inline-block;
-            cursor: pointer;
-        }
+        .btn-secondary { background: transparent; border: 2px solid #00FF88; color: #00FF88; padding: 12px 38px; border-radius: 8px; text-decoration: none; font-weight: 700; transition: all 0.3s; display: inline-block; cursor: pointer; }
         .btn-secondary:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-3px); }
         .stats { display: flex; justify-content: center; gap: 80px; flex-wrap: wrap; }
         .stat-item { text-align: center; }
@@ -162,35 +103,14 @@
             border: 1px solid rgba(0, 255, 136, 0.3);
         }
         .modal-content h2 { margin-bottom: 20px; text-align: center; color: #00FF88; }
-        .modal-content input, .modal-content select {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 15px;
-            background: rgba(10, 25, 47, 0.8);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-        }
-        .modal-content input:focus, .modal-content select:focus { outline: none; border-color: #00FF88; }
-        .modal-content button {
-            width: 100%;
-            padding: 14px;
-            background: #00FF88;
-            color: #0A192F;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-bottom: 15px;
-        }
-        .modal-content button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .modal-content input { width: 100%; padding: 14px; margin-bottom: 15px; background: rgba(10, 25, 47, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 8px; color: white; font-size: 16px; }
+        .modal-content input:focus { outline: none; border-color: #00FF88; }
+        .modal-content button { width: 100%; padding: 14px; background: #00FF88; color: #0A192F; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 15px; }
         .modal-switch { text-align: center; color: rgba(255, 255, 255, 0.6); cursor: pointer; }
         .modal-switch span { color: #00FF88; }
         .close-modal { position: absolute; top: 20px; right: 30px; font-size: 30px; cursor: pointer; color: white; }
         .error-msg { color: #ff4444; text-align: center; margin-bottom: 15px; font-size: 14px; }
         .success-msg { color: #00FF88; text-align: center; margin-bottom: 15px; font-size: 14px; }
-        .info-msg { color: #ffaa44; text-align: center; margin-bottom: 15px; font-size: 14px; }
         
         .courses-section { padding: 80px 5%; background: #0A192F; }
         .section-title { text-align: center; font-size: 42px; margin-bottom: 16px; font-weight: 700; }
@@ -203,7 +123,6 @@
             border-radius: 16px;
             padding: 30px;
             transition: all 0.3s;
-            cursor: pointer;
             border: 1px solid rgba(0, 255, 136, 0.15);
             position: relative;
         }
@@ -214,42 +133,11 @@
         .course-price { font-size: 20px; font-weight: 700; color: #00FF88; margin-bottom: 15px; }
         .course-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 255, 136, 0.15); flex-wrap: wrap; gap: 10px; }
         .duration { font-size: 14px; opacity: 0.6; }
-        .enroll-btn, .continue-btn {
-            background: #00FF88;
-            color: #0A192F;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
+        .enroll-btn, .continue-btn { background: #00FF88; color: #0A192F; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.3s; }
         .enroll-btn:hover, .continue-btn:hover { transform: scale(1.05); background: #00cc6a; }
-        .enrolled-badge {
-            background: rgba(0, 255, 136, 0.2);
-            color: #00FF88;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            position: absolute;
-            top: 15px;
-            right: 15px;
-        }
-        .progress-mini {
-            width: 100%;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        .progress-mini-fill {
-            height: 100%;
-            background: #00FF88;
-            border-radius: 2px;
-            transition: width 0.3s;
-        }
+        .enrolled-badge { background: rgba(0, 255, 136, 0.2); color: #00FF88; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; position: absolute; top: 15px; right: 15px; }
+        .progress-mini { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+        .progress-mini-fill { height: 100%; background: #00FF88; border-radius: 2px; transition: width 0.3s; }
         
         .features-section { padding: 80px 5%; background: #0D2137; }
         .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
@@ -266,25 +154,8 @@
         .footer { background: #051020; text-align: center; padding: 40px; border-top: 1px solid rgba(0, 255, 136, 0.1); }
         .footer p { opacity: 0.6; font-size: 14px; }
         
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a472a;
-            color: #00FF88;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            z-index: 3000;
-            display: none;
-            animation: slideUp 0.3s ease;
-            border: 1px solid #00FF88;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a472a; color: #00FF88; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 3000; display: none; animation: slideUp 0.3s ease; border: 1px solid #00FF88; }
+        @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         
         @media (max-width: 768px) {
             .navbar { flex-direction: column; text-align: center; position: relative; }
@@ -327,24 +198,6 @@
         </div>
     </div>
 
-    <!-- Payment Modal -->
-    <div id="paymentModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="window.closePaymentModal()">&times;</span>
-            <h2>💰 Complete Payment</h2>
-            <div id="paymentError" class="error-msg"></div>
-            <div id="paymentSuccess" class="success-msg"></div>
-            <div id="paymentInfo" class="info-msg"></div>
-            <input type="tel" id="paymentPhone" placeholder="M-Pesa Phone Number (e.g., 0712345678)" required>
-            <input type="text" id="paymentAmount" placeholder="Amount (KES)" readonly style="background: #1a2a3a;">
-            <input type="text" id="paymentCourse" placeholder="Course" readonly style="background: #1a2a3a;">
-            <button id="payNowBtn" onclick="window.processPayment()">💳 Pay with M-Pesa</button>
-            <p style="font-size: 12px; text-align: center; margin-top: 15px; opacity: 0.6;">
-                Paybill: <strong>4095377</strong> | You'll receive a prompt on your phone
-            </p>
-        </div>
-    </div>
-
     <section class="hero" id="home">
         <div class="hero-content">
             <h1>Practice Daily.<br><span>Revise Smarter.</span> Pass with Confidence.</h1>
@@ -364,7 +217,7 @@
     <section class="courses-section" id="courses">
         <h2 class="section-title">Our <span>Courses</span></h2>
         <div class="section-subtitle">Choose the right course for your driving journey</div>
-        <div class="courses-grid" id="coursesGrid"><div class="loading"><div class="spinner"></div>Loading courses from database...</div></div>
+        <div class="courses-grid" id="coursesGrid"><div class="loading"><div class="spinner"></div>Loading courses...</div></div>
     </section>
 
     <section class="features-section">
@@ -385,25 +238,21 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // Use MEIDrive global from supabase.js
+        // Use the global MEIDrive instance from supabase.js
         const MEI = window.MEIDrive;
         
-        // App State
         let currentUser = null;
         let allCourses = [];
         let userEnrollments = new Map();
         let authMode = 'login';
-        let selectedCourseForPayment = null;
-        let paymentInterval = null;
         
-        // Helper Functions
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.style.display = 'block';
             toast.style.background = isError ? '#8b0000' : '#1a472a';
             toast.style.color = isError ? '#ff8888' : '#00FF88';
-            setTimeout(() => { toast.style.display = 'none'; }, 4000);
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
         
         function escapeHtml(str) {
@@ -411,34 +260,20 @@
             return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
         }
         
-        // Auth Functions
         async function checkAuth() {
-            console.log('🔐 Checking authentication...');
-            const user = await MEI.getCurrentUser();
-            currentUser = user;
+            if (!MEI.isReady()) return false;
+            currentUser = await MEI.getCurrentUser();
             renderAuthButtons();
-            if (currentUser) {
-                console.log('✅ User authenticated:', currentUser.email);
-                await loadEnrollments();
-            }
+            if (currentUser) await loadEnrollments();
             return currentUser !== null;
         }
         
         function renderAuthButtons() {
             const authContainer = document.getElementById('authContainer');
             if (currentUser) {
-                authContainer.innerHTML = `
-                    <div class="user-info">
-                        <span class="user-email">${escapeHtml(currentUser.email)}</span>
-                        <button class="btn-payments" onclick="window.viewPayments()">💳 Payments</button>
-                        <button class="btn-logout" onclick="window.logout()">Logout</button>
-                    </div>
-                `;
+                authContainer.innerHTML = `<div class="user-info"><span class="user-email">${escapeHtml(currentUser.email)}</span><button class="btn-logout" onclick="logout()">Logout</button></div>`;
             } else {
-                authContainer.innerHTML = `
-                    <button class="btn-login" onclick="window.openAuthModal('login')">Login</button>
-                    <button class="btn-register" onclick="window.openAuthModal('register')">Register</button>
-                `;
+                authContainer.innerHTML = `<button class="btn-login" onclick="openAuthModal('login')">Login</button><button class="btn-register" onclick="openAuthModal('register')">Register</button>`;
             }
         }
         
@@ -448,16 +283,13 @@
             const title = document.getElementById('modalTitle');
             const submitBtn = document.getElementById('modalSubmitBtn');
             const switchDiv = document.getElementById('modalSwitch');
-            
             title.textContent = mode === 'login' ? 'Login' : 'Register';
             submitBtn.textContent = mode === 'login' ? 'Login' : 'Register';
             switchDiv.innerHTML = mode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
-            
             document.getElementById('modalError').textContent = '';
             document.getElementById('modalSuccess').textContent = '';
             document.getElementById('modalEmail').value = '';
             document.getElementById('modalPassword').value = '';
-            
             modal.classList.add('active');
         }
         
@@ -469,7 +301,6 @@
             const email = document.getElementById('modalEmail').value;
             const password = document.getElementById('modalPassword').value;
             const errorDiv = document.getElementById('modalError');
-            const successDiv = document.getElementById('modalSuccess');
             
             if (!email || !password) {
                 errorDiv.textContent = 'Please enter both email and password';
@@ -477,23 +308,20 @@
             }
             
             try {
+                let result;
                 if (authMode === 'login') {
-                    const result = await MEI.loginUser(email, password);
+                    result = await MEI.login(email, password);
                     if (!result.success) throw new Error(result.error);
-                    successDiv.textContent = 'Login successful! Redirecting...';
-                    setTimeout(() => {
-                        closeAuthModal();
-                        checkAuth();
-                        renderCourses();
-                    }, 1500);
+                    closeAuthModal();
+                    await checkAuth();
+                    await loadCourses();
+                    showToast('Login successful!');
                 } else {
-                    const result = await MEI.registerUser(email, password);
+                    result = await MEI.register(email, password);
                     if (!result.success) throw new Error(result.error);
-                    successDiv.textContent = 'Account created! You can now login.';
-                    setTimeout(() => {
-                        authMode = 'login';
-                        openAuthModal('login');
-                    }, 2000);
+                    showToast('Account created! You can now login.');
+                    authMode = 'login';
+                    openAuthModal('login');
                 }
             } catch (error) {
                 errorDiv.textContent = error.message;
@@ -501,262 +329,65 @@
         }
         
         async function logout() {
-            await MEI.logoutUser();
+            await MEI.logout();
             currentUser = null;
             userEnrollments.clear();
             renderAuthButtons();
             renderCourses();
-            showToast('Logged out successfully');
+            showToast('Logged out');
         }
         
-        // Course Functions
         async function loadCourses() {
+            if (!MEI.isReady()) {
+                setTimeout(loadCourses, 500);
+                return;
+            }
             try {
-                console.log('📚 Loading courses from Supabase...');
-                const courses = await MEI.fetchCourses();
-                
-                if (courses && courses.length > 0) {
-                    allCourses = courses;
-                    console.log(`✅ Loaded ${allCourses.length} courses from database`);
-                    document.getElementById('coursesCount').textContent = allCourses.length;
-                    renderCourses();
-                } else {
-                    console.log('⚠️ No courses found in database');
-                    allCourses = [];
-                    renderCourses();
-                }
+                allCourses = await MEI.getAllCourses();
+                document.getElementById('coursesCount').textContent = allCourses.length;
+                renderCourses();
             } catch (error) {
-                console.error('Error:', error);
-                showToast('Failed to load courses', true);
+                console.error('Error loading courses:', error);
+                showToast('Error loading courses', true);
             }
         }
         
         async function loadEnrollments() {
             if (!currentUser) return;
-            
             try {
-                console.log('📋 Loading enrollments...');
-                const enrollments = await MEI.fetchEnrollments(currentUser.id);
-                
-                if (enrollments && enrollments.length > 0) {
-                    userEnrollments.clear();
-                    enrollments.forEach(enrollment => {
-                        userEnrollments.set(enrollment.course_id, {
-                            enrolled: true,
-                            progress: enrollment.progress || 0,
-                            enrolled_at: enrollment.enrolled_at
-                        });
-                    });
-                    console.log(`✅ Loaded ${enrollments.length} enrollments`);
-                    renderCourses();
-                }
+                const enrollments = await MEI.getUserEnrollments(currentUser.id);
+                userEnrollments.clear();
+                enrollments.forEach(enrollment => {
+                    userEnrollments.set(enrollment.course_id, { enrolled: true, progress: enrollment.progress || 0 });
+                });
+                renderCourses();
             } catch (error) {
                 console.error('Error loading enrollments:', error);
             }
         }
         
-        async function createEnrollment(courseId) {
-            if (!currentUser) return false;
-            
-            try {
-                const result = await MEI.enrollInCourse(currentUser.id, courseId);
-                if (!result.success) throw new Error(result.error);
-                
-                await loadEnrollments();
-                return true;
-            } catch (error) {
-                console.error('Enrollment error:', error);
-                return false;
-            }
-        }
-        
-        function viewCourse(courseId, courseTitle) {
-            sessionStorage.setItem('selectedCourse', courseTitle);
+        function viewCourse(courseId) {
             window.location.href = `course.html?id=${courseId}`;
         }
         
-        function openPaymentModal(course) {
+        async function enrollInCourse(courseId) {
             if (!currentUser) {
-                showToast('Please login first to enroll', true);
+                showToast('Please login first', true);
                 openAuthModal('login');
                 return;
             }
             
-            selectedCourseForPayment = course;
-            document.getElementById('paymentAmount').value = `KES ${course.price || 2999}`;
-            document.getElementById('paymentCourse').value = course.title;
-            document.getElementById('paymentPhone').value = '';
-            document.getElementById('paymentError').textContent = '';
-            document.getElementById('paymentSuccess').textContent = '';
-            document.getElementById('paymentInfo').textContent = '';
-            document.getElementById('paymentModal').classList.add('active');
-        }
-        
-        function closePaymentModal() {
-            if (paymentInterval) {
-                clearInterval(paymentInterval);
-                paymentInterval = null;
-            }
-            document.getElementById('paymentModal').classList.remove('active');
-            selectedCourseForPayment = null;
-        }
-        
-        async function processPayment() {
-            if (!selectedCourseForPayment) return;
-            
-            const phone = document.getElementById('paymentPhone').value;
-            const amount = selectedCourseForPayment.price || 2999;
-            const courseTitle = selectedCourseForPayment.title;
-            
-            if (!phone) {
-                document.getElementById('paymentError').textContent = 'Please enter your M-Pesa phone number';
+            if (userEnrollments.has(courseId)) {
+                showToast('Already enrolled!');
                 return;
             }
             
-            // Validate phone number
-            let formattedPhone = phone.replace(/\D/g, '');
-            if (formattedPhone.startsWith('0')) {
-                formattedPhone = '254' + formattedPhone.slice(1);
-            } else if (formattedPhone.startsWith('+')) {
-                formattedPhone = formattedPhone.slice(1);
-            }
-            
-            if (formattedPhone.length !== 12 || !formattedPhone.startsWith('254')) {
-                document.getElementById('paymentError').textContent = 'Invalid phone number. Use format: 0712345678';
-                return;
-            }
-            
-            const payBtn = document.getElementById('payNowBtn');
-            payBtn.disabled = true;
-            payBtn.textContent = 'Sending request...';
-            
-            try {
-                const response = await fetch('/api/mpesa/stkpush', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        phoneNumber: formattedPhone,
-                        amount: amount,
-                        accountReference: `COURSE_${selectedCourseForPayment.id}_${Date.now()}`,
-                        transactionDesc: `Enrollment: ${courseTitle}`,
-                        userId: currentUser?.id,
-                        courseId: selectedCourseForPayment.id
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    document.getElementById('paymentSuccess').innerHTML = '✓ STK Push sent! Check your phone for M-Pesa prompt.<br>Enter your PIN to complete payment.';
-                    showToast('Check your phone! Enter M-Pesa PIN to complete payment.');
-                    
-                    // Poll for payment completion
-                    const checkoutId = result.checkoutRequestID;
-                    let attempts = 0;
-                    const maxAttempts = 30;
-                    
-                    if (paymentInterval) clearInterval(paymentInterval);
-                    
-                    paymentInterval = setInterval(async () => {
-                        attempts++;
-                        try {
-                            const statusRes = await fetch('/api/mpesa/status', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ checkoutRequestID: checkoutId })
-                            });
-                            const statusResult = await statusRes.json();
-                            
-                            if (statusResult.status === 'completed') {
-                                clearInterval(paymentInterval);
-                                paymentInterval = null;
-                                
-                                const enrolled = await createEnrollment(selectedCourseForPayment.id);
-                                
-                                if (enrolled) {
-                                    document.getElementById('paymentSuccess').innerHTML = '✅ Payment successful! You are now enrolled.';
-                                    showToast('✅ Payment successful! Welcome to the course!');
-                                    renderCourses();
-                                    
-                                    setTimeout(() => {
-                                        closePaymentModal();
-                                        window.location.href = `course.html?id=${selectedCourseForPayment.id}`;
-                                    }, 2000);
-                                }
-                            } else if (statusResult.status === 'failed') {
-                                clearInterval(paymentInterval);
-                                paymentInterval = null;
-                                document.getElementById('paymentError').textContent = statusResult.resultDesc || 'Payment cancelled or failed.';
-                                showToast('Payment failed. Please try again.', true);
-                            } else if (attempts >= maxAttempts) {
-                                clearInterval(paymentInterval);
-                                paymentInterval = null;
-                                document.getElementById('paymentInfo').innerHTML = '⏳ Payment pending. You will receive SMS confirmation when complete.';
-                            }
-                        } catch (err) {
-                            console.error('Status check error:', err);
-                        }
-                    }, 3000);
-                    
-                } else {
-                    throw new Error(result.error || result.responseDescription || 'Payment failed');
-                }
-            } catch (error) {
-                console.error('Payment error:', error);
-                document.getElementById('paymentError').textContent = error.message || 'Payment failed. Please try again.';
-                showToast(error.message || 'Payment failed. Try again or use Paybill 4095377', true);
-            } finally {
-                payBtn.disabled = false;
-                payBtn.textContent = '💳 Pay with M-Pesa';
-            }
-        }
-        
-        async function viewPayments() {
-            if (!currentUser) {
-                showToast('Please login first', true);
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/mpesa/transactions');
-                const data = await response.json();
-                
-                if (data.success && data.transactions.length > 0) {
-                    const userTx = data.transactions.filter(t => t.userId === currentUser.id);
-                    if (userTx.length > 0) {
-                        let msg = '📋 Your Payment History:\n\n';
-                        userTx.slice(-5).reverse().forEach(t => {
-                            msg += `💰 KES ${t.amount} - ${t.status.toUpperCase()}\n`;
-                            msg += `   📅 ${new Date(t.createdAt).toLocaleDateString()}\n`;
-                            if (t.mpesaReceiptNumber) msg += `   🧾 Receipt: ${t.mpesaReceiptNumber}\n`;
-                            msg += `   📚 ${t.transactionDesc}\n\n`;
-                        });
-                        alert(msg);
-                    } else {
-                        alert('No payment history found.');
-                    }
-                } else {
-                    alert('No payment history found.');
-                }
-            } catch (error) {
-                console.error('Error fetching payments:', error);
-                alert('Error fetching payments');
-            }
-        }
-        
-        async function loadQuizCount() {
-            try {
-                const { count, error } = await MEI.supabase
-                    .from('quiz_questions')
-                    .select('*', { count: 'exact', head: true });
-                
-                if (!error && count) {
-                    document.getElementById('questionsCount').textContent = count;
-                } else {
-                    document.getElementById('questionsCount').textContent = '500+';
-                }
-            } catch (error) {
-                document.getElementById('questionsCount').textContent = '500+';
+            const result = await MEI.enrollInCourse(currentUser.id, courseId);
+            if (result.success) {
+                await loadEnrollments();
+                showToast('Enrolled successfully!');
+            } else {
+                showToast(result.error || 'Enrollment failed', true);
             }
         }
         
@@ -764,13 +395,7 @@
             const grid = document.getElementById('coursesGrid');
             
             if (!allCourses || allCourses.length === 0) {
-                grid.innerHTML = `
-                    <div style="text-align: center; padding: 60px; background: rgba(13,33,55,0.6); border-radius: 16px;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">📚</div>
-                        <h3>No Courses Available</h3>
-                        <p style="opacity: 0.7; margin-top: 10px;">Please add courses to your database to get started.</p>
-                    </div>
-                `;
+                grid.innerHTML = `<div class="loading"><div class="spinner"></div>No courses available. Please check back later.</div>`;
                 return;
             }
             
@@ -778,34 +403,27 @@
                 const enrollment = userEnrollments.get(course.id);
                 const isEnrolled = !!enrollment;
                 const progress = enrollment?.progress || 0;
-                const price = course.price || 2999;
-                
-                let badge = '';
-                if (isEnrolled) {
-                    badge = `<div class="enrolled-badge">${progress === 100 ? '✅ COMPLETED' : '📖 ENROLLED'}</div>`;
-                }
+                const price = course.price || 0;
                 
                 return `
                     <div class="course-card">
-                        ${badge}
+                        ${isEnrolled ? `<div class="enrolled-badge">${progress === 100 ? '✅ COMPLETED' : '📖 ENROLLED'}</div>` : ''}
                         <div class="course-icon">${course.icon || '🚗'}</div>
                         <h3>${escapeHtml(course.title)}</h3>
-                        <p>${escapeHtml((course.description || 'Professional driver training course').substring(0, 100))}${(course.description || '').length > 100 ? '...' : ''}</p>
+                        <p>${escapeHtml((course.description || '').substring(0, 100))}${(course.description || '').length > 100 ? '...' : ''}</p>
                         <div class="course-price">💰 KES ${price.toLocaleString()}</div>
                         <div class="course-meta">
-                            <span class="duration">⏱️ ${course.duration || 'Flexible'}</span>
+                            <span class="duration">⏱️ ${course.duration_hours || 20}+ hours</span>
                             ${isEnrolled ? 
                                 `<div style="width: 100%;">
                                     <div class="progress-mini">
                                         <div class="progress-mini-fill" style="width: ${progress}%"></div>
                                     </div>
-                                    <button class="continue-btn" onclick="window.viewCourse(${course.id}, '${course.title.replace(/'/g, "\\'")}')">
+                                    <button class="continue-btn" onclick="viewCourse(${course.id})">
                                         ${progress === 100 ? '📋 Review Course' : '▶️ Continue Learning'}
                                     </button>
                                 </div>` :
-                                `<button class="enroll-btn" onclick="window.openPaymentModal({id:${course.id}, title:'${course.title.replace(/'/g, "\\'")}', price:${price}})">
-                                    💰 Enroll Now
-                                </button>`
+                                `<button class="enroll-btn" onclick="enrollInCourse(${course.id})">💰 Enroll Now - KES ${price.toLocaleString()}</button>`
                             }
                         </div>
                     </div>
@@ -813,53 +431,38 @@
             }).join('');
         }
         
+        async function loadQuizCount() {
+            if (!MEI.isReady()) return;
+            const count = await MEI.getQuizCount();
+            document.getElementById('questionsCount').textContent = count > 0 ? count : '500+';
+        }
+        
         // Make functions global
         window.openAuthModal = openAuthModal;
-        window.closePaymentModal = closePaymentModal;
-        window.processPayment = processPayment;
         window.viewCourse = viewCourse;
-        window.openPaymentModal = openPaymentModal;
-        window.viewPayments = viewPayments;
+        window.enrollInCourse = enrollInCourse;
         window.logout = logout;
         
-        // Event Listeners
+        // Event listeners
         document.getElementById('modalSubmitBtn').onclick = handleAuth;
         document.getElementById('modalSwitch').onclick = () => {
             authMode = authMode === 'login' ? 'register' : 'login';
             const title = document.getElementById('modalTitle');
             const submitBtn = document.getElementById('modalSubmitBtn');
             const switchDiv = document.getElementById('modalSwitch');
-            
             title.textContent = authMode === 'login' ? 'Login' : 'Register';
             submitBtn.textContent = authMode === 'login' ? 'Login' : 'Register';
             switchDiv.innerHTML = authMode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
         };
+        document.querySelector('.close-modal').onclick = closeAuthModal;
+        window.onclick = (event) => { if (event.target === document.getElementById('authModal')) closeAuthModal(); };
         
-        document.querySelectorAll('.close-modal').forEach(el => {
-            el.onclick = () => {
-                closeAuthModal();
-                closePaymentModal();
-            };
-        });
-        
-        window.onclick = (event) => {
-            if (event.target === document.getElementById('authModal')) closeAuthModal();
-            if (event.target === document.getElementById('paymentModal')) closePaymentModal();
-        };
-        
-        // Initialize App
+        // Initialize
         async function init() {
             console.log('🚀 Initializing MEI Drive Africa...');
-            if (MEI.isReady()) {
-                console.log('✅ MEIDrive ready');
-                await checkAuth();
-                await loadCourses();
-                await loadQuizCount();
-                console.log('✅ App initialized');
-            } else {
-                console.error('❌ MEIDrive not ready');
-                showToast('Error initializing app. Please refresh.', true);
-            }
+            await checkAuth();
+            await loadCourses();
+            await loadQuizCount();
         }
         
         init();
