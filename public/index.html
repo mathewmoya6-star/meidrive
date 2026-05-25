@@ -8,7 +8,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230A192F'/%3E%3Ctext x='50' y='38' font-size='18' font-family='Arial' font-weight='bold' fill='%2300FF88' text-anchor='middle'%3EMEI%3C/text%3E%3Ctext x='50' y='58' font-size='9' font-family='Arial' font-weight='bold' fill='%23FFFFFF' text-anchor='middle'%3EDRIVE%3C/text%3E%3Ctext x='50' y='74' font-size='7' font-family='Arial' fill='%2300FF88' text-anchor='middle'%3EAFRICA%3C/text%3E%3C/svg%3E">
     
-    <!-- Supabase JS -->
+    <!-- Supabase JS - SINGLE SOURCE OF TRUTH -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -188,8 +188,9 @@
             border-radius: 40px;
             cursor: pointer;
             font-weight: 700;
+            transition: all 0.3s;
         }
-        .enroll-btn:hover, .continue-btn:hover { background: #00cc6a; }
+        .enroll-btn:hover, .continue-btn:hover { background: #00cc6a; transform: scale(1.02); }
         .enrolled-badge {
             background: #00FF88;
             color: #0A192F;
@@ -201,6 +202,16 @@
             top: 18px;
             right: 18px;
         }
+        .progress-mini {
+            width: 100%;
+            height: 5px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        .progress-mini-fill { height: 100%; background: #00FF88; border-radius: 10px; }
+        .completion-text { font-size: 11px; text-align: right; margin-top: 6px; opacity: 0.7; }
         
         .modal {
             display: none;
@@ -274,6 +285,7 @@
         }
         .close-modal:hover { color: #00FF88; }
         .error-msg { color: #ff8888; text-align: center; margin-bottom: 16px; font-size: 14px; }
+        .success-msg { color: #88ff88; text-align: center; margin-bottom: 16px; }
         .loading-spinner { text-align: center; padding: 60px; color: #00FF88; font-size: 18px; }
         .footer { background: #051020; text-align: center; padding: 40px; margin-top: 40px; }
         .footer p { opacity: 0.6; font-size: 14px; margin: 6px 0; }
@@ -290,12 +302,14 @@
             z-index: 3000;
             font-weight: 500;
             text-align: center;
+            font-size: 14px;
         }
         @media (max-width: 768px) {
             .hero h1 { font-size: 36px; }
             .navbar { position: relative; flex-direction: column; text-align: center; }
             .courses-grid { grid-template-columns: 1fr; }
             .stats { gap: 40px; }
+            .toast { white-space: normal; width: 90%; }
         }
     </style>
 </head>
@@ -349,7 +363,7 @@
     <section class="courses-section" id="courses">
         <h2 class="section-title">Our <span>Courses</span></h2>
         <div class="section-subtitle">Choose the right course for your driving journey</div>
-        <div class="courses-grid" id="coursesGrid"><div class="loading-spinner">📡 Loading courses from database...</div></div>
+        <div class="courses-grid" id="coursesGrid"><div class="loading-spinner">📡 Loading courses from Supabase...</div></div>
     </section>
 
     <footer class="footer" id="contact">
@@ -360,12 +374,15 @@
 
     <script>
         // ============================================================
-        // SUPABASE CREDENTIALS
+        // SUPABASE CREDENTIALS - SINGLE SOURCE OF TRUTH
         // ============================================================
         const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
         
-        // SINGLE SUPABASE CLIENT
+        // ============================================================
+        // SINGLE SUPABASE CLIENT - THE ONE AND ONLY SOURCE OF TRUTH
+        // ALL data (auth, courses, enrollments) comes from/to this client
+        // ============================================================
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Global state
@@ -385,40 +402,45 @@
         
         function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
         
-        // Load courses from Supabase DATABASE
+        // ============================================================
+        // DATA FETCHING - FROM SUPABASE (SINGLE SOURCE OF TRUTH)
+        // ============================================================
+        
+        // Load courses from Supabase courses table
         async function loadCourses() {
             try {
-                console.log('🔄 Fetching courses from Supabase database...');
+                console.log('🔄 [Supabase] Fetching courses from database...');
                 const { data, error } = await supabase.from('courses').select('*').order('id');
                 if (error) throw error;
                 
                 allCourses = data || [];
                 document.getElementById('coursesCount').innerText = allCourses.length;
-                console.log(`✅ Loaded ${allCourses.length} courses from database`);
+                console.log(`✅ [Supabase] Loaded ${allCourses.length} courses`);
                 
+                // Auto-seed if no courses exist
                 if (allCourses.length === 0) {
-                    console.log('📝 No courses found, seeding default courses...');
+                    console.log('📝 [Supabase] No courses found, seeding defaults...');
                     const defaultCourses = [
-                        { title: 'Private Car (Class B)', description: 'Complete training for private vehicle operators. Covers road signs, defensive driving.', price: 3500, icon: '🚗', duration: '4 weeks' },
-                        { title: 'Commercial Driving (Class C)', description: 'Professional training for light commercial vehicles.', price: 5500, icon: '🚛', duration: '6 weeks' },
-                        { title: 'Motorcycle (Class A)', description: 'Two-wheeler safety and road mastery.', price: 2500, icon: '🏍️', duration: '2 weeks' },
-                        { title: 'Theory & NTSA Exam Prep', description: 'Master the NTSA written exam with 500+ practice questions.', price: 1500, icon: '📚', duration: '1 week' }
+                        { title: 'Private Car (Class B)', description: 'Complete training for private vehicle operators. Covers road signs, defensive driving.', price: 3500, icon: '🚗' },
+                        { title: 'Commercial Driving (Class C)', description: 'Professional training for light commercial vehicles.', price: 5500, icon: '🚛' },
+                        { title: 'Motorcycle (Class A)', description: 'Two-wheeler safety and road mastery.', price: 2500, icon: '🏍️' },
+                        { title: 'Theory & NTSA Exam Prep', description: 'Master the NTSA written exam with 500+ practice questions.', price: 1500, icon: '📚' }
                     ];
                     for (const cr of defaultCourses) {
                         await supabase.from('courses').insert([cr]);
                     }
-                    console.log('✅ Default courses seeded!');
-                    await loadCourses(); // reload after seeding
+                    console.log('✅ [Supabase] Default courses seeded!');
+                    await loadCourses();
                     return;
                 }
                 renderCourses();
             } catch (err) {
-                console.error('❌ Error loading courses:', err);
-                document.getElementById('coursesGrid').innerHTML = `<div class="loading-spinner">⚠️ Cannot connect to database. Please run SQL setup in Supabase.</div>`;
+                console.error('❌ [Supabase] Error loading courses:', err);
+                document.getElementById('coursesGrid').innerHTML = `<div class="loading-spinner">⚠️ Cannot connect to Supabase. Please run SQL setup.</div>`;
             }
         }
         
-        // Load user enrollments from DATABASE
+        // Load user enrollments from Supabase enrollments table
         async function loadEnrollments() {
             if (!currentUser) return;
             try {
@@ -431,10 +453,10 @@
                     data.forEach(en => userEnrollments.set(en.course_id, { enrolled: true, progress: en.progress || 0 }));
                     renderCourses();
                 }
-            } catch(e) { console.warn('Enrollments error:', e); }
+            } catch(e) { console.warn('[Supabase] Enrollments error:', e); }
         }
         
-        // Load student count from DATABASE
+        // Load student count from Supabase
         async function loadStudentCount() {
             try {
                 const { count } = await supabase.from('enrollments').select('*', { count: 'exact', head: true });
@@ -442,10 +464,13 @@
             } catch(e) { document.getElementById('studentsCount').innerText = '150+'; }
         }
         
-        // Render courses
+        // Render courses from loaded data
         function renderCourses() {
             const grid = document.getElementById('coursesGrid');
-            if (!allCourses.length) { grid.innerHTML = '<div class="loading-spinner">📘 No courses in database yet.</div>'; return; }
+            if (!allCourses.length) { 
+                grid.innerHTML = '<div class="loading-spinner">📘 No courses in Supabase yet.</div>'; 
+                return; 
+            }
             
             grid.innerHTML = allCourses.map(course => {
                 const enrollment = userEnrollments.get(course.id);
@@ -464,24 +489,48 @@
                                 `<button class="enroll-btn" onclick="enrollInCourse(${course.id})">Enroll Now →</button>`
                             }
                         </div>
+                        ${isEnrolled && progress > 0 ? `
+                            <div class="progress-mini"><div class="progress-mini-fill" style="width: ${progress}%;"></div></div>
+                            <div class="completion-text">${progress}% complete</div>
+                        ` : ''}
                     </div>
                 `;
             }).join('');
         }
         
-        // Enrollment
+        // ============================================================
+        // ENROLLMENT - WRITES TO SUPABASE
+        // ============================================================
         window.enrollInCourse = async function(courseId) {
-            if (!currentUser) { showToast('Please login first', true); openAuthModal('login'); return; }
+            if (!currentUser) { 
+                showToast('Please login first', true); 
+                openAuthModal('login'); 
+                return; 
+            }
             const course = allCourses.find(c => c.id === courseId);
             if (!course) return;
-            if (userEnrollments.has(courseId)) { showToast('Already enrolled!'); return; }
+            if (userEnrollments.has(courseId)) { 
+                showToast('Already enrolled!'); 
+                return; 
+            }
+            
+            console.log(`🔄 [Supabase] Enrolling user ${currentUser.id} in course ${courseId}`);
             
             if (course.price === 0) {
                 const { error } = await supabase.from('enrollments').insert([{
-                    user_id: currentUser.id, course_id: courseId, progress: 0, enrolled_at: new Date().toISOString()
+                    user_id: currentUser.id, 
+                    course_id: courseId, 
+                    progress: 0, 
+                    enrolled_at: new Date().toISOString()
                 }]);
-                if (error) showToast('Enrollment failed', true);
-                else { await loadEnrollments(); showToast(`✅ Enrolled in ${course.title}!`); }
+                if (error) {
+                    showToast('Enrollment failed', true);
+                    console.error('❌ [Supabase] Enrollment error:', error);
+                } else {
+                    await loadEnrollments();
+                    showToast(`✅ Enrolled in ${course.title}!`);
+                    console.log(`✅ [Supabase] Enrolled in ${course.title}`);
+                }
             } else {
                 showToast(`💰 KES ${course.price} - Use Paybill 4095377`, false);
             }
@@ -491,7 +540,9 @@
             showToast('📘 Course content coming soon!', false);
         };
         
-        // ========== AUTHENTICATION - FIXED ==========
+        // ============================================================
+        // AUTHENTICATION - SUPABASE IS SINGLE SOURCE OF TRUTH
+        // ============================================================
         async function checkAuth() {
             const { data: { user } } = await supabase.auth.getUser();
             
@@ -516,11 +567,13 @@
         }
         
         window.logout = async function() {
+            console.log('🔄 [Supabase] Logging out...');
             await supabase.auth.signOut();
             currentUser = null;
             userEnrollments.clear();
             await checkAuth();
             showToast('Logged out successfully');
+            console.log('✅ [Supabase] Logged out');
         };
         
         window.openAuthModal = function(mode) {
@@ -553,19 +606,24 @@
             
             try {
                 if (authMode === 'login') {
+                    console.log(`🔄 [Supabase] Logging in: ${email}`);
                     const { error } = await supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     showToast('✅ Login successful!');
                     closeAuthModal();
                     await checkAuth();
+                    console.log(`✅ [Supabase] User logged in: ${email}`);
                 } else {
+                    console.log(`🔄 [Supabase] Registering: ${email}`);
                     const { error } = await supabase.auth.signUp({ email, password });
                     if (error) throw error;
                     showToast('🎉 Account created! Please verify your email.');
                     closeAuthModal();
+                    console.log(`✅ [Supabase] User registered: ${email}`);
                 }
             } catch (err) {
                 document.getElementById('modalError').innerText = err.message;
+                console.error('❌ [Supabase] Auth error:', err);
             }
         }
         
@@ -578,19 +636,21 @@
             showToast('📚 Quiz bank: 500+ NTSA questions coming soon!', false);
         }
         
-        // ========== EVENT LISTENERS - FIXED ==========
+        // ============================================================
+        // EVENT LISTENERS
+        // ============================================================
         document.getElementById('modalSubmitBtn').onclick = handleAuth;
         document.getElementById('modalSwitch').onclick = () => {
             openAuthModal(authMode === 'login' ? 'register' : 'login');
         };
         document.getElementById('closeModalBtn').onclick = closeAuthModal;
         
-        // FIX: Get Started button - DIRECT EVENT LISTENER
+        // Get Started button
         const getStartedBtn = document.getElementById('getStartedBtn');
         if (getStartedBtn) {
             getStartedBtn.onclick = function(e) {
                 e.preventDefault();
-                console.log('Get Started clicked - opening register modal');
+                console.log('📱 Get Started clicked - opening register modal');
                 openAuthModal('register');
             };
         }
@@ -606,8 +666,11 @@
             if (e.target === this) closeAuthModal();
         };
         
-        // Auth state listener
+        // ============================================================
+        // SUPABASE AUTH STATE LISTENER - REAL-TIME SYNC
+        // ============================================================
         supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log(`🔄 [Supabase] Auth state change: ${event}`);
             if (session?.user) {
                 currentUser = { id: session.user.id, email: session.user.email };
                 await loadEnrollments();
@@ -618,8 +681,11 @@
             await checkAuth();
         });
         
-        // Initialize
-        console.log('🚀 App starting, connecting to Supabase...');
+        // ============================================================
+        // INITIALIZE APP
+        // ============================================================
+        console.log('🚀 [Supabase] App initializing...');
+        console.log(`🔗 [Supabase] Connected to: ${SUPABASE_URL}`);
         checkAuth();
         loadCourses();
         loadStudentCount();
