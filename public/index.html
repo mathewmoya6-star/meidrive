@@ -6,12 +6,16 @@
     <title>MEI DRIVE AFRICA | NTSA Driver Training & Certification</title>
     <meta name="description" content="NTSA-approved driver training platform. Practice daily, revise smarter, pass with confidence.">
     <meta name="theme-color" content="#0a192f">
+    
+    <!-- Favicon - MEI DRIVE AFRICA logo text -->
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAB4klEQVR4nO2XPUvDUBiGn5OmaYpWpCiCzYd1KOjg5OQg6C/o4C9wchbBQUQQxC46iKKDoLOgm4gI4iSCIIKDWiytaVPzcZLUJm1TpX7whTC9H+c5ed+cnEsYhmEYhmEYhmEYhmEYhmEYf3CspbQrqL8FnvY81k8T6BVaNdAWBBG4CPCdz2k5vsNOyFfH8aHrdIZAG0Db3V8NnPQcJpe/rnWr5JhASAA9T8R9eNCAoxQAbzDyZUCv4bZZuY2AH7s1CjAobhuPGAGiJAA+RmIHMhZECyF1BGoA9+/a5L0E85fTgGAJ9LunZHaCJLdDdn3zAkPvPJxP5unZueECrJzUyWzOs3RZM0Aq1Y/HxiZqyHmALBX3iwfL5LZDulv/cN/sEOwkAcyeRkzdJ4nX/DMAmysUz+qk5zwFgGdT/v4AJLdDZjMAF+eK53VyVx7ZfX8XH4AKHc5zLLaT+8fzFwDR7CBnA/SqBCwWkAoCWmPJN2N8ez68fiJz0b9gryDInlTJX3tKAF05R+6i7p8CzN94hMFiRIjPL+lsT3kJpG9CJq+DhK9Kyjll3fuyJ6fvg0TjYGAbIqFsB7p/9pVHj6tA7SqWmhUZhmEYhmEYhmEYhmEYhmH8FT4BXPGFr9w8wU4AAAAASUVORK5CYII=">
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAB4klEQVR4nO2XPUvDUBiGn5OmaYpWpCiCzYd1KOjg5OQg6C/o4C9wchbBQUQQxC46iKKDoLOgm4gI4iSCIIKDWiytaVPzcZLUJm1TpX7whTC9H+c5ed+cnEsYhmEYhmEYhmEYhmEYhmEYf3CspbQrqL8FnvY81k8T6BVaNdAWBBG4CPCdz2k5vsNOyFfH8aHrdIZAG0Db3V8NnPQcJpe/rnWr5JhASAA9T8R9eNCAoxQAbzDyZUCv4bZZuY2AH7s1CjAobhuPGAGiJAA+RmIHMhZECyF1BGoA9+/a5L0E85fTgGAJ9LunZHaCJLdDdn3zAkPvPJxP5unZueECrJzUyWzOs3RZM0Aq1Y/HxiZqyHmALBX3iwfL5LZDulv/cN/sEOwkAcyeRkzdJ4nX/DMAmysUz+qk5zwFgGdT/v4AJLdDZjMAF+eK53VyVx7ZfX8XH4AKHc5zLLaT+8fzFwDR7CBnA/SqBCwWkAoCWmPJN2N8ez68fiJz0b9gryDInlTJX3tKAF05R+6i7p8CzN94hMFiRIjPL+lsT3kJpG9CJq+DhK9Kyjll3fuyJ6fvg0TjYGAbIqFsB7p/9pVHj6tA7SqWmhUZhmEYhmEYhmEYhmEYhmH8FT4BXPGFr9w8wU4AAAAASUVORK5CYII=">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
     <style>
-        /* Updated Navy + Green + White theme */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #0a192f; color: #ffffff; line-height: 1.5; }
         :root {
@@ -113,9 +117,9 @@
 <div id="toast-container" class="toast-container"></div>
 
 <script>
-    // ==================== SUPABASE SETUP ====================
-    const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+    // ==================== SUPABASE CREDENTIALS ====================
+    const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
     
     const appState = {
         supabase: null,
@@ -123,7 +127,7 @@
         isAdmin: false,
         currentRoute: 'home',
         isLoading: false,
-        courses: null,
+        courses: [],
         userStats: { totalProgress: 0, completedCourses: 0, quizScore: 0 },
         routeParams: {}
     };
@@ -143,15 +147,37 @@
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     
-    const coursesData = [
-        { id: 1, name: "Learner Hub", type: "learner", price: 0, duration: "25 hours", lessons: 21, description: "Complete NTSA-approved driver training", icon: "fa-id-card" },
-        { id: 2, name: "EV Drivers & Riders", type: "ev", price: 0, duration: "12 hours", lessons: 12, description: "Electric vehicle safety training", icon: "fa-charging-station" },
-        { id: 3, name: "Boda Boda Safety", type: "boda", price: 0, duration: "18 hours", lessons: 12, description: "Motorcycle safety & defensive riding", icon: "fa-motorcycle" },
-        { id: 4, name: "PSV Professional", type: "psv", price: 2999, duration: "15 hours", lessons: 8, description: "Commercial driver certification", icon: "fa-bus" },
-        { id: 5, name: "School Bus/Van Driver", type: "schoolbus", price: 1999, duration: "12 hours", lessons: 12, description: "School transport safety training", icon: "fa-chalkboard-user" },
-        { id: 6, name: "Advanced Driver Academy", type: "advanced", price: 4999, duration: "20 hours", lessons: 10, description: "Professional driver excellence", icon: "fa-award" }
-    ];
-    appState.courses = coursesData;
+    // ==================== LOAD COURSES FROM SUPABASE ====================
+    async function loadCoursesFromSupabase() {
+        try {
+            const { data, error } = await appState.supabase
+                .from('courses')
+                .select('*')
+                .eq('active', true)
+                .order('id');
+            
+            if (error) throw error;
+            
+            if (data && data.length > 0) {
+                appState.courses = data;
+                console.log('✅ Courses loaded from Supabase:', appState.courses.length);
+            } else {
+                // Fallback to default courses if none exist
+                console.warn('No courses found in Supabase, using defaults');
+                appState.courses = [
+                    { id: 1, name: "Learner Hub", type: "learner", price: 0, duration: "25 hours", lessons: 21, description: "Complete NTSA-approved driver training", icon: "fa-id-card", active: true },
+                    { id: 2, name: "EV Drivers & Riders", type: "ev", price: 0, duration: "12 hours", lessons: 12, description: "Electric vehicle safety training", icon: "fa-charging-station", active: true },
+                    { id: 3, name: "Boda Boda Safety", type: "boda", price: 0, duration: "18 hours", lessons: 12, description: "Motorcycle safety & defensive riding", icon: "fa-motorcycle", active: true },
+                    { id: 4, name: "PSV Professional", type: "psv", price: 2999, duration: "15 hours", lessons: 8, description: "Commercial driver certification", icon: "fa-bus", active: true },
+                    { id: 5, name: "School Bus/Van Driver", type: "schoolbus", price: 1999, duration: "12 hours", lessons: 12, description: "School transport safety training", icon: "fa-chalkboard-user", active: true },
+                    { id: 6, name: "Advanced Driver Academy", type: "advanced", price: 4999, duration: "20 hours", lessons: 10, description: "Professional driver excellence", icon: "fa-award", active: true }
+                ];
+            }
+        } catch (err) {
+            console.error('Error loading courses:', err);
+            showToast('Error loading courses', 'error');
+        }
+    }
     
     async function initSupabase() {
         try {
@@ -163,6 +189,7 @@
                 renderCurrentRoute();
             });
             await checkSession();
+            await loadCoursesFromSupabase();
         } catch (err) { showToast('Connection error', 'error'); }
     }
     
@@ -311,12 +338,12 @@
         `;
         document.getElementById('page-content').innerHTML = html;
         const grid = document.getElementById('homeCoursesGrid');
-        if (grid) grid.innerHTML = appState.courses.map(c => `<div class="card" onclick="app.navigateToCourse('${c.type}')"><i class="fas ${c.icon}" style="font-size:2rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}</h3><p>${escapeHtml(c.description)}</p><div class="module-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div><button class="btn btn-primary btn-small">Enroll Now</button></div>`).join('');
+        if (grid) grid.innerHTML = appState.courses.map(c => `<div class="card" onclick="app.navigateToCourse('${c.type}')"><i class="fas ${c.icon || 'fa-book'}" style="font-size:2rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}</h3><p>${escapeHtml(c.description || '')}</p><div class="module-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div><button class="btn btn-primary btn-small">Enroll Now</button></div>`).join('');
     }
     
     async function renderCourses() {
         document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><h1 class="section-title">Our <span>Courses</span></h1><div class="grid" id="coursesGrid"></div></div>`;
-        document.getElementById('coursesGrid').innerHTML = appState.courses.map(c => `<div class="card" onclick="app.navigateToCourse('${c.type}')"><i class="fas ${c.icon}" style="font-size:2rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}</h3><p>${escapeHtml(c.description)}</p><div class="module-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div><button class="btn btn-primary btn-small">Enroll Now</button></div>`).join('');
+        document.getElementById('coursesGrid').innerHTML = appState.courses.map(c => `<div class="card" onclick="app.navigateToCourse('${c.type}')"><i class="fas ${c.icon || 'fa-book'}" style="font-size:2rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}</h3><p>${escapeHtml(c.description || '')}</p><div class="module-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div><button class="btn btn-primary btn-small">Enroll Now</button></div>`).join('');
     }
     
     async function renderCourseDetail() {
@@ -331,7 +358,7 @@
         if (!isEnrolled && course.price === 0) {
             isEnrolled = await enrollInCourse(course.id, 0);
         }
-        document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>${escapeHtml(course.name)}</h2><p>${escapeHtml(course.description)}</p><div class="module-price">${course.price === 0 ? 'FREE' : `KES ${course.price.toLocaleString()}`}</div>${isEnrolled ? '<div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div><button class="btn btn-primary" onclick="app.navigate(\'learn\', { courseId: '+course.id+' })">Start Learning</button>' : '<button class="btn btn-primary" onclick="app.enrollNow('+course.id+','+course.price+')">Enroll Now</button>'}<button class="btn btn-outline" onclick="app.navigate(\'courses\')">Back</button></div></div>`;
+        document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>${escapeHtml(course.name)}</h2><p>${escapeHtml(course.description || '')}</p><div class="module-price">${course.price === 0 ? 'FREE' : `KES ${course.price.toLocaleString()}`}</div>${isEnrolled ? '<div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div><button class="btn btn-primary" onclick="app.navigate(\'learn\', { courseId: '+course.id+' })">Start Learning</button>' : '<button class="btn btn-primary" onclick="app.enrollNow('+course.id+','+course.price+')">Enroll Now</button>'}<button class="btn btn-outline" onclick="app.navigate(\'courses\')">Back</button></div></div>`;
     }
     
     window.enrollNow = async (courseId, price) => {
@@ -347,7 +374,6 @@
         const course = appState.courses.find(c => c.id === courseId);
         if (!course) { showToast('Course not found', 'error'); app.navigate('courses'); return; }
         if (!appState.currentUser) { showToast('Please login', 'warning'); app.showLoginModal(); return; }
-        // Verify enrollment
         const { data: enrollment } = await appState.supabase.from('enrollments').select('id').eq('user_id', appState.currentUser.id).eq('course_id', courseId).eq('payment_status', 'verified').maybeSingle();
         if (!enrollment && course.price > 0) { showToast('Enroll first', 'warning'); app.navigate('course-detail', { courseType: course.type }); return; }
         
@@ -420,7 +446,7 @@
         if (enrollments && enrollments.length > 0) {
             const enrolledIds = enrollments.map(e => e.course_id);
             const enrolled = appState.courses.filter(c => enrolledIds.includes(c.id));
-            enrolledCoursesHtml = `<div class="grid" style="margin-top:1rem;">${enrolled.map(c => `<div class="card" onclick="app.navigate('learn', { courseId: ${c.id} })"><i class="fas ${c.icon}" style="font-size:1.5rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}</h3><button class="btn btn-outline btn-small">Continue Learning</button></div>`).join('')}</div>`;
+            enrolledCoursesHtml = `<div class="grid" style="margin-top:1rem;">${enrolled.map(c => `<div class="card" onclick="app.navigate('learn', { courseId: ${c.id} })"><i class="fas ${c.icon || 'fa-book'}" style="font-size:1.5rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}</h3><button class="btn btn-outline btn-small">Continue Learning</button></div>`).join('')}</div>`;
         } else { enrolledCoursesHtml = '<p>You haven’t enrolled in any course yet. <a href="#" onclick="app.navigate(\'courses\')" style="color:var(--primary);">Browse courses</a></p>'; }
         
         document.getElementById('page-content').innerHTML = `
@@ -439,14 +465,12 @@
     
     // ==================== DIGITAL SAFETY LIBRARY ====================
     async function renderLibraryPage() {
-        // Fetch resources from Supabase (fallback to local if table missing)
         let resources = [];
         try {
             const { data, error } = await appState.supabase.from('library_resources').select('*').order('id');
             if (!error && data) resources = data;
-        } catch(e) { console.warn('Library table not ready, using local demo data'); }
+        } catch(e) { console.warn('Library table not ready'); }
         if (resources.length === 0) {
-            // Fallback local resources
             resources = [
                 { id: 1, title: 'Defensive Driving Checklist', description: 'Top 10 defensive driving habits', category: 'Tip', content_text: '1. Scan ahead\n2. Maintain gap\n3. Cover brake', tags: ['defensive'] },
                 { id: 2, title: 'EV Safety Handbook', description: 'Complete guide to electric vehicle safety', category: 'PDF', content_url: '#', tags: ['ev'] },
@@ -454,7 +478,6 @@
             ];
         }
         
-        // Build search/filter UI
         const html = `
             <div class="container" style="padding-top:100px;">
                 <h1 class="section-title">Digital <span>Safety Library</span></h1>
@@ -467,7 +490,6 @@
         `;
         document.getElementById('page-content').innerHTML = html;
         
-        // Populate category filter buttons
         const categories = [...new Set(resources.map(r => r.category))];
         const filterDiv = document.getElementById('libraryCategoryFilter');
         filterDiv.innerHTML = `<button class="quiz-category-btn active" data-cat="all" onclick="app.filterLibrary('all')">All</button>` +
@@ -503,7 +525,7 @@
         };
     }
     
-    // ==================== QUIZ PAGE WITH 1000+ RANDOM QUESTIONS ====================
+    // ==================== QUIZ PAGE ====================
     let currentQuizQuestions = [];
     let quizCurrentIndex = 0;
     let quizScore = 0;
@@ -512,7 +534,6 @@
     async function renderQuizPage() {
         if (!appState.currentUser) { app.showLoginModal(); return; }
         
-        // Fetch distinct categories from questions table
         let categories = ['All'];
         try {
             const { data, error } = await appState.supabase.from('questions').select('category').limit(1000);
@@ -536,7 +557,6 @@
         `;
         document.getElementById('page-content').innerHTML = html;
         
-        // Build category buttons
         const selector = document.getElementById('quizCategorySelector');
         selector.innerHTML = categories.map(cat => `<button class="quiz-category-btn ${cat === 'All' ? 'active' : ''}" data-cat="${cat}" onclick="app.selectQuizCategory('${cat}')">${cat}</button>`).join('');
         window.app.selectedQuizCategory = 'All';
@@ -552,13 +572,11 @@
             const category = window.app.selectedQuizCategory === 'All' ? null : window.app.selectedQuizCategory;
             let query = appState.supabase.from('questions').select('*');
             if (category) query = query.eq('category', category);
-            // Randomly select 20 questions
             const { data, error } = await query;
             if (error || !data || data.length === 0) {
                 showToast('No questions available for this category', 'error');
                 return;
             }
-            // Shuffle and take first 20 (or all if less)
             const shuffled = [...data];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -575,7 +593,6 @@
         
         function renderQuizQuestion() {
             if (quizCurrentIndex >= currentQuizQuestions.length) {
-                // Quiz completed
                 const percent = Math.round((quizScore / currentQuizQuestions.length) * 100);
                 saveQuizScore(percent, currentQuizQuestions.length);
                 document.getElementById('quizContainer').innerHTML = `
@@ -621,14 +638,12 @@
             quizUserAnswers[quizCurrentIndex] = selectedLetter;
             if (selectedLetter === q.correct_option) quizScore++;
             renderQuizQuestion();
-            // Auto-save after each answer? we'll wait until end.
         };
         window.app.nextQuizQuestion = () => {
             if (quizCurrentIndex < currentQuizQuestions.length - 1) {
                 quizCurrentIndex++;
                 renderQuizQuestion();
             } else {
-                // Finish quiz
                 quizCurrentIndex = currentQuizQuestions.length;
                 renderQuizQuestion();
             }
@@ -661,7 +676,7 @@
     
     async function renderAdminDashboard() {
         if (!(await isUserAdmin())) { app.navigate('home'); showToast('Admin access denied', 'error'); return; }
-        document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>Admin Dashboard</h2><p>Manage users, courses, payments, and quiz questions.</p><button class="btn btn-outline" onclick="showToast('Admin panel coming soon','info')">Settings</button></div></div>`;
+        document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>Admin Dashboard</h2><p>Manage users, courses, payments, and quiz questions.</p><button class="btn btn-outline" onclick="window.location.href='admin.html'">Go to Full Admin Panel →</button></div></div>`;
     }
     
     function renderLegal() {
@@ -669,7 +684,7 @@
         document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h3>${page === 'privacy' ? 'Privacy Policy' : 'Terms'}</h3><p>Standard NTSA-aligned policies.</p><button class="btn btn-outline" onclick="app.navigate('home')">Back</button></div></div>`;
     }
     
-    // UI helpers (auth, modals, etc.) – same as before
+    // UI helpers
     function showLoginModal() { showAuthModal('login'); }
     function showSignupModal() { showAuthModal('signup'); }
     function showAuthModal(mode) {
