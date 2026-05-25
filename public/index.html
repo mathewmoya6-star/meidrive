@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEI DRIVE AFRICA | Professional Driver Training</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%230A192F'/%3E%3Crect x='10' y='10' width='180' height='180' rx='35' fill='none' stroke='%2300FF88' stroke-width='3'/%3E%3Ctext x='100' y='85' font-size='48' text-anchor='middle' fill='%2300FF88' font-weight='800' font-family='Arial, sans-serif'%3EMEI%3C/text%3E%3Ctext x='100' y='135' font-size='28' text-anchor='middle' fill='%2300FF88' font-weight='700' font-family='Arial, sans-serif'%3EDRIVE%3C/text%3E%3Ctext x='100' y='168' font-size='16' text-anchor='middle' fill='%2300FF88' opacity='0.8'%3EAFRICA%3C/text%3E%3C/svg%3E">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%230A192F'/%3E%3Ctext x='100' y='115' font-size='50' text-anchor='middle' fill='%2300FF88' font-weight='800'%3EM%3C/text%3E%3C/svg%3E">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- SINGLE SOURCE OF TRUTH - DO NOT ADD ANOTHER SUPABASE INITIALIZATION -->
     <script src="supabase.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #0A192F; color: #fff; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0A192F; color: #fff; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0D2137; }
         ::-webkit-scrollbar-thumb { background: #00FF88; border-radius: 4px; }
@@ -55,41 +51,24 @@
             justify-content: center;
             text-align: center;
             background: linear-gradient(135deg, #0A192F 0%, #0D2137 50%, #0A192F 100%);
-            position: relative;
             padding: 120px 20px 80px;
         }
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .hero-content { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
-        .hero h1 { font-size: 68px; margin-bottom: 24px; line-height: 1.2; font-weight: 800; letter-spacing: -1px; }
+        .hero h1 { font-size: 68px; margin-bottom: 24px; }
         .hero h1 span { color: #00FF88; }
         .hero p { font-size: 20px; opacity: 0.85; margin-bottom: 24px; }
         .hero-buttons { display: flex; gap: 20px; justify-content: center; margin-bottom: 60px; flex-wrap: wrap; }
-        .btn-primary { background: #00FF88; color: #0A192F; padding: 14px 38px; border-radius: 8px; text-decoration: none; font-weight: 700; transition: all 0.3s; display: inline-block; cursor: pointer; border: none; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3); }
-        .btn-secondary { background: transparent; border: 2px solid #00FF88; color: #00FF88; padding: 12px 38px; border-radius: 8px; text-decoration: none; font-weight: 700; transition: all 0.3s; display: inline-block; cursor: pointer; }
-        .btn-secondary:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-3px); }
+        .btn-primary { background: #00FF88; color: #0A192F; padding: 14px 38px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; }
+        .btn-secondary { background: transparent; border: 2px solid #00FF88; color: #00FF88; padding: 12px 38px; border-radius: 8px; font-weight: 700; cursor: pointer; }
         .stats { display: flex; justify-content: center; gap: 80px; flex-wrap: wrap; }
-        .stat-item { text-align: center; }
         .stat-number { font-size: 42px; font-weight: 800; color: #00FF88; }
         .stat-label { font-size: 14px; opacity: 0.7; }
         
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
             z-index: 2000;
             justify-content: center;
             align-items: center;
@@ -101,72 +80,48 @@
             border-radius: 20px;
             width: 90%;
             max-width: 450px;
-            border: 1px solid rgba(0, 255, 136, 0.3);
+            border: 1px solid rgba(0,255,136,0.3);
         }
-        .modal-content h2 { margin-bottom: 20px; text-align: center; color: #00FF88; }
-        .modal-content input { width: 100%; padding: 14px; margin-bottom: 15px; background: rgba(10, 25, 47, 0.8); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 8px; color: white; font-size: 16px; }
-        .modal-content input:focus { outline: none; border-color: #00FF88; }
-        .modal-content button { width: 100%; padding: 14px; background: #00FF88; color: #0A192F; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 15px; }
-        .modal-switch { text-align: center; color: rgba(255, 255, 255, 0.6); cursor: pointer; }
+        .modal-content h2 { margin-bottom: 20px; color: #00FF88; }
+        .modal-content input { width: 100%; padding: 14px; margin-bottom: 15px; background: rgba(10,25,47,0.8); border: 1px solid rgba(0,255,136,0.3); border-radius: 8px; color: white; }
+        .modal-content button { width: 100%; padding: 14px; background: #00FF88; color: #0A192F; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .modal-switch { text-align: center; color: rgba(255,255,255,0.6); cursor: pointer; margin-top: 15px; }
         .modal-switch span { color: #00FF88; }
         .close-modal { position: absolute; top: 20px; right: 30px; font-size: 30px; cursor: pointer; color: white; }
-        .error-msg { color: #ff4444; text-align: center; margin-bottom: 15px; font-size: 14px; }
-        .success-msg { color: #00FF88; text-align: center; margin-bottom: 15px; font-size: 14px; }
+        .error-msg { color: #ff4444; text-align: center; margin-bottom: 15px; }
         
         .courses-section { padding: 80px 5%; background: #0A192F; }
-        .section-title { text-align: center; font-size: 42px; margin-bottom: 16px; font-weight: 700; }
+        .section-title { text-align: center; font-size: 42px; margin-bottom: 16px; }
         .section-title span { color: #00FF88; }
-        .section-subtitle { text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 50px; font-size: 18px; }
+        .section-subtitle { text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 50px; }
         .courses-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto; }
         .course-card {
-            background: rgba(13, 33, 55, 0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(13,33,55,0.8);
             border-radius: 16px;
             padding: 30px;
             transition: all 0.3s;
-            border: 1px solid rgba(0, 255, 136, 0.15);
+            border: 1px solid rgba(0,255,136,0.15);
             position: relative;
         }
-        .course-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.4); }
+        .course-card:hover { transform: translateY(-8px); border-color: rgba(0,255,136,0.4); }
         .course-icon { font-size: 52px; margin-bottom: 20px; }
-        .course-card h3 { font-size: 24px; margin-bottom: 12px; font-weight: 700; }
-        .course-card p { opacity: 0.7; line-height: 1.6; margin-bottom: 20px; }
+        .course-card h3 { font-size: 24px; margin-bottom: 12px; }
+        .course-card p { opacity: 0.7; margin-bottom: 20px; }
         .course-price { font-size: 20px; font-weight: 700; color: #00FF88; margin-bottom: 15px; }
-        .course-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 255, 136, 0.15); flex-wrap: wrap; gap: 10px; }
-        .duration { font-size: 14px; opacity: 0.6; }
-        .enroll-btn, .continue-btn { background: #00FF88; color: #0A192F; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.3s; }
-        .enroll-btn:hover, .continue-btn:hover { transform: scale(1.05); background: #00cc6a; }
-        .enrolled-badge { background: rgba(0, 255, 136, 0.2); color: #00FF88; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; position: absolute; top: 15px; right: 15px; }
+        .course-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,255,136,0.15); }
+        .enroll-btn, .continue-btn { background: #00FF88; color: #0A192F; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .enrolled-badge { background: rgba(0,255,136,0.2); color: #00FF88; padding: 5px 12px; border-radius: 20px; font-size: 12px; position: absolute; top: 15px; right: 15px; }
         .progress-mini { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 10px; overflow: hidden; }
-        .progress-mini-fill { height: 100%; background: #00FF88; border-radius: 2px; transition: width 0.3s; }
+        .progress-mini-fill { height: 100%; background: #00FF88; width: 0%; }
         
-        .features-section { padding: 80px 5%; background: #0D2137; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
-        .feature { text-align: center; padding: 30px; background: rgba(10, 25, 47, 0.6); border-radius: 16px; border: 1px solid rgba(0, 255, 136, 0.1); transition: all 0.3s; }
-        .feature:hover { border-color: rgba(0, 255, 136, 0.3); transform: translateY(-5px); }
-        .feature-icon { font-size: 48px; margin-bottom: 20px; }
-        .feature h4 { font-size: 20px; margin-bottom: 12px; font-weight: 700; }
-        .feature p { opacity: 0.7; }
-        
-        .loading { text-align: center; padding: 60px; }
-        .spinner { width: 50px; height: 50px; border: 3px solid rgba(0, 255, 136, 0.2); border-top-color: #00FF88; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .footer { background: #051020; text-align: center; padding: 40px; border-top: 1px solid rgba(0, 255, 136, 0.1); }
+        .footer { background: #051020; text-align: center; padding: 40px; }
         .footer p { opacity: 0.6; font-size: 14px; }
-        
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a472a; color: #00FF88; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 3000; display: none; animation: slideUp 0.3s ease; border: 1px solid #00FF88; }
-        @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a472a; color: #00FF88; padding: 12px 24px; border-radius: 12px; display: none; z-index: 3000; }
         
         @media (max-width: 768px) {
-            .navbar { flex-direction: column; text-align: center; position: relative; }
             .hero h1 { font-size: 36px; }
-            .hero p { font-size: 16px; }
-            .section-title { font-size: 28px; }
+            .navbar { flex-direction: column; text-align: center; position: relative; }
             .courses-grid { grid-template-columns: 1fr; }
-            .hero-buttons { flex-direction: column; align-items: center; }
-            .stats { gap: 40px; }
-            .nav-links { gap: 20px; justify-content: center; }
         }
     </style>
 </head>
@@ -179,19 +134,17 @@
         <div class="nav-links">
             <a onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})">Home</a>
             <a onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Courses</a>
-            <a onclick="window.location.href='quiz.html'">Quiz Bank</a>
+            <a href="#">Quiz Bank</a>
             <a onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</a>
         </div>
         <div id="authContainer" class="auth-buttons"></div>
     </nav>
 
-    <!-- Auth Modal -->
     <div id="authModal" class="modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <h2 id="modalTitle">Login</h2>
             <div id="modalError" class="error-msg"></div>
-            <div id="modalSuccess" class="success-msg"></div>
             <input type="email" id="modalEmail" placeholder="Email address">
             <input type="password" id="modalPassword" placeholder="Password">
             <button id="modalSubmitBtn">Login</button>
@@ -199,18 +152,32 @@
         </div>
     </div>
 
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            <h2>💰 M-Pesa Payment</h2>
+            <div id="paymentError" class="error-msg"></div>
+            <div id="paymentSuccess" style="color:#00FF88; text-align:center; margin-bottom:15px;"></div>
+            <input type="tel" id="paymentPhone" placeholder="M-Pesa Number (e.g., 0712345678)">
+            <input type="text" id="paymentAmount" placeholder="Amount" readonly style="background:#1a2a3a;">
+            <input type="text" id="paymentCourse" placeholder="Course" readonly style="background:#1a2a3a;">
+            <button id="payBtn">Pay with M-Pesa</button>
+            <p style="font-size:12px; text-align:center; margin-top:15px;">Paybill: <strong>4095377</strong></p>
+        </div>
+    </div>
+
     <section class="hero" id="home">
         <div class="hero-content">
             <h1>Practice Daily.<br><span>Revise Smarter.</span> Pass with Confidence.</h1>
-            <p>For Learners and Experienced Drivers — Refresh Your Skills with MEI DRIVE AFRICA. NTSA-approved courses.</p>
+            <p>NTSA-approved courses for Kenyan drivers</p>
             <div class="hero-buttons">
-                <div class="btn-primary" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Explore Courses</div>
-                <div class="btn-secondary" onclick="window.openAuthModal('register')">Get Started</div>
+                <button class="btn-primary" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Explore Courses</button>
+                <button class="btn-secondary" onclick="openAuthModal('register')">Get Started</button>
             </div>
             <div class="stats">
                 <div class="stat-item"><div class="stat-number" id="coursesCount">0</div><div class="stat-label">Courses</div></div>
-                <div class="stat-item"><div class="stat-number" id="questionsCount">0</div><div class="stat-label">Practice Questions</div></div>
-                <div class="stat-item"><div class="stat-number">10K+</div><div class="stat-label">Active Students</div></div>
+                <div class="stat-item"><div class="stat-number" id="questionsCount">0</div><div class="stat-label">Questions</div></div>
+                <div class="stat-item"><div class="stat-number">10K+</div><div class="stat-label">Students</div></div>
             </div>
         </div>
     </section>
@@ -218,42 +185,30 @@
     <section class="courses-section" id="courses">
         <h2 class="section-title">Our <span>Courses</span></h2>
         <div class="section-subtitle">Choose the right course for your driving journey</div>
-        <div class="courses-grid" id="coursesGrid"><div class="loading"><div class="spinner"></div>Loading courses...</div></div>
-    </section>
-
-    <section class="features-section">
-        <h2 class="section-title">Why Choose <span>Us</span></h2>
-        <div class="features-grid">
-            <div class="feature"><div class="feature-icon">✅</div><h4>NTSA Approved</h4><p>Officially certified curriculum</p></div>
-            <div class="feature"><div class="feature-icon">📚</div><h4>1000+ Quiz Bank</h4><p>Real exam-style questions</p></div>
-            <div class="feature"><div class="feature-icon">👨‍🏫</div><h4>Expert Instructors</h4><p>Certified professionals</p></div>
-            <div class="feature"><div class="feature-icon">💻</div><h4>Learn Anywhere</h4><p>Online access anytime</p></div>
-        </div>
+        <div class="courses-grid" id="coursesGrid"><div style="text-align:center; padding:60px;">Loading courses...</div></div>
     </section>
 
     <footer class="footer" id="contact">
-        <p>&copy; 2026 MEI DRIVE AFRICA. All rights reserved. | NTSA Approved Training Provider</p>
-        <p style="margin-top: 10px; font-size: 12px;">Email: admin@meidriveafrica.com | Paybill: 4095377</p>
+        <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Training Provider</p>
+        <p>Paybill: 4095377 | Email: admin@meidriveafrica.com</p>
     </footer>
 
     <div id="toast" class="toast"></div>
 
     <script>
-        // Use the global MEI_DRIVE object from supabase.js
-        // No supabase initialization here - single source of truth!
-        
+        const API = window.MEI_DRIVE_API;
         let currentUser = null;
         let allCourses = [];
         let userEnrollments = new Map();
         let authMode = 'login';
+        let selectedCourse = null;
         
-        function showToast(message, isError = false) {
+        function showToast(msg, isError) {
             const toast = document.getElementById('toast');
-            toast.textContent = message;
+            toast.textContent = msg;
             toast.style.display = 'block';
             toast.style.background = isError ? '#8b0000' : '#1a472a';
-            toast.style.color = isError ? '#ff8888' : '#00FF88';
-            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            setTimeout(() => toast.style.display = 'none', 3000);
         }
         
         function escapeHtml(str) {
@@ -261,38 +216,56 @@
             return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
         }
         
-        async function checkAuth() {
-            if (!window.MEI_DRIVE || !window.MEI_DRIVE.isReady()) {
-                console.log('Waiting for MEI_DRIVE...');
-                setTimeout(checkAuth, 500);
-                return;
+        async function loadCourses() {
+            try {
+                allCourses = await API.getAllCourses();
+                document.getElementById('coursesCount').textContent = allCourses.length;
+                renderCourses();
+            } catch (error) {
+                console.error('Load courses error:', error);
+                showToast('Error loading courses', true);
             }
-            currentUser = await window.MEI_DRIVE.getCurrentUser();
-            renderAuthButtons();
-            if (currentUser) await loadEnrollments();
-            return currentUser !== null;
         }
         
-        function renderAuthButtons() {
+        async function loadEnrollments() {
+            if (!currentUser) return;
+            try {
+                const enrollments = await API.getMyEnrollments();
+                userEnrollments.clear();
+                enrollments.forEach(e => userEnrollments.set(e.course_id, { enrolled: true, progress: e.progress || 0 }));
+                renderCourses();
+            } catch (error) {
+                console.error('Load enrollments error:', error);
+            }
+        }
+        
+        async function checkAuth() {
+            currentUser = await API.getCurrentUser();
             const authContainer = document.getElementById('authContainer');
             if (currentUser) {
                 authContainer.innerHTML = `<div class="user-info"><span class="user-email">${escapeHtml(currentUser.email)}</span><button class="btn-logout" onclick="logout()">Logout</button></div>`;
+                await loadEnrollments();
             } else {
                 authContainer.innerHTML = `<button class="btn-login" onclick="openAuthModal('login')">Login</button><button class="btn-register" onclick="openAuthModal('register')">Register</button>`;
             }
         }
         
+        async function logout() {
+            await API.logout();
+            currentUser = null;
+            userEnrollments.clear();
+            checkAuth();
+            renderCourses();
+            showToast('Logged out');
+        }
+        
         function openAuthModal(mode) {
             authMode = mode;
             const modal = document.getElementById('authModal');
-            const title = document.getElementById('modalTitle');
-            const submitBtn = document.getElementById('modalSubmitBtn');
-            const switchDiv = document.getElementById('modalSwitch');
-            title.textContent = mode === 'login' ? 'Login' : 'Register';
-            submitBtn.textContent = mode === 'login' ? 'Login' : 'Register';
-            switchDiv.innerHTML = mode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
+            document.getElementById('modalTitle').textContent = mode === 'login' ? 'Login' : 'Register';
+            document.getElementById('modalSubmitBtn').textContent = mode === 'login' ? 'Login' : 'Register';
+            document.getElementById('modalSwitch').innerHTML = mode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
             document.getElementById('modalError').textContent = '';
-            document.getElementById('modalSuccess').textContent = '';
             document.getElementById('modalEmail').value = '';
             document.getElementById('modalPassword').value = '';
             modal.classList.add('active');
@@ -302,70 +275,124 @@
             document.getElementById('authModal').classList.remove('active');
         }
         
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            selectedCourse = null;
+        }
+        
         async function handleAuth() {
             const email = document.getElementById('modalEmail').value;
             const password = document.getElementById('modalPassword').value;
-            const errorDiv = document.getElementById('modalError');
-            
             if (!email || !password) {
-                errorDiv.textContent = 'Please enter both email and password';
+                document.getElementById('modalError').textContent = 'Enter email and password';
                 return;
             }
             
             try {
                 let result;
                 if (authMode === 'login') {
-                    result = await window.MEI_DRIVE.login(email, password);
-                    if (!result.success) throw new Error(result.error);
-                    closeAuthModal();
-                    await checkAuth();
-                    await loadCourses();
-                    showToast('Login successful!');
+                    result = await API.login(email, password);
+                    if (result.success) {
+                        closeAuthModal();
+                        await checkAuth();
+                        await loadCourses();
+                        showToast('Login successful!');
+                    } else {
+                        document.getElementById('modalError').textContent = result.error;
+                    }
                 } else {
-                    result = await window.MEI_DRIVE.register(email, password);
-                    if (!result.success) throw new Error(result.error);
-                    showToast('Account created! You can now login.');
-                    authMode = 'login';
-                    openAuthModal('login');
+                    result = await API.register(email, password);
+                    if (result.success) {
+                        showToast('Account created! Please check your email.');
+                        authMode = 'login';
+                        openAuthModal('login');
+                    } else {
+                        document.getElementById('modalError').textContent = result.error;
+                    }
                 }
             } catch (error) {
-                errorDiv.textContent = error.message;
+                document.getElementById('modalError').textContent = error.message;
             }
         }
         
-        async function logout() {
-            await window.MEI_DRIVE.logout();
-            currentUser = null;
-            userEnrollments.clear();
-            renderAuthButtons();
-            renderCourses();
-            showToast('Logged out');
-        }
-        
-        async function loadCourses() {
-            if (!window.MEI_DRIVE) return;
-            try {
-                allCourses = await window.MEI_DRIVE.getAllCourses();
-                document.getElementById('coursesCount').textContent = allCourses.length;
-                renderCourses();
-                console.log(`Loaded ${allCourses.length} courses`);
-            } catch (error) {
-                console.error('Error loading courses:', error);
-                showToast('Error loading courses', true);
+        async function enrollInCourse(course) {
+            if (!currentUser) {
+                showToast('Please login first', true);
+                openAuthModal('login');
+                return;
+            }
+            
+            if (userEnrollments.has(course.id)) {
+                showToast('Already enrolled!');
+                return;
+            }
+            
+            if (course.price === 0) {
+                const result = await API.enrollInCourse(course.id);
+                if (result.success) {
+                    await loadEnrollments();
+                    showToast('Enrolled successfully!');
+                } else if (result.payment_required) {
+                    showPaymentModal(course);
+                } else {
+                    showToast(result.error || 'Enrollment failed', true);
+                }
+            } else {
+                showPaymentModal(course);
             }
         }
         
-        async function loadEnrollments() {
-            if (!currentUser) return;
+        function showPaymentModal(course) {
+            selectedCourse = course;
+            document.getElementById('paymentAmount').value = `KES ${course.price}`;
+            document.getElementById('paymentCourse').value = course.title;
+            document.getElementById('paymentPhone').value = '';
+            document.getElementById('paymentError').textContent = '';
+            document.getElementById('paymentSuccess').textContent = '';
+            document.getElementById('paymentModal').classList.add('active');
+        }
+        
+        async function processPayment() {
+            if (!selectedCourse) return;
+            const phone = document.getElementById('paymentPhone').value;
+            if (!phone) {
+                document.getElementById('paymentError').textContent = 'Enter M-Pesa number';
+                return;
+            }
+            
+            document.getElementById('payBtn').disabled = true;
+            document.getElementById('payBtn').textContent = 'Processing...';
+            
             try {
-                const enrollments = await window.MEI_DRIVE.getUserEnrollments(currentUser.id);
-                userEnrollments.clear();
-                enrollments.forEach(enrollment => {
-                    userEnrollments.set(enrollment.course_id, { enrolled: true, progress: enrollment.progress || 0 });
-                });
-                renderCourses();
+                const result = await API.initiateMpesaPayment(phone, selectedCourse.price, selectedCourse.id);
+                if (result.success) {
+                    document.getElementById('paymentSuccess').textContent = 'Payment initiated! Check your phone.';
+                    showToast('Check your phone for M-Pesa prompt');
+                    
+                    // Poll for status
+                    const checkoutId = result.data.checkoutRequestID;
+                    let attempts = 0;
+                    const interval = setInterval(async () => {
+                        attempts++;
+                        const status = await API.checkPaymentStatus(checkoutId);
+                        if (status.status === 'completed') {
+                            clearInterval(interval);
+                            await loadEnrollments();
+                            showToast('Payment successful! Enrolled in course.');
+                            closePaymentModal();
+                        } else if (attempts > 20) {
+                            clearInterval(interval);
+                            showToast('Payment pending. You will receive SMS confirmation.', true);
+                        }
+                    }, 3000);
+                } else {
+                    document.getElementById('paymentError').textContent = result.error || 'Payment failed';
+                }
             } catch (error) {
-                console.error('Error loading enrollments:', error);
+                document.getElementById('paymentError').textContent = error.message;
+            } finally {
+                document.getElementById('payBtn').disabled = false;
+                document.getElementById('payBtn').textContent = 'Pay with M-Pesa';
             }
         }
         
@@ -373,34 +400,10 @@
             window.location.href = `course.html?id=${courseId}`;
         }
         
-        async function enrollInCourse(courseId) {
-            if (!currentUser) {
-                showToast('Please login first', true);
-                openAuthModal('login');
-                return;
-            }
-            
-            if (userEnrollments.has(courseId)) {
-                showToast('Already enrolled!');
-                return;
-            }
-            
-            showToast('Processing enrollment...');
-            
-            const result = await window.MEI_DRIVE.enrollInCourse(currentUser.id, courseId);
-            if (result.success) {
-                await loadEnrollments();
-                showToast('Successfully enrolled! 🎉');
-            } else {
-                showToast(result.error || 'Enrollment failed', true);
-            }
-        }
-        
         function renderCourses() {
             const grid = document.getElementById('coursesGrid');
-            
-            if (!allCourses || allCourses.length === 0) {
-                grid.innerHTML = `<div class="loading"><div class="spinner"></div>No courses available. Please check back later.</div>`;
+            if (!allCourses.length) {
+                grid.innerHTML = '<div style="text-align:center; padding:60px;">No courses available</div>';
                 return;
             }
             
@@ -408,27 +411,19 @@
                 const enrollment = userEnrollments.get(course.id);
                 const isEnrolled = !!enrollment;
                 const progress = enrollment?.progress || 0;
-                const price = course.price || 0;
-                
                 return `
                     <div class="course-card">
-                        ${isEnrolled ? `<div class="enrolled-badge">${progress === 100 ? '✅ COMPLETED' : '📖 ENROLLED'}</div>` : ''}
+                        ${isEnrolled ? `<div class="enrolled-badge">${progress === 100 ? 'COMPLETED' : 'ENROLLED'}</div>` : ''}
                         <div class="course-icon">${course.icon || '🚗'}</div>
                         <h3>${escapeHtml(course.title)}</h3>
-                        <p>${escapeHtml((course.description || '').substring(0, 100))}${(course.description || '').length > 100 ? '...' : ''}</p>
-                        <div class="course-price">💰 KES ${price.toLocaleString()}</div>
+                        <p>${escapeHtml((course.description || '').substring(0, 100))}</p>
+                        <div class="course-price">💰 KES ${(course.price || 0).toLocaleString()}</div>
                         <div class="course-meta">
-                            <span class="duration">⏱️ ${course.duration_hours || 20}+ hours</span>
                             ${isEnrolled ? 
-                                `<div style="width: 100%;">
-                                    <div class="progress-mini">
-                                        <div class="progress-mini-fill" style="width: ${progress}%"></div>
-                                    </div>
-                                    <button class="continue-btn" onclick="viewCourse(${course.id})">
-                                        ${progress === 100 ? '📋 Review Course' : '▶️ Continue Learning'}
-                                    </button>
-                                </div>` :
-                                `<button class="enroll-btn" onclick="enrollInCourse(${course.id})">💰 Enroll Now</button>`
+                                `<button class="continue-btn" onclick="viewCourse(${course.id})">${progress === 100 ? 'Review Course' : 'Continue Learning'}</button>` :
+                                `<button class="enroll-btn" onclick="enrollInCourse({id:${course.id}, title:'${course.title.replace(/'/g, "\\'")}', price:${course.price}})">
+                                    Enroll Now
+                                </button>`
                             }
                         </div>
                     </div>
@@ -437,41 +432,38 @@
         }
         
         async function loadQuizCount() {
-            if (!window.MEI_DRIVE) return;
-            const count = await window.MEI_DRIVE.getQuizCount();
-            document.getElementById('questionsCount').textContent = count > 0 ? count : '500+';
+            // Could add quiz count endpoint later
+            document.getElementById('questionsCount').textContent = '500+';
         }
-        
-        // Make functions global
-        window.openAuthModal = openAuthModal;
-        window.viewCourse = viewCourse;
-        window.enrollInCourse = enrollInCourse;
-        window.logout = logout;
         
         // Event listeners
         document.getElementById('modalSubmitBtn').onclick = handleAuth;
         document.getElementById('modalSwitch').onclick = () => {
             authMode = authMode === 'login' ? 'register' : 'login';
-            const title = document.getElementById('modalTitle');
-            const submitBtn = document.getElementById('modalSubmitBtn');
-            const switchDiv = document.getElementById('modalSwitch');
-            title.textContent = authMode === 'login' ? 'Login' : 'Register';
-            submitBtn.textContent = authMode === 'login' ? 'Login' : 'Register';
-            switchDiv.innerHTML = authMode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
+            document.getElementById('modalTitle').textContent = authMode === 'login' ? 'Login' : 'Register';
+            document.getElementById('modalSubmitBtn').textContent = authMode === 'login' ? 'Login' : 'Register';
+            document.getElementById('modalSwitch').innerHTML = authMode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
         };
-        document.querySelector('.close-modal').onclick = closeAuthModal;
-        window.onclick = (event) => { if (event.target === document.getElementById('authModal')) closeAuthModal(); };
+        document.getElementById('payBtn').onclick = processPayment;
+        document.querySelectorAll('.close-modal').forEach(el => {
+            el.onclick = () => { closeAuthModal(); closePaymentModal(); };
+        });
+        window.onclick = (e) => { 
+            if (e.target === document.getElementById('authModal')) closeAuthModal();
+            if (e.target === document.getElementById('paymentModal')) closePaymentModal();
+        };
+        
+        // Make global
+        window.openAuthModal = openAuthModal;
+        window.closePaymentModal = closePaymentModal;
+        window.enrollInCourse = enrollInCourse;
+        window.viewCourse = viewCourse;
+        window.logout = logout;
         
         // Initialize
-        async function init() {
-            console.log('🚀 Initializing MEI Drive Africa...');
-            await checkAuth();
-            await loadCourses();
-            await loadQuizCount();
-            console.log('✅ App initialized');
-        }
-        
-        init();
+        checkAuth();
+        loadCourses();
+        loadQuizCount();
     </script>
 </body>
 </html>
