@@ -2,962 +2,430 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>MEI DRIVE AFRICA - Course Player</title>
-    <!-- Import the global API client -->
-    <script src="supabase.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Course Player | MEI DRIVE AFRICA</title>
+    <meta name="theme-color" content="#0a192f">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
-            background: #0A192F;
-            color: #e2f0ff;
-            line-height: 1.5;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0D2137;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #00FF88;
-            border-radius: 10px;
-        }
-
-        .navbar {
-            background: rgba(10, 25, 47, 0.96);
-            backdrop-filter: blur(14px);
-            padding: 14px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 18px;
-            border-bottom: 1px solid rgba(0, 255, 136, 0.25);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #00FF88, #00cc6a);
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 20px;
-            color: #0A192F;
-        }
-
-        .logo span {
-            color: #00FF88;
-        }
-
-        .back-btn {
-            background: rgba(0, 255, 136, 0.12);
-            color: #00FF88;
-            border: 1px solid #00FF88;
-            padding: 8px 26px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.25s ease;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .back-btn:hover {
-            background: #00FF88;
-            color: #0A192F;
-            border-color: #00FF88;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn-login, .btn-register {
-            padding: 8px 22px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-        }
-
-        .btn-login {
-            background: transparent;
-            border: 1.5px solid #00FF88;
-            color: #00FF88;
-        }
-
-        .btn-login:hover {
-            background: rgba(0, 255, 136, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .btn-register {
-            background: #00FF88;
-            color: #0A192F;
-        }
-
-        .btn-register:hover {
-            background: #00e07a;
-            transform: translateY(-2px);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .user-email {
-            color: #b6ffe0;
-            font-size: 13px;
-            background: rgba(0, 255, 136, 0.1);
-            padding: 6px 14px;
-            border-radius: 30px;
-        }
-
-        .btn-logout {
-            background: rgba(255, 82, 82, 0.2);
-            border: 1px solid rgba(255, 100, 100, 0.5);
-            color: #ffa6a6;
-            padding: 6px 18px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .btn-logout:hover {
-            background: rgba(255, 82, 82, 0.4);
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 100px auto 60px;
-            padding: 0 24px;
-        }
-
-        .course-header {
-            background: rgba(13, 33, 55, 0.85);
-            border-radius: 28px;
-            padding: 28px 32px;
-            margin-bottom: 32px;
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            backdrop-filter: blur(4px);
-        }
-
-        .course-title {
-            font-size: 34px;
-            font-weight: 700;
-            margin-bottom: 14px;
-        }
-
-        .course-title span {
-            color: #00FF88;
-        }
-
-        .course-description {
-            opacity: 0.8;
-            font-size: 1rem;
-        }
-
-        .course-meta {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .meta-badge {
-            background: rgba(0, 255, 136, 0.12);
-            padding: 5px 14px;
-            border-radius: 40px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #7effc7;
-        }
-
-        .progress-container {
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 40px;
-            height: 8px;
-            margin: 28px 0 10px;
-        }
-
-        .progress-bar {
-            background: #00FF88;
-            height: 8px;
-            border-radius: 40px;
-            width: 0%;
-            transition: width 0.35s ease;
-        }
-
-        .progress-text {
-            font-size: 13px;
-            opacity: 0.7;
-            text-align: right;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 30px;
-        }
-
-        .units-sidebar {
-            background: rgba(13, 33, 55, 0.7);
-            border-radius: 28px;
-            padding: 22px 18px;
-            height: fit-content;
-            position: sticky;
-            top: 110px;
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            backdrop-filter: blur(4px);
-        }
-
-        .sidebar-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 18px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .units-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 65vh;
-            overflow-y: auto;
-            padding-right: 6px;
-        }
-
-        .unit-item {
-            background: rgba(10, 25, 47, 0.7);
-            border-radius: 18px;
-            padding: 14px 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-        }
-
-        .unit-item:hover {
-            background: rgba(0, 255, 136, 0.12);
-            transform: translateX(4px);
-        }
-
-        .unit-item.active {
-            background: rgba(0, 255, 136, 0.18);
-            border-left-color: #00FF88;
-            box-shadow: 0 2px 8px rgba(0,255,136,0.1);
-        }
-
-        .unit-number {
-            font-size: 11px;
-            color: #00FF88;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .unit-title-sidebar {
-            font-size: 14px;
-            margin-top: 5px;
-            font-weight: 500;
-        }
-
-        .unit-time {
-            font-size: 10px;
-            opacity: 0.55;
-            margin-top: 6px;
-        }
-
-        .unit-content-area {
-            background: rgba(13, 33, 55, 0.8);
-            border-radius: 28px;
-            padding: 36px 38px;
-            border: 1px solid rgba(0, 255, 136, 0.2);
-        }
-
-        .unit-content-title {
-            font-size: 30px;
-            margin-bottom: 12px;
-            color: #00FF88;
-            font-weight: 700;
-        }
-
-        .unit-content-meta {
-            display: flex;
-            gap: 24px;
-            margin-bottom: 28px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .unit-content-meta span {
-            font-size: 13px;
-            opacity: 0.7;
-        }
-
-        .unit-content-text {
-            line-height: 1.75;
-            font-size: 1rem;
-            color: #eef5ff;
-        }
-
-        .unit-content-text p {
-            margin-bottom: 1.2rem;
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 48px;
-            padding-top: 28px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            gap: 20px;
-        }
-
-        .nav-btn {
-            background: #00FF88;
-            color: #0A192F;
-            border: none;
-            padding: 12px 36px;
-            border-radius: 40px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 15px;
-        }
-
-        .nav-btn:hover:not(:disabled) {
-            background: #1eff99;
-            transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(0,255,136,0.3);
-        }
-
-        .nav-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 80px 20px;
-        }
-
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(0, 255, 136, 0.2);
-            border-top: 4px solid #00FF88;
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 70px 20px;
-            background: rgba(13, 33, 55, 0.7);
-            border-radius: 32px;
-        }
-
-        .empty-state-icon {
-            font-size: 68px;
-            margin-bottom: 20px;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 12px;
-            font-size: 26px;
-        }
-
-        .btn-primary {
-            background: #00FF88;
-            color: #0A192F;
-            border: none;
-            padding: 12px 32px;
-            border-radius: 40px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(6px);
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #0e253f;
-            padding: 40px 32px;
-            border-radius: 32px;
-            width: 90%;
-            max-width: 440px;
-            border: 1px solid rgba(0, 255, 136, 0.5);
-            box-shadow: 0 25px 40px rgba(0,0,0,0.5);
-        }
-
-        .modal-content h2 {
-            margin-bottom: 20px;
-            text-align: center;
-            color: #00FF88;
-        }
-
-        .modal-content input {
-            width: 100%;
-            padding: 14px 16px;
-            margin-bottom: 18px;
-            background: #0a1a2c;
-            border: 1px solid rgba(0, 255, 136, 0.4);
-            border-radius: 20px;
-            color: white;
-            font-size: 15px;
-        }
-
-        .modal-content input:focus {
-            outline: none;
-            border-color: #00FF88;
-        }
-
-        .modal-content button {
-            width: 100%;
-            padding: 14px;
-            background: #00FF88;
-            color: #0A192F;
-            border: none;
-            border-radius: 40px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-
-        .modal-switch {
-            text-align: center;
-            color: #bfd9ff;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .modal-switch span {
-            color: #00FF88;
-            font-weight: 600;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 28px;
-            font-size: 32px;
-            cursor: pointer;
-            color: #b0c4de;
-        }
-
-        .error-msg {
-            color: #ff8080;
-            text-align: center;
-            margin-bottom: 12px;
-            font-size: 13px;
-        }
-
-        .success-msg {
-            color: #7affb3;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #0b2e1f;
-            color: #bcffdb;
-            padding: 12px 28px;
-            border-radius: 60px;
-            font-weight: 600;
-            z-index: 3000;
-            display: none;
-            backdrop-filter: blur(10px);
-            border: 1px solid #00FF88;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-
-        @media (max-width: 820px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            .units-sidebar {
-                position: relative;
-                top: 0;
-            }
-            .container {
-                margin-top: 140px;
-            }
-            .course-title {
-                font-size: 26px;
-            }
-            .unit-content-area {
-                padding: 24px;
-            }
-            .navbar {
-                flex-direction: column;
-                text-align: center;
-            }
-            .nav-buttons {
-                flex-wrap: wrap;
-            }
-            .nav-btn {
-                flex: 1;
-                text-align: center;
-            }
-            .toast {
-                white-space: normal;
-                text-align: center;
-                max-width: 85vw;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a192f; color: #ffffff; line-height: 1.6; }
+        :root { --primary: #00ff88; --primary-dark: #00cc66; --border: rgba(0,255,136,0.25); --text-muted: #a0b3d9; --bg-card: #0d2137; }
+        
+        .navbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(10,25,47,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 1000; padding: 0.8rem 2rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .logo { font-size: 1.3rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #0a192f; }
+        .logo span { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .nav-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .nav-links button { background: transparent; border: none; color: #a0b3d9; padding: 8px 14px; border-radius: 50px; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .nav-links button:hover { background: rgba(0,255,136,0.1); color: var(--primary); }
+        .btn { padding: 12px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #0a192f; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,255,136,0.3); }
+        .btn-outline { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
+        .btn-outline:hover { background: rgba(0,255,136,0.1); }
+        .btn-sm { padding: 8px 20px; font-size: 13px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+        .progress-bar { background: #1e2a3a; border-radius: 10px; height: 6px; margin: 12px 0; }
+        .progress-fill { background: var(--primary); height: 6px; border-radius: 10px; width: 0%; transition: width 0.3s; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid #1e2a3a; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 60px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1100; }
+        .toast { background: var(--bg-card); border-left: 4px solid var(--primary); padding: 12px 20px; border-radius: 12px; margin-top: 8px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); color: var(--text-muted); margin-top: 3rem; }
+        .user-badge { background: rgba(0,255,136,0.15); border-radius: 40px; padding: 6px 16px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
+        .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
+        .units-sidebar { background: var(--bg-card); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; }
+        .unit-item { padding: 12px 16px; margin-bottom: 8px; border-radius: 12px; cursor: pointer; transition: 0.2s; border-left: 3px solid transparent; }
+        .unit-item:hover { background: rgba(0,255,136,0.08); }
+        .unit-item.active { background: rgba(0,255,136,0.15); border-left-color: var(--primary); }
+        .unit-number { font-size: 11px; color: var(--primary); font-weight: 600; letter-spacing: 0.5px; }
+        .unit-title { font-size: 14px; font-weight: 500; margin-top: 4px; line-height: 1.3; }
+        .unit-duration { font-size: 11px; opacity: 0.6; margin-top: 6px; }
+        .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; }
+        .lesson-content { line-height: 1.8; padding: 1rem 0; }
+        .lesson-content h1, .lesson-content h2, .lesson-content h3 { color: var(--primary); margin: 1.2rem 0 0.6rem; }
+        .lesson-content h1 { font-size: 1.8rem; }
+        .lesson-content h2 { font-size: 1.5rem; }
+        .lesson-content h3 { font-size: 1.2rem; }
+        .lesson-content ul, .lesson-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+        .lesson-content li { margin-bottom: 0.3rem; }
+        .lesson-content p { margin-bottom: 1rem; }
+        .lesson-content strong { color: var(--primary); }
+        .lesson-nav { display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem; flex-wrap: wrap; }
+        .badge { display: inline-block; background: rgba(0,255,136,0.2); color: var(--primary); font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; margin-left: 10px; }
+        .check-icon { color: var(--primary); margin-right: 8px; }
+        
+        @media (max-width: 768px) { 
+            .nav-links { display: none; width: 100%; flex-direction: column; padding: 1rem 0; } 
+            .nav-links.show { display: flex; } 
+            .mobile-menu { display: block; } 
+            .main-grid { grid-template-columns: 1fr; }
+            .units-sidebar { position: relative; top: 0; margin-bottom: 1rem; max-height: 400px; overflow-y: auto; }
+            .container { padding: 0 16px; }
+            .lesson-nav button { flex: 1; text-align: center; justify-content: center; }
+        }
+        
+        button:disabled, .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: var(--bg-card); border-radius: 28px; padding: 2rem; max-width: 450px; width: 90%; border: 1px solid var(--primary); }
+        .modal-content input { width: 100%; padding: 12px; margin: 10px 0; background: #0f1a2c; border: 1px solid var(--border); border-radius: 12px; color: white; }
+        .course-header { background: linear-gradient(135deg, rgba(0,255,136,0.08), var(--bg-card)); padding: 1.5rem; border-radius: 20px; margin-bottom: 2rem; border: 1px solid var(--border); }
+        .course-header h1 { font-size: 1.8rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     </style>
 </head>
 <body>
+<div id="app">
     <nav class="navbar">
-        <div class="logo" onclick="window.location.href='index.html'">
-            <div class="logo-icon">M</div>
-            MEI DRIVE <span>AFRICA</span>
+        <div class="nav-container">
+            <div class="logo" onclick="window.location.href='index.html'">
+                <div class="logo-icon">M</div>
+                MEI DRIVE <span>AFRICA</span>
+            </div>
+            <div class="mobile-menu" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></div>
+            <div class="nav-links" id="navLinks">
+                <button onclick="window.location.href='index.html'"><i class="fas fa-home"></i> Home</button>
+                <button onclick="window.location.href='index.html?page=courses'"><i class="fas fa-book"></i> Courses</button>
+                <button onclick="window.location.href='index.html?page=quiz'"><i class="fas fa-question-circle"></i> Quiz Bank</button>
+                <div id="authButtons"></div>
+            </div>
         </div>
-        <div id="authContainer" class="auth-buttons"></div>
-        <a href="index.html" class="back-btn">← Back to Courses</a>
     </nav>
+    <main id="page-content"><div class="loading-spinner"></div></main>
+    <footer>© 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training | Drive Safe, Arrive Alive</footer>
+</div>
+<div id="toast-container"></div>
 
-    <div id="authModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 id="modalTitle">Login</h2>
-            <div id="modalError" class="error-msg"></div>
-            <div id="modalSuccess" class="success-msg"></div>
-            <input type="email" id="modalEmail" placeholder="Email address" autocomplete="email">
-            <input type="password" id="modalPassword" placeholder="Password (min 6 chars)" autocomplete="current-password">
-            <button id="modalSubmitBtn">Login</button>
-            <div class="modal-switch" id="modalSwitch">Don't have an account? <span>Register</span></div>
-        </div>
-    </div>
-
-    <div class="container" id="container">
-        <div class="loading"><div class="spinner"></div>Loading immersive course...</div>
-    </div>
-
-    <div id="toast" class="toast"></div>
-
-    <script>
-        // Use the global API client from supabase.js
-        const API = window.MEI_DRIVE_API;
+<script>
+    const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+    
+    let supabase;
+    let currentUser = null;
+    let currentCourse = null;
+    let currentLessonIndex = 0;
+    let userProgress = {};
+    let userEnrollments = {};
+    
+    // Complete course content for all 6 courses (LEARNER HUB, Boda Safety, PSV, EV, Refresher, Quiz Bank)
+    const courseContent = {
+        // Course 1: LEARNER HUB - Complete Driver Training
+        1: { 
+            name: 'LEARNER HUB', 
+            icon: 'fa-car',
+            lessons: [
+                { title: 'Introduction to Driving', content: '<h2>Introduction to Driving</h2><p>Motor vehicles are an important part of our day-to-day living and provide a means for people and goods to be transported from one location to another.</p><p>The goal of driver training is to ensure that you, as the driver, are equipped with the right knowledge of how to handle your vehicle and how to act appropriately when using the road.</p><p>Most traffic accidents are caused by human error, however this can be easily prevented when the driver is adequately prepared for the traffic situation.</p><h3>Key Learning Objectives</h3><ul><li>Understand the importance of professional driver training</li><li>Recognize common causes of accidents</li><li>Commit to safe driving practices</li><li>Develop defensive driving mindset</li></ul><p><strong>Remember:</strong> A well-trained driver is a safe driver.</p>', duration: 15 },
+                { title: 'Fundamental Driving Rules', content: '<h2>Fundamental Driving Rules</h2><p>The road is governed by rules and regulations that ensure order is maintained at all times. These rules are derived from international, regional and Kenyan law.</p><h3>The Traffic Act</h3><p>Sets out the laws that govern the use of roads and the expected conduct of road users, including penalties for violations.</p><h3>Highway Code</h3><p>A set of information, advice, guides and mandatory rules for all road users in Kenya promoting safety, responsible behaviour and courtesy.</p><h3>Key Regulations</h3><ul><li>Use of horn only when necessary to warn other road users</li><li>Give right-of-way to police, emergency vehicles, and presidential motorcade</li><li>Respect pedestrian crossings and cyclist lanes</li><li>Obey all traffic signs and signals</li><li>Keep left unless overtaking</li></ul>', duration: 20 },
+                { title: 'Model Town & Road Network', content: '<h2>Model Town Board</h2><p>The model town board is a simplified representation of a road network used to explain types of roads found in major towns of Kenya.</p><h3>Key Features</h3><ul><li><strong>One-way traffic road (Dual Carriageway)</strong> - All vehicles move in one direction</li><li><strong>Two-way traffic road (Single Carriageway)</strong> - Vehicles move in opposite directions</li><li><strong>Roundabout</strong> - Meeting point of more than two roads</li><li><strong>Parking zones</strong> - Angle parking and flush parking</li><li><strong>Yellow kerb</strong> - No parking, no stopping, no waiting</li><li><strong>Pedestrian crossings</strong> - Give way to pedestrians</li><li><strong>Stop sign</strong> - Red octagon, complete stop required</li><li><strong>Give Way sign</strong> - Red triangle, slow down and yield</li></ul><h3>Roundabout Lane Rules</h3><ul><li>Lane 1 (outermost): Go straight or turn left</li><li>Lane 2: Go straight only</li><li>Lane 3: Go straight or turn right</li><li>Lane 4 (innermost): Turn right, U-turn, or go full circle</li><li>No stopping, changing lanes, parking, or overtaking on roundabout</li></ul>', duration: 25 },
+                { title: 'Human Factors in Traffic', content: '<h2>Human Factors in Traffic</h2><h3>Observation Skills</h3><ul><li>Keep your eyes moving - don\'t fixate on one angle</li><li>Get a wide view of what is ahead and behind</li><li>Use all mirrors (rear view and side mirrors)</li><li>Pay attention to vehicle instruments and warning lights</li><li>Watch for vulnerable road users (children, elderly, disabled)</li></ul><h3>Health and Safety</h3><ul><li><strong>Eyesight</strong> - Check regularly, wear spectacles if needed</li><li><strong>Fatigue</strong> - Get quality sleep before driving, take regular breaks</li><li><strong>Alcohol & Drugs</strong> - Zero tolerance for professional drivers</li><li><strong>Distractions</strong> - No phone use, no eating/drinking while driving</li></ul><h3>Safety Equipment Required</h3><ul><li>Reflector triangles (60m ahead and behind disabled vehicle)</li><li>First aid kit with full supplies</li><li>Fire extinguisher (regularly inspected)</li><li>Tow ropes, spare tyre, jumpstart cables</li><li>Warning triangle and reflective jacket</li></ul>', duration: 30 },
+                { title: 'Vehicle Construction & Controls', content: '<h2>Vehicle Construction & Controls</h2><p>Understanding your vehicle\'s components is essential for safe operation.</p><h3>Dashboard Instruments</h3><ul><li><strong>Speedometer</strong> - Shows current speed</li><li><strong>Temperature Gauge</strong> - Monitors engine temperature</li><li><strong>Fuel Gauge</strong> - Shows fuel level</li><li><strong>Warning Lights</strong> - Alert to issues (brake, battery, oil)</li></ul><h3>Primary Controls</h3><ul><li><strong>Steering Wheel</strong> - Hold at 10 and 2 or 9 and 3 position</li><li><strong>Gear Lever</strong> - 1st to 5th forward gears plus reverse</li><li><strong>Foot Pedals</strong> - Accelerator (right), Brake (center), Clutch (left - manual)</li><li><strong>Handbrake/Parking Brake</strong> - Secures stationary vehicle</li><li><strong>Indicators/Turn Signals</strong> - Communicate intentions to other road users</li></ul><h3>Mirrors</h3><ul><li>Rear-view mirror (interior) - Flat glass, accurate distance judgment</li><li>Side mirrors (exterior) - Convex, wider field of vision</li><li>Always check mirrors before any manoeuvre</li></ul>', duration: 22 },
+                { title: 'Vehicle Self-Inspection', content: '<h2>Vehicle Self-Inspection</h2><p>Before embarking on any journey, a responsible driver must ensure the vehicle is in safe condition.</p><h3>Exterior Inspection (POWER)</h3><ul><li><strong>Petrol/Fuel</strong> - Check fuel level</li><li><strong>Oil</strong> - Check engine oil level</li><li><strong>Water/Coolant</strong> - Check radiator coolant</li><li><strong>Electrics</strong> - Check lights, indicators, horn</li><li><strong>Rubber/Tyres</strong> - Check pressure, tread depth, condition</li></ul><h3>Additional Exterior Checks</h3><ul><li>Mirrors - Clean and properly adjusted</li><li>Windshield Wipers - Functioning at all speeds</li><li>Windows - Open and close properly</li><li>Body - No damage affecting safety</li><li>Cleanliness - Clean windows, mirrors, lights</li></ul><h3>Interior Inspection</h3><ul><li>Brakes - Test before moving off</li><li>Steering - Full range of motion</li><li>Gears - Smooth shifting</li><li>Seatbelts - All working properly</li><li>Emergency Equipment - Present and accessible</li></ul><h3>Paperwork</h3><ul><li>Valid driving license</li><li>Vehicle insurance</li><li>Registration documents</li><li>PSV license (if applicable)</li></ul>', duration: 20 },
+                { title: 'Observation & Blind Spots', content: '<h2>Observation & Blind Spots</h2><p>Observation is essential for safe driving. Driver visibility varies depending on vehicle type, traffic conditions, and individual ability.</p><h3>The Blind Spot</h3><p>The blind spot is the area around the vehicle that the driver cannot directly observe while driving. Mirrors help but cannot eliminate all blind spots.</p><h3>When to Check Blind Spots</h3><ul><li>Before changing lanes</li><li>When overtaking</li><li>Before merging into traffic</li><li>When there are motorcyclists or cyclists nearby</li><li>Before opening doors</li></ul><h3>Mirror Checks (MSM Routine)</h3><ul><li><strong>M - Mirror</strong> : Check interior mirror, then side mirror in direction of intended move</li><li><strong>S - Signal</strong> : Indicate your intention in good time</li><li><strong>M - Manoeuvre</strong> : Execute the move when safe</li></ul><h3>Types of Mirrors</h3><ul><li><strong>Rear View Mirror</strong> - Flat glass, accurate speed/distance judgment</li><li><strong>Nearside Mirror</strong> - Left side, closest to kerb</li><li><strong>Offside Mirror</strong> - Right side, closest to inner lane</li></ul>', duration: 18 },
+                { title: 'Vehicle Control & Movement', content: '<h2>Vehicle Control & Movement</h2><h3>Starting the Vehicle</h3><ol><li>Adjust seat and mirrors</li><li>Fasten seatbelt</li><li>Check all instruments</li><li>Fully depress clutch (manual)</li><li>Turn ignition key to start</li><li>Check mirrors before moving</li><li>Signal intention</li><li>Select appropriate gear</li><li>Release handbrake</li><li>Move off smoothly</li></ol><h3>Gear Usage</h3><ul><li><strong>1st Gear</strong> - Moving off, 0-30 km/h</li><li><strong>2nd Gear</strong> - Slow traffic, 30-50 km/h, also for moving off downhill</li><li><strong>3rd Gear</strong> - 35-70 km/h</li><li><strong>4th Gear</strong> - 60-110 km/h, overtaking</li><li><strong>5th Gear</strong> - 80-110+ km/h, highway cruising</li></ul><h3>Stopping the Vehicle</h3><ol><li>Check mirrors</li><li>Signal if necessary</li><li>Release accelerator</li><li>Apply brake progressively</li><li>Depress clutch just before stopping</li><li>Apply handbrake</li><li>Select neutral</li><li>Release pedals</li></ol>', duration: 25 },
+                { title: 'MSM Technique & Communication', content: '<h2>MSM Technique - Mirror, Signal, Manoeuvre</h2><p>The MSM technique is a simple procedure that helps drivers communicate on the road safely.</p><h3>When to Use MSM</h3><ul><li>Before moving off</li><li>Before turning left or right</li><li>Before overtaking</li><li>Before changing lanes</li><li>Before slowing down or stopping</li><li>Before parking</li></ul><h3>Mirror (M)</h3><p>Check interior mirror first, then door mirror in direction you intend to go. Look for potential hazards: vehicles following closely, approaching quickly, cyclists, motorcyclists.</p><h3>Signal (S)</h3><p>Apply signals in good time - not too early (confusing) and not too late (dangerous). Cancel signal after completing manoeuvre.</p><h3>Manoeuvre (M)</h3><p>Execute the intended move only when safe. Be prepared to abort if conditions change.</p><h3>Hand Signals</h3><ul><li>Left turn - Arm out horizontally with palm forward</li><li>Right turn - Arm out horizontally with palm forward</li><li>Slowing/Stopping - Arm out with palm down, moving up and down</li></ul>', duration: 20 },
+                { title: 'Speed Management & 4-Second Rule', content: '<h2>Speed Management</h2><p>A major cause of road accidents is reckless driving and overspeeding. The higher the speed, the shorter the time a driver has to stop.</p><h3>The 4-Second Rule</h3><p>To maintain safe following distance, use this technique:</p><ol><li>When the vehicle ahead passes a fixed landmark (sign, tree, bridge), start counting</li><li>Count: "One thousand and one, one thousand and two, one thousand and three, one thousand and four"</li><li>If you pass the landmark before finishing, you are too close - increase distance</li></ol><h3>Stopping Distance Components</h3><ul><li><strong>Thinking Distance</strong> - Distance traveled while deciding to brake (affected by speed, fatigue, distractions)</li><li><strong>Braking Distance</strong> - Distance traveled while braking (affected by speed, road conditions, tyre condition, brakes)</li><li><strong>Stopping Distance</strong> = Thinking Distance + Braking Distance</li></ul><h3>Factors Affecting Stopping Distance</h3><ul><li>Higher speed = longer stopping distance</li><li>Wet/icy roads increase braking distance</li><li>Poor tyres increase braking distance</li><li>Overloading increases stopping distance</li><li>Driver fatigue increases thinking distance</li></ul>', duration: 22 },
+                { title: 'Parking Techniques', content: '<h2>Parking Techniques</h2><h3>Angle Parking</h3><ul><li>Strictly for small cars (saloon)</li><li>Park from the farthest end</li><li>Park using forward gear (direct)</li><li>Exit by reversing</li><li>Designated entrance and exit</li></ul><h3>Flush/Parallel Parking</h3><ul><li>Found on left side of road in direction of traffic</li><li>All vehicle types permitted (except tractors/trailers)</li><li>Park from farthest end</li><li>Park by reversing</li><li>Exit by forward driving</li></ul><h3>Parking Safety</h3><ul><li>Never park near pedestrian crossings</li><li>Never park within 15 metres of a junction</li><li>Never park on yellow lines or kerbs</li><li>Always apply handbrake and select gear</li><li>Lock vehicle when leaving</li></ul>', duration: 18 },
+                { title: 'Roundabouts & Junctions', content: '<h2>Roundabouts & Junctions</h2><p>A roundabout is a meeting point where more than two roads meet, designed to facilitate vehicle movement without obstruction.</p><h3>Roundabout Rules</h3><ul><li>No stopping, no changing lanes, no parking, no overtaking, no waiting</li><li>Keep left and move in clockwise direction</li><li>Give way to traffic already on the roundabout (from your right)</li><li>Signal when exiting (left indicator)</li></ul><h3>Approaching a Roundabout</h3><ul><li>Reduce speed appropriately</li><li>Position vehicle in correct lane for intended exit</li><li>Watch for cyclists, motorcyclists, and large vehicles</li></ul><h3>Junction Safety</h3><ul><li>Observe traffic from all directions</li><li>Give way to vehicles on main road</li><li>Do not block the junction</li><li>Check for pedestrians crossing</li></ul>', duration: 20 },
+                { title: 'Defensive Driving Techniques', content: '<h2>Defensive Driving Techniques</h2><p>Defensive driving is safe, cautious driving that goes beyond mastering basic rules. It anticipates and avoids danger.</p><h3>Key Principles</h3><ul><li><strong>Anticipate</strong> - Look ahead 12-15 seconds to identify potential hazards</li><li><strong>Identify</strong> - Recognize dangerous situations before they develop</li><li><strong>Decide</strong> - Choose the safest course of action</li><li><strong>Execute</strong> - Perform the manoeuvre safely and in good time</li></ul><h3>Defensive Driving Techniques</h3><ul><li>Maintain safe following distance</li><li>Keep escape routes available</li><li>Be visible - use lights appropriately</li><li>Expect the unexpected from other road users</li><li>Adjust speed to conditions, not just limits</li><li>Never drive when tired or impaired</li></ul><h3>Hazard Perception</h3><ul><li>Watch for emerging vehicles from side roads</li><li>Be alert for pedestrians, especially near schools and markets</li><li>Look for children and animals near roads</li><li>Observe behavior of other drivers</li></ul>', duration: 25 },
+                { title: 'Emergency Manoeuvres', content: '<h2>Emergency Manoeuvres</h2><p>When facing sudden danger, quick and efficient moves can prevent accidents.</p><h3>Brake Failure</h3><ul><li>Pump brake pedal to restore hydraulic pressure</li><li>Apply parking brake gently while holding release button</li><li>Use engine braking - shift to lower gear</li><li>Find a safe area to stop (uphill if possible)</li><li>Do not drive again - call for help</li></ul><h3>Tyre Blowout</h3><ul><li>Keep firm grip on steering wheel</li><li>Do not slam brakes</li><li>Let vehicle slow gradually</li><li>Pull to side of road once at safe speed</li><li>Activate hazard lights</li></ul><h3>Wheels Off Pavement</h3><ul><li>Hold steering firmly</li><li>Take foot off accelerator</li><li>Avoid heavy braking</li><li>When under control, steer back onto road</li></ul><h3>Headlight Failure at Night</h3><ul><li>Check switch immediately</li><li>If lights remain off, keep left and stop safely</li><li>Do not continue - illegal and dangerous</li><li>Call for assistance</li></ul>', duration: 20 },
+                { title: 'Skid Control & Recovery', content: '<h2>Skid Control & Recovery</h2><p>A skid happens when the vehicle\'s wheels slide out of control on a slippery surface.</p><h3>Causes of Skids</h3><ul><li>Driving too fast for conditions</li><li>Sudden, hard braking</li><li>Turning too fast</li><li>Accelerating too quickly</li><li>Wet, icy, or oily roads</li></ul><h3>Front Wheel Skid</h3><p>Vehicle goes off intended course, usually from excess speed entering a corner or sudden braking.</p><h3>Rear Wheel Skid</h3><p>Rear of vehicle swings out, often from excessive speed leading to sudden braking.</p><h3>Skid Recovery Steps</h3><ol><li>Take feet off accelerator and brake</li><li>Look where you want to go (not at the obstacle)</li><li>Steer in direction you want to go</li><li>As vehicle corrects, steer opposite to stay on path</li><li>Continue looking at your intended path of travel</li></ol><h3>Aquaplaning Prevention</h3><ul><li>Reduce speed in wet conditions</li><li>Maintain proper tyre pressure and tread depth</li><li>If aquaplaning occurs, ease off accelerator until tyres regain contact</li></ul>', duration: 22 },
+                { title: 'Adverse Driving Conditions', content: '<h2>Adverse Driving Conditions</h2><h3>Night Driving</h3><ul><li>Slow down, especially on unlit roads</li><li>Use low beam headlights within 150m of oncoming vehicles</li><li>Keep windshield and windows clean</li><li>Do not over-drive your headlights</li></ul><h3>Fog</h3><ul><li>Reduce speed gradually</li><li>Use low beam headlights or fog lights (high beams reflect off fog)</li><li>Increase following distance</li><li>Avoid overtaking</li><li>If visibility drops rapidly, pull off road safely and wait</li></ul><h3>Rain</h3><ul><li>Roads are most dangerous in first 10 minutes of rainfall (oil rises)</li><li>Reduce speed significantly</li><li>Double or triple following distance</li><li>Avoid puddles (can hide potholes or cause aquaplaning)</li><li>Use windshield wipers and defroster</li></ul><h3>Hot Weather</h3><ul><li>Monitor engine temperature</li><li>Ensure coolant levels are adequate</li><li>Stay hydrated to avoid fatigue</li></ul>', duration: 25 },
+                { title: 'Preventive Maintenance', content: '<h2>Preventive Maintenance</h2><p>Preventive maintenance refers to work done to ensure vehicle is in good working condition, detecting and fixing problems early.</p><h3>Common Issues & Solutions</h3><ul><li><strong>Puncture</strong> - Change wheel, repair or replace tyre</li><li><strong>Heavy steering</strong> - Check power steering fluid, seek assistance</li><li><strong>Brake warning light</strong> - Check fluid level, seek qualified assistance</li><li><strong>Engine overheating</strong> - Check coolant, fan belt, radiator</li><li><strong>Battery flat</strong> - Jump start, check alternator</li></ul><h3>Maintenance Schedule</h3><ul><li>Daily: Tyres, lights, brakes, fluids, mirrors</li><li>Weekly: Battery terminals, wipers, horn</li><li>Monthly: Full service checks, tyre rotation</li><li>As per manufacturer: Oil changes, major services</li></ul><h3>Benefits of Preventive Maintenance</h3><ul><li>Reduces breakdowns</li><li>Improves safety</li><li>Extends vehicle life</li><li>Saves money on major repairs</li><li>Improves fuel efficiency</li></ul>', duration: 20 },
+                { title: 'First Aid & Emergency Procedures', content: '<h2>First Aid & Emergency Procedures</h2><h3>At Scene of Crash</h3><ol><li>Set reflector triangles 50m behind and ahead</li><li>Call emergency services - police, ambulance, fire</li><li>Move uninjured people to safety</li><li>DO NOT move injured unless immediate danger of fire/explosion</li><li>Be prepared to give First Aid</li><li>Stay at scene until police arrive</li></ol><h3>DR ABC (Emergency Assessment)</h3><ul><li><strong>D - Danger</strong>: Assess danger to yourself, victims, others</li><li><strong>R - Response</strong>: Shake gently, talk to casualty</li><li><strong>A - Airway</strong>: Clear throat, tilt head, lift chin</li><li><strong>B - Breathing</strong>: Look, listen, feel for breath (10 seconds)</li><li><strong>C - Circulation</strong>: Check pulse, colour, pupils</li></ul><h3>Bleeding Control</h3><ul><li>Apply firm pressure over wound</li><li>Use sterile dressing if available</li><li>Raise bleeding limb if no broken bones</li><li>A person can bleed to death in 5 minutes</li></ul><h3>Shock Treatment</h3><ul><li>Lay person down</li><li>Loosen tight clothing</li><li>Keep warm with blanket</li><li>Raise legs slightly</li><li>Do not give food or drink</li></ul>', duration: 25 },
+                { title: 'Customer Care & Professional Conduct', content: '<h2>Customer Care & Professional Conduct</h2><p>A customer refers to anyone you deal with while driving - pedestrians, passengers, and other motorists.</p><h3>Essential Customer Care Skills</h3><ul><li><strong>Communication</strong> - Clear, respectful language</li><li><strong>Patience</strong> - Don\'t rush passengers boarding/alighting</li><li><strong>Positive Attitude</strong> - Professional and courteous at all times</li><li><strong>Assistance</strong> - Help passengers with special needs</li></ul><h3>Professional Conduct</h3><ul><li>Be sober, clean, and appropriately dressed</li><li>Keep vehicle clean inside and out</li><li>Provide helmet and reflective jacket for passengers</li><li>Do not overload beyond legal capacity</li><li>Assist elderly, sick, and expectant mothers</li><li>Give special consideration to passengers with disabilities</li></ul><h3>Prohibited Behaviors</h3><ul><li>Sexual harassment (any unwelcome sexual conduct)</li><li>Discrimination (based on appearance, race, gender, age)</li><li>Abusive language or aggressive behavior</li><li>Competitive or reckless driving</li></ul><h3>Time & Stress Management</h3><ul><li>Get sufficient rest before driving</li><li>Take breaks between journeys</li><li>Work within legal duty hours (max 8 hours per 24-hour period for PSV)</li><li>Communicate delays to customers</li></ul>', duration: 22 }
+            ]},
         
-        // App state
-        const STATE = {
-            user: null,
-            authModalOpen: false,
-            authMode: 'login',
-            authError: '',
-            authSuccess: '',
-            course: null,
-            units: [],
-            currentUnitIndex: 0,
-            loading: true,
-            error: null,
-            enrollment: null,
-            enrollments: []
-        };
-
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.style.display = 'block';
-            toast.style.background = isError ? '#791a1a' : '#0a3826';
-            toast.style.color = isError ? '#ffbcbc' : '#beffd6';
-            setTimeout(() => { toast.style.display = 'none'; }, 4200);
+        // Course 2: BODA BODA SAFETY
+        2: {
+            name: 'BODA BODA SAFETY',
+            icon: 'fa-motorcycle',
+            lessons: [
+                { title: 'Introduction to Boda Boda Safety', content: '<h2>Introduction to Boda Boda Safety</h2><p>A boda boda is a motorcycle used for passenger transport, parcel delivery, and commercial transport services.</p><h3>Qualities of a Professional Rider</h3><ul><li>Be disciplined and respectful</li><li>Respect traffic laws at all times</li><li>Maintain cleanliness of self and motorcycle</li><li>Be honest and professional</li><li>Ride responsibly and defensively</li><li>Know your route and destination</li></ul><h3>Road Safety Importance</h3><p>Safe riding protects riders, passengers, pedestrians, other road users, and prevents injuries, deaths, and financial losses.</p>', duration: 15 },
+                { title: 'Motorcycle Parts & Controls', content: '<h2>Motorcycle Parts & Controls</h2><h3>Main Controls</h3><ul><li><strong>Throttle</strong> - Controls speed (twist grip on right handlebar)</li><li><strong>Front Brake</strong> - Right handlebar lever (provides 70% braking power)</li><li><strong>Rear Brake</strong> - Right foot pedal</li><li><strong>Clutch</strong> - Left handlebar lever</li><li><strong>Gear Lever</strong> - Left foot pedal (1-N-2-3-4-5 pattern)</li><li><strong>Ignition</strong> - Key switch to start engine</li><li><strong>Indicators</strong> - Left and right turn signals</li><li><strong>Horn</strong> - Warning signal to other road users</li></ul><h3>Important Parts to Know</h3><ul><li>Engine - Power source, requires regular oil changes</li><li>Tires - Check pressure and tread depth weekly</li><li>Suspension - Provides comfort and stability</li><li>Mirrors - Essential for observation, check before any manoeuvre</li><li>Chain - Requires regular cleaning and lubrication</li><li>Battery - Powers lights and ignition</li></ul>', duration: 20 },
+                { title: 'Personal Protective Equipment (PPE)', content: '<h2>Personal Protective Equipment (PPE)</h2><h3>Essential Safety Gear</h3><ul><li><strong>Helmet</strong> - Must be approved type, fastened chin strap, replace after any impact. Protects head during accidents.</li><li><strong>Reflective Jacket</strong> - Improves visibility at night, in rain, and fog. Essential for all rides after dark.</li><li><strong>Gloves</strong> - Protect hands and improve grip control. Prevents abrasions and blisters.</li><li><strong>Boots</strong> - Strong footwear protecting feet and ankles. Should cover ankles completely.</li></ul><h3>Helmet Rules</h3><ul><li>Always wear approved helmets (NTSA certified)</li><li>Fasten chin straps properly - loose straps reduce protection</li><li>Replace damaged helmets immediately (one impact only)</li><li>Passengers must also wear helmets</li><li>Keep helmet visor clean for clear vision</li></ul><h3>Additional Protective Gear</h3><ul><li>Long pants and long-sleeved shirt/jacket</li><li>Knee and elbow pads for extra protection</li><li>Riding suit for wet weather</li></ul>', duration: 18 },
+                { title: 'Pre-Ride Inspection', content: '<h2>Pre-Ride Inspection</h2><p>Before every ride, complete this checklist:</p><h3>Tires (T-CLOCS)</h3><ul><li>Tire pressure - Check with gauge</li><li>Tire condition - Look for cuts, bulges, cracks</li><li>Punctures or embedded objects</li><li>Tread depth - Must be above wear indicators</li></ul><h3>Brakes</h3><ul><li>Front brake lever feel - Should be firm</li><li>Rear brake pedal travel - Should engage properly</li><li>Brake fluid level - Check reservoir</li><li>Brake pads - Look for wear</li></ul><h3>Lights & Electrical</h3><ul><li>Headlights (high and low beam)</li><li>Brake lights (activate both brakes)</li><li>Turn indicators (left and right)</li><li>Horn - Should be loud and clear</li></ul><h3>Other Checks</h3><ul><li>Mirrors - Clean and properly adjusted</li><li>Fuel level - Sufficient for journey</li><li>Chain - Proper tension and lubrication</li><li>Oil level - Check dipstick</li><li>Throttle - Should return freely when released</li><li>Clutch - Smooth operation</li></ul>', duration: 22 },
+                { title: 'Defensive Riding Techniques', content: '<h2>Defensive Riding Techniques</h2><p>Defensive riding means anticipating danger, staying alert, avoiding risky behaviour, and protecting yourself and passengers.</p><h3>Key Skills</h3><ul><li><strong>Observation</strong> - Constantly watch vehicles, pedestrians, animals, and road conditions. Keep eyes moving, scan ahead 12 seconds.</li><li><strong>Following Distance</strong> - Maintain safe distance to react and brake safely (minimum 2 seconds, 4 seconds in rain).</li><li><strong>Mirror Use</strong> - Check mirrors every 5-8 seconds to monitor traffic behind.</li><li><strong>Hazard Awareness</strong> - Watch for potholes, oil spills, sudden stops, reckless drivers, opening car doors.</li></ul><h3>Rider Positioning</h3><ul><li>Position for maximum visibility to others</li><li>Stay out of blind spots of larger vehicles</li><li>Choose lane position that gives escape route</li><li>Ride where you can be seen and can see</li></ul><h3>Avoid Dangerous Riding</h3><ul><li>Never weave through traffic dangerously</li><li>Never ride between large vehicles</li><li>Never ride on pedestrian walkways</li><li>Never ride too close to parked cars (watch for opening doors)</li></ul>', duration: 25 },
+                { title: 'Safe Overtaking & Lane Discipline', content: '<h2>Safe Overtaking & Lane Discipline</h2><h3>Safe Overtaking Steps</h3><ol><li>Check mirrors (both sides)</li><li>Signal intention</li><li>Confirm road ahead is clear</li><li>Check blind spot</li><li>Accelerate safely to pass</li><li>Return to lane smoothly</li><li>Cancel signal</li></ol><h3>Never Overtake</h3><ul><li>On corners or bends</li><li>Near junctions or intersections</li><li>On pedestrian crossings</li><li>In heavy traffic</li><li>Where solid lines prohibit overtaking</li><li>Approaching the brow of a hill</li></ul><h3>Lane Positioning</h3><ul><li>Correct lane position improves visibility and safety</li><li>Stay in center of lane when appropriate</li><li>Move to left or right to maximize visibility at intersections</li><li>Avoid staying in blind spots of trucks, buses, cars</li></ul>', duration: 20 },
+                { title: 'Passenger (Pillion) Safety', content: '<h2>Passenger (Pillion) Safety</h2><h3>Passenger Responsibilities</h3><ul><li>Wear approved helmet and reflective jacket</li><li>Sit properly - both feet on foot pegs</li><li>Avoid sudden movement that affects balance</li><li>Hold onto rider\'s waist or passenger handles</li><li>Lean with the rider when cornering</li><li>Do not distract rider</li></ul><h3>Rider Responsibilities</h3><ul><li>Ensure passenger has proper safety gear</li><li>Explain safety instructions before moving</li><li>Never overload - maximum one passenger unless designed for more</li><li>Ride smoothly - avoid sudden acceleration or braking</li><li>Assist passenger when boarding and alighting</li><li>Be extra careful with children, elderly, pregnant women</li></ul><h3>Passenger Categories Requiring Extra Care</h3><ul><li><strong>Children</strong> - Extra care, lower speed, proper helmets, assist boarding</li><li><strong>Elderly</strong> - Need assistance boarding, smooth riding, patience</li><li><strong>Pregnant Women</strong> - Ride slowly, carefully, on smooth roads</li></ul>', duration: 18 },
+                { title: 'Riding at Night & Bad Weather', content: '<h2>Riding at Night & Bad Weather</h2><h3>Night Riding Risks</h3><ul><li>Reduced visibility - harder to see hazards</li><li>Reduced reaction time</li><li>Harder for others to see you</li><li>Increased risk of animals on road</li></ul><h3>Night Riding Safety</h3><ul><li>Use headlights properly (low beam in traffic)</li><li>Wear reflective jacket and gear</li><li>Reduce speed significantly</li><li>Increase following distance</li><li>Keep visor clean and scratch-free</li><li>Avoid dark, unsafe roads when possible</li></ul><h3>Rain Riding Safety</h3><ul><li>Reduce speed - roads are slippery</li><li>Increase following distance - braking distance doubles</li><li>Brake gently - avoid sudden braking</li><li>Avoid slippery surfaces - oil spills, mud, painted markings</li><li>Avoid flooded roads - depth unknown, risk of stalling</li><li>Be extra visible - use headlights</li></ul>', duration: 22 },
+                { title: 'Emergency Handling & First Aid', content: '<h2>Emergency Handling & First Aid</h2><h3>Accident Response</h3><ol><li>Stop safely away from danger</li><li>Check for injuries to yourself first</li><li>Protect passengers - move to safety if possible</li><li>Call emergency services (police, ambulance)</li><li>Give first aid if trained</li><li>Do not remove injured person\'s helmet unless essential</li><li>Stay at scene until help arrives</li></ol><h3>First Aid Basics for Riders</h3><ul><li>Control bleeding with direct pressure</li><li>Keep victim calm and warm</li><li>Do not move unconscious person unless immediate danger</li><li>Check airway and breathing (DR ABC)</li><li>Know emergency numbers: 999, 112</li></ul><h3>Common Accident Causes to Prevent</h3><ul><li>Overspeeding</li><li>Drunk riding (alcohol/drugs)</li><li>Poor road conditions</li><li>Reckless overtaking</li><li>Fatigue</li><li>Phone use while riding</li><li>Poor visibility conditions</li></ul>', duration: 20 },
+                { title: 'Professional Conduct & Customer Care', content: '<h2>Professional Conduct & Customer Care</h2><h3>Professional Rider Standards</h3><ul><li>Be polite and respectful to all passengers</li><li>Speak clearly about destination and fare</li><li>Explain safety instructions before moving</li><li>Assist passengers with boarding and luggage</li><li>Never overcharge or negotiate dishonestly</li></ul><h3>Personal Hygiene</h3><ul><li>Bathe daily before work</li><li>Wear clean clothes and safety gear</li><li>Clean helmet regularly (inside and out)</li><li>Wash hands frequently</li><li>Keep motorcycle clean - builds customer trust</li></ul><h3>Digital Safety</h3><ul><li>Never text while riding</li><li>Never watch videos while riding</li><li>Never use phone without stopping safely</li><li>Use phone only when parked safely</li><li>Keep phone for emergency communication only while on duty</li></ul><h3>Alcohol, Drugs & Fatigue</h3><ul><li>Zero alcohol when riding - slows reaction, reduces judgment</li><li>No drugs - all impair riding ability</li><li>Get proper rest before riding</li><li>If tired, stop at safe place and rest</li><li>Never ride when fatigued - causes poor concentration</li></ul>', duration: 22 },
+                { title: 'Motorcycle Maintenance Basics', content: '<h2>Motorcycle Maintenance Basics</h2><h3>Daily Checks</h3><ul><li>Oil level - check sight glass or dipstick</li><li>Fuel level - ensure enough for journey</li><li>Tire pressure and condition</li><li>Chain tension and lubrication</li><li>Lights - headlight, brake light, indicators</li><li>Brakes - both front and rear</li></ul><h3>Weekly Checks</h3><ul><li>Battery terminals - clean and tight</li><li>Throttle and clutch cables - smooth operation, no fraying</li><li>Mirrors - tight and properly adjusted</li><li>Horn - functioning</li></ul><h3>Monthly/Regular Maintenance</h3><ul><li>Oil change as per manufacturer schedule (typically every 3000-5000 km)</li><li>Chain cleaning and lubrication</li><li>Air filter cleaning/replacement</li><li>Spark plug inspection/replacement</li><li>Brake pad inspection</li></ul><h3>Why Maintenance Matters</h3><ul><li>Prevents breakdowns</li><li>Improves safety</li><li>Extends motorcycle life</li><li>Reduces repair costs</li><li>Improves fuel efficiency</li></ul>', duration: 20 }
+            ]},
+        
+        // Course 3: PSV PROFESSIONAL COURSE
+        3: {
+            name: 'PSV PROFESSIONAL COURSE',
+            icon: 'fa-bus',
+            lessons: [
+                { title: 'Introduction to PSV Operations', content: '<h2>Introduction to PSV Operations</h2><p>A Public Service Vehicle (PSV) is a vehicle used to transport passengers or goods for commercial purposes. Examples include matatus, buses, taxis, and vans.</p><h3>Role of a PSV Driver</h3><ul><li>Ensure passenger safety at all times</li><li>Obey all traffic laws and regulations</li><li>Maintain discipline and professionalism</li><li>Provide excellent customer service</li><li>Protect passengers and their property</li></ul><h3>PSV Requirements</h3><ul><li>Hold valid driving license with PSV endorsement</li><li>Carry PSV badge visible at all times</li><li>Follow NTSA regulations and guidelines</li><li>Ensure vehicle inspection compliance</li><li>Maintain valid insurance and PSV license</li></ul>', duration: 20 },
+                { title: 'PSV Rules & Regulations', content: '<h2>PSV Rules & Regulations</h2><h3>Important PSV Requirements from Traffic Act</h3><ul><li>Maximum driving hours: 8 hours per 24-hour period</li><li>Must carry route chart and fare schedule</li><li>Vehicle must display PSV signage</li><li>Speed governor required (max 80 km/h for PSV)</li><li>Seat belts for driver and all passengers</li><li>Fire extinguisher and first aid kit mandatory</li></ul><h3>Passenger Safety Rules</h3><ul><li>Passengers must wear seat belts where available</li><li>Do not exceed passenger capacity</li><li>Assist passengers when boarding and alighting</li><li>Keep aisles clear of luggage</li><li>Do not allow standing passengers when vehicle is moving</li><li>Designate seats for elderly, sick, and expectant mothers</li></ul><h3>Prohibited Actions</h3><ul><li>No overloading</li><li>No picking/dropping at non-designated points</li><li>No racing or competitive driving</li><li>No alcohol/drugs</li><li>No abusive language or harassment of passengers</li></ul>', duration: 22 },
+                { title: 'Defensive Driving for PSV', content: '<h2>Defensive Driving for PSV</h2><h3>Defensive Driving Skills</h3><ul><li>Anticipate danger - look 12-15 seconds ahead</li><li>Maintain safe distance - minimum 2 seconds, 4 seconds in rain</li><li>Avoid speeding - obey limits and drive to conditions</li><li>Observe mirrors frequently - every 5-8 seconds</li><li>Check blind spots before lane changes</li></ul><h3>Hazard Awareness for PSV</h3><ul><li>Watch for pedestrians, especially near matatu stages and markets</li><li>Be alert for motorcycles weaving through traffic</li><li>Watch for sudden stops of vehicles ahead</li><li>Be aware of reckless drivers</li><li>Watch for children and animals near roads</li></ul><h3>Defensive Driving Techniques</h3><ul><li>Keep escape routes available</li><li>Be visible - use lights appropriately</li><li>Expect the unexpected</li><li>Adjust speed to road and weather conditions</li><li>Never drive when tired or impaired</li></ul>', duration: 25 },
+                { title: 'Passenger Management & Customer Care', content: '<h2>Passenger Management & Customer Care</h2><h3>Customer Care Standards</h3><ul><li>Treat all passengers respectfully</li><li>Use polite and professional language</li><li>Communicate clearly about destination, fare, and stops</li><li>Assist passengers with luggage and boarding</li><li>Be patient - do not rush passengers</li></ul><h3>Handling Difficult Passengers</h3><ul><li>Stay calm and professional at all times</li><li>Avoid confrontation and arguments</li><li>If necessary, seek assistance from police or stage management</li><li>Do not eject passengers in unsafe locations</li><li>Document incidents for reporting</li></ul><h3>Special Passenger Needs</h3><ul><li>Elderly passengers - assist boarding, offer front seats</li><li>Pregnant women - offer priority seating, smooth driving</li><li>Passengers with disabilities - provide assistance as needed</li><li>Children - ensure supervision and safety</li></ul>', duration: 20 },
+                { title: 'Vehicle Inspection & Maintenance', content: '<h2>Vehicle Inspection & Maintenance</h2><h3>Daily Pre-Trip Inspection Checklist</h3><ul><li>Tires - pressure, condition, tread depth</li><li>Brakes - pedal feel, air pressure (for air brakes)</li><li>Lights - headlights, brake lights, indicators, interior lights</li><li>Horn - functioning properly</li><li>Mirrors - clean and adjusted</li><li>Windscreen - clean, no cracks, wipers working</li><li>Fluids - engine oil, coolant, brake fluid, windshield washer</li></ul><h3>PSV Specific Checks</h3><ul><li>Seat belts - all present and functioning</li><li>Emergency exits - accessible, working</li><li>Fire extinguisher - inspected, accessible</li><li>First aid kit - fully stocked</li><li>Speed governor - functioning</li><li>PSV license and documents - valid and displayed</li></ul><h3>Maintenance Importance</h3><ul><li>Prevents breakdowns and delays</li><li>Improves passenger safety</li><li>Reduces operating costs</li><li>Extends vehicle life</li><li>Maintains NTSA compliance</li></ul>', duration: 20 },
+                { title: 'Emergency Response & First Aid', content: '<h2>Emergency Response & First Aid</h2><h3>Emergency Handling for PSV</h3><ol><li>Stop safely away from danger</li><li>Protect passengers - evacuate if necessary</li><li>Call emergency services (police, ambulance)</li><li>Provide first aid if trained</li><li>Set reflector triangles 50m ahead and behind</li><li>Stay with passengers until help arrives</li><li>Report incident to company and NTSA</li></ol><h3>Fire Safety</h3><ul><li>Know location of fire extinguisher</li><li>Evacuate passengers safely before fighting fire</li><li>Do not open engine compartment if fire suspected</li><li>Call fire brigade immediately</li><li>Avoid panic - follow emergency procedures</li></ul><h3>First Aid Awareness for PSV</h3><ul><li>Know basic first aid (Red Cross or St. John\'s training recommended)</li><li>Keep first aid kit stocked and accessible</li><li>Treat life-threatening conditions first (airway, breathing, bleeding)</li><li>Do not move injured unless immediate danger</li></ul>', duration: 22 },
+                { title: 'Professional Conduct & Ethics', content: '<h2>Professional Conduct & Ethics</h2><h3>Professional Behavior Standards</h3><ul><li>Maintain personal cleanliness and proper uniform</li><li>Be punctual - arrive on time for duty</li><li>Avoid alcohol and drugs before or during duty</li><li>Respect all road users - no road rage or aggression</li><li>Be honest - correct fare, no overcharging</li><li>Return lost property to owners or station</li></ul><h3>Ethical Responsibilities</h3><ul><li>Protect passenger privacy and confidentiality</li><li>Do not accept bribes or engage in corruption</li><li>Report accidents and incidents truthfully</li><li>Maintain vehicle integrity - no unauthorized modifications</li><li>Follow company policies and NTSA regulations</li></ul><h3>Driving Hours and Fatigue Management</h3><ul><li>Maximum 8 hours driving per 24-hour period (by law)</li><li>Take rest breaks every 4 hours minimum</li><li>Do not drive when tired - stop and rest</li><li>Maintain trip records as required</li><li>Plan trips to avoid night driving when possible</li></ul>', duration: 18 }
+            ]},
+        
+        // Course 4: EV DRIVER & RIDER
+        4: {
+            name: 'EV DRIVER & RIDER',
+            icon: 'fa-car-battery',
+            lessons: [
+                { title: 'Understanding EV Charging Systems', content: '<h2>Understanding EV Charging Systems</h2><p>An EV charging system transfers electrical energy from a power source to the vehicle battery.</p><h3>Main Charging Components</h3><ul><li><strong>Charging Port</strong> - Connection point on vehicle, keep clean and dry, avoid damaged connectors</li><li><strong>Charging Cable</strong> - Transfers power, avoid twisting or dragging on rough surfaces</li><li><strong>Battery Management System (BMS)</strong> - Controls charging, prevents overheating, monitors voltage, protects battery health</li><li><strong>Charging Station</strong> - Home, public, fast charging, or battery swap stations</li></ul><h3>Types of Charging</h3><ul><li><strong>Slow Charging</strong> - Lower power, longer time (4-8 hours), safer for overnight, best for home use</li><li><strong>Fast Charging</strong> - Higher voltage, quicker (30-60 minutes), used for commercial, monitor temperature</li><li><strong>Battery Swapping</strong> - Exchange depleted battery for charged one, popular for electric boda bodas</li></ul>', duration: 20 },
+                { title: 'Safe Charging Procedures', content: '<h2>Safe Charging Procedures</h2><h3>Before Charging - Safety Inspection</h3><ul><li>✓ Check charging cable for damage</li><li>✓ Inspect connector pins for corrosion or damage</li><li>✓ Ensure charging area is dry (no water puddles)</li><li>✓ Verify charging station is in good condition</li><li>✓ Turn vehicle OFF before connecting</li><li>✓ Check that charging port is clean and dry</li></ul><h3>During Charging - Safety Rules</h3><ul><li>Do not tamper with cables or connectors while charging</li><li>Avoid using damaged or frayed sockets/extensions</li><li>Keep charging area away from water</li><li>Monitor charging indicators for abnormalities</li><li>Do not leave charging unattended in public areas</li></ul><h3>After Charging - Proper Procedure</h3><ol><li>Stop charging correctly (using app or button)</li><li>Disconnect cable safely (pull plug, not cable)</li><li>Replace charging port cover</li><li>Store cable properly (coil without kinking)</li></ol><h3>Charging Safety Hazards to Avoid</h3><ul><li>Wet charging environments (risk of electric shock)</li><li>Damaged wires or exposed conductors</li><li>Overloaded sockets or circuits</li><li>Unauthorized or uncertified chargers</li><li>Exposed connectors or broken pins</li></ul>', duration: 22 },
+                { title: 'EV Driving Skills', content: '<h2>EV Driving Skills</h2><h3>Basic EV Driving Techniques</h3><ul><li><strong>Smooth Acceleration</strong> - EVs respond instantly; accelerate gradually to maintain vehicle stability and efficiency</li><li><strong>Steering Control</strong> - Use both hands, maintain lane position, avoid sudden swerving</li><li><strong>Speed Management</strong> - Observe posted speed limits, reduce speed in crowded areas, maintain safe following distance</li></ul><h3>Regenerative Braking</h3><ul><li>Slows the vehicle while recharging the battery during braking</li><li>Release accelerator early to maximize energy recovery</li><li>Anticipate stops to avoid harsh braking</li><li>Improves energy efficiency and reduces brake wear</li><li>Different EVs have different regen levels - learn your vehicle</li></ul><h3>EV-Specific Driving Tips</h3><ul><li>Plan routes with charging stations in mind</li><li>Monitor battery range - especially on long trips</li><li>Use eco mode when available for better efficiency</li><li>Avoid frequent fast charging (degrades battery over time)</li><li>Pre-condition battery in extreme temperatures</li></ul>', duration: 25 },
+                { title: 'Electric Motorcycle Riding Skills', content: '<h2>Electric Motorcycle Riding Skills</h2><h3>Proper Riding Position for EVs</h3><ul><li>Keep both hands on handlebars at all times</li><li>Keep feet on footrests</li><li>Sit upright for better balance and visibility</li><li>Keep eyes looking ahead, not down at dashboard</li><li>Maintain relaxed grip to reduce fatigue</li></ul><h3>Cornering for Electric Motorcycles</h3><ul><li>Slow down before entering the turn</li><li>Lean gently with the motorcycle</li><li>Look through the turn to where you want to go</li><li>Accelerate smoothly after completing the turn</li><li>Electric motorcycles have instant torque - be gentle</li></ul><h3>Braking for Electric Motorcycles</h3><ul><li>Apply brakes gradually, not suddenly</li><li>Use both brakes together for maximum stopping power</li><li>Avoid panic braking which can cause skids</li><li>Remember regenerative braking helps slow the bike</li><li>Practice emergency braking in safe area</li></ul><h3>Riding in Traffic on Electric Motorcycles</h3><ul><li>Electric motorcycles are quiet - make yourself visible</li><li>Watch blind spots of larger vehicles</li><li>Anticipate pedestrian movement</li><li>Avoid aggressive riding and lane splitting</li><li>Keep safe distance from vehicles ahead</li></ul>', duration: 22 },
+                { title: 'Daily Vehicle Inspection for EVs', content: '<h2>Daily Vehicle Inspection for EVs</h2><h3>Pre-Operation EV Inspection Checklist</h3><ul><li><strong>Battery Level</strong> - Check state of charge, ensure sufficient for planned journey</li><li><strong>Tire Condition</strong> - Pressure and tread depth (EVs are heavier, tire wear is higher)</li><li><strong>Brake Operation</strong> - Test both regenerative and friction brakes</li><li><strong>Lights and Indicators</strong> - Headlights, brake lights, turn signals, hazard lights</li><li><strong>Charging Cables</strong> - Inspect for damage, ensure present</li><li><strong>Mirrors</strong> - Clean and properly adjusted</li><li><strong>Horn</strong> - Functioning</li><li><strong>Coolant Levels</strong> - Battery cooling system (if applicable)</li><li><strong>Windshield Wipers</strong> - Functioning, fluid filled</li></ul><h3>EV-Specific Checks</h3><ul><li>Charging port - clean, dry, cover working</li><li>Battery warning lights - none illuminated</li><li>Range estimate - realistic for journey</li><li>Regenerative braking - functioning normally</li></ul>', duration: 20 },
+                { title: 'Emergency Response for EVs', content: '<h2>Emergency Response for EVs</h2><h3>Battery Emergency Signs</h3><ul><li>Smoke coming from battery compartment</li><li>Burning smell (unusual odor)</li><li>Excessive heat from battery area</li><li>Warning lights on dashboard</li><li>Unusual sounds from battery</li><li>Visible swelling or deformation of battery casing</li></ul><h3>Emergency Procedures - Fire or Battery Issue</h3><ol><li>Stop vehicle safely away from buildings and other vehicles</li><li>Evacuate passengers immediately</li><li>Call emergency services (fire brigade, police)</li><li>Keep safe distance (minimum 15 metres for battery fire)</li><li>DO NOT attempt to extinguish battery fire with small extinguisher</li><li>Wait for trained responders with proper equipment</li><li>Do not touch exposed high-voltage components</li></ol><h3>Accident Response for EVs</h3><ul><li>Turn off vehicle if possible</li><li>Secure accident scene</li><li>Avoid exposed wires (orange cables indicate high voltage)</li><li>Do not cut orange high-voltage cables</li><li>Wait for trained responders to handle EV-specific risks</li><li>Inform emergency responders that vehicle is electric</li></ul>', duration: 22 }
+            ]},
+        
+        // Course 5: REFRESHER COURSE
+        5: {
+            name: 'REFRESHER COURSE',
+            icon: 'fa-sync-alt',
+            lessons: [
+                { title: 'Advanced Defensive Driving', content: '<h2>Advanced Defensive Driving</h2><p>Defensive driving goes beyond basic rules - it anticipates and avoids danger before it occurs.</p><h3>The SIPDE System</h3><ul><li><strong>S - Scan</strong> - Constantly scan the road 12-15 seconds ahead</li><li><strong>I - Identify</strong> - Recognize potential hazards (pedestrians, merging vehicles, intersections)</li><li><strong>P - Predict</strong> - Anticipate what could happen (a car might pull out, child might run)</li><li><strong>D - Decide</strong> - Choose safest action (slow down, change lanes, prepare to stop)</li><li><strong>E - Execute</strong> - Perform action smoothly and safely</li></ul><h3>Escape Routes</h3><ul><li>Always have an escape route - space to move if something goes wrong</li><li>Position vehicle to maximize options</li><li>Avoid being boxed in between vehicles</li><li>Leave space to the side when possible</li><li>Know what is behind you</li></ul><h3>Hazard Perception for Experienced Drivers</h3><ul><li>Look for movement at intersections (pedestrians, turning wheels)</li><li>Watch for brake lights 3-4 cars ahead</li><li>Notice changes in traffic flow patterns</li><li>Observe behavior of other drivers (distracted, aggressive, tired)</li><li>Anticipate doors opening on parked cars</li></ul>', duration: 22 },
+                { title: 'Hazard Perception & Risk Management', content: '<h2>Hazard Perception & Risk Management</h2><h3>Types of Hazards to Identify</h3><ul><li><strong>Static Hazards</strong> - Parked cars, road works, potholes, debris</li><li><strong>Moving Hazards</strong> - Other vehicles, cyclists, pedestrians, animals</li><li><strong>Environmental Hazards</strong> - Weather conditions, poor lighting, sun glare</li><li><strong>Behavioral Hazards</strong> - Aggressive drivers, distracted drivers, fatigued drivers</li></ul><h3>Risk Management Levels</h3><ul><li><strong>Low Risk</strong> - Normal driving, routine conditions</li><li><strong>Medium Risk</strong> - Heavy traffic, bad weather, unfamiliar roads</li><li><strong>High Risk</strong> - Poor visibility, emergency vehicles, accident scenes</li><li><strong>Extreme Risk</strong> - Mechanical failure, medical emergency, severe weather</li></ul><h3>Strategies for Each Risk Level</h3><ul><li>Low: Maintain normal defensive driving</li><li>Medium: Reduce speed, increase following distance, be extra alert</li><li>High: Consider delaying trip, take alternative route, drive significantly slower</li><li>Extreme: Stop safely, get off road, call for assistance</li></ul>', duration: 20 },
+                { title: 'Highway & Long-Distance Driving', content: '<h2>Highway & Long-Distance Driving</h2><h3>Highway Driving Safety</h3><ul><li>Maintain proper following distance - trucks need extra space</li><li>Check mirrors frequently - speeds change quickly</li><li>Signal well in advance for lane changes</li><li>Do not linger in blind spots of large vehicles</li><li>Use cruise control appropriately (not in heavy traffic or rain)</li></ul><h3>Fatigue Management</h3><ul><li>Maximum 8 hours driving per day (by law for PSV)</li><li>Take 15-minute break every 2 hours minimum</li><li>Recognize fatigue signs: yawning, heavy eyelids, drifting, missing exits</li><li>If tired, STOP - do not push through</li><li>Power nap (15-20 minutes) can restore alertness</li></ul><h3>Highway Hazards</h3><ul><li>Animals crossing - especially dawn and dusk</li><li>Debris on road from trucks</li><li>Sudden fog patches</li><li>Hydroplaning risk in rain</li><li>Drivers falling asleep - watch for erratic movement</li></ul>', duration: 20 },
+                { title: 'Driver Health & Wellness', content: '<h2>Driver Health & Wellness</h2><h3>Physical Health for Professional Drivers</h3><ul><li>Get adequate sleep - 7-8 hours minimum before driving</li><li>Maintain healthy diet - avoid heavy meals before driving</li><li>Stay hydrated - drink water throughout shift</li><li>Exercise regularly - helps with circulation and fatigue</li><li>Get regular medical checkups - eyesight, blood pressure, general health</li></ul><h3>Mental Wellness</h3><ul><li>Manage stress - take breaks, deep breathing</li><li>Avoid road rage - stay calm when others drive poorly</li><li>Take time off between shifts to recover</li><li>Talk about stress with supervisors or family</li><li>Seek help for signs of burnout or depression</li></ul><h3>Effects of Fatigue on Driving</h3><ul><li>Slower reaction time - increased stopping distance</li><li>Poor decision making - misjudging gaps and speeds</li><li>Microsleeps - losing consciousness for seconds</li><li>Missed signs and signals</li><li>Drifting out of lane</li><li>Increased accident risk comparable to drunk driving</li></ul>', duration: 18 },
+                { title: 'Vehicle Technology & Modern Systems', content: '<h2>Vehicle Technology & Modern Systems</h2><h3>Modern Vehicle Safety Systems</h3><ul><li><strong>ABS (Anti-lock Braking System)</strong> - Prevents wheel lock during emergency braking, maintain steering control</li><li><strong>ESC (Electronic Stability Control)</strong> - Helps maintain control during skids or sharp turns</li><li><strong>Airbags</strong> - Supplemental restraint system, works with seatbelts</li><li><strong>TPMS (Tire Pressure Monitoring System)</strong> - Alerts when tire pressure low</li><li><strong>Blind Spot Monitoring</strong> - Warns of vehicles in blind spot</li></ul><h3>GPS and Navigation</h3><ul><li>Program destination BEFORE moving</li><li>Use voice guidance to reduce distraction</li><li>Keep GPS mounted where it doesn\'t block view</li><li>Have backup map/route in case of technology failure</li><li>Update maps regularly</li></ul><h3>Telematic & Fleet Systems (for commercial)</h3><ul><li>Monitor driving behavior (speeding, harsh braking, acceleration)</li><li>Track vehicle location and route</li><li>Monitor fuel efficiency</li><li>Provide feedback for driver improvement</li><li>Assist with accident reconstruction</li></ul>', duration: 22 },
+                { title: 'NTSA Exam Preparation', content: '<h2>NTSA Exam Preparation</h2><h3>What to Expect on NTSA Driving Test</h3><ul><li>Theory Test - Computer-based, multiple choice questions</li><li>Practical Test - On-road driving assessment</li><li>Vehicle Inspection Test - Demonstrate pre-drive checks</li><li>Highway Code knowledge assessment</li></ul><h3>Study Tips for NTSA Exam</h3><ul><li>Study the current Highway Code thoroughly</li><li>Review all road signs and their meanings</li><li>Practice with quiz questions (use our Quiz Bank)</li><li>Understand stopping distances at different speeds</li><li>Know vehicle controls and instruments</li><li>Study rules of roundabouts and junctions</li><li>Memorize emergency procedures</li></ul><h3>Common Test Mistakes to Avoid</h3><ul><li>Forgetting mirror checks before any manoeuvre</li><li>Not signaling or signaling too late</li><li>Rolling stops at STOP signs</li><li>Not checking blind spots</li><li>Poor observation at junctions</li><li>Incorrect lane position at roundabouts</li><li>Speeding or driving too slowly</li></ul><h3>Day of Test Tips</h3><ul><li>Get good sleep night before</li><li>Arrive early to test center</li><li>Do thorough vehicle inspection before test</li><li>Stay calm and confident</li><li>Listen carefully to examiner instructions</li><li>Correct mistakes immediately if possible</li></ul>', duration: 25 },
+                { title: 'Professional Excellence & Career Growth', content: '<h2>Professional Excellence & Career Growth</h2><h3>Becoming a Master Driver</h3><ul><li>Commit to lifelong learning - refresher courses, new regulations</li><li>Develop advanced skills - defensive driving, eco-driving, passenger management</li><li>Build reputation - reliability, safety record, customer feedback</li><li>Mentor new drivers - share knowledge and experience</li><li>Stay updated on NTSA regulations and changes</li></ul><h3>Career Paths for Professional Drivers</h3><ul><li>PSV Driver (matatu, bus, taxi)</li><li>Executive/Private Driver</li><li>Fleet Driver for companies</li><li>Long-distance Truck Driver</li><li>Driving Instructor</li><li>Fleet Supervisor/Manager</li><li>Transport Coordinator</li></ul><h3>Maintaining Your Professional Status</h3><ul><li>Keep license current - renew on time</li><li>Maintain good driving record - avoid violations and accidents</li><li>Continue education - take refresher courses</li><li>Join professional driver associations</li><li>Stay physically and mentally fit</li></ul><h3>Final Message</h3><p>"Safe driving protects lives, property, and the future of every professional driver. Remember - you are responsible for everyone in and around your vehicle."</p>', duration: 20 }
+            ]},
+        
+        // Course 6: QUIZ BANK (redirects to quiz page - handled separately)
+        6: { name: 'QUIZ BANK', icon: 'fa-question-circle', lessons: [] }
+    };
+    
+    function showToast(msg, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'} ${msg}`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    function toggleMobileMenu() { document.getElementById('navLinks')?.classList.toggle('show'); }
+    
+    async function loadUserData() {
+        const { data: { session } } = await supabase.auth.getSession();
+        currentUser = session?.user || null;
+        updateAuthUI();
+        
+        if (currentUser && currentCourse) {
+            const { data: progress } = await supabase.from('user_progress').select('lesson_id, progress').eq('user_id', currentUser.id);
+            if (progress) { userProgress = {}; progress.forEach(p => { userProgress[p.lesson_id] = p.progress; }); }
+            const { data: enrollments } = await supabase.from('user_enrollments').select('course_id').eq('user_id', currentUser.id);
+            if (enrollments) { userEnrollments = {}; enrollments.forEach(e => { userEnrollments[e.course_id] = true; }); }
         }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+    
+    function updateAuthUI() {
+        const container = document.getElementById('authButtons');
+        if (!container) return;
+        if (currentUser) {
+            container.innerHTML = `<div class="user-badge"><i class="fas fa-user-check"></i> ${escapeHtml(currentUser.email.split('@')[0])}</div><button onclick="logout()" class="btn-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>`;
+        } else {
+            container.innerHTML = `<button onclick="showAuthModal('login')" class="btn-outline btn-sm"><i class="fas fa-key"></i> Login</button><button onclick="showAuthModal('signup')" class="btn-primary btn-sm"><i class="fas fa-user-plus"></i> Sign Up</button>`;
         }
-
-        function formatLessonContent(content) {
-            if (!content) return '<p>📘 Content is being curated by expert instructors. Stay tuned!</p>';
-            let sections = content.split(/\n\n+/);
-            return sections.map(para => `<p>${escapeHtml(para)}</p>`).join('');
+    }
+    
+    async function logout() { await supabase.auth.signOut(); currentUser = null; window.location.href = 'index.html'; }
+    
+    function showAuthModal(mode) {
+        document.getElementById('page-content').innerHTML = `
+            <div class="modal" style="display:flex;">
+                <div class="modal-content">
+                    <h2 style="text-align:center;">${mode === 'login' ? '🔐 Welcome Back' : '📝 Create Account'}</h2>
+                    ${mode === 'signup' ? `<input type="text" id="signupName" placeholder="Full Name">` : ''}
+                    <input type="email" id="authEmail" placeholder="Email address">
+                    <input type="password" id="authPassword" placeholder="Password (min 6 characters)">
+                    <button class="btn btn-primary" style="width:100%" onclick="handleAuth('${mode}')">${mode === 'login' ? 'Login' : 'Sign Up'}</button>
+                    <p style="margin-top:1rem; text-align:center;">
+                        ${mode === 'login' ? 'No account? ' : 'Already have an account? '}
+                        <span style="color:var(--primary);cursor:pointer;" onclick="showAuthModal('${mode === 'login' ? 'signup' : 'login'}')">${mode === 'login' ? 'Sign Up' : 'Login'}</span>
+                    </p>
+                    <button class="btn btn-outline" style="width:100%; margin-top:0.5rem;" onclick="location.reload()">Cancel</button>
+                </div>
+            </div>`;
+    }
+    
+    async function handleAuth(mode) {
+        const email = document.getElementById('authEmail')?.value.trim();
+        const password = document.getElementById('authPassword')?.value;
+        if (!email || !password) { showToast('Please fill all fields', 'error'); return; }
+        if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+        
+        if (mode === 'signup') {
+            const { error } = await supabase.auth.signUp({ email, password });
+            if (error) { showToast(error.message, 'error'); return; }
+            showToast('Account created! Please verify your email.', 'success');
+        } else {
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) { showToast(error.message, 'error'); return; }
+            showToast('Logged in!', 'success');
         }
-
-        async function refreshUser() {
-            const user = await API.getCurrentUser();
-            STATE.user = user;
-            if (STATE.user) {
-                await loadUserEnrollments();
-            }
-            renderUI();
-        }
-
-        async function loadUserEnrollments() {
-            if (!STATE.user) return;
-            try {
-                const enrollments = await API.getMyEnrollments();
-                STATE.enrollments = enrollments;
-                if (STATE.course) {
-                    STATE.enrollment = enrollments.find(e => e.course_id === STATE.course.id) || null;
-                }
-            } catch (err) {
-                console.warn('Failed to load enrollments', err);
-            }
-        }
-
-        function renderUI() {
-            const authContainer = document.getElementById('authContainer');
-            if (STATE.user) {
-                authContainer.innerHTML = `<div class="user-info"><span class="user-email">${escapeHtml(STATE.user.email)}</span><button class="btn-logout" onclick="window.actions.logout()">Logout</button></div>`;
+        await loadUserData();
+        renderCoursePlayer();
+    }
+    
+    function isEnrolled() { return userEnrollments[currentCourse?.id] === true; }
+    
+    async function enrollCourse() {
+        if (!currentUser) { showAuthModal('login'); return; }
+        const coursePrices = { 1: 2999, 2: 2499, 3: 3999, 4: 1999, 5: 1499, 6: 999 };
+        const { error } = await supabase.from('user_enrollments').upsert({
+            user_id: currentUser.id, course_id: currentCourse.id, payment_status: 'completed', 
+            amount_paid: coursePrices[currentCourse.id], paid_at: new Date().toISOString()
+        });
+        if (!error) { userEnrollments[currentCourse.id] = true; showToast('✅ Enrolled successfully!', 'success'); renderCoursePlayer(); }
+        else { showToast('Enrollment failed', 'error'); }
+    }
+    
+    async function markComplete(lessonId) {
+        if (!currentUser) { showToast('Login to track progress', 'warning'); showAuthModal('login'); return; }
+        if (userProgress[lessonId] === 100) { showToast('Lesson already completed!', 'info'); return; }
+        const { error } = await supabase.from('user_progress').upsert({
+            user_id: currentUser.id, lesson_id: lessonId, progress: 100, last_accessed: new Date().toISOString()
+        });
+        if (!error) {
+            userProgress[lessonId] = 100;
+            showToast('🎉 Lesson completed! Great progress.', 'success');
+            if (currentLessonIndex < currentCourse.lessons.length - 1) {
+                setTimeout(() => { currentLessonIndex++; renderCoursePlayer(); window.scrollTo({ top: 100, behavior: 'smooth' }); }, 500);
             } else {
-                authContainer.innerHTML = `<button class="btn-login" onclick="window.actions.openModal('login')">Login</button><button class="btn-register" onclick="window.actions.openModal('register')">Register</button>`;
+                renderCoursePlayer();
+                showToast('🏆 Congratulations! You have completed the entire course!', 'success');
             }
-            
-            const modalDiv = document.getElementById('authModal');
-            if (STATE.authModalOpen) {
-                modalDiv.classList.add('active');
-                document.getElementById('modalTitle').innerText = STATE.authMode === 'login' ? 'Welcome Back' : 'Create Account';
-                document.getElementById('modalSubmitBtn').innerText = STATE.authMode === 'login' ? 'Login' : 'Register';
-                document.getElementById('modalSwitch').innerHTML = STATE.authMode === 'login' ? 'New here? <span>Register</span>' : 'Already have an account? <span>Login</span>';
-                document.getElementById('modalError').innerText = STATE.authError || '';
-                document.getElementById('modalSuccess').innerText = STATE.authSuccess || '';
-            } else {
-                modalDiv.classList.remove('active');
-            }
-            
-            const container = document.getElementById('container');
-            if (STATE.loading) {
-                container.innerHTML = '<div class="loading"><div class="spinner"></div>Preparing your drive lessons...</div>';
-                return;
-            }
-            
-            if (STATE.error) {
-                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error</h3><p>${escapeHtml(STATE.error)}</p><a href="index.html" style="color:#00FF88; margin-top:20px; display:inline-block;">⬅ Return to courses</a></div>`;
-                return;
-            }
-            
-            if (!STATE.course) {
-                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📚</div><h3>Course Not Found</h3><p>Please select a valid course from the homepage.</p><a href="index.html" style="color:#00FF88;">← Back to Courses</a></div>`;
-                return;
-            }
-            
-            const isPremium = STATE.course.type !== 'free' && STATE.course.price > 0;
-            const isEnrolled = STATE.enrollment !== null;
-            
-            if (isPremium && !isEnrolled && STATE.user) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💎</div>
-                        <h3>Premium Course: ${escapeHtml(STATE.course.title)}</h3>
-                        <p>Unlock full driving knowledge, video scenarios & certification.</p>
-                        <p style="font-size: 28px; font-weight: bold; color: #00FF88; margin: 20px 0;">KES ${(STATE.course.price || 3999).toLocaleString()}</p>
-                        <button class="btn-primary" onclick="window.actions.purchaseCourse()">💳 Purchase & Enroll</button>
-                        <div style="margin-top: 28px;"><a href="index.html" style="color:#7effc7;">← Browse catalog</a></div>
+        }
+    }
+    
+    function renderCoursePlayer() {
+        if (!currentCourse) return;
+        
+        // Course 6 redirects to quiz
+        if (currentCourse.id === 6) {
+            window.location.href = 'index.html?page=quiz';
+            return;
+        }
+        
+        if (!isEnrolled()) {
+            const coursePrices = { 1: 2999, 2: 2499, 3: 3999, 4: 1999, 5: 1499 };
+            document.getElementById('page-content').innerHTML = `
+                <div class="container" style="padding-top: 100px; max-width: 600px;">
+                    <div class="course-header" style="text-align:center;">
+                        <i class="fas ${currentCourse.icon}" style="font-size: 3rem; color: var(--primary);"></i>
+                        <h1 style="margin-top: 1rem;">${escapeHtml(currentCourse.name)}</h1>
+                        <p>${escapeHtml(currentCourse.id === 1 ? 'Complete driver training for new drivers covering fundamentals, traffic rules, vehicle controls, and NTSA exam preparation.' : 
+                                   currentCourse.id === 2 ? 'Professional motorcycle rider training with PPE, defensive riding, passenger safety, road etiquette, and accident prevention.' :
+                                   currentCourse.id === 3 ? 'Public Service Vehicle certification with passenger management, customer care, safety protocols, and NTSA compliance.' :
+                                   currentCourse.id === 4 ? 'Electric vehicle operations, charging safety, battery management, regenerative braking, and eco-driving techniques.' :
+                                   'Advanced defensive driving, skill enhancement, hazard perception, and professional driver excellence.')}</p>
+                        <div style="font-size: 2rem; color: var(--primary); margin: 1rem 0;">KES ${coursePrices[currentCourse.id].toLocaleString()}</div>
+                        <p><i class="fas fa-book-open"></i> ${currentCourse.lessons.length} comprehensive modules</p>
+                        <div style="margin-top: 1.5rem;">
+                            <button class="btn btn-primary" onclick="enrollCourse()"><i class="fas fa-shopping-cart"></i> Enroll Now</button>
+                            <button class="btn btn-outline" style="margin-left: 1rem;" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> Back to Courses</button>
+                        </div>
                     </div>
-                `;
-                return;
-            }
-            
-            if (isPremium && !STATE.user) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🔐</div>
-                        <h3>Sign in to access premium course</h3>
-                        <p>Login or register to purchase and start your professional driving program.</p>
-                        <button class="btn-primary" onclick="window.actions.openModal('login')">Login to Continue</button>
-                        <div style="margin-top: 20px;"><a href="index.html" style="color:#00FF88;">← Back</a></div>
-                    </div>
-                `;
-                return;
-            }
-            
-            if (!STATE.units.length) {
-                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📖</div><h3>Units loading soon</h3><p>Instructors are updating content. Please check later.</p><a href="index.html" style="color:#00FF88;">Back to courses</a></div>`;
-                return;
-            }
-            
-            if (STATE.currentUnitIndex >= STATE.units.length) STATE.currentUnitIndex = 0;
-            const currentUnit = STATE.units[STATE.currentUnitIndex];
-            if (!currentUnit) {
-                container.innerHTML = `<div class="empty-state"><h3>Unit error</h3><p>Please refresh</p></div>`;
-                return;
-            }
-            
-            const progressPercent = ((STATE.currentUnitIndex + 1) / STATE.units.length) * 100;
-            
-            container.innerHTML = `
+                </div>`;
+            return;
+        }
+        
+        const lessons = currentCourse.lessons;
+        if (!lessons.length) return;
+        
+        const currentLesson = lessons[currentLessonIndex];
+        const completedCount = lessons.filter((l, idx) => userProgress[`${currentCourse.id}_${idx}`] === 100).length;
+        const progressPercent = Math.round((completedCount / lessons.length) * 100);
+        
+        document.getElementById('page-content').innerHTML = `
+            <div class="container" style="padding-top: 100px;">
                 <div class="course-header">
-                    <h1 class="course-title"><span>${escapeHtml(STATE.course.title)}</span></h1>
-                    <p class="course-description">${escapeHtml(STATE.course.description || 'Master defensive driving, highway rules, and vehicle handling.')}</p>
-                    <div class="course-meta">
-                        <span class="meta-badge">⏱️ ${escapeHtml(STATE.course.duration || 'Self-paced')}</span>
-                        <span class="meta-badge">📘 ${STATE.units.length} practical units</span>
-                        ${STATE.enrollment ? '<span class="meta-badge" style="background:#00FF8822; color:#b3ffcf;">✅ Enrolled & Access</span>' : '<span class="meta-badge">📋 Free Access</span>'}
-                    </div>
-                    <div class="progress-container"><div class="progress-bar" style="width: ${progressPercent}%"></div></div>
-                    <div class="progress-text">Progress: Unit ${STATE.currentUnitIndex+1} of ${STATE.units.length} • ${Math.round(progressPercent)}% completed</div>
+                    <h1><i class="fas ${currentCourse.icon}"></i> ${escapeHtml(currentCourse.name)}</h1>
+                    <div class="progress-bar" style="margin-top: 1rem;"><div class="progress-fill" style="width:${progressPercent}%"></div></div>
+                    <p style="margin-top: 0.5rem;">${completedCount} of ${lessons.length} modules completed (${progressPercent}%)</p>
                 </div>
-                <div class="main-content">
+                <div class="main-grid">
                     <div class="units-sidebar">
-                        <div class="sidebar-title">🎯 Course curriculum</div>
-                        <div class="units-list">
-                            ${STATE.units.map((unit, idx) => `
-                                <div class="unit-item ${idx === STATE.currentUnitIndex ? 'active' : ''}" onclick="window.actions.jumpToUnit(${idx})">
-                                    <div class="unit-number">UNIT ${unit.unit_number || (idx+1)}</div>
-                                    <div class="unit-title-sidebar">${escapeHtml(unit.title || 'Unit')}</div>
-                                    <div class="unit-time">⌛ ${unit.estimated_minutes || 12} min</div>
-                                </div>
-                            `).join('')}
-                        </div>
+                        <h3 style="margin-bottom: 1rem;"><i class="fas fa-list"></i> Course Modules</h3>
+                        ${lessons.map((lesson, idx) => `
+                            <div class="unit-item ${idx === currentLessonIndex ? 'active' : ''}" onclick="changeLesson(${idx})">
+                                <div class="unit-number">MODULE ${idx + 1}</div>
+                                <div class="unit-title">${escapeHtml(lesson.title)}</div>
+                                <div class="unit-duration"><i class="far fa-clock"></i> ${lesson.duration} min</div>
+                                ${userProgress[`${currentCourse.id}_${idx}`] === 100 ? '<i class="fas fa-check-circle" style="color:var(--primary); font-size:12px; margin-top:5px; display:inline-block;"> Completed</i>' : ''}
+                            </div>
+                        `).join('')}
                     </div>
-                    <div class="unit-content-area">
-                        <h2 class="unit-content-title">${escapeHtml(currentUnit.title || 'Lesson')}</h2>
-                        <div class="unit-content-meta">
-                            <span>⏱️ Est. ${currentUnit.estimated_minutes || 15} minutes</span>
-                            <span>📌 ${currentUnit.unit_number || STATE.currentUnitIndex+1} / ${STATE.units.length}</span>
+                    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 1.8rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem;">
+                            <h2><i class="fas fa-graduation-cap"></i> ${escapeHtml(currentLesson.title)}</h2>
+                            <span style="background: var(--primary); color: #0a192f; padding: 4px 12px; border-radius: 50px; font-weight: bold;">${currentLessonIndex + 1}/${lessons.length}</span>
                         </div>
-                        <div class="unit-content-text">
-                            ${formatLessonContent(currentUnit.content)}
+                        <div class="lesson-content">${currentLesson.content}</div>
+                        <div class="lesson-nav">
+                            <button class="btn btn-outline" onclick="prevLesson()" ${currentLessonIndex === 0 ? 'disabled' : ''}><i class="fas fa-arrow-left"></i> Previous</button>
+                            ${userProgress[`${currentCourse.id}_${currentLessonIndex}`] === 100 ? 
+                                '<button class="btn btn-outline" disabled style="opacity:0.6;"><i class="fas fa-check"></i> Completed</button>' :
+                                `<button class="btn btn-primary" onclick="markComplete('${currentCourse.id}_${currentLessonIndex}')"><i class="fas fa-check-double"></i> Mark Complete</button>`
+                            }
+                            <button class="btn btn-outline" onclick="nextLesson()" ${currentLessonIndex === lessons.length - 1 ? 'disabled' : ''}>Next <i class="fas fa-arrow-right"></i></button>
                         </div>
-                        <div class="nav-buttons">
-                            <button class="nav-btn" onclick="window.actions.prevUnit()" ${STATE.currentUnitIndex === 0 ? 'disabled' : ''}>← Previous module</button>
-                            <button class="nav-btn" onclick="window.actions.nextUnit()" ${STATE.currentUnitIndex === STATE.units.length-1 ? 'disabled' : ''}>Next module →</button>
+                        <div style="margin-top: 1.5rem; text-align: center;">
+                            <button class="btn btn-outline btn-sm" onclick="window.location.href='index.html'"><i class="fas fa-home"></i> Back to Home</button>
                         </div>
                     </div>
                 </div>
-            `;
+            </div>`;
+    }
+    
+    function changeLesson(index) { if (index >= 0 && index < currentCourse.lessons.length) { currentLessonIndex = index; renderCoursePlayer(); window.scrollTo({ top: 100, behavior: 'smooth' }); } }
+    function prevLesson() { if (currentLessonIndex > 0) changeLesson(currentLessonIndex - 1); }
+    function nextLesson() { if (currentLessonIndex < currentCourse.lessons.length - 1) changeLesson(currentLessonIndex + 1); }
+    
+    async function init() {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('id');
+        
+        if (!courseId || !courseContent[courseId]) {
+            document.getElementById('page-content').innerHTML = `
+                <div class="container" style="padding-top:120px;">
+                    <div class="card" style="text-align:center; max-width:500px; margin:0 auto;">
+                        <i class="fas fa-exclamation-triangle" style="font-size:3rem; color:#ff4757;"></i>
+                        <h2 style="margin-top:1rem;">Course Not Found</h2>
+                        <p>Please select a valid course from the homepage.</p>
+                        <button class="btn btn-primary" onclick="window.location.href='index.html'">Back to Courses</button>
+                    </div>
+                </div>`;
+            return;
         }
         
-        const actions = {
-            async login(email, password) {
-                STATE.authError = ''; STATE.authSuccess = ''; renderUI();
-                try {
-                    const result = await API.login(email, password);
-                    STATE.user = result.user;
-                    STATE.authSuccess = 'Login successful!';
-                    STATE.authModalOpen = false;
-                    await loadUserEnrollments();
-                    showToast(`Welcome back, ${STATE.user.email.split('@')[0]}!`);
-                    renderUI();
-                    await loadCourseData();
-                } catch (err) {
-                    STATE.authError = err.message || 'Login failed';
-                    renderUI();
-                }
-            },
-            async register(email, password) {
-                STATE.authError = ''; STATE.authSuccess = ''; renderUI();
-                try {
-                    await API.register(email, password, '', '');
-                    STATE.authSuccess = 'Account created! Please login.';
-                    setTimeout(() => { 
-                        STATE.authMode = 'login'; 
-                        STATE.authSuccess = ''; 
-                        renderUI(); 
-                    }, 1800);
-                } catch (err) {
-                    STATE.authError = err.message || 'Registration failed';
-                }
-                renderUI();
-            },
-            async logout() {
-                await API.logout();
-                STATE.user = null;
-                STATE.enrollment = null;
-                STATE.enrollments = [];
-                showToast('Logged out successfully');
-                window.location.href = 'index.html';
-            },
-            openModal(mode) {
-                STATE.authMode = mode;
-                STATE.authModalOpen = true;
-                STATE.authError = '';
-                STATE.authSuccess = '';
-                renderUI();
-            },
-            closeModal() { STATE.authModalOpen = false; renderUI(); },
-            async handleAuthSubmit() {
-                const email = document.getElementById('modalEmail').value.trim();
-                const pwd = document.getElementById('modalPassword').value;
-                if (!email || !pwd) { STATE.authError = 'Email and password required'; renderUI(); return; }
-                if (pwd.length < 6 && STATE.authMode === 'register') { STATE.authError = 'Password min 6 characters'; renderUI(); return; }
-                if (STATE.authMode === 'login') await actions.login(email, pwd);
-                else await actions.register(email, pwd);
-            },
-            jumpToUnit(idx) { 
-                if (idx >= 0 && idx < STATE.units.length) { 
-                    STATE.currentUnitIndex = idx; 
-                    renderUI(); 
-                    window.scrollTo({ top: 140, behavior: 'smooth' }); 
-                } 
-            },
-            prevUnit() { if (STATE.currentUnitIndex > 0) actions.jumpToUnit(STATE.currentUnitIndex - 1); },
-            nextUnit() { 
-                if (STATE.currentUnitIndex < STATE.units.length - 1) {
-                    actions.jumpToUnit(STATE.currentUnitIndex + 1);
-                } else {
-                    showToast('🏆 Excellent! You completed the entire course. Certificate will be issued soon!');
-                }
-            },
-            async purchaseCourse() {
-                if (!STATE.user) { showToast('Sign in first', true); actions.openModal('login'); return; }
-                if (!STATE.course) return;
-                const amount = STATE.course.price || 3999;
-                let phone = prompt(`M-Pesa payment: KES ${amount}\nEnter phone number (e.g., 0712345678):`);
-                if (!phone) { showToast('Payment cancelled', true); return; }
-                let cleanPhone = phone.replace(/\D/g, '');
-                if (cleanPhone.startsWith('0')) cleanPhone = '254' + cleanPhone.slice(1);
-                if (!cleanPhone.startsWith('254') || cleanPhone.length < 12) { showToast('Invalid phone format', true); return; }
-                showToast('⏳ Initiating payment request...');
-                try {
-                    const result = await API.initiateMpesaPayment(cleanPhone, amount, STATE.course.id);
-                    if (result.success || result.checkoutRequestID) {
-                        showToast('📲 M-Pesa prompt sent! Enter PIN to complete purchase.');
-                        let attempts = 0;
-                        const checkInterval = setInterval(async () => {
-                            attempts++;
-                            await loadUserEnrollments();
-                            if (STATE.enrollment) {
-                                clearInterval(checkInterval);
-                                showToast('✅ Payment confirmed! Course unlocked instantly.');
-                                renderUI();
-                            } else if (attempts > 20) { 
-                                clearInterval(checkInterval); 
-                                showToast('Timeout: Please contact support or use Paybill 4095377', true); 
-                            }
-                        }, 3000);
-                        setTimeout(() => clearInterval(checkInterval), 62000);
-                    } else {
-                        throw new Error(result.error || 'Payment initiation failed');
-                    }
-                } catch (err) {
-                    showToast('Payment gateway error. Try again later.', true);
-                }
-            },
-            async checkAndUpdateEnrollment() {
-                await loadUserEnrollments();
-                renderUI();
-            }
-        };
-        
-        async function loadCourseData() {
-            STATE.loading = true; renderUI();
-            try {
-                const urlParams = new URLSearchParams(window.location.search);
-                let courseId = urlParams.get('id');
-                const storedTitle = sessionStorage.getItem('selectedCourse');
-                
-                if (!courseId && storedTitle) {
-                    const allCourses = await API.getAllCourses();
-                    const matched = allCourses.find(c => c.title === storedTitle);
-                    if (matched) courseId = matched.id;
-                    else throw new Error('Course not found');
-                }
-                if (!courseId) throw new Error('No course selected');
-                
-                const course = await API.getCourseById(parseInt(courseId));
-                if (!course) throw new Error('Course does not exist');
-                STATE.course = course;
-                
-                // Fetch lessons/units - using the same endpoint pattern
-                try {
-                    const lessonsResult = await API.request(`/api/courses/${course.id}/lessons`);
-                    STATE.units = lessonsResult.lessons || [];
-                } catch (err) {
-                    STATE.units = [];
-                }
-                
-                if (STATE.units.length === 0) {
-                    STATE.units = [{ 
-                        title: 'Introduction to Defensive Driving', 
-                        content: 'Welcome! This course will transform your driving skills. Learn essential road safety, vehicle controls, and professional driving techniques.', 
-                        unit_number: 1, 
-                        estimated_minutes: 15 
-                    }];
-                }
-                
-                STATE.currentUnitIndex = 0;
-                if (STATE.user) await loadUserEnrollments();
-                STATE.loading = false;
-                renderUI();
-            } catch (err) {
-                STATE.error = err.message || 'Failed to load course.';
-                STATE.loading = false;
-                renderUI();
-            }
-        }
-        
-        window.actions = actions;
-        
-        document.getElementById('modalSubmitBtn').onclick = () => actions.handleAuthSubmit();
-        document.getElementById('modalSwitch').onclick = () => { STATE.authMode = STATE.authMode === 'login' ? 'register' : 'login'; renderUI(); };
-        document.querySelector('.close-modal').onclick = () => actions.closeModal();
-        window.onclick = (e) => { if (e.target === document.getElementById('authModal')) actions.closeModal(); };
-        
-        async function bootstrap() {
-            if (API && typeof API.getCurrentUser === 'function') {
-                await refreshUser();
-                await loadCourseData();
-            } else {
-                console.warn('API not ready, retrying...');
-                setTimeout(bootstrap, 200);
-            }
-        }
-        
-        bootstrap();
-    </script>
+        currentCourse = courseContent[courseId];
+        currentCourse.id = parseInt(courseId);
+        await loadUserData();
+        renderCoursePlayer();
+    }
+    
+    window.enrollCourse = enrollCourse;
+    window.markComplete = markComplete;
+    window.changeLesson = changeLesson;
+    window.prevLesson = prevLesson;
+    window.nextLesson = nextLesson;
+    window.showAuthModal = showAuthModal;
+    window.handleAuth = handleAuth;
+    window.logout = logout;
+    
+    init();
+</script>
 </body>
 </html>
