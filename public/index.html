@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>MEI DRIVE AFRICA | Professional Driver Training</title>
-    <meta name="description" content="Professional driver training courses and exam preparation">
+    <title>MEI DRIVE AFRICA | Driver Training</title>
     <meta name="theme-color" content="#0a192f">
     
     <!-- Favicon -->
@@ -93,7 +92,7 @@
             <div class="nav-links" id="navLinks">
                 <button id="navHome" onclick="navigateTo('home')"><i class="fas fa-home"></i> Home</button>
                 <button id="navCourses" onclick="navigateTo('courses')"><i class="fas fa-book"></i> Courses</button>
-                <button id="navQuiz" onclick="navigateTo('quiz')"><i class="fas fa-question-circle"></i> Quiz Bank</button>
+                <button id="navQuiz" onclick="navigateTo('quiz')"><i class="fas fa-question-circle"></i> Quiz</button>
                 <button id="navAdmin" onclick="navigateTo('admin')" style="display:none;"><i class="fas fa-user-shield"></i> Admin</button>
                 <div id="authButtons"></div>
             </div>
@@ -113,11 +112,18 @@
     let currentPage = 'home';
     let courses = [];
     let quizQuestions = [];
-    let userProgress = {};
     let userEnrollments = {};
+    let userProgress = {};
     let payments = [];
     let users = [];
     let isAdmin = false;
+    
+    // Quiz bank (fallback if no data in Supabase)
+    const defaultQuizQuestions = [
+        { id: 1, category: 'Road Signs', question: 'What does a STOP sign mean?', option_a: 'Slow down only', option_b: 'Continue carefully', option_c: 'Come to a complete stop', option_d: 'Overtake carefully', correct_option: 2, explanation: 'A STOP sign requires you to come to a complete stop.' },
+        { id: 2, category: 'Road Signs', question: 'A triangular road sign normally indicates:', option_a: 'Direction', option_b: 'Warning', option_c: 'Parking', option_d: 'Speed limit', correct_option: 1, explanation: 'Triangular signs are warning signs.' },
+        { id: 3, category: 'Highway Code', question: 'Seat belts are important because they:', option_a: 'Improve music quality', option_b: 'Prevent accidents', option_c: 'Reduce injury during accidents', option_d: 'Increase speed', correct_option: 2, explanation: 'Seat belts reduce the risk of serious injury.' }
+    ];
     
     function showToast(msg, type = 'info') {
         const container = document.getElementById('toast-container');
@@ -131,18 +137,19 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     function toggleMobileMenu() { document.getElementById('navLinks')?.classList.toggle('show'); }
     
-    // ============ FETCH DATA FROM SUPABASE ============
     async function fetchCourses() {
         try {
             const { data, error } = await supabase.from('courses').select('*').eq('is_active', true);
             if (error) throw error;
             courses = data || [];
-            console.log('✅ Courses loaded from Supabase:', courses.length);
-            return courses;
+            if (courses.length === 0) {
+                courses = [
+                    { id: 1, name: 'LEARNER HUB', description: 'Complete driver training for new drivers.', price: 2999, duration: '8 weeks', icon: 'fa-car', lessons_count: 21 },
+                    { id: 2, name: 'BODA BODA SAFETY', description: 'Professional motorcycle rider training.', price: 2499, duration: '6 weeks', icon: 'fa-motorcycle', lessons_count: 26 }
+                ];
+            }
         } catch (err) {
             console.error('Error fetching courses:', err);
-            showToast('Error loading courses', 'error');
-            return [];
         }
     }
     
@@ -150,12 +157,10 @@
         try {
             const { data, error } = await supabase.from('quiz_questions').select('*');
             if (error) throw error;
-            quizQuestions = data || [];
-            console.log('✅ Quiz questions loaded from Supabase:', quizQuestions.length);
-            return quizQuestions;
+            quizQuestions = (data && data.length) ? data : defaultQuizQuestions;
         } catch (err) {
-            console.error('Error fetching quiz questions:', err);
-            return [];
+            console.error('Error fetching quiz:', err);
+            quizQuestions = defaultQuizQuestions;
         }
     }
     
@@ -163,35 +168,27 @@
         const { data: { session } } = await supabase.auth.getSession();
         currentUser = session?.user || null;
         
-        // Check admin (email contains 'admin' or specific domain)
-        isAdmin = currentUser?.email === 'admin@meidrive.com' || currentUser?.email?.includes('admin');
+        isAdmin = currentUser?.email === 'admin@meidrive.com' || currentUser?.email === 'admin@gmail.com';
         
         if (currentUser) {
-            // Fetch user enrollments
-            const { data: enrollments } = await supabase
-                .from('user_enrollments')
-                .select('course_id, payment_status')
-                .eq('user_id', currentUser.id);
+            // Fetch enrollments
+            const { data: enrollments } = await supabase.from('user_enrollments').select('course_id').eq('user_id', currentUser.id);
             if (enrollments) {
                 userEnrollments = {};
                 enrollments.forEach(e => { userEnrollments[e.course_id] = true; });
             }
             
-            // Fetch user progress
-            const { data: progress } = await supabase
-                .from('user_progress')
-                .select('course_id, progress')
-                .eq('user_id', currentUser.id);
+            // Fetch progress
+            const { data: progress } = await supabase.from('user_progress').select('course_id, progress').eq('user_id', currentUser.id);
             if (progress) {
                 userProgress = {};
                 progress.forEach(p => { userProgress[p.course_id] = p.progress; });
             }
             
-            // Fetch payments for admin
+            // Admin data
             if (isAdmin) {
                 const { data: paymentData } = await supabase.from('payments').select('*');
                 if (paymentData) payments = paymentData;
-                
                 const { data: userData } = await supabase.from('users').select('*');
                 if (userData) users = userData;
                 document.getElementById('navAdmin').style.display = 'inline-block';
@@ -216,8 +213,6 @@
         await supabase.auth.signOut(); 
         currentUser = null; 
         isAdmin = false;
-        userProgress = {}; 
-        userEnrollments = {};
         updateAuthUI(); 
         navigateTo('home'); 
         showToast('Logged out successfully', 'info'); 
@@ -227,14 +222,13 @@
         document.getElementById('page-content').innerHTML = `
             <div class="modal" style="display:flex;">
                 <div class="modal-content">
-                    <h2 style="text-align:center;">${mode === 'login' ? '🔐 Welcome Back' : '📝 Create Account'}</h2>
-                    ${mode === 'signup' ? `<input type="text" id="signupName" placeholder="Full Name">` : ''}
+                    <h2 style="text-align:center;">${mode === 'login' ? '🔐 Login to Your Account' : '📝 Create New Account'}</h2>
                     <input type="email" id="authEmail" placeholder="Email address">
-                    <input type="password" id="authPassword" placeholder="Password (min 6 characters)">
+                    <input type="password" id="authPassword" placeholder="Password (minimum 6 characters)">
                     <button class="btn btn-primary" style="width:100%" onclick="handleAuth('${mode}')">${mode === 'login' ? 'Login' : 'Sign Up'}</button>
                     <p style="margin-top:1rem; text-align:center;">
                         ${mode === 'login' ? 'No account? ' : 'Already have an account? '}
-                        <span style="color:var(--primary);cursor:pointer;" onclick="showAuthModal('${mode === 'login' ? 'signup' : 'login'}')">${mode === 'login' ? 'Sign Up' : 'Login'}</span>
+                        <span style="color:var(--primary);cursor:pointer;" onclick="showAuthModal('${mode === 'login' ? 'signup' : 'login'}')">${mode === 'login' ? 'Create one' : 'Login here'}</span>
                     </p>
                     <button class="btn btn-outline" style="width:100%; margin-top:0.5rem;" onclick="navigateTo('home')">Cancel</button>
                 </div>
@@ -244,21 +238,37 @@
     async function handleAuth(mode) {
         const email = document.getElementById('authEmail')?.value.trim();
         const password = document.getElementById('authPassword')?.value;
-        if (!email || !password) { showToast('Please fill all fields', 'error'); return; }
-        if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
         
-        if (mode === 'signup') {
-            const name = document.getElementById('signupName')?.value || email.split('@')[0];
-            const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
-            if (error) { showToast(error.message, 'error'); return; }
-            showToast('Account created! Please verify your email.', 'success');
-        } else {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) { showToast(error.message, 'error'); return; }
-            showToast(`Welcome back!`, 'success');
+        if (!email || !password) { 
+            showToast('Please enter both email and password', 'error'); 
+            return; 
         }
-        await loadUserData();
-        navigateTo('home');
+        if (password.length < 6) { 
+            showToast('Password must be at least 6 characters', 'error'); 
+            return; 
+        }
+        
+        try {
+            if (mode === 'signup') {
+                const { data, error } = await supabase.auth.signUp({ 
+                    email, 
+                    password,
+                    options: { data: { full_name: email.split('@')[0] } }
+                });
+                if (error) throw error;
+                showToast('Account created! Please check your email to verify.', 'success');
+                showAuthModal('login');
+            } else {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                currentUser = data.user;
+                showToast(`Welcome back, ${email.split('@')[0]}!`, 'success');
+                await loadUserData();
+                navigateTo('home');
+            }
+        } catch (err) {
+            showToast(err.message, 'error');
+        }
     }
     
     function isEnrolled(courseId) { return userEnrollments[courseId] === true; }
@@ -268,31 +278,26 @@
         const course = courses.find(c => c.id === courseId);
         if (!course) return;
         
-        // Simulate M-Pesa payment popup
-        const phone = prompt(`💰 Payment for ${course.name}\nAmount: KES ${course.price.toLocaleString()}\n\nEnter M-Pesa phone number (e.g., 0712345678):`);
+        const phone = prompt(`💰 Payment for ${course.name}\nAmount: KES ${course.price.toLocaleString()}\n\nEnter M-Pesa phone number:`);
         if (!phone) { showToast('Payment cancelled', 'info'); return; }
-        
-        let cleanPhone = phone.replace(/\D/g, '');
-        if (cleanPhone.startsWith('0')) cleanPhone = '254' + cleanPhone.slice(1);
         
         showToast(`Processing payment for KES ${course.price}...`, 'info');
         
-        // Simulate payment processing
         setTimeout(async () => {
-            const { error: enrollError } = await supabase.from('user_enrollments').upsert({
-                user_id: currentUser.id, 
-                course_id: courseId, 
-                payment_status: 'completed', 
-                amount_paid: course.price, 
+            const { error } = await supabase.from('user_enrollments').upsert({
+                user_id: currentUser.id,
+                course_id: courseId,
+                payment_status: 'completed',
+                amount_paid: course.price,
                 paid_at: new Date().toISOString()
             });
             
-            if (!enrollError) {
+            if (!error) {
                 userEnrollments[courseId] = true;
                 showToast(`✅ Successfully enrolled in ${course.name}!`, 'success');
                 renderCourses();
             } else {
-                showToast('Enrollment failed', 'error');
+                showToast('Enrollment failed. Please try again.', 'error');
             }
         }, 1500);
     }
@@ -301,13 +306,12 @@
         window.location.href = `course.html?id=${courseId}`;
     }
     
-    // ============ QUIZ RENDERING ============
+    // Quiz functionality
     let quizState = { currentIndex: 0, score: 0, userAnswers: [], questions: [] };
     
     function renderQuiz() {
         if (quizState.questions.length === 0) {
-            document.getElementById('page-content').innerHTML = '<div class="loading-spinner"></div>';
-            return;
+            quizState.questions = [...quizQuestions];
         }
         
         if (quizState.currentIndex >= quizState.questions.length) {
@@ -316,12 +320,12 @@
                 <div class="container" style="padding-top: 100px; max-width: 800px;">
                     <div class="card" style="text-align:center;">
                         <h2>🎉 Quiz Complete!</h2>
-                        <div style="font-size: 4rem; margin: 1rem 0;">${percent >= 70 ? '🏆' : '📚'}</div>
-                        <p style="font-size: 1.2rem;">Your score: <strong>${quizState.score}</strong> / ${quizState.questions.length} (${percent}%)</p>
+                        <div style="font-size: 4rem;">${percent >= 70 ? '🏆' : '📚'}</div>
+                        <p>Your score: <strong>${quizState.score}</strong> / ${quizState.questions.length} (${percent}%)</p>
                         <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
                         <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
-                            <button class="btn btn-primary" onclick="resetQuiz()">🔄 Restart Quiz</button>
-                            <button class="btn btn-outline" onclick="navigateTo('home')">🏠 Back to Home</button>
+                            <button class="btn btn-primary" onclick="resetQuiz()">Restart Quiz</button>
+                            <button class="btn btn-outline" onclick="navigateTo('home')">Back Home</button>
                         </div>
                     </div>
                 </div>`;
@@ -336,28 +340,25 @@
             <div class="container" style="padding-top: 100px; max-width: 800px;">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                        <span class="category-tag"><i class="fas fa-tag"></i> ${q.category || 'General'}</span>
-                        <span style="background: var(--primary); color: #0a192f; padding: 4px 12px; border-radius: 50px; font-weight:bold;">Question ${quizState.currentIndex + 1}/${quizState.questions.length}</span>
+                        <span class="category-tag">${q.category || 'General'}</span>
+                        <span style="background: var(--primary); color: #0a192f; padding: 4px 12px; border-radius: 50px;">${quizState.currentIndex + 1}/${quizState.questions.length}</span>
                     </div>
-                    <h3 style="margin-bottom: 1.5rem;">${escapeHtml(q.question)}</h3>
+                    <h3>${escapeHtml(q.question)}</h3>
                     ${options.map((opt, idx) => {
-                        let additionalClass = '';
-                        if (hasAnswered && idx === q.correct_option) additionalClass = 'correct';
-                        if (hasAnswered && idx === quizState.userAnswers[quizState.currentIndex] && idx !== q.correct_option) additionalClass = 'wrong';
-                        return `<div class="quiz-option ${additionalClass}" onclick="${!hasAnswered ? `selectAnswer(${idx})` : ''}">
-                            <span style="font-weight:bold;">${String.fromCharCode(65+idx)}.</span> ${escapeHtml(opt)}
+                        let cls = 'quiz-option';
+                        if (hasAnswered && idx === q.correct_option) cls += ' correct';
+                        if (hasAnswered && idx === quizState.userAnswers[quizState.currentIndex] && idx !== q.correct_option) cls += ' wrong';
+                        return `<div class="${cls}" onclick="${!hasAnswered ? `selectAnswer(${idx})` : ''}">
+                            ${String.fromCharCode(65+idx)}. ${escapeHtml(opt)}
                         </div>`;
                     }).join('')}
                     ${hasAnswered ? `
                         <div style="margin-top: 1rem; padding: 1rem; background: rgba(0,255,136,0.1); border-radius: 12px;">
                             <strong>${quizState.userAnswers[quizState.currentIndex] === q.correct_option ? '✓ Correct!' : '✗ Incorrect'}</strong>
-                            <p style="margin-top: 0.5rem;">📖 ${escapeHtml(q.explanation || 'No explanation available.')}</p>
-                            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="nextQuestion()">Next Question →</button>
+                            <p>${escapeHtml(q.explanation || 'No explanation available.')}</p>
+                            <button class="btn btn-primary" onclick="nextQuestion()">Next Question →</button>
                         </div>
-                    ` : '<p style="margin-top: 1rem;"><i class="fas fa-info-circle"></i> Click on an option to answer</p>'}
-                </div>
-                <div style="text-align: center; margin-top: 1rem;">
-                    <p>📊 ${quizState.score} correct so far</p>
+                    ` : '<p style="margin-top: 1rem;">Click an option to answer</p>'}
                 </div>
             </div>`;
     }
@@ -371,15 +372,9 @@
     };
     
     window.nextQuestion = () => { quizState.currentIndex++; renderQuiz(); };
-    window.resetQuiz = () => { 
-        quizState = { currentIndex: 0, score: 0, userAnswers: [], questions: [...quizQuestions] }; 
-        renderQuiz(); 
-    };
+    window.resetQuiz = () => { quizState = { currentIndex: 0, score: 0, userAnswers: [], questions: [...quizQuestions] }; renderQuiz(); };
     
-    // ============ RENDER FUNCTIONS ============
     function renderHome() {
-        const totalCourses = courses.length;
-        const totalLessons = courses.reduce((sum, c) => sum + (c.lessons_count || 0), 0);
         document.getElementById('page-content').innerHTML = `
             <div class="hero">
                 <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
@@ -388,20 +383,19 @@
             </div>
             <div class="container">
                 <div class="stats-bar">
-                    <div class="stat-item"><h3>${totalCourses}</h3><p>Professional Courses</p></div>
-                    <div class="stat-item"><h3>${quizQuestions.length}+</h3><p>Quiz Questions</p></div>
-                    <div class="stat-item"><h3>${totalLessons}</h3><p>Training Modules</p></div>
+                    <div class="stat-item"><h3>6</h3><p>Courses</p></div>
+                    <div class="stat-item"><h3>${quizQuestions.length}+</h3><p>Questions</p></div>
+                    <div class="stat-item"><h3>NTSA</h3><p>Approved</p></div>
                 </div>
-                <h2 class="section-title">Our <span>Professional Courses</span></h2>
+                <h2 class="section-title">Our <span>Courses</span></h2>
                 <div class="grid">
                     ${courses.slice(0, 3).map(c => `
                         <div class="card" onclick="viewCourse(${c.id})">
-                            <i class="fas ${c.icon || 'fa-book'}" style="font-size: 2rem; color: var(--primary);"></i>
-                            <h3>${escapeHtml(c.name)}${isEnrolled(c.id) ? ' <span class="badge"><i class="fas fa-check-circle"></i> Enrolled</span>' : ''}</h3>
+                            <i class="fas ${c.icon || 'fa-car'}" style="font-size: 2rem; color: var(--primary);"></i>
+                            <h3>${escapeHtml(c.name)}${isEnrolled(c.id) ? '<span class="badge">Enrolled</span>' : ''}</h3>
                             <p>${escapeHtml(c.description || 'Professional training course')}</p>
-                            <div><span class="category-tag"><i class="far fa-clock"></i> ${c.duration || 'Self-paced'}</span><span class="category-tag"><i class="fas fa-book"></i> ${c.lessons_count || 0} Modules</span></div>
                             <div class="course-price">KES ${(c.price || 0).toLocaleString()}</div>
-                            <button class="btn btn-primary">${isEnrolled(c.id) ? 'Continue Learning' : 'Enroll Now'}</button>
+                            <button class="btn btn-primary">${isEnrolled(c.id) ? 'Continue' : 'Enroll'}</button>
                         </div>
                     `).join('')}
                 </div>
@@ -411,14 +405,14 @@
     function renderCourses() {
         document.getElementById('page-content').innerHTML = `
             <div class="container" style="padding-top: 100px;">
-                <h1 class="section-title">All <span>Professional Courses</span></h1>
+                <h1 class="section-title">All <span>Courses</span></h1>
                 <div class="grid">
                     ${courses.map(c => `
                         <div class="card" onclick="viewCourse(${c.id})">
-                            <i class="fas ${c.icon || 'fa-book'}" style="font-size: 2rem; color: var(--primary);"></i>
-                            <h3>${escapeHtml(c.name)}${isEnrolled(c.id) ? ' <span class="badge"><i class="fas fa-check-circle"></i> Enrolled</span>' : ''}</h3>
+                            <i class="fas ${c.icon || 'fa-car'}" style="font-size: 2rem; color: var(--primary);"></i>
+                            <h3>${escapeHtml(c.name)}${isEnrolled(c.id) ? '<span class="badge">Enrolled</span>' : ''}</h3>
                             <p>${escapeHtml(c.description || 'Professional training course')}</p>
-                            <div><span class="category-tag"><i class="far fa-clock"></i> ${c.duration || 'Self-paced'}</span><span class="category-tag"><i class="fas fa-book"></i> ${c.lessons_count || 0} Modules</span></div>
+                            <div><span class="category-tag">${c.duration || 'Self-paced'}</span><span class="category-tag">${c.lessons_count || 0} Modules</span></div>
                             <div class="course-price">KES ${(c.price || 0).toLocaleString()}</div>
                             ${userProgress[c.id] ? `<div class="progress-bar"><div class="progress-fill" style="width:${userProgress[c.id]}%"></div></div>` : ''}
                             <button class="btn btn-primary">${isEnrolled(c.id) ? 'Continue Learning' : 'Enroll Now'}</button>
@@ -434,25 +428,23 @@
             <div class="container" style="padding-top: 100px;">
                 <h1 class="section-title"><i class="fas fa-user-shield"></i> Admin <span>Dashboard</span></h1>
                 <div class="stats-bar">
-                    <div class="stat-item"><h3>${users.length}</h3><p>Total Users</p></div>
-                    <div class="stat-item"><h3>${payments.length}</h3><p>Transactions</p></div>
-                    <div class="stat-item"><h3>KES ${totalRevenue.toLocaleString()}</h3><p>Total Revenue</p></div>
-                    <div class="stat-item"><h3>${courses.length}</h3><p>Courses</p></div>
+                    <div class="stat-item"><h3>${users.length}</h3><p>Users</p></div>
+                    <div class="stat-item"><h3>${payments.length}</h3><p>Payments</p></div>
+                    <div class="stat-item"><h3>KES ${totalRevenue.toLocaleString()}</h3><p>Revenue</p></div>
                 </div>
                 <div class="card">
-                    <h3><i class="fas fa-credit-card"></i> Recent Payments</h3>
-                    <table style="width:100%; border-collapse:collapse; margin-top:1rem;">
-                        <thead><tr><th>Transaction ID</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                    <h3>Recent Payments</h3>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead><tr><th>Transaction</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
                         <tbody>
                             ${payments.slice(0, 10).map(p => `
                                 <tr style="border-bottom:1px solid var(--border);">
                                     <td style="padding:10px;">${escapeHtml(p.transaction_id || 'N/A')}</td>
-                                    <td style="padding:10px;">KES ${(p.amount || 0).toLocaleString()}</td>
-                                    <td style="padding:10px;">${p.status || 'pending'}</td>
-                                    <td style="padding:10px;">${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'N/A'}</td>
+                                    <td>KES ${(p.amount || 0).toLocaleString()}</td>
+                                    <td>${p.status || 'pending'}</td>
+                                    <td>${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'N/A'}</td>
                                 </tr>
                             `).join('')}
-                            ${payments.length === 0 ? '<tr><td colspan="4" style="text-align:center; padding:20px;">No payments recorded</td></tr>' : ''}
                         </tbody>
                     </table>
                 </div>
@@ -475,19 +467,19 @@
         window.scrollTo({ top: 0 });
     }
     
-    // ============ INITIALIZATION ============
     async function init() {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // Show loading
-        document.getElementById('page-content').innerHTML = '<div class="loading-spinner"></div>';
+        // Check if user is already logged in
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            currentUser = session.user;
+            await loadUserData();
+        }
         
-        // Fetch data from Supabase
         await fetchCourses();
         await fetchQuizQuestions();
         await loadUserData();
-        
-        // Navigate to home
         navigateTo('home');
     }
     
