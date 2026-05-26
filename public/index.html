@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>MEI DRIVE AFRICA | Driver Training</title>
-    <meta name="description" content="NTSA-approved driver training platform. Practice daily, revise smarter, pass with confidence.">
+    <meta name="description" content="NTSA-approved driver training platform">
     <meta name="theme-color" content="#0a192f">
     
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f'/%3E%3Cpath d='M50 20 L70 35 L70 65 L50 80 L30 65 L30 35 Z' fill='none' stroke='%2300ff88' stroke-width='4'/%3E%3Ccircle cx='50' cy='50' r='12' fill='%2300ff88'/%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
@@ -25,7 +24,9 @@
         .nav-links button:hover { background: rgba(0,255,136,0.1); color: var(--primary); }
         .btn { padding: 12px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: linear-gradient(135deg, #00ff88, #00cc66); color: #0a192f; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,255,136,0.3); }
         .btn-outline { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
+        .btn-outline:hover { background: rgba(0,255,136,0.1); }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.8rem; margin: 2rem 0; }
         .card { background: #0d2137; border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; transition: 0.2s; cursor: pointer; }
@@ -36,22 +37,19 @@
         .course-price { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin: 0.5rem 0; }
         .progress-bar { background: #1e2a3a; border-radius: 10px; height: 6px; margin: 12px 0; }
         .progress-fill { background: var(--primary); height: 6px; border-radius: 10px; width: 0%; }
-        .quiz-option { background: #112240; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border); }
+        .quiz-option { background: #112240; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; }
+        .quiz-option:hover { border-color: var(--primary); background: rgba(0,255,136,0.1); }
         .quiz-option.correct { background: rgba(0,255,136,0.2); border-color: #00ff88; }
         .quiz-option.wrong { background: rgba(255,71,87,0.2); border-color: #ff4757; }
-        .lesson-content { line-height: 1.8; }
+        .lesson-content { line-height: 1.8; padding: 1rem 0; }
+        .lesson-content h1, .lesson-content h2, .lesson-content h3 { color: var(--primary); margin: 1rem 0 0.5rem; }
+        .lesson-content ul, .lesson-content ol { margin-left: 1.5rem; }
         .loading-spinner { width: 40px; height: 40px; border: 3px solid #1e2a3a; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 40px auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1100; }
-        .toast { background: #0d2137; border-left: 4px solid var(--primary); padding: 12px 20px; border-radius: 12px; margin-top: 8px; }
+        .toast { background: #0d2137; border-left: 4px solid var(--primary); padding: 12px 20px; border-radius: 12px; margin-top: 8px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); color: var(--text-muted); margin-top: 2rem; }
-        .payment-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); backdrop-filter: blur(12px); z-index: 3000; display: flex; justify-content: center; align-items: center; visibility: hidden; opacity: 0; transition: 0.2s; }
-        .payment-modal.active { visibility: visible; opacity: 1; }
-        .payment-card { background: #0d2137; border: 1px solid var(--primary); border-radius: 24px; padding: 2rem; max-width: 450px; width: 90%; text-align: center; }
-        .payment-card input { width: 100%; padding: 14px; margin: 12px 0; background: #112240; border: 1px solid var(--border); border-radius: 12px; color: white; text-align: center; }
-        .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
-        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .nav-links { display: none; width: 100%; flex-direction: column; } .nav-links.show { display: flex; } .mobile-menu { display: block; } .grid { grid-template-columns: 1fr; } }
-        .enrolled-badge { display: inline-block; background: rgba(0,255,136,0.2); color: var(--primary); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; margin-left: 8px; }
         .stats-bar { background: #0d2137; padding: 2rem; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 2rem; text-align: center; border-bottom: 1px solid var(--border); }
         .stat-item h3 { font-size: 2rem; color: var(--primary); }
         .section-title { text-align: center; font-size: 2rem; margin: 2rem 0; }
@@ -59,6 +57,18 @@
         .lesson-nav { display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem; flex-wrap: wrap; }
         .quiz-feedback { margin-top: 1rem; padding: 12px; border-radius: 12px; }
         .user-badge { background: rgba(0,255,136,0.15); border-radius: 40px; padding: 6px 16px; display: inline-flex; align-items: center; gap: 8px; }
+        .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
+        .enrolled-badge { display: inline-block; background: rgba(0,255,136,0.2); color: var(--primary); font-size: 0.75rem; padding: 4px 10px; border-radius: 50px; margin-left: 8px; }
+        
+        @media (max-width: 768px) { 
+            .hero h1 { font-size: 2rem; } 
+            .nav-links { display: none; width: 100%; flex-direction: column; padding: 1rem 0; } 
+            .nav-links.show { display: flex; } 
+            .mobile-menu { display: block; } 
+            .grid { grid-template-columns: 1fr; }
+        }
+        
+        button:disabled, .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -80,22 +90,8 @@
 </div>
 <div id="toast-container"></div>
 
-<div id="paymentModal" class="payment-modal">
-    <div class="payment-card">
-        <h2>💰 Complete Payment</h2>
-        <p style="margin: 1rem 0; color: var(--text-muted);">Pay via M-Pesa</p>
-        <div style="background: #112240; border-radius: 12px; padding: 0.8rem; margin: 1rem 0;">
-            <p><strong>Business Number:</strong> 4095377</p>
-            <p><strong>Amount:</strong> KES <span id="paymentAmount">0</span></p>
-        </div>
-        <input type="tel" id="mpesaPhone" placeholder="M-Pesa Phone Number" value="0720216985">
-        <button class="btn btn-primary" onclick="initiateMpesaPayment()" style="width:100%;">Pay with M-Pesa</button>
-        <button class="btn btn-outline" onclick="closePaymentModal()" style="width:100%; margin-top:0.8rem;">Cancel</button>
-    </div>
-</div>
-
 <script>
-    // ✅ FIXED: Correct Supabase URL
+    // YOUR CORRECT SUPABASE CREDENTIALS
     const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
     
@@ -107,7 +103,6 @@
     let questions = [];
     let userProgress = {};
     let userEnrollments = {};
-    let pendingPaymentCourse = null;
     let currentCourseId = null;
     let currentLessonIndex = 0;
     let currentCourseLessons = [];
@@ -125,26 +120,31 @@
     function toggleMobileMenu() { document.getElementById('navLinks')?.classList.toggle('show'); }
     
     async function loadCourses() { 
-        const { data, error } = await supabase.from('courses').select('*');
-        if (error) console.error('Load courses error:', error);
-        if (data) courses = data;
-        console.log('Courses loaded:', courses.length);
+        try {
+            const { data, error } = await supabase.from('courses').select('*');
+            if (error) throw error;
+            courses = data || [];
+            console.log('✅ Courses loaded:', courses.length);
+        } catch (err) {
+            console.error('Error loading courses:', err);
+            showToast('Database connection issue. Please run SQL setup.', 'error');
+        }
     }
     
     async function loadLessons() { 
         const { data, error } = await supabase.from('lessons').select('*');
-        if (error) console.error('Load lessons error:', error);
-        if (data) lessons = data;
+        if (!error) lessons = data || [];
     }
     
     async function loadQuestions() { 
         const { data, error } = await supabase.from('questions').select('*');
-        if (error) console.error('Load questions error:', error);
-        if (data && data.length) questions = data;
+        if (!error && data && data.length) questions = data;
         else {
             questions = [
                 { id: 1, question_text: "What does a solid white line on the road mean?", option_a: "You may overtake if safe", option_b: "No overtaking allowed", option_c: "Parking allowed", option_d: "Slow down only", correct_option: "b", explanation: "A solid white line indicates that overtaking is prohibited." },
-                { id: 2, question_text: "What is the legal blood alcohol limit for professional drivers in Kenya?", option_a: "0.00%", option_b: "0.05%", option_c: "0.08%", option_d: "0.10%", correct_option: "a", explanation: "Professional drivers must have zero alcohol." }
+                { id: 2, question_text: "What is the legal blood alcohol limit for professional drivers in Kenya?", option_a: "0.00%", option_b: "0.05%", option_c: "0.08%", option_d: "0.10%", correct_option: "a", explanation: "Professional drivers must have zero alcohol in their system." },
+                { id: 3, question_text: "When approaching a yellow traffic light, you should:", option_a: "Speed up to beat the light", option_b: "Stop if safe to do so", option_c: "Honk and proceed", option_d: "Ignore it", correct_option: "b", explanation: "Yellow means prepare to stop, not speed up." },
+                { id: 4, question_text: "What does a Stop sign mean?", option_a: "Yield to pedestrians", option_b: "Come to a complete stop", option_c: "Slow down only", option_d: "No entry", correct_option: "b", explanation: "A stop sign requires a complete stop." }
             ];
         }
     }
@@ -166,25 +166,28 @@
         await loadUserProgress();
         renderPage();
         if (courses.length > 0) showToast(`✅ Connected! ${courses.length} courses loaded`, 'success');
-        else showToast('⚠️ Database connection issue - please run SQL setup', 'error');
     }
     
     function updateAuthUI() {
         const container = document.getElementById('authButtons');
         if (!container) return;
-        if (currentUser) container.innerHTML = `<div class="user-badge"><i class="fas fa-user"></i> ${currentUser.email.split('@')[0]}</div><button onclick="logout()">Logout</button>`;
-        else container.innerHTML = `<button onclick="showLoginModal()">Login</button><button onclick="showSignupModal()">Sign Up</button>`;
+        if (currentUser) {
+            container.innerHTML = `<div class="user-badge"><i class="fas fa-user"></i> ${currentUser.email.split('@')[0]}</div><button onclick="logout()" style="margin-left:8px;">Logout</button>`;
+        } else {
+            container.innerHTML = `<button onclick="showLoginModal()">Login</button><button onclick="showSignupModal()">Sign Up</button>`;
+        }
     }
     
-    async function logout() { await supabase.auth.signOut(); currentUser = null; updateAuthUI(); renderPage(); }
+    async function logout() { await supabase.auth.signOut(); currentUser = null; updateAuthUI(); renderPage(); showToast('Logged out', 'info'); }
     
     function showLoginModal() {
         document.getElementById('page-content').innerHTML = `
             <div class="container" style="max-width:450px; margin:100px auto;">
                 <div class="card"><h2>🔐 Login</h2>
-                <input type="email" id="loginEmail" placeholder="Email">
-                <input type="password" id="loginPassword" placeholder="Password">
+                <input type="email" id="loginEmail" placeholder="Email" style="width:100%; padding:12px; margin:10px 0; background:#0f1a2c; border:1px solid var(--border); border-radius:12px; color:white;">
+                <input type="password" id="loginPassword" placeholder="Password" style="width:100%; padding:12px; margin:10px 0; background:#0f1a2c; border:1px solid var(--border); border-radius:12px; color:white;">
                 <button class="btn btn-primary" style="width:100%" onclick="performLogin()">Login</button>
+                <p style="margin-top:1rem;">No account? <span style="color:var(--primary);cursor:pointer;" onclick="showSignupModal()">Sign up</span></p>
                 <button class="btn btn-outline" style="width:100%; margin-top:0.5rem;" onclick="renderPage()">Cancel</button></div></div>`;
     }
     
@@ -192,9 +195,11 @@
         document.getElementById('page-content').innerHTML = `
             <div class="container" style="max-width:450px; margin:100px auto;">
                 <div class="card"><h2>📝 Sign Up</h2>
-                <input type="email" id="signupEmail" placeholder="Email">
-                <input type="password" id="signupPassword" placeholder="Password">
-                <button class="btn btn-primary" style="width:100%" onclick="performSignup()">Sign Up</button>
+                <input type="text" id="signupName" placeholder="Full Name" style="width:100%; padding:12px; margin:10px 0; background:#0f1a2c; border:1px solid var(--border); border-radius:12px; color:white;">
+                <input type="email" id="signupEmail" placeholder="Email" style="width:100%; padding:12px; margin:10px 0; background:#0f1a2c; border:1px solid var(--border); border-radius:12px; color:white;">
+                <input type="password" id="signupPassword" placeholder="Password (min 6)" style="width:100%; padding:12px; margin:10px 0; background:#0f1a2c; border:1px solid var(--border); border-radius:12px; color:white;">
+                <button class="btn btn-primary" style="width:100%" onclick="performSignup()">Create Account</button>
+                <p style="margin-top:1rem;">Have an account? <span style="color:var(--primary);cursor:pointer;" onclick="showLoginModal()">Login</span></p>
                 <button class="btn btn-outline" style="width:100%; margin-top:0.5rem;" onclick="renderPage()">Cancel</button></div></div>`;
     }
     
@@ -209,14 +214,28 @@
     async function performSignup() {
         const email = document.getElementById('signupEmail')?.value;
         const password = document.getElementById('signupPassword')?.value;
-        const { error } = await supabase.auth.signUp({ email, password });
+        const fullName = document.getElementById('signupName')?.value;
+        const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
         if (error) showToast(error.message, 'error');
         else { showToast('Account created! Please verify email.', 'success'); renderPage(); }
     }
     
+    function formatContent(content) {
+        if (!content) return '<p>Content coming soon...</p>';
+        let html = content;
+        html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+        html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+        html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+        html = html.replace(/<li>.*?<\/li>/gs, match => `<ul>${match}</ul>`);
+        html = html.replace(/^(?!<[hl]|<ul|<li)(.*$)/gm, '<p>$1</p>');
+        return html.replace(/<p>\s*<\/p>/g, '');
+    }
+    
     function renderCourseCard(c) {
         const isEnrolled = userEnrollments[c.id];
-        return `<div class="card" onclick="viewCourse(${c.id})"><i class="fas ${c.icon || 'fa-book'}" style="font-size:2rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}${isEnrolled ? '<span class="enrolled-badge">✓ Enrolled</span>' : ''}</h3><p>${escapeHtml(c.description || '')}</p><div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div><button class="btn btn-primary">${isEnrolled ? 'Continue' : 'Enroll'}</button></div>`;
+        return `<div class="card" onclick="viewCourse(${c.id})"><i class="fas ${c.icon || 'fa-book'}" style="font-size:2rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}${isEnrolled ? '<span class="enrolled-badge"><i class="fas fa-check-circle"></i> Enrolled</span>' : ''}</h3><p>${escapeHtml(c.description || '')}</p><div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div><button class="btn btn-primary">${isEnrolled ? 'Continue Learning' : 'Enroll Now'}</button></div>`;
     }
     
     function renderHome() {
@@ -240,18 +259,60 @@
         const course = courses.find(c => c.id === courseId);
         const isEnrolled = userEnrollments[courseId] || course?.price === 0;
         if (!isEnrolled && course?.price > 0) {
-            document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px; max-width:600px;"><div class="card" style="text-align:center;"><h2>${escapeHtml(course.name)}</h2><div class="course-price" style="font-size:2rem;">KES ${course.price.toLocaleString()}</div><button class="btn btn-primary" onclick='openPaymentModal(${JSON.stringify(course).replace(/'/g, "&apos;")})'>Pay with M-Pesa</button><button class="btn btn-outline" style="margin-top:1rem;" onclick="navigateTo('courses')">← Back</button></div></div>`;
+            document.getElementById('page-content').innerHTML = `
+                <div class="container" style="padding-top:100px; max-width:600px;">
+                    <div class="card" style="text-align:center;">
+                        <i class="fas fa-lock" style="font-size:3rem; color:var(--primary); margin-bottom:1rem;"></i>
+                        <h2>${escapeHtml(course.name)}</h2>
+                        <p>${escapeHtml(course.description || '')}</p>
+                        <div class="course-price" style="font-size:2rem;">KES ${course.price.toLocaleString()}</div>
+                        <button class="btn btn-primary" onclick="enrollFree(${courseId})">Enroll Now (Demo)</button>
+                        <button class="btn btn-outline" style="margin-top:1rem;" onclick="navigateTo('courses')">← Back to Courses</button>
+                    </div>
+                </div>`;
             return;
         }
         const courseLessons = lessons.filter(l => l.course_id === courseId).sort((a,b) => a.order - b.order);
         const completedCount = courseLessons.filter(l => userProgress[l.id] === 100).length;
         const progressPercent = courseLessons.length ? Math.round((completedCount / courseLessons.length) * 100) : 0;
-        document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div style="background:linear-gradient(135deg,rgba(0,255,136,0.1),#0d2137); border-radius:20px; padding:2rem;"><h1>${escapeHtml(course.name)}</h1><p>${escapeHtml(course.description || '')}</p>${progressPercent > 0 ? `<div class="progress-bar"><div class="progress-fill" style="width:${progressPercent}%"></div><p>${progressPercent}% Complete</p></div>` : ''}</div><div class="card"><h3>📖 Modules (${courseLessons.length})</h3>${courseLessons.map((l, idx) => `<div class="card" onclick="startLesson(${courseId}, ${l.id}, ${idx})"><h4>${idx+1}. ${escapeHtml(l.title)}</h4>${userProgress[l.id] === 100 ? '<span style="color:#00ff88;">✓ Completed</span>' : ''}<div class="progress-bar"><div class="progress-fill" style="width:${userProgress[l.id] || 0}%"></div></div></div>`).join('')}<button class="btn btn-outline" onclick="navigateTo('courses')">← Back</button></div></div>`;
+        document.getElementById('page-content').innerHTML = `
+            <div class="container" style="padding-top:100px;">
+                <div style="background:linear-gradient(135deg,rgba(0,255,136,0.1),#0d2137); border-radius:20px; padding:2rem; margin-bottom:2rem;">
+                    <h1>${escapeHtml(course.name)}</h1>
+                    <p>${escapeHtml(course.description || '')}</p>
+                    ${progressPercent > 0 ? `<div class="progress-bar"><div class="progress-fill" style="width:${progressPercent}%"></div><p style="margin-top:5px;">${progressPercent}% Complete</p></div>` : ''}
+                </div>
+                <div class="card"><h3>📖 Course Modules (${courseLessons.length} lessons)</h3>
+                ${courseLessons.length ? `<div class="grid">${courseLessons.map((l, idx) => `<div class="card" onclick="startLesson(${courseId}, ${l.id}, ${idx})"><h4>${idx+1}. ${escapeHtml(l.title)}</h4>${userProgress[l.id] === 100 ? '<span style="color:#00ff88; font-size:0.8rem;">✓ Completed</span>' : ''}<div class="progress-bar"><div class="progress-fill" style="width:${userProgress[l.id] || 0}%"></div></div><button class="btn btn-outline btn-sm">${userProgress[l.id] === 100 ? 'Review' : 'Start'}</button></div>`).join('')}</div>` : '<p>No lessons available yet.</p>'}
+                <button class="btn btn-outline" style="margin-top:1rem;" onclick="navigateTo('courses')">← Back to Courses</button></div>
+            </div>`;
+    }
+    
+    async function enrollFree(courseId) {
+        if (!currentUser) {
+            showToast('Please login first to enroll', 'warning');
+            showLoginModal();
+            return;
+        }
+        const { error } = await supabase.from('user_enrollments').upsert({
+            user_id: currentUser.id,
+            course_id: courseId,
+            payment_status: 'completed',
+            amount_paid: 0,
+            paid_at: new Date()
+        });
+        if (!error) {
+            userEnrollments[courseId] = true;
+            showToast('✅ Enrolled successfully!', 'success');
+            viewCourse(courseId);
+        } else {
+            showToast('Enrollment failed. Please try again.', 'error');
+        }
     }
     
     function startLesson(courseId, lessonId, lessonIndex) {
         const isEnrolled = userEnrollments[courseId] || courses.find(c => c.id === courseId)?.price === 0;
-        if (!isEnrolled) { showToast('Please enroll first', 'warning'); viewCourse(courseId); return; }
+        if (!isEnrolled) { showToast('Please enroll in this course first', 'warning'); viewCourse(courseId); return; }
         currentCourseId = courseId;
         currentLessonIndex = lessonIndex;
         currentCourseLessons = lessons.filter(l => l.course_id === courseId).sort((a,b) => a.order - b.order);
@@ -261,24 +322,48 @@
     function renderLessonPage() {
         const lesson = currentCourseLessons[currentLessonIndex];
         if (!lesson) return;
+        const progress = userProgress[lesson.id] || 0;
         const totalLessons = currentCourseLessons.length;
-        const formattedContent = lesson.content || '<p>Content coming soon...</p>';
-        document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>${escapeHtml(lesson.title)} <span style="background:var(--primary); color:#0a192f; padding:4px 12px; border-radius:50px; float:right;">${currentLessonIndex+1}/${totalLessons}</span></h2><div class="lesson-content">${formattedContent}</div><div class="lesson-nav"><button class="btn btn-outline" onclick="previousLesson()" ${currentLessonIndex === 0 ? 'disabled' : ''}>◀ Previous</button><button class="btn btn-primary" onclick="markAndContinue()">✓ Mark Complete</button><button class="btn btn-outline" onclick="nextLesson()" ${currentLessonIndex === totalLessons-1 ? 'disabled' : ''}>Next ▶</button></div><button class="btn btn-outline" onclick="viewCourse(${currentCourseId})">← Back</button></div></div>`;
+        const isLast = currentLessonIndex === totalLessons - 1;
+        const isFirst = currentLessonIndex === 0;
+        const formattedContent = formatContent(lesson.content || 'Content coming soon...');
+        document.getElementById('page-content').innerHTML = `
+            <div class="container" style="padding-top:100px; max-width:900px;">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:1rem;">
+                        <h2>${escapeHtml(lesson.title)}</h2>
+                        <span style="background:var(--primary); color:#0a192f; padding:4px 12px; border-radius:50px;">Lesson ${currentLessonIndex+1} of ${totalLessons}</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+                    <div class="lesson-content">${formattedContent}</div>
+                    <div class="lesson-nav">
+                        <button class="btn btn-outline" onclick="previousLesson()" ${isFirst ? 'disabled' : ''}>◀ Previous</button>
+                        <button class="btn btn-primary" onclick="markAndContinue()">✓ Mark Complete & Continue</button>
+                        <button class="btn btn-outline" onclick="nextLesson()" ${isLast ? 'disabled' : ''}>Next ▶</button>
+                    </div>
+                    <button class="btn btn-outline" style="margin-top:1rem;" onclick="viewCourse(${currentCourseId})">← Back to Course</button>
+                </div>
+            </div>`;
     }
     
     async function markAndContinue() {
         const lesson = currentCourseLessons[currentLessonIndex];
         if (!lesson) return;
         if (currentUser) {
-            await supabase.from('user_progress').upsert({ user_id: currentUser.id, lesson_id: lesson.id, progress_percentage: 100, last_accessed_at: new Date() });
+            await supabase.from('user_progress').upsert({
+                user_id: currentUser.id,
+                lesson_id: lesson.id,
+                progress_percentage: 100,
+                last_accessed_at: new Date()
+            });
             userProgress[lesson.id] = 100;
         }
         if (currentLessonIndex < currentCourseLessons.length - 1) {
             currentLessonIndex++;
             renderLessonPage();
-            showToast('Lesson completed!', 'success');
+            showToast('Lesson completed! Moving to next lesson...', 'success');
         } else {
-            showToast('🎉 Course completed!', 'success');
+            showToast('🎉 Congratulations! You have completed all lessons!', 'success');
             viewCourse(currentCourseId);
         }
     }
@@ -289,7 +374,10 @@
     let quizState = { currentIndex: 0, score: 0, userAnswers: [], questionsList: [] };
     
     function renderQuiz() {
-        if (!questions.length) { document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>No Questions Available</h2></div></div>`; return; }
+        if (!questions.length) {
+            document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>📝 No Questions Available</h2><button class="btn btn-primary" onclick="navigateTo('home')">Back to Home</button></div></div>`;
+            return;
+        }
         quizState = { currentIndex: 0, score: 0, userAnswers: [], questionsList: [...questions] };
         renderQuizQuestion();
     }
@@ -297,50 +385,70 @@
     function renderQuizQuestion() {
         if (quizState.currentIndex >= quizState.questionsList.length) {
             const percent = Math.round((quizState.score / quizState.questionsList.length) * 100);
-            document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card" style="text-align:center;"><h2>🎉 Quiz Complete!</h2><p>Score: ${quizState.score}/${quizState.questionsList.length} (${percent}%)</p><button class="btn btn-primary" onclick="renderQuiz()">Restart</button><button class="btn btn-outline" onclick="navigateTo('home')">Home</button></div></div>`;
+            document.getElementById('page-content').innerHTML = `
+                <div class="container" style="padding-top:100px; max-width:800px;">
+                    <div class="card" style="text-align:center;">
+                        <h2>🎉 Quiz Complete!</h2>
+                        <div style="font-size:3rem; margin:1rem 0;">${percent >= 70 ? '🏆' : '📚'}</div>
+                        <p style="font-size:1.2rem;">Your score: <strong>${quizState.score}</strong> / ${quizState.questionsList.length} (${percent}%)</p>
+                        <div class="progress-bar" style="margin:1rem 0;"><div class="progress-fill" style="width:${percent}%;"></div></div>
+                        <div style="display:flex; gap:1rem; justify-content:center; margin-top:2rem;">
+                            <button class="btn btn-primary" onclick="renderQuiz()">🔄 Restart Quiz</button>
+                            <button class="btn btn-outline" onclick="navigateTo('home')">🏠 Go Home</button>
+                        </div>
+                    </div>
+                </div>`;
             return;
         }
         const q = quizState.questionsList[quizState.currentIndex];
         const options = [q.option_a, q.option_b, q.option_c, q.option_d];
         const hasAnswered = quizState.userAnswers[quizState.currentIndex] !== undefined;
-        document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px; max-width:800px;"><div class="card"><div style="display:flex; justify-content:space-between;"><h2>📝 Quiz</h2><span>${quizState.currentIndex+1}/${quizState.questionsList.length}</span></div><div class="quiz-question"><strong>${escapeHtml(q.question_text)}</strong></div>${options.map((opt, idx) => `<div class="quiz-option" onclick="submitQuizAnswer(${idx})">${String.fromCharCode(65+idx)}. ${escapeHtml(opt)}</div>`).join('')}<div id="quizFeedback"></div></div></div>`;
-        if (hasAnswered) {
-            const correctIndex = q.correct_option === 'a' ? 0 : q.correct_option === 'b' ? 1 : q.correct_option === 'c' ? 2 : 3;
-            const isCorrect = quizState.userAnswers[quizState.currentIndex] === correctIndex;
-            document.getElementById('quizFeedback').innerHTML = `<div style="background:${isCorrect ? 'rgba(0,255,136,0.1)' : 'rgba(255,71,87,0.1)'}; padding:1rem; border-radius:12px;"><strong>${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</strong><p>${q.explanation || ''}</p><button class="btn btn-primary" onclick="nextQuizQuestion()">Next →</button></div>`;
-            document.querySelectorAll('.quiz-option').forEach((opt, idx) => { opt.style.pointerEvents = 'none'; if (idx === correctIndex) opt.classList.add('correct'); if (idx === quizState.userAnswers[quizState.currentIndex] && !isCorrect) opt.classList.add('wrong'); });
-        }
+        const correctIndex = q.correct_option === 'a' ? 0 : q.correct_option === 'b' ? 1 : q.correct_option === 'c' ? 2 : 3;
+        
+        document.getElementById('page-content').innerHTML = `
+            <div class="container" style="padding-top:100px; max-width:800px;">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                        <h2>📝 NTSA Practice Exam</h2>
+                        <span style="background:var(--primary); color:#0a192f; padding:4px 12px; border-radius:50px;">Question ${quizState.currentIndex+1}/${quizState.questionsList.length}</span>
+                    </div>
+                    <div class="quiz-question"><strong>${escapeHtml(q.question_text)}</strong></div>
+                    <div class="quiz-options" id="quizOptions">
+                        ${options.map((opt, idx) => {
+                            const letter = String.fromCharCode(65+idx);
+                            const isSelected = hasAnswered && quizState.userAnswers[quizState.currentIndex] === idx;
+                            let additionalClass = '';
+                            if (hasAnswered) {
+                                if (idx === correctIndex) additionalClass = 'correct';
+                                else if (isSelected && idx !== correctIndex) additionalClass = 'wrong';
+                            }
+                            return `<div class="quiz-option ${additionalClass}" data-idx="${idx}" onclick="if(!window.hasAnswered) submitQuizAnswer(${idx})">${letter}. ${escapeHtml(opt)}</div>`;
+                        }).join('')}
+                    </div>
+                    <div id="quizFeedback" class="quiz-feedback">
+                        ${hasAnswered ? `
+                            <div style="background:${quizState.userAnswers[quizState.currentIndex] === correctIndex ? 'rgba(0,255,136,0.1)' : 'rgba(255,71,87,0.1)'}; padding:1rem; border-radius:12px;">
+                                <strong>${quizState.userAnswers[quizState.currentIndex] === correctIndex ? '✓ Correct!' : '✗ Incorrect'}</strong>
+                                <p style="margin-top:0.5rem;">${escapeHtml(q.explanation || 'No explanation provided.')}</p>
+                                <button class="btn btn-primary" style="margin-top:1rem;" onclick="nextQuizQuestion()">Next Question →</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${!hasAnswered ? '<p style="margin-top:1rem; color:var(--text-muted);"><i class="fas fa-info-circle"></i> Click on an option to answer</p>' : ''}
+                </div>
+            </div>`;
+        window.hasAnswered = hasAnswered;
     }
     
-    window.submitQuizAnswer = (idx) => {
+    window.submitQuizAnswer = (selectedIdx) => {
         if (quizState.userAnswers[quizState.currentIndex] !== undefined) return;
         const q = quizState.questionsList[quizState.currentIndex];
         const correctIndex = q.correct_option === 'a' ? 0 : q.correct_option === 'b' ? 1 : q.correct_option === 'c' ? 2 : 3;
-        if (idx === correctIndex) quizState.score++;
-        quizState.userAnswers[quizState.currentIndex] = idx;
+        if (selectedIdx === correctIndex) quizState.score++;
+        quizState.userAnswers[quizState.currentIndex] = selectedIdx;
         renderQuizQuestion();
     };
     window.nextQuizQuestion = () => { quizState.currentIndex++; renderQuizQuestion(); };
-    
-    function openPaymentModal(course) {
-        if (!currentUser) { showToast('Please login first', 'warning'); showLoginModal(); return; }
-        pendingPaymentCourse = course;
-        document.getElementById('paymentAmount').innerText = course.price;
-        document.getElementById('paymentModal').classList.add('active');
-    }
-    
-    function closePaymentModal() { document.getElementById('paymentModal').classList.remove('active'); pendingPaymentCourse = null; }
-    
-    async function initiateMpesaPayment() {
-        showToast(`Demo: Course "${pendingPaymentCourse?.name}" would be unlocked after M-Pesa payment`, 'success');
-        if (currentUser && pendingPaymentCourse) {
-            await supabase.from('user_enrollments').upsert({ user_id: currentUser.id, course_id: pendingPaymentCourse.id, payment_status: 'completed', amount_paid: pendingPaymentCourse.price, paid_at: new Date() });
-            userEnrollments[pendingPaymentCourse.id] = true;
-            showToast(`✅ Enrolled in ${pendingPaymentCourse.name}!`, 'success');
-            closePaymentModal();
-            viewCourse(pendingPaymentCourse.id);
-        }
-    }
     
     async function renderPage() {
         const container = document.getElementById('page-content');
@@ -348,6 +456,7 @@
         await loadCourses();
         await loadLessons();
         await loadQuestions();
+        await loadUserProgress();
         if (currentPage === 'home') renderHome();
         else if (currentPage === 'courses') renderCourses();
         else if (currentPage === 'quiz') renderQuiz();
@@ -361,9 +470,6 @@
     window.navigateTo = navigateTo;
     window.viewCourse = viewCourse;
     window.startLesson = startLesson;
-    window.openPaymentModal = openPaymentModal;
-    window.closePaymentModal = closePaymentModal;
-    window.initiateMpesaPayment = initiateMpesaPayment;
     window.renderQuiz = renderQuiz;
     window.submitQuizAnswer = submitQuizAnswer;
     window.nextQuizQuestion = nextQuizQuestion;
@@ -375,6 +481,7 @@
     window.performLogin = performLogin;
     window.performSignup = performSignup;
     window.logout = logout;
+    window.enrollFree = enrollFree;
     
     init();
 </script>
