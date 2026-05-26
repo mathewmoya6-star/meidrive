@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>MEI DRIVE AFRICA - Course Player</title>
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Global configuration & utilities (supabase.js) -->
+    <!-- Import the global API client -->
     <script src="supabase.js"></script>
     <style>
         * {
@@ -22,7 +20,6 @@
             line-height: 1.5;
         }
 
-        /* custom scroll */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -35,7 +32,6 @@
             border-radius: 10px;
         }
 
-        /* navbar */
         .navbar {
             background: rgba(10, 25, 47, 0.96);
             backdrop-filter: blur(14px);
@@ -161,14 +157,12 @@
             background: rgba(255, 82, 82, 0.4);
         }
 
-        /* container */
         .container {
             max-width: 1400px;
             margin: 100px auto 60px;
             padding: 0 24px;
         }
 
-        /* course header */
         .course-header {
             background: rgba(13, 33, 55, 0.85);
             border-radius: 28px;
@@ -230,14 +224,12 @@
             text-align: right;
         }
 
-        /* main grid */
         .main-content {
             display: grid;
             grid-template-columns: 320px 1fr;
             gap: 30px;
         }
 
-        /* sidebar units */
         .units-sidebar {
             background: rgba(13, 33, 55, 0.7);
             border-radius: 28px;
@@ -308,7 +300,6 @@
             margin-top: 6px;
         }
 
-        /* content area */
         .unit-content-area {
             background: rgba(13, 33, 55, 0.8);
             border-radius: 28px;
@@ -378,7 +369,6 @@
             cursor: not-allowed;
         }
 
-        /* loading */
         .loading {
             text-align: center;
             padding: 80px 20px;
@@ -426,7 +416,6 @@
             font-size: 1rem;
         }
 
-        /* modal */
         .modal {
             display: none;
             position: fixed;
@@ -608,8 +597,8 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // GLOBAL DEPENDENCY: window.MEIDrive from supabase.js
-        const MEI = window.MEIDrive;
+        // Use the global API client from supabase.js
+        const API = window.MEI_DRIVE_API;
         
         // App state
         const STATE = {
@@ -623,10 +612,10 @@
             currentUnitIndex: 0,
             loading: true,
             error: null,
-            enrollment: null
+            enrollment: null,
+            enrollments: []
         };
 
-        // helper UI
         function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
@@ -647,9 +636,29 @@
             return sections.map(para => `<p>${escapeHtml(para)}</p>`).join('');
         }
 
-        // render main UI based on state
+        async function refreshUser() {
+            const user = await API.getCurrentUser();
+            STATE.user = user;
+            if (STATE.user) {
+                await loadUserEnrollments();
+            }
+            renderUI();
+        }
+
+        async function loadUserEnrollments() {
+            if (!STATE.user) return;
+            try {
+                const enrollments = await API.getMyEnrollments();
+                STATE.enrollments = enrollments;
+                if (STATE.course) {
+                    STATE.enrollment = enrollments.find(e => e.course_id === STATE.course.id) || null;
+                }
+            } catch (err) {
+                console.warn('Failed to load enrollments', err);
+            }
+        }
+
         function renderUI() {
-            // auth header
             const authContainer = document.getElementById('authContainer');
             if (STATE.user) {
                 authContainer.innerHTML = `<div class="user-info"><span class="user-email">${escapeHtml(STATE.user.email)}</span><button class="btn-logout" onclick="window.actions.logout()">Logout</button></div>`;
@@ -657,7 +666,6 @@
                 authContainer.innerHTML = `<button class="btn-login" onclick="window.actions.openModal('login')">Login</button><button class="btn-register" onclick="window.actions.openModal('register')">Register</button>`;
             }
             
-            // modal control
             const modalDiv = document.getElementById('authModal');
             if (STATE.authModalOpen) {
                 modalDiv.classList.add('active');
@@ -689,7 +697,6 @@
             const isPremium = STATE.course.type !== 'free' && STATE.course.price > 0;
             const isEnrolled = STATE.enrollment !== null;
             
-            // Premium gate without enrollment
             if (isPremium && !isEnrolled && STATE.user) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -717,7 +724,6 @@
                 return;
             }
             
-            // free or enrolled premium: show units
             if (!STATE.units.length) {
                 container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📖</div><h3>Units loading soon</h3><p>Instructors are updating content. Please check later.</p><a href="index.html" style="color:#00FF88;">Back to courses</a></div>`;
                 return;
@@ -739,7 +745,7 @@
                     <div class="course-meta">
                         <span class="meta-badge">⏱️ ${escapeHtml(STATE.course.duration || 'Self-paced')}</span>
                         <span class="meta-badge">📘 ${STATE.units.length} practical units</span>
-                        ${STATE.enrollment ? '<span class="meta-badge" style="background:#00FF8822; color:#b3ffcf;">✅ Enrolled & Access</span>' : ''}
+                        ${STATE.enrollment ? '<span class="meta-badge" style="background:#00FF8822; color:#b3ffcf;">✅ Enrolled & Access</span>' : '<span class="meta-badge">📋 Free Access</span>'}
                     </div>
                     <div class="progress-container"><div class="progress-bar" style="width: ${progressPercent}%"></div></div>
                     <div class="progress-text">Progress: Unit ${STATE.currentUnitIndex+1} of ${STATE.units.length} • ${Math.round(progressPercent)}% completed</div>
@@ -775,37 +781,43 @@
             `;
         }
         
-        // actions object
         const actions = {
             async login(email, password) {
                 STATE.authError = ''; STATE.authSuccess = ''; renderUI();
-                const result = await MEI.loginUser(email, password);
-                if (!result.success) {
-                    STATE.authError = result.error || 'Invalid credentials.';
-                } else {
-                    STATE.user = await MEI.getCurrentUser();
-                    STATE.authSuccess = 'Login successful! Redirecting...';
+                try {
+                    const result = await API.login(email, password);
+                    STATE.user = result.user;
+                    STATE.authSuccess = 'Login successful!';
                     STATE.authModalOpen = false;
-                    await actions.checkEnrollment();
+                    await loadUserEnrollments();
                     showToast(`Welcome back, ${STATE.user.email.split('@')[0]}!`);
                     renderUI();
+                    await loadCourseData();
+                } catch (err) {
+                    STATE.authError = err.message || 'Login failed';
+                    renderUI();
                 }
-                renderUI();
             },
             async register(email, password) {
                 STATE.authError = ''; STATE.authSuccess = ''; renderUI();
-                const result = await MEI.registerUser(email, password);
-                if (!result.success) STATE.authError = result.error || 'Registration failed';
-                else {
+                try {
+                    await API.register(email, password, '', '');
                     STATE.authSuccess = 'Account created! Please login.';
-                    setTimeout(() => { STATE.authMode = 'login'; STATE.authSuccess = ''; renderUI(); }, 1800);
+                    setTimeout(() => { 
+                        STATE.authMode = 'login'; 
+                        STATE.authSuccess = ''; 
+                        renderUI(); 
+                    }, 1800);
+                } catch (err) {
+                    STATE.authError = err.message || 'Registration failed';
                 }
                 renderUI();
             },
             async logout() {
-                await MEI.logoutUser();
+                await API.logout();
                 STATE.user = null;
                 STATE.enrollment = null;
+                STATE.enrollments = [];
                 showToast('Logged out successfully');
                 window.location.href = 'index.html';
             },
@@ -825,9 +837,21 @@
                 if (STATE.authMode === 'login') await actions.login(email, pwd);
                 else await actions.register(email, pwd);
             },
-            jumpToUnit(idx) { if (idx >= 0 && idx < STATE.units.length) { STATE.currentUnitIndex = idx; renderUI(); window.scrollTo({ top: 140, behavior: 'smooth' }); } },
+            jumpToUnit(idx) { 
+                if (idx >= 0 && idx < STATE.units.length) { 
+                    STATE.currentUnitIndex = idx; 
+                    renderUI(); 
+                    window.scrollTo({ top: 140, behavior: 'smooth' }); 
+                } 
+            },
             prevUnit() { if (STATE.currentUnitIndex > 0) actions.jumpToUnit(STATE.currentUnitIndex - 1); },
-            nextUnit() { if (STATE.currentUnitIndex < STATE.units.length - 1) actions.jumpToUnit(STATE.currentUnitIndex + 1); else showToast('🏆 Excellent! You completed the entire course. Certificate will be issued soon!'); },
+            nextUnit() { 
+                if (STATE.currentUnitIndex < STATE.units.length - 1) {
+                    actions.jumpToUnit(STATE.currentUnitIndex + 1);
+                } else {
+                    showToast('🏆 Excellent! You completed the entire course. Certificate will be issued soon!');
+                }
+            },
             async purchaseCourse() {
                 if (!STATE.user) { showToast('Sign in first', true); actions.openModal('login'); return; }
                 if (!STATE.course) return;
@@ -839,87 +863,100 @@
                 if (!cleanPhone.startsWith('254') || cleanPhone.length < 12) { showToast('Invalid phone format', true); return; }
                 showToast('⏳ Initiating payment request...');
                 try {
-                    const response = await fetch('/api/mpesa/stkpush', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phoneNumber: cleanPhone, amount: amount, accountReference: `COURSE_${STATE.course.id}`, transactionDesc: `Enroll: ${STATE.course.title}`, userId: STATE.user.id, courseId: STATE.course.id })
-                    });
-                    const resData = await response.json();
-                    if (resData.success) {
+                    const result = await API.initiateMpesaPayment(cleanPhone, amount, STATE.course.id);
+                    if (result.success || result.checkoutRequestID) {
                         showToast('📲 M-Pesa prompt sent! Enter PIN to complete purchase.');
                         let attempts = 0;
                         const checkInterval = setInterval(async () => {
                             attempts++;
-                            await actions.checkEnrollment();
+                            await loadUserEnrollments();
                             if (STATE.enrollment) {
                                 clearInterval(checkInterval);
                                 showToast('✅ Payment confirmed! Course unlocked instantly.');
                                 renderUI();
-                            } else if (attempts > 20) { clearInterval(checkInterval); showToast('Timeout: Please contact support or use Paybill 4095377', true); }
+                            } else if (attempts > 20) { 
+                                clearInterval(checkInterval); 
+                                showToast('Timeout: Please contact support or use Paybill 4095377', true); 
+                            }
                         }, 3000);
                         setTimeout(() => clearInterval(checkInterval), 62000);
-                    } else throw new Error(resData.error || 'STK push failed');
-                } catch (err) {
-                    showToast('Payment gateway error. Try later or contact admin.', true);
-                }
-            },
-            async checkEnrollment() {
-                if (!STATE.user || !STATE.course) return;
-                const enrollments = await MEI.fetchEnrollments(STATE.user.id);
-                const found = enrollments.find(e => e.course_id === STATE.course.id);
-                STATE.enrollment = found || null;
-                renderUI();
-            },
-            async loadCourseData() {
-                STATE.loading = true; renderUI();
-                try {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    let courseId = urlParams.get('id');
-                    const storedTitle = sessionStorage.getItem('selectedCourse');
-                    
-                    if (!courseId && storedTitle) {
-                        const allCourses = await MEI.fetchCourses();
-                        const matched = allCourses.find(c => c.title === storedTitle);
-                        if (matched) courseId = matched.id;
-                        else throw new Error('Course mismatch');
+                    } else {
+                        throw new Error(result.error || 'Payment initiation failed');
                     }
-                    if (!courseId) throw new Error('No course ID provided');
-                    const course = await MEI.fetchCourseById(parseInt(courseId));
-                    if (!course) throw new Error('Course not exist');
-                    STATE.course = course;
-                    const lessons = await MEI.fetchLessons(course.id);
-                    STATE.units = (lessons && lessons.length) ? lessons : [];
-                    if (STATE.units.length === 0) STATE.units = [{ title: 'Introduction to defensive driving', content: 'Welcome! This course will transform your driving skills.', unit_number: 1, estimated_minutes: 10 }];
-                    STATE.currentUnitIndex = 0;
-                    if (STATE.user) await actions.checkEnrollment();
-                    STATE.loading = false;
-                    renderUI();
                 } catch (err) {
-                    STATE.error = err.message || 'Failed to fetch course data.';
-                    STATE.loading = false;
-                    renderUI();
+                    showToast('Payment gateway error. Try again later.', true);
                 }
             },
-            async syncAuth() { STATE.user = await MEI.getCurrentUser(); renderUI(); }
+            async checkAndUpdateEnrollment() {
+                await loadUserEnrollments();
+                renderUI();
+            }
         };
+        
+        async function loadCourseData() {
+            STATE.loading = true; renderUI();
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                let courseId = urlParams.get('id');
+                const storedTitle = sessionStorage.getItem('selectedCourse');
+                
+                if (!courseId && storedTitle) {
+                    const allCourses = await API.getAllCourses();
+                    const matched = allCourses.find(c => c.title === storedTitle);
+                    if (matched) courseId = matched.id;
+                    else throw new Error('Course not found');
+                }
+                if (!courseId) throw new Error('No course selected');
+                
+                const course = await API.getCourseById(parseInt(courseId));
+                if (!course) throw new Error('Course does not exist');
+                STATE.course = course;
+                
+                // Fetch lessons/units - using the same endpoint pattern
+                try {
+                    const lessonsResult = await API.request(`/api/courses/${course.id}/lessons`);
+                    STATE.units = lessonsResult.lessons || [];
+                } catch (err) {
+                    STATE.units = [];
+                }
+                
+                if (STATE.units.length === 0) {
+                    STATE.units = [{ 
+                        title: 'Introduction to Defensive Driving', 
+                        content: 'Welcome! This course will transform your driving skills. Learn essential road safety, vehicle controls, and professional driving techniques.', 
+                        unit_number: 1, 
+                        estimated_minutes: 15 
+                    }];
+                }
+                
+                STATE.currentUnitIndex = 0;
+                if (STATE.user) await loadUserEnrollments();
+                STATE.loading = false;
+                renderUI();
+            } catch (err) {
+                STATE.error = err.message || 'Failed to load course.';
+                STATE.loading = false;
+                renderUI();
+            }
+        }
         
         window.actions = actions;
         
-        // attach modal events
         document.getElementById('modalSubmitBtn').onclick = () => actions.handleAuthSubmit();
         document.getElementById('modalSwitch').onclick = () => { STATE.authMode = STATE.authMode === 'login' ? 'register' : 'login'; renderUI(); };
         document.querySelector('.close-modal').onclick = () => actions.closeModal();
         window.onclick = (e) => { if (e.target === document.getElementById('authModal')) actions.closeModal(); };
         
         async function bootstrap() {
-            if (MEI && typeof MEI.isReady === 'function' && MEI.isReady()) {
-                await actions.syncAuth();
-                await actions.loadCourseData();
+            if (API && typeof API.getCurrentUser === 'function') {
+                await refreshUser();
+                await loadCourseData();
             } else {
-                console.warn('MEIDrive not ready, retry in 200ms');
+                console.warn('API not ready, retrying...');
                 setTimeout(bootstrap, 200);
             }
         }
+        
         bootstrap();
     </script>
 </body>
