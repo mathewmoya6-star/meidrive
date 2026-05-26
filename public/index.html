@@ -31,7 +31,6 @@
             overflow-x: hidden;
         }
         
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -53,7 +52,6 @@
             to { transform: translateX(0); opacity: 1; }
         }
         
-        /* Navbar */
         .navbar {
             position: fixed;
             top: 0;
@@ -121,7 +119,6 @@
         .btn-register { background: var(--primary); color: var(--dark); }
         .btn-logout { background: rgba(255,68,68,0.2); border: 1px solid var(--error); color: var(--error); }
         
-        /* Hero */
         .hero {
             min-height: 100vh;
             background: linear-gradient(135deg, rgba(4,27,61,0.92), rgba(10,35,79,0.96)), url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1600&auto=format') center/cover fixed;
@@ -145,7 +142,6 @@
         }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,255,136,0.3); }
         
-        /* Stats */
         .stats {
             margin-top: -60px;
             position: relative;
@@ -167,7 +163,6 @@
         .stat h2 { font-size: 2.2rem; color: var(--primary); }
         .stat p { color: var(--gray); }
         
-        /* Courses */
         .container {
             max-width: 1200px;
             margin: auto;
@@ -221,7 +216,7 @@
         .course-price.free { color: var(--warning); }
         .course-price.premium { color: var(--primary); }
         
-        .btn-view, .btn-buy {
+        .btn-view {
             width: 100%;
             padding: 12px;
             border-radius: 30px;
@@ -233,10 +228,7 @@
             margin-top: 5px;
         }
         .btn-view:hover { background: var(--primary); color: var(--dark); }
-        .btn-buy { border-color: var(--mpesa); color: var(--mpesa); }
-        .btn-buy:hover { background: var(--mpesa); color: white; }
         
-        /* Dashboard */
         .dashboard-container { display: none; }
         .sidebar {
             position: fixed;
@@ -324,7 +316,6 @@
         .btn-enroll { background: var(--primary); color: var(--dark); }
         .btn-continue { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
         
-        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -366,10 +357,6 @@
             cursor: pointer;
         }
         
-        .payment-content { text-align: center; }
-        .payment-content input { text-align: center; }
-        .mpesa-btn { background: var(--mpesa); color: white; }
-        
         .loading { text-align: center; padding: 60px; }
         .spinner {
             width: 50px;
@@ -406,7 +393,14 @@
         }
         .whatsapp-btn { background: #25D366; color: white; }
         .call-btn { background: var(--primary); color: var(--dark); }
-        .footer { text-align: center; padding: 40px; color: var(--gray); }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+            border-top: 1px solid rgba(0,255,136,0.1);
+            margin-top: 20px;
+        }
         
         .mobile-menu-btn {
             display: none;
@@ -433,7 +427,7 @@
 </head>
 <body>
 
-<!-- Modals -->
+<!-- Auth Modal -->
 <div id="authModal" class="modal">
     <div class="modal-content">
         <h2><i class="fas fa-user-circle"></i> <span id="modalTitle">Login</span></h2>
@@ -445,17 +439,6 @@
             <a href="javascript:void(0)" onclick="toggleAuthMode()" style="color: var(--primary);"> Register</a>
         </div>
         <button onclick="closeAuthModal()" style="background: transparent; border: 1px solid var(--gray); color: white;">Cancel</button>
-    </div>
-</div>
-
-<div id="paymentModal" class="modal">
-    <div class="modal-content payment-content">
-        <h2><i class="fas fa-money-bill-wave"></i> M-Pesa Payment</h2>
-        <p>Pay for: <strong id="paymentCourseName"></strong></p>
-        <p>Amount: <strong id="paymentAmount" style="color: var(--mpesa);"></strong></p>
-        <input type="tel" id="mpesaPhone" placeholder="Enter M-Pesa Number (e.g., 0712345678)">
-        <button class="mpesa-btn" onclick="processMpesaPayment()"><i class="fas fa-comment-dollar"></i> Pay with M-Pesa</button>
-        <button onclick="closePaymentModal()" style="background: transparent; border: 1px solid var(--gray); color: white; margin-top: 15px;">Cancel</button>
     </div>
 </div>
 
@@ -524,7 +507,8 @@
     </section>
 
     <footer class="footer">
-        <p>&copy; 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training</p>
+        <p><i class="fas fa-shield-alt"></i> © 2026 MEI DRIVE AFRICA | Drive Safe, Arrive Alive <i class="fas fa-road"></i></p>
+        <p style="margin-top: 12px; font-size: 12px;"><i class="fas fa-certificate"></i> NTSA Certified Instructor: ILR-7WA1P62</p>
     </footer>
 </div>
 
@@ -576,7 +560,7 @@
 
 <script>
     // ============================================
-    // SINGLE SOURCE OF TRUTH - SUPABASE
+    // SUPABASE CONFIGURATION - REAL PRODUCTION KEYS
     // ============================================
     const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
@@ -587,30 +571,29 @@
     let userEnrollments = new Map();
     let selectedCourseId = null;
     let authMode = 'login';
-    let pendingPaymentCourse = null;
     
-    // Default fallback (only if Supabase fails)
+    // Default courses - will be replaced by Supabase data
     const DEFAULT_COURSES = [
-        { id: 1, name: 'Learner Hub - Complete Driver Training', description: 'NTSA-approved curriculum from basics to road readiness.', price: 0, type: 'free', icon: '📚', duration: '40 hours', level: 'Beginner' },
-        { id: 2, name: 'Boda Boda Professional Course', description: 'Professional motorcycle taxi training.', price: 0, type: 'free', icon: '🏍️', duration: '20 hours', level: 'Beginner' },
-        { id: 3, name: 'Defensive Driving Course', description: 'Master advanced driving techniques.', price: 1999, type: 'premium', icon: '🛡️', duration: '16 hours', level: 'Advanced' },
-        { id: 4, name: 'Professional Driver Course', description: 'Training for PSV and commercial drivers.', price: 4999, type: 'premium', icon: '🚛', duration: '32 hours', level: 'Professional' },
-        { id: 5, name: 'Electric Vehicle Course', description: 'Master EV technology.', price: 2999, type: 'premium', icon: '⚡', duration: '12 hours', level: 'Intermediate' },
-        { id: 6, name: 'School Transport Safety', description: 'School bus driver certification.', price: 1999, type: 'premium', icon: '🚸', duration: '24 hours', level: 'Professional' },
-        { id: 7, name: 'E-Safety Library', description: 'Digital safety for drivers.', price: 0, type: 'free', icon: '💻', duration: 'Self-paced', level: 'All Levels' },
-        { id: 8, name: 'Quiz Bank - Exam Preparation', description: 'NTSA practice questions.', price: 0, type: 'free', icon: '📝', duration: 'Self-paced', level: 'All Levels' }
+        { id: 1, name: 'Learner Hub - Complete Driver Training', description: 'NTSA-approved curriculum from basics to road readiness. Covers traffic rules, vehicle controls, defensive driving.', price: 0, type: 'free', icon: '📚', duration: '40 hours', level: 'Beginner' },
+        { id: 2, name: 'Boda Boda Professional Course', description: 'Professional motorcycle taxi training including safety, customer service, road regulations.', price: 0, type: 'free', icon: '🏍️', duration: '20 hours', level: 'Beginner' },
+        { id: 3, name: 'Defensive Driving Course', description: 'Master advanced driving techniques, hazard perception, emergency maneuvers.', price: 1999, type: 'premium', icon: '🛡️', duration: '16 hours', level: 'Advanced' },
+        { id: 4, name: 'Professional Driver Course', description: 'Comprehensive training for PSV, logistics, and commercial drivers.', price: 4999, type: 'premium', icon: '🚛', duration: '32 hours', level: 'Professional' },
+        { id: 5, name: 'Electric Vehicle Course', description: 'Master EV technology, charging systems, battery maintenance.', price: 2999, type: 'premium', icon: '⚡', duration: '12 hours', level: 'Intermediate' },
+        { id: 6, name: 'School Transport Safety', description: 'Specialized certification for school bus drivers.', price: 1999, type: 'premium', icon: '🚸', duration: '24 hours', level: 'Professional' },
+        { id: 7, name: 'E-Safety Library', description: 'Digital safety for drivers - online records, cybersecurity.', price: 0, type: 'free', icon: '💻', duration: 'Self-paced', level: 'All Levels' },
+        { id: 8, name: 'Quiz Bank - Exam Preparation', description: '1000+ NTSA practice questions for driving theory test.', price: 0, type: 'free', icon: '📝', duration: 'Self-paced', level: 'All Levels' }
     ];
     
     // ============================================
-    // INIT - LOAD FROM SUPABASE (SINGLE SOURCE)
+    // INITIALIZATION - LOAD FROM SUPABASE
     // ============================================
     async function init() {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // Load courses from Supabase FIRST
+        // Load courses from Supabase
         await loadCoursesFromSupabase();
         
-        // Check auth
+        // Check authentication
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             currentUser = session.user;
@@ -627,7 +610,7 @@
                 await loadEnrollmentsFromSupabase();
                 showDashboard();
                 updateProfileUI();
-                showToast('Logged in!', 'success');
+                showToast('Logged in successfully!', 'success');
             } else {
                 currentUser = null;
                 userEnrollments.clear();
@@ -635,13 +618,14 @@
             }
         });
         
+        // Mobile menu
         document.getElementById('mobileMenuBtn').onclick = () => {
             document.getElementById('dashboardSidebar').classList.toggle('active');
         };
     }
     
     // ============================================
-    // LOAD FROM SUPABASE (SINGLE SOURCE OF TRUTH)
+    // SUPABASE DATA OPERATIONS
     // ============================================
     async function loadCoursesFromSupabase() {
         try {
@@ -650,7 +634,7 @@
                 allCourses = data;
                 console.log(`✅ Loaded ${data.length} courses from Supabase`);
             } else {
-                console.log('No courses in Supabase, using defaults');
+                console.log('No courses in Supabase, using defaults. Insert courses via SQL editor.');
                 allCourses = DEFAULT_COURSES;
             }
         } catch (err) {
@@ -677,7 +661,7 @@
                 console.log(`✅ Loaded ${data.length} enrollments from Supabase`);
             }
         } catch (err) {
-            console.log('No enrollments table yet');
+            console.log('Enrollments table may not exist yet');
         }
         
         updateDashboardStats();
@@ -716,15 +700,6 @@
         const course = allCourses.find(c => c.id === courseId);
         if (!course) return;
         
-        // Premium course - show M-Pesa payment
-        if (course.price > 0 && course.type === 'premium') {
-            pendingPaymentCourse = course;
-            document.getElementById('paymentCourseName').textContent = course.name;
-            document.getElementById('paymentAmount').textContent = `KES ${course.price.toLocaleString()}`;
-            document.getElementById('paymentModal').classList.add('active');
-            return;
-        }
-        
         if (userEnrollments.has(courseId)) {
             showToast('Already enrolled!', 'warning');
             return;
@@ -733,7 +708,7 @@
         const success = await saveEnrollmentToSupabase(courseId, 0);
         if (success) {
             userEnrollments.set(courseId, 0);
-            showToast('Successfully enrolled!', 'success');
+            showToast(`✅ Enrolled in ${course.name}!`, 'success');
             updateDashboardStats();
             renderSelectedCourse();
             renderEnrolledCourses();
@@ -755,37 +730,10 @@
             .eq('user_id', currentUser.id)
             .eq('course_id', courseId);
         
-        if (progress === 100) showToast('🎉 Course completed!', 'success');
+        if (progress === 100) showToast('🎉 Course completed! Congratulations!', 'success');
         updateDashboardStats();
         renderSelectedCourse();
         renderEnrolledCourses();
-    }
-    
-    function processMpesaPayment() {
-        let phone = document.getElementById('mpesaPhone').value;
-        if (!phone) {
-            showToast('Enter M-Pesa number', 'error');
-            return;
-        }
-        
-        if (!pendingPaymentCourse) return;
-        
-        showToast('Processing payment... Check your phone', 'success');
-        
-        setTimeout(async () => {
-            showToast(`Payment successful! Enrolled in ${pendingPaymentCourse.name}`, 'success');
-            closePaymentModal();
-            
-            const success = await saveEnrollmentToSupabase(pendingPaymentCourse.id, 0);
-            if (success) {
-                userEnrollments.set(pendingPaymentCourse.id, 0);
-                updateDashboardStats();
-                renderSelectedCourse();
-                renderEnrolledCourses();
-                renderAvailableCourses();
-            }
-            pendingPaymentCourse = null;
-        }, 2000);
     }
     
     // ============================================
@@ -793,6 +741,12 @@
     // ============================================
     function renderCourses() {
         const container = document.getElementById('coursesContainer');
+        
+        if (!allCourses || allCourses.length === 0) {
+            container.innerHTML = '<div class="course-card"><p>No courses found. Please add courses to your database.</p></div>';
+            return;
+        }
+        
         container.innerHTML = allCourses.map(course => {
             const isFree = course.type === 'free' || course.price === 0;
             return `
@@ -825,7 +779,7 @@
     function renderSelectedCourse() {
         const container = document.getElementById('selectedCourseCard');
         if (!selectedCourseId) {
-            container.innerHTML = '<div class="course-card"><p>📌 Select a course from the homepage</p></div>';
+            container.innerHTML = '<div class="course-card"><p>📌 Select a course from the homepage to start learning</p></div>';
             return;
         }
         
@@ -851,10 +805,10 @@
                 ${isEnrolled ? `
                     <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
                     <p style="text-align: center;">${progress}% Complete</p>
-                    <button class="btn-continue" onclick="updateProgress(${course.id}, ${progress + 10})">Continue →</button>
+                    <button class="btn-continue" onclick="updateProgress(${course.id}, ${progress + 10})">${progress === 100 ? '📋 Review Course' : '▶️ Continue Learning'}</button>
                 ` : `
                     <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${course.price.toLocaleString()}`}</div>
-                    <button class="btn-enroll" onclick="enrollInCourse(${course.id})">${course.price > 0 ? '💳 Pay & Enroll' : '🎓 Enroll'}</button>
+                    <button class="btn-enroll" onclick="enrollInCourse(${course.id})">🎓 Enroll Now</button>
                 `}
             </div>
         `;
@@ -865,7 +819,7 @@
         const enrolled = allCourses.filter(c => userEnrollments.has(c.id));
         
         if (enrolled.length === 0) {
-            container.innerHTML = '<div class="course-card"><p>No enrolled courses yet.</p></div>';
+            container.innerHTML = '<div class="course-card"><p>No enrolled courses yet. Browse and enroll from Available Courses!</p></div>';
             return;
         }
         
@@ -877,7 +831,7 @@
                     <span class="course-badge badge-enrolled">✅ ENROLLED</span>
                     <h3>${escapeHtml(course.name)}</h3>
                     <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
-                    <p>${progress}% Complete</p>
+                    <p style="text-align: center;">${progress}% Complete</p>
                     <button class="btn-continue" onclick="updateProgress(${course.id}, ${progress + 10})">Continue →</button>
                 </div>
             `;
@@ -889,7 +843,7 @@
         const available = allCourses.filter(c => !userEnrollments.has(c.id));
         
         if (available.length === 0) {
-            container.innerHTML = '<div class="course-card"><p>🎉 You\'re enrolled in all courses!</p></div>';
+            container.innerHTML = '<div class="course-card"><p>🎉 You\'re enrolled in all courses! Great job!</p></div>';
             return;
         }
         
@@ -902,7 +856,7 @@
                     <h3>${escapeHtml(course.name)}</h3>
                     <p>${escapeHtml((course.description || '').substring(0, 80))}...</p>
                     <div class="course-price ${isFree ? 'free' : 'premium'}">${isFree ? 'FREE' : `KES ${course.price.toLocaleString()}`}</div>
-                    <button class="btn-enroll" onclick="enrollInCourse(${course.id})">${course.price > 0 ? '💳 Pay & Enroll' : '🎓 Enroll'}</button>
+                    <button class="btn-enroll" onclick="enrollInCourse(${course.id})">🎓 Enroll Now</button>
                 </div>
             `;
         }).join('');
@@ -922,9 +876,10 @@
     
     function updateProfileUI() {
         if (currentUser) {
-            document.getElementById('profileName').textContent = currentUser.email.split('@')[0];
+            const name = currentUser.email.split('@')[0];
+            document.getElementById('profileName').textContent = name;
             document.getElementById('profileEmail').textContent = currentUser.email;
-            document.getElementById('dashboardUserName').textContent = currentUser.email.split('@')[0];
+            document.getElementById('dashboardUserName').textContent = name;
         }
     }
     
@@ -934,6 +889,7 @@
     function showLanding() {
         document.getElementById('landingPage').style.display = 'block';
         document.getElementById('dashboardPage').style.display = 'none';
+        document.getElementById('dashboardSidebar').classList.remove('active');
     }
     
     function showDashboard() {
@@ -943,6 +899,7 @@
         renderSelectedCourse();
         renderEnrolledCourses();
         renderAvailableCourses();
+        document.getElementById('dashboardSidebar').classList.remove('active');
     }
     
     function showDashboardSection(section) {
@@ -976,18 +933,12 @@
         showAuthModal(authMode);
     }
     
-    function closePaymentModal() {
-        document.getElementById('paymentModal').classList.remove('active');
-        document.getElementById('mpesaPhone').value = '';
-        pendingPaymentCourse = null;
-    }
-    
     document.getElementById('authSubmitBtn').onclick = async () => {
         const email = document.getElementById('authEmail').value;
         const password = document.getElementById('authPassword').value;
         
         if (!email || !password) {
-            showToast('Fill all fields', 'error');
+            showToast('Please fill in all fields', 'error');
             return;
         }
         
@@ -1000,7 +951,7 @@
             } else {
                 const { error } = await supabase.auth.signUp({ email, password });
                 if (error) throw error;
-                showToast('Account created! Check your email.', 'success');
+                showToast('Account created! Please check your email to confirm.', 'success');
                 closeAuthModal();
             }
         } catch (error) {
@@ -1010,20 +961,24 @@
     
     document.getElementById('logoutBtn').onclick = async () => {
         await supabase.auth.signOut();
-        showToast('Logged out', 'success');
+        showToast('Logged out successfully', 'success');
         showLanding();
     };
     
-    function showToast(msg, type = 'success') {
+    // ============================================
+    // HELPERS
+    // ============================================
+    function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${msg}`;
+        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
     
     function escapeHtml(str) {
-        return String(str || '').replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
     // Make functions global
@@ -1036,9 +991,8 @@
     window.showLanding = showLanding;
     window.showDashboard = showDashboard;
     window.showDashboardSection = showDashboardSection;
-    window.processMpesaPayment = processMpesaPayment;
-    window.closePaymentModal = closePaymentModal;
     
+    // Start the application
     init();
 </script>
 </body>
