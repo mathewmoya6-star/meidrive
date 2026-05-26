@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>MEI DRIVE AFRICA | Professional Driver Training</title>
-    <meta name="description" content="NTSA-approved driver training platform with 6 professional courses and 1000+ quiz questions">
+    <meta name="description" content="Professional driver training with 6 comprehensive courses and 1000+ exam questions">
     <meta name="theme-color" content="#0a192f">
+    
+    <!-- Favicon from lebal.png -->
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGQSURBVHgB7VfNdYJAEB5WEJUgVkBKkEoIVoBUQLQCpQKpQKxAqECpQKxAqECoQKhAqECoIDoP8kMY2N27cJkvM8nuzvDtzPezuxIkSTq1jkP/uI4fKSFJ0jjHGMuyrHMcF6E+DMOOQL/fn63rTykQBAF2u13mFjCbzYR1XaeInDnGmOL7PvZ+HxGJMMbQaDTQaDRuBpimyRnjgNvtFrZtKxMTEaxWKygpB2yxWGBd1xHlE/r9PkzTxL7vI8ZkMkG9Xh/j+XyO4/GI+XyOVqt1c8C2bTidTgiCQHoOwzBQq9UQRRGCIECs18PhgNPphH3fw/d9+L4P27bx9PSE1+srTvzwDeB7v9/jfr+j2+3K4/1+T4lJkoQoijJ+PB5xOp0wTROO4yBJEmzbphie50FVVVQqFdi2jW3bUhzTNFEul/G+78WfiChN03+CnE4nxHGMNE0RRRFUVUW5XMZ+v0eWZTK+WCxQrVYpPo5jWJaFNE0RhiECz/Ng2zYqlQrSNEWSJCWfdjodStI0het6UrDb7ajP/X6Pfd/LaVEUpRC73Y4kSdJ/SX4BqHAS3K6CEYoAAAAASUVORK5CYII=">
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGQSURBVHgB7VfNdYJAEB5WEJUgVkBKkEoIVoBUQLQCpQKpQKxAqECpQKxAqECoQKhAqECoIDoP8kMY2N27cJkvM8nuzvDtzPezuxIkSTq1jkP/uI4fKSFJ0jjHGMuyrHMcF6E+DMOOQL/fn63rTykQBAF2u13mFjCbzYR1XaeInDnGmOL7PvZ+HxGJMMbQaDTQaDRuBpimyRnjgNvtFrZtKxMTEaxWKygpB2yxWGBd1xHlE/r9PkzTxL7vI8ZkMkG9Xh/j+XyO4/GI+XyOVqt1c8C2bTidTgiCQHoOwzBQq9UQRRGCIECs18PhgNPphH3fw/d9+L4P27bx9PSE1+srTvzwDeB7v9/jfr+j2+3K4/1+T4lJkoQoijJ+PB5xOp0wTROO4yBJEmzbphie50FVVVQqFdi2jW3bUhzTNFEul/G+78WfiChN03+CnE4nxHGMNE0RRRFUVUW5XMZ+v0eWZTK+WCxQrVYpPo5jWJaFNE0RhiECz/Ng2zYqlQrSNEWSJCWfdjodStI0het6UrDb7ajP/X6Pfd/LaVEUpRC73Y4kSdJ/SX4BqHAS3K6CEYoAAAAASUVORK5CYII=">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,7 +18,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #0a192f; color: #ffffff; line-height: 1.5; }
-        :root { --primary: #00ff88; --primary-dark: #00cc66; --border: rgba(0,255,136,0.25); --text-muted: #a0b3d9; --bg-card: #0d2137; }
+        :root { --primary: #00ff88; --primary-dark: #00cc66; --border: rgba(0,255,136,0.25); --text-muted: #a0b3d9; --bg-card: #0d2137; --admin-bg: #1a2a3a; }
         
         .navbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(10,25,47,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 1000; padding: 0.8rem 2rem; }
         .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
@@ -31,6 +35,8 @@
         .btn-outline { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
         .btn-outline:hover { background: rgba(0,255,136,0.1); }
         .btn-sm { padding: 8px 20px; font-size: 13px; }
+        .btn-danger { background: linear-gradient(135deg, #ff4757, #cc0033); color: white; }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,71,87,0.3); }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
         .hero { text-align: center; padding: 140px 20px 80px; background: linear-gradient(135deg, rgba(10,25,47,0.95), rgba(13,33,55,0.85)); margin-bottom: 2rem; }
         .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; line-height: 1.2; }
@@ -39,9 +45,6 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.8rem; margin: 2rem 0; }
         .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 1.8rem; transition: 0.2s; cursor: pointer; }
         .card:hover { border-color: var(--primary); transform: translateY(-3px); }
-        .card-icon { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
-        .card h3 { margin-bottom: 0.5rem; font-size: 1.3rem; }
-        .card p { opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem; }
         .course-price { font-size: 1.2rem; font-weight: 800; color: var(--primary); margin: 0.5rem 0; }
         .progress-bar { background: #1e2a3a; border-radius: 10px; height: 6px; margin: 12px 0; }
         .progress-fill { background: var(--primary); height: 6px; border-radius: 10px; width: 0%; transition: width 0.3s; }
@@ -59,6 +62,7 @@
         .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
         .badge { display: inline-block; background: rgba(0,255,136,0.2); color: var(--primary); font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; margin-left: 10px; }
         .category-tag { display: inline-block; background: rgba(0,255,136,0.1); padding: 4px 12px; border-radius: 20px; font-size: 12px; margin: 5px 5px 0 0; }
+        .admin-badge { background: #ff4757; color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; margin-left: 8px; }
         
         @media (max-width: 768px) { 
             .hero h1 { font-size: 2rem; } 
@@ -78,6 +82,16 @@
         .quiz-option:hover { border-color: var(--primary); background: rgba(0,255,136,0.08); }
         .quiz-option.correct { background: rgba(0,255,136,0.2); border-color: var(--primary); }
         .quiz-option.wrong { background: rgba(255,71,87,0.2); border-color: #ff4757; }
+        
+        /* Admin Panel Styles */
+        .admin-panel { background: var(--admin-bg); border-radius: 20px; padding: 1.5rem; margin-top: 2rem; }
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        .admin-table th { color: var(--primary); }
+        .payment-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .payment-status.completed { background: rgba(0,255,136,0.2); color: var(--primary); }
+        .payment-status.pending { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .payment-status.failed { background: rgba(255,71,87,0.2); color: #ff4757; }
     </style>
 </head>
 <body>
@@ -93,17 +107,17 @@
                 <button id="navHome" onclick="navigateTo('home')"><i class="fas fa-home"></i> Home</button>
                 <button id="navCourses" onclick="navigateTo('courses')"><i class="fas fa-book"></i> Courses</button>
                 <button id="navQuiz" onclick="navigateTo('quiz')"><i class="fas fa-question-circle"></i> Quiz Bank</button>
+                <button id="navAdmin" onclick="navigateTo('admin')" style="display:none;"><i class="fas fa-user-shield"></i> Admin</button>
                 <div id="authButtons"></div>
             </div>
         </div>
     </nav>
     <main id="page-content"><div class="loading-spinner"></div></main>
-    <footer>© 2026 MEI DRIVE AFRICA | NTSA Approved Driver Training | Drive Safe, Arrive Alive</footer>
+    <footer>© 2026 MEI DRIVE AFRICA | Drive Safe, Arrive Alive</footer>
 </div>
 <div id="toast-container"></div>
 
 <script>
-    // Supabase Configuration
     const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
     
@@ -112,100 +126,30 @@
     let currentPage = 'home';
     let userProgress = {};
     let userEnrollments = {};
+    let payments = [];
+    let users = [];
+    let isAdmin = false;
     
     // 6 Professional Courses
     const courses = [
-        { id: 1, name: 'LEARNER HUB', description: 'Complete driver training for new drivers covering fundamentals, traffic rules, vehicle controls, and NTSA exam preparation.', price: 2999, duration: '8 weeks', icon: 'fa-car', category: 'learner', lessons: 21, color: '#00ff88' },
-        { id: 2, name: 'BODA BODA SAFETY', description: 'Professional motorcycle rider training with PPE, defensive riding, passenger safety, road etiquette, and accident prevention.', price: 2499, duration: '6 weeks', icon: 'fa-motorcycle', category: 'boda', lessons: 26, color: '#ff9f00' },
-        { id: 3, name: 'PSV PROFESSIONAL COURSE', description: 'Public Service Vehicle certification with passenger management, customer care, safety protocols, and NTSA compliance.', price: 3999, duration: '8 weeks', icon: 'fa-bus', category: 'psv', lessons: 12, color: '#00ccff' },
-        { id: 4, name: 'EV DRIVER & RIDER', description: 'Electric vehicle operations, charging safety, battery management, regenerative braking, and eco-driving techniques.', price: 1999, duration: '5 weeks', icon: 'fa-car-battery', category: 'ev', lessons: 10, color: '#00ffaa' },
-        { id: 5, name: 'REFRESHER COURSE', description: 'Advanced defensive driving, skill enhancement, hazard perception, and professional driver excellence for experienced drivers.', price: 1499, duration: '4 weeks', icon: 'fa-sync-alt', category: 'refresher', lessons: 8, color: '#ff6600' },
-        { id: 6, name: 'QUIZ BANK', description: '1000+ NTSA-style exam questions covering road signs, highway code, defensive driving, and all test categories.', price: 999, duration: 'Self-paced', icon: 'fa-question-circle', category: 'quiz', lessons: 15, color: '#ff3366' }
+        { id: 1, name: 'LEARNER HUB', description: 'Complete driver training for new drivers covering fundamentals, traffic rules, vehicle controls.', price: 2999, duration: '8 weeks', icon: 'fa-car', lessons: 21 },
+        { id: 2, name: 'BODA BODA SAFETY', description: 'Professional motorcycle rider training with PPE, defensive riding, passenger safety.', price: 2499, duration: '6 weeks', icon: 'fa-motorcycle', lessons: 26 },
+        { id: 3, name: 'PSV PROFESSIONAL COURSE', description: 'Public Service Vehicle certification with passenger management and safety protocols.', price: 3999, duration: '8 weeks', icon: 'fa-bus', lessons: 12 },
+        { id: 4, name: 'EV DRIVER & RIDER', description: 'Electric vehicle operations, charging safety, battery management.', price: 1999, duration: '5 weeks', icon: 'fa-car-battery', lessons: 10 },
+        { id: 5, name: 'REFRESHER COURSE', description: 'Advanced defensive driving, skill enhancement, hazard perception.', price: 1499, duration: '4 weeks', icon: 'fa-sync-alt', lessons: 8 },
+        { id: 6, name: 'QUIZ BANK', description: '1000+ exam questions covering road signs, highway code, defensive driving.', price: 999, duration: 'Self-paced', icon: 'fa-question-circle', lessons: 15 }
     ];
     
-    // Comprehensive Quiz Bank (1000+ questions represented with key samples)
+    // Quiz Bank
     const quizBank = [
-        // Road Signs Category (200 questions sample)
-        { id: 1, category: 'Road Signs', question: 'What does a STOP sign mean?', options: ['Slow down only', 'Continue carefully', 'Come to a complete stop', 'Overtake carefully'], correct: 2, explanation: 'A STOP sign requires you to come to a complete stop, look both ways, and proceed only when safe.' },
-        { id: 2, category: 'Road Signs', question: 'A triangular road sign normally indicates:', options: ['Direction', 'Warning', 'Parking', 'Speed limit'], correct: 1, explanation: 'Triangular signs are warning signs that alert drivers to potential hazards ahead.' },
-        { id: 3, category: 'Road Signs', question: 'A red circular sign usually means:', options: ['Information', 'Restriction or prohibition', 'Tourist attraction', 'Road condition'], correct: 1, explanation: 'Red circular signs indicate restrictions or prohibitions that drivers must obey.' },
-        { id: 4, category: 'Road Signs', question: 'A rectangular sign normally provides:', options: ['Warning', 'Information or direction', 'Prohibition', 'Stop instruction'], correct: 1, explanation: 'Rectangular signs provide information, directions, or guidance to road users.' },
-        { id: 5, category: 'Road Signs', question: 'What does a Give Way / Yield sign mean?', options: ['Stop completely', 'Slow down and give way if necessary', 'Speed up', 'No entry'], correct: 1, explanation: 'Give way means slow down and be prepared to stop to let other traffic pass.' },
-        { id: 6, category: 'Road Signs', question: 'A blue circular sign indicates:', options: ['Mandatory instruction', 'Warning', 'Information', 'Prohibition'], correct: 0, explanation: 'Blue circular signs give mandatory instructions that must be followed.' },
-        { id: 7, category: 'Road Signs', question: 'What does a "No Entry" sign look like?', options: ['Red circle with white horizontal bar', 'Red triangle', 'Blue circle', 'Green rectangle'], correct: 0, explanation: 'A red circle with a white horizontal bar means no entry for all vehicles.' },
-        { id: 8, category: 'Road Signs', question: 'A "No Overtaking" sign is:', options: ['Red circle with two cars', 'Triangular warning', 'Blue rectangle', 'Green circle'], correct: 0, explanation: 'A red circle with two cars (one black, one red) indicates no overtaking.' },
-        { id: 9, category: 'Road Signs', question: 'What does a "Speed Limit" sign show?', options: ['Minimum speed only', 'Maximum speed in km/h', 'Recommended speed', 'Average speed'], correct: 1, explanation: 'Speed limit signs show the maximum legal speed in kilometers per hour.' },
-        { id: 10, category: 'Road Signs', question: 'A school warning sign is usually:', options: ['Red circle', 'Pentagon shape', 'Triangle with children symbol', 'Blue square'], correct: 2, explanation: 'School warning signs are triangular with a symbol of children.' },
-        
-        // Highway Code (150 questions sample)
-        { id: 11, category: 'Highway Code', question: 'Why is the Highway Code important?', options: ['For entertainment', 'To improve road safety', 'To increase speed', 'To reduce fuel only'], correct: 1, explanation: 'The Highway Code establishes rules and guidelines that promote safety for all road users.' },
-        { id: 12, category: 'Highway Code', question: 'Before changing lanes you should:', options: ['Accelerate immediately', 'Check mirrors and blind spots', 'Ignore other vehicles', 'Stop suddenly'], correct: 1, explanation: 'Always check mirrors and blind spots before changing lanes to ensure safety.' },
-        { id: 13, category: 'Highway Code', question: 'Seat belts are important because they:', options: ['Improve music quality', 'Prevent accidents', 'Reduce injury during accidents', 'Increase speed'], correct: 2, explanation: 'Seat belts reduce the risk of serious injury or death in a crash.' },
-        { id: 14, category: 'Highway Code', question: 'What is the legal blood alcohol limit for professional drivers in Kenya?', options: ['0.00%', '0.05%', '0.08%', '0.10%'], correct: 0, explanation: 'Professional drivers must have zero alcohol in their system while on duty.' },
-        { id: 15, category: 'Highway Code', question: 'When approaching a yellow traffic light, you should:', options: ['Speed up to beat the light', 'Stop if safe to do so', 'Honk and proceed', 'Ignore it'], correct: 1, explanation: 'Yellow means prepare to stop, not speed up.' },
-        
-        // Defensive Driving (120 questions sample)
-        { id: 16, category: 'Defensive Driving', question: 'Defensive driving means:', options: ['Aggressive driving', 'Anticipating and avoiding danger', 'Driving fast', 'Ignoring traffic rules'], correct: 1, explanation: 'Defensive driving involves anticipating potential hazards and taking proactive measures.' },
-        { id: 17, category: 'Defensive Driving', question: 'A safe following distance helps you:', options: ['Race other vehicles', 'Reduce fuel only', 'React safely to danger', 'Block other drivers'], correct: 2, explanation: 'Maintaining safe distance gives you time to react to sudden stops or emergencies.' },
-        { id: 18, category: 'Defensive Driving', question: 'When driving in rain you should:', options: ['Increase speed', 'Brake harshly', 'Reduce speed and increase distance', 'Ignore visibility'], correct: 2, explanation: 'Wet roads require reduced speed and increased following distance for safety.' },
-        { id: 19, category: 'Defensive Driving', question: 'The 4-second rule helps you maintain:', options: ['Correct speed', 'Safe following distance', 'Fuel efficiency', 'Tire pressure'], correct: 1, explanation: 'The 4-second rule ensures adequate stopping distance in adverse conditions.' },
-        { id: 20, category: 'Defensive Driving', question: 'Scanning ahead means looking:', options: ['Only at your speedometer', '12-15 seconds ahead', 'Only at the car in front', 'At your phone'], correct: 1, explanation: 'Look 12-15 seconds ahead to anticipate hazards and plan your response.' },
-        
-        // Traffic Rules (120 questions sample)
-        { id: 21, category: 'Traffic Rules', question: 'Driving under the influence of alcohol is:', options: ['Safe at low speed', 'Acceptable at night', 'Dangerous and illegal', 'Recommended'], correct: 2, explanation: 'Drunk driving impairs judgment, reaction time, and is strictly prohibited by law.' },
-        { id: 22, category: 'Traffic Rules', question: 'Using a phone while driving may cause:', options: ['Better concentration', 'Distraction and accidents', 'Better balance', 'Faster reaction'], correct: 1, explanation: 'Phone use distracts drivers from the road, significantly increasing accident risk.' },
-        { id: 23, category: 'Traffic Rules', question: 'At a red traffic light you must:', options: ['Continue carefully', 'Stop completely', 'Overtake', 'Reverse'], correct: 1, explanation: 'A red light requires a complete stop behind the stop line.' },
-        { id: 24, category: 'Traffic Rules', question: 'What should you do at a pedestrian crossing?', options: ['Speed up', 'Ignore pedestrians', 'Give way to pedestrians', 'Sound horn continuously'], correct: 2, explanation: 'Pedestrians have right of way at designated crossings.' },
-        { id: 25, category: 'Traffic Rules', question: 'What does a double continuous yellow line mean?', options: ['Parking allowed', 'Overtaking allowed', 'No overtaking', 'Bus stop'], correct: 2, explanation: 'Double continuous yellow lines mean no overtaking is permitted.' },
-        
-        // Parking & Stopping (70 questions sample)
-        { id: 26, category: 'Parking', question: 'You should not park:', options: ['In a parking bay', 'Near a pedestrian crossing', 'In a garage', 'At home'], correct: 1, explanation: 'Parking near pedestrian crossings blocks visibility and creates hazards.' },
-        { id: 27, category: 'Parking', question: 'Before reversing you should:', options: ['Accelerate immediately', 'Check surroundings carefully', 'Ignore mirrors', 'Sound horn continuously'], correct: 1, explanation: 'Always check all around before reversing to avoid collisions.' },
-        { id: 28, category: 'Parking', question: 'Angle parking requires you to:', options: ['Park by reversing', 'Park forward gear', 'Park parallel', 'Park anywhere'], correct: 1, explanation: 'Angle parking is done by driving forward into the space.' },
-        
-        // Roundabouts & Junctions (60 questions sample)
-        { id: 29, category: 'Roundabouts', question: 'At a roundabout you should:', options: ['Ignore traffic', 'Give way appropriately', 'Stop in the middle', 'Reverse'], correct: 1, explanation: 'Give way to traffic already on the roundabout from your right.' },
-        { id: 30, category: 'Roundabouts', question: 'Before entering a junction you should:', options: ['Increase speed', 'Observe traffic carefully', 'Ignore signs', 'Close your eyes'], correct: 1, explanation: 'Always observe traffic conditions before entering any junction.' },
-        
-        // Vehicle Inspection (60 questions sample)
-        { id: 31, category: 'Vehicle Inspection', question: 'Why should tire pressure be checked regularly?', options: ['To reduce safety', 'To improve grip and safety', 'To increase noise', 'To damage tires'], correct: 1, explanation: 'Proper tire pressure ensures optimal grip, fuel efficiency, and reduces blowout risk.' },
-        { id: 32, category: 'Vehicle Inspection', question: 'Brake failure can result from:', options: ['Proper maintenance', 'Ignoring brake inspection', 'Safe driving', 'Good tires'], correct: 1, explanation: 'Regular brake inspection prevents failure and ensures safety.' },
-        
-        // Emergency Handling (50 questions sample)
-        { id: 33, category: 'Emergency', question: 'If your brakes fail you should:', options: ['Panic', 'Stay calm and slow down safely', 'Jump out immediately', 'Close your eyes'], correct: 1, explanation: 'Stay calm, pump brakes, use engine braking, and apply parking brake gradually.' },
-        { id: 34, category: 'Emergency', question: 'In case of an accident you should first:', options: ['Run away', 'Ensure safety and seek help', 'Ignore injured people', 'Continue driving'], correct: 1, explanation: 'First ensure scene safety, then help injured and call emergency services.' },
-        
-        // First Aid (40 questions sample)
-        { id: 35, category: 'First Aid', question: 'First aid is important because it:', options: ['Replaces hospitals', 'Provides immediate assistance', 'Causes accidents', 'Delays treatment'], correct: 1, explanation: 'First aid provides critical immediate care that can save lives.' },
-        { id: 36, category: 'First Aid', question: 'A bleeding victim should:', options: ['Be ignored', 'Receive pressure on the wound', 'Run around', 'Drink alcohol'], correct: 1, explanation: 'Apply direct pressure to control bleeding and save life.' },
-        
-        // Night Driving (40 questions sample)
-        { id: 37, category: 'Night Driving', question: 'At night you should:', options: ['Use headlights properly', 'Drive without lights', 'Speed excessively', 'Ignore pedestrians'], correct: 0, explanation: 'Proper headlight use ensures visibility and helps others see you.' },
-        { id: 38, category: 'Night Driving', question: 'Why is night driving dangerous?', options: ['Reduced visibility', 'Better visibility', 'No traffic rules', 'Easier braking'], correct: 0, explanation: 'Limited visibility increases accident risk at night.' },
-        
-        // Weather & Hazard Driving (40 questions sample)
-        { id: 39, category: 'Weather', question: 'During fog you should:', options: ['Increase speed', 'Use proper lights and reduce speed', 'Ignore visibility', 'Overtake continuously'], correct: 1, explanation: 'Reduce speed, use low beam or fog lights, and increase following distance.' },
-        { id: 40, category: 'Weather', question: 'Wet roads increase:', options: ['Tire grip only', 'Skidding risk', 'Visibility', 'Fuel quality'], correct: 1, explanation: 'Wet surfaces reduce traction and increase skidding risk.' },
-        
-        // Motorcycle/Boda Safety (50 questions sample)
-        { id: 41, category: 'Motorcycle', question: 'A motorcycle passenger should:', options: ['Sit carelessly', 'Wear a helmet', 'Distract the rider', 'Stand while riding'], correct: 1, explanation: 'All passengers must wear approved helmets for their safety.' },
-        { id: 42, category: 'Motorcycle', question: 'Why are reflective jackets important?', options: ['Decoration only', 'Improve visibility', 'Reduce fuel use', 'Increase speed'], correct: 1, explanation: 'Reflective gear makes riders visible to other road users.' },
-        
-        // PSV & Passenger Safety (40 questions sample)
-        { id: 43, category: 'PSV', question: 'A PSV driver should:', options: ['Abuse passengers', 'Respect passengers', 'Ignore traffic rules', 'Overspeed'], correct: 1, explanation: 'Professional PSV drivers must treat passengers with respect and courtesy.' },
-        { id: 44, category: 'PSV', question: 'Overloading a PSV vehicle may:', options: ['Improve safety', 'Cause accidents', 'Improve braking', 'Reduce danger'], correct: 1, explanation: 'Overloading reduces vehicle control and increases accident risk.' },
-        
-        // Eco Driving (20 questions sample)
-        { id: 45, category: 'Eco Driving', question: 'Harsh acceleration:', options: ['Saves fuel', 'Wastes fuel', 'Improves tire life', 'Improves safety'], correct: 1, explanation: 'Aggressive acceleration increases fuel consumption and engine wear.' },
-        
-        // Professional Conduct (20 questions sample)
-        { id: 46, category: 'Professional Conduct', question: 'Professional drivers should:', options: ['Be disciplined', 'Be reckless', 'Ignore passengers', 'Break traffic laws'], correct: 0, explanation: 'Professionalism requires discipline, respect, and adherence to laws.' },
-        { id: 47, category: 'Professional Conduct', question: 'A professional driver should maintain:', options: ['Poor hygiene', 'Cleanliness and grooming', 'Aggressive attitude', 'No communication'], correct: 1, explanation: 'Good hygiene and professionalism build customer trust and safety.' },
-        
-        // Additional questions to reach 50+ sample
-        { id: 48, category: 'Road Signs', question: 'What does a "No Parking" sign indicate?', options: ['Parking allowed anytime', 'No parking at any time', 'Parking for 1 hour only', 'Loading zone only'], correct: 1, explanation: 'No Parking signs prohibit parking at all times in that area.' },
-        { id: 49, category: 'Defensive Driving', question: 'Hydroplaning occurs when:', options: ['Tires lose contact with road due to water', 'Brakes lock up', 'Engine overheats', 'Steering fails'], correct: 0, explanation: 'Water between tires and road causes loss of traction and control.' },
-        { id: 50, category: 'Emergency', question: 'If a tire blows out, you should:', options: ['Slam brakes immediately', 'Grip steering firmly and slow gradually', 'Swerve sharply', 'Close your eyes'], correct: 1, explanation: 'Maintain control, grip steering, and slow down gradually without panic braking.' }
+        { id: 1, category: 'Road Signs', question: 'What does a STOP sign mean?', options: ['Slow down only', 'Continue carefully', 'Come to a complete stop', 'Overtake carefully'], correct: 2, explanation: 'A STOP sign requires you to come to a complete stop.' },
+        { id: 2, category: 'Road Signs', question: 'A triangular road sign normally indicates:', options: ['Direction', 'Warning', 'Parking', 'Speed limit'], correct: 1, explanation: 'Triangular signs are warning signs.' },
+        { id: 3, category: 'Highway Code', question: 'Seat belts are important because they:', options: ['Improve music quality', 'Prevent accidents', 'Reduce injury during accidents', 'Increase speed'], correct: 2, explanation: 'Seat belts reduce the risk of serious injury.' },
+        { id: 4, category: 'Defensive Driving', question: 'Defensive driving means:', options: ['Aggressive driving', 'Anticipating and avoiding danger', 'Driving fast', 'Ignoring traffic rules'], correct: 1, explanation: 'Defensive driving anticipates potential hazards.' },
+        { id: 5, category: 'Traffic Rules', question: 'Driving under the influence of alcohol is:', options: ['Safe at low speed', 'Acceptable at night', 'Dangerous and illegal', 'Recommended'], correct: 2, explanation: 'Drunk driving is illegal and dangerous.' },
+        { id: 6, category: 'Emergency', question: 'If your brakes fail you should:', options: ['Panic', 'Stay calm and slow down safely', 'Jump out immediately', 'Close your eyes'], correct: 1, explanation: 'Stay calm, pump brakes, use engine braking.' },
+        { id: 7, category: 'Motorcycle', question: 'A motorcycle passenger should:', options: ['Sit carelessly', 'Wear a helmet', 'Distract the rider', 'Stand while riding'], correct: 1, explanation: 'All passengers must wear approved helmets.' },
+        { id: 8, category: 'PSV', question: 'A PSV driver should:', options: ['Abuse passengers', 'Respect passengers', 'Ignore traffic rules', 'Overspeed'], correct: 1, explanation: 'Professional drivers must respect passengers.' }
     ];
     
     function showToast(msg, type = 'info') {
@@ -223,13 +167,29 @@
     async function loadUserData() {
         const { data: { session } } = await supabase.auth.getSession();
         currentUser = session?.user || null;
+        
+        // Check if user is admin (email contains 'admin' or specific domain)
+        isAdmin = currentUser?.email === 'admin@meidrive.com' || currentUser?.email?.includes('admin');
+        
         updateAuthUI();
         
         if (currentUser) {
             const { data: progress } = await supabase.from('user_progress').select('course_id, progress').eq('user_id', currentUser.id);
             if (progress) { userProgress = {}; progress.forEach(p => { userProgress[p.course_id] = p.progress; }); }
+            
             const { data: enrollments } = await supabase.from('user_enrollments').select('course_id').eq('user_id', currentUser.id);
             if (enrollments) { userEnrollments = {}; enrollments.forEach(e => { userEnrollments[e.course_id] = true; }); }
+            
+            const { data: paymentData } = await supabase.from('payments').select('*').eq('user_id', currentUser.id);
+            if (paymentData) payments = paymentData;
+            
+            if (isAdmin) {
+                const { data: allUsers } = await supabase.from('users').select('*');
+                if (allUsers) users = allUsers;
+                document.getElementById('navAdmin').style.display = 'inline-block';
+            }
+        } else {
+            document.getElementById('navAdmin').style.display = 'none';
         }
     }
     
@@ -237,13 +197,13 @@
         const container = document.getElementById('authButtons');
         if (!container) return;
         if (currentUser) {
-            container.innerHTML = `<div class="user-badge"><i class="fas fa-user-check"></i> ${escapeHtml(currentUser.email.split('@')[0])}</div><button onclick="logout()" class="btn-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>`;
+            container.innerHTML = `<div class="user-badge"><i class="fas fa-user-check"></i> ${escapeHtml(currentUser.email.split('@')[0])}${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}</div><button onclick="logout()" class="btn-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>`;
         } else {
             container.innerHTML = `<button onclick="showAuthModal('login')" class="btn-outline btn-sm"><i class="fas fa-key"></i> Login</button><button onclick="showAuthModal('signup')" class="btn-primary btn-sm"><i class="fas fa-user-plus"></i> Sign Up</button>`;
         }
     }
     
-    async function logout() { await supabase.auth.signOut(); currentUser = null; userProgress = {}; userEnrollments = {}; updateAuthUI(); navigateTo('home'); showToast('Logged out successfully', 'info'); }
+    async function logout() { await supabase.auth.signOut(); currentUser = null; isAdmin = false; userProgress = {}; userEnrollments = {}; updateAuthUI(); navigateTo('home'); showToast('Logged out successfully', 'info'); }
     
     function showAuthModal(mode) {
         document.getElementById('page-content').innerHTML = `
@@ -270,7 +230,8 @@
         if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
         
         if (mode === 'signup') {
-            const { error } = await supabase.auth.signUp({ email, password });
+            const name = document.getElementById('signupName')?.value || email.split('@')[0];
+            const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
             if (error) { showToast(error.message, 'error'); return; }
             showToast('Account created! Please verify your email.', 'success');
             navigateTo('home');
@@ -285,24 +246,116 @@
     
     function isEnrolled(courseId) { return userEnrollments[courseId] === true; }
     
-    async function enrollCourse(courseId) {
+    async function processMpesaPayment(courseId) {
         if (!currentUser) { showAuthModal('login'); return; }
         const course = courses.find(c => c.id === courseId);
         if (!course) return;
         
-        const { error } = await supabase.from('user_enrollments').upsert({
-            user_id: currentUser.id, course_id: courseId, payment_status: 'completed', amount_paid: course.price, paid_at: new Date().toISOString()
-        });
-        if (!error) { userEnrollments[courseId] = true; showToast('✅ Successfully enrolled!', 'success'); navigateTo('courses'); }
-        else { showToast('Enrollment failed', 'error'); }
+        const phone = prompt(`💰 M-Pesa Payment\nCourse: ${course.name}\nAmount: KES ${course.price.toLocaleString()}\n\nEnter M-Pesa phone number (e.g., 0712345678):`);
+        if (!phone) { showToast('Payment cancelled', 'info'); return; }
+        
+        let cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.startsWith('0')) cleanPhone = '254' + cleanPhone.slice(1);
+        if (cleanPhone.length < 12) { showToast('Invalid phone number', 'error'); return; }
+        
+        showToast(`💰 Initiating M-Pesa payment for KES ${course.price}...`, 'info');
+        
+        // Simulate M-Pesa STK Push - In production, this would call your backend API
+        setTimeout(async () => {
+            const paymentId = 'MPESA_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            const { error } = await supabase.from('payments').insert({
+                user_id: currentUser.id,
+                course_id: courseId,
+                amount: course.price,
+                phone: cleanPhone,
+                transaction_id: paymentId,
+                status: 'completed',
+                created_at: new Date().toISOString()
+            });
+            
+            if (!error) {
+                const { error: enrollError } = await supabase.from('user_enrollments').upsert({
+                    user_id: currentUser.id, course_id: courseId, payment_status: 'completed', amount_paid: course.price, paid_at: new Date().toISOString()
+                });
+                if (!enrollError) {
+                    userEnrollments[courseId] = true;
+                    showToast(`✅ Payment successful! You are now enrolled in ${course.name}`, 'success');
+                    await loadUserData();
+                    navigateTo('courses');
+                }
+            } else {
+                showToast('Payment processing failed. Please try again.', 'error');
+            }
+        }, 1500);
+    }
+    
+    async function enrollCourse(courseId) {
+        if (!currentUser) { showAuthModal('login'); return; }
+        const course = courses.find(c => c.id === courseId);
+        if (course.price > 0) {
+            processMpesaPayment(courseId);
+        } else {
+            const { error } = await supabase.from('user_enrollments').upsert({
+                user_id: currentUser.id, course_id: courseId, payment_status: 'completed', amount_paid: 0, paid_at: new Date().toISOString()
+            });
+            if (!error) { userEnrollments[courseId] = true; showToast('✅ Enrolled successfully!', 'success'); navigateTo('courses'); }
+            else { showToast('Enrollment failed', 'error'); }
+        }
     }
     
     function viewCourse(courseId) { 
-        if (courseId === 6) {
-            navigateTo('quiz');
-        } else {
-            window.location.href = `course.html?id=${courseId}`;
-        }
+        if (courseId === 6) navigateTo('quiz');
+        else window.location.href = `course.html?id=${courseId}`;
+    }
+    
+    // Admin Dashboard
+    function renderAdminDashboard() {
+        const totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        const completedPayments = payments.filter(p => p.status === 'completed').length;
+        
+        document.getElementById('page-content').innerHTML = `
+            <div class="container" style="padding-top: 100px;">
+                <h1 class="section-title"><i class="fas fa-user-shield"></i> Admin <span>Dashboard</span></h1>
+                <div class="stats-bar">
+                    <div class="stat-item"><h3>${users.length}</h3><p>Total Users</p></div>
+                    <div class="stat-item"><h3>${payments.length}</h3><p>Transactions</p></div>
+                    <div class="stat-item"><h3>KES ${totalRevenue.toLocaleString()}</h3><p>Total Revenue</p></div>
+                    <div class="stat-item"><h3>${completedPayments}</h3><p>Completed Payments</p></div>
+                </div>
+                <div class="admin-panel">
+                    <h3><i class="fas fa-credit-card"></i> Recent Payments</h3>
+                    <table class="admin-table">
+                        <thead><tr><th>Transaction ID</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody>
+                            ${payments.slice(0, 10).map(p => `
+                                <tr>
+                                    <td>${escapeHtml(p.transaction_id || 'N/A')}</td>
+                                    <td>KES ${(p.amount || 0).toLocaleString()}</td>
+                                    <td><span class="payment-status ${p.status}">${p.status || 'pending'}</span></td>
+                                    <td>${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                            ${payments.length === 0 ? '<tr><td colspan="4" style="text-align:center;">No payments recorded yet</td></tr>' : ''}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="admin-panel" style="margin-top: 1rem;">
+                    <h3><i class="fas fa-users"></i> Registered Users</h3>
+                    <table class="admin-table">
+                        <thead><tr><th>Email</th><th>Registered</th><th>Enrollments</th></tr></thead>
+                        <tbody>
+                            ${users.slice(0, 10).map(u => `
+                                <tr>
+                                    <td>${escapeHtml(u.email || 'N/A')}</td>
+                                    <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}</td>
+                                    <td>${Object.keys(userEnrollments).length || 0}</td>
+                                </tr>
+                            `).join('')}
+                            ${users.length === 0 ? '<tr><td colspan="3" style="text-align:center;">No users registered yet</td></tr>' : ''}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
     }
     
     // Quiz functionality
@@ -319,7 +372,6 @@
                         <div style="font-size: 4rem; margin: 1rem 0;">${percent >= 70 ? '🏆' : '📚'}</div>
                         <p style="font-size: 1.2rem;">Your score: <strong>${quizState.score}</strong> / ${quizState.questions.length} (${percent}%)</p>
                         <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
-                        <p style="margin-top: 1rem;">${percent >= 70 ? 'Excellent! You\'re ready for the NTSA exam!' : 'Keep practicing to improve your score!'}</p>
                         <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
                             <button class="btn btn-primary" onclick="resetQuiz()">🔄 Restart Quiz</button>
                             <button class="btn btn-outline" onclick="navigateTo('home')">🏠 Back to Home</button>
@@ -339,27 +391,22 @@
                         <span class="category-tag"><i class="fas fa-tag"></i> ${q.category}</span>
                         <span style="background: var(--primary); color: #0a192f; padding: 4px 12px; border-radius: 50px; font-weight:bold;">Question ${quizState.currentIndex + 1}/${quizState.questions.length}</span>
                     </div>
-                    <h3 style="margin-bottom: 1.5rem; font-size: 1.3rem;">${escapeHtml(q.question)}</h3>
-                    <div id="quizOptions">
-                        ${q.options.map((opt, idx) => {
-                            let additionalClass = '';
-                            if (hasAnswered && idx === q.correct) additionalClass = 'correct';
-                            if (hasAnswered && idx === quizState.userAnswers[quizState.currentIndex] && idx !== q.correct) additionalClass = 'wrong';
-                            return `<div class="quiz-option ${additionalClass}" onclick="${!hasAnswered ? `selectAnswer(${idx})` : ''}" style="${!hasAnswered ? 'cursor:pointer;' : ''}">
-                                <span style="font-weight:bold;">${String.fromCharCode(65+idx)}.</span> ${escapeHtml(opt)}
-                            </div>`;
-                        }).join('')}
-                    </div>
+                    <h3 style="margin-bottom: 1.5rem;">${escapeHtml(q.question)}</h3>
+                    ${q.options.map((opt, idx) => {
+                        let additionalClass = '';
+                        if (hasAnswered && idx === q.correct) additionalClass = 'correct';
+                        if (hasAnswered && idx === quizState.userAnswers[quizState.currentIndex] && idx !== q.correct) additionalClass = 'wrong';
+                        return `<div class="quiz-option ${additionalClass}" onclick="${!hasAnswered ? `selectAnswer(${idx})` : ''}">
+                            <span style="font-weight:bold;">${String.fromCharCode(65+idx)}.</span> ${escapeHtml(opt)}
+                        </div>`;
+                    }).join('')}
                     ${hasAnswered ? `
                         <div style="margin-top: 1rem; padding: 1rem; background: rgba(0,255,136,0.1); border-radius: 12px;">
                             <strong>${quizState.userAnswers[quizState.currentIndex] === q.correct ? '✓ Correct!' : '✗ Incorrect'}</strong>
                             <p style="margin-top: 0.5rem;">📖 ${escapeHtml(q.explanation)}</p>
                             <button class="btn btn-primary" style="margin-top: 1rem;" onclick="nextQuestion()">Next Question →</button>
                         </div>
-                    ` : '<p style="margin-top: 1rem; opacity:0.7;"><i class="fas fa-info-circle"></i> Click on an option to answer</p>'}
-                </div>
-                <div style="text-align: center; margin-top: 1rem;">
-                    <p style="opacity:0.6;">📊 ${quizState.score} correct so far</p>
+                    ` : '<p style="margin-top: 1rem;"><i class="fas fa-info-circle"></i> Click on an option to answer</p>'}
                 </div>
             </div>`;
     }
@@ -371,16 +418,14 @@
         if (idx === q.correct) quizState.score++;
         renderQuiz();
     };
-    
     window.nextQuestion = () => { quizState.currentIndex++; renderQuiz(); };
     window.resetQuiz = () => { quizState = { currentIndex: 0, score: 0, userAnswers: [], questions: [...quizBank] }; renderQuiz(); };
     
     function renderHome() {
-        const totalEnrolled = Object.keys(userEnrollments).length;
         document.getElementById('page-content').innerHTML = `
             <div class="hero">
                 <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
-                <p>NTSA-approved professional driver training with 6 comprehensive courses and 1000+ exam questions.</p>
+                <p>Professional driver training with 6 comprehensive courses and 1000+ exam questions.</p>
                 <button class="btn btn-primary" onclick="navigateTo('courses')">🚀 Explore Courses</button>
             </div>
             <div class="container">
@@ -388,7 +433,6 @@
                     <div class="stat-item"><h3>6</h3><p>Professional Courses</p></div>
                     <div class="stat-item"><h3>1000+</h3><p>Quiz Questions</p></div>
                     <div class="stat-item"><h3>${courses.reduce((sum, c) => sum + c.lessons, 0)}</h3><p>Training Modules</p></div>
-                    <div class="stat-item"><h3>NTSA</h3><p>Approved</p></div>
                 </div>
                 <h2 class="section-title">Our <span>Professional Courses</span></h2>
                 <div class="grid">
@@ -398,8 +442,7 @@
                             <h3>${escapeHtml(c.name)}${isEnrolled(c.id) ? ' <span class="badge"><i class="fas fa-check-circle"></i> Enrolled</span>' : ''}</h3>
                             <p>${escapeHtml(c.description)}</p>
                             <div><span class="category-tag"><i class="far fa-clock"></i> ${c.duration}</span><span class="category-tag"><i class="fas fa-book"></i> ${c.lessons} Modules</span></div>
-                            <div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div>
-                            ${userProgress[c.id] ? `<div class="progress-bar"><div class="progress-fill" style="width:${userProgress[c.id]}%"></div></div>` : ''}
+                            <div class="course-price">KES ${c.price.toLocaleString()}</div>
                             <button class="btn btn-primary">${isEnrolled(c.id) ? 'Continue Learning' : 'Enroll Now'}</button>
                         </div>
                     `).join('')}
@@ -418,8 +461,7 @@
                             <h3>${escapeHtml(c.name)}${isEnrolled(c.id) ? ' <span class="badge"><i class="fas fa-check-circle"></i> Enrolled</span>' : ''}</h3>
                             <p>${escapeHtml(c.description)}</p>
                             <div><span class="category-tag"><i class="far fa-clock"></i> ${c.duration}</span><span class="category-tag"><i class="fas fa-book"></i> ${c.lessons} Modules</span></div>
-                            <div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div>
-                            ${userProgress[c.id] ? `<div class="progress-bar"><div class="progress-fill" style="width:${userProgress[c.id]}%"></div></div>` : ''}
+                            <div class="course-price">KES ${c.price.toLocaleString()}</div>
                             <button class="btn btn-primary">${isEnrolled(c.id) ? 'Continue Learning' : 'Enroll Now'}</button>
                         </div>
                     `).join('')}
@@ -432,6 +474,7 @@
         if (page === 'home') renderHome();
         else if (page === 'courses') renderCourses();
         else if (page === 'quiz') { resetQuiz(); renderQuiz(); }
+        else if (page === 'admin' && isAdmin) renderAdminDashboard();
         else renderHome();
         
         document.querySelectorAll('.nav-links button').forEach(btn => btn.classList.remove('active'));
@@ -457,6 +500,7 @@
     window.selectAnswer = selectAnswer;
     window.nextQuestion = nextQuestion;
     window.resetQuiz = resetQuiz;
+    window.processMpesaPayment = processMpesaPayment;
     
     init();
 </script>
