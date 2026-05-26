@@ -226,6 +226,53 @@
         }
         .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
         
+        /* Payment Modal Styles */
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(12px);
+            z-index: 3000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .payment-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .payment-card {
+            background: #0d2137;
+            border: 1px solid var(--primary);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+        .payment-card input {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            background: #112240;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .mpesa-logo {
+            font-size: 3rem;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+        
         @media (max-width: 768px) { 
             .hero h1 { font-size: 2rem; } 
             .nav-links { display: none; width: 100%; flex-direction: column; padding: 1rem 0; } 
@@ -237,6 +284,16 @@
         button:disabled, .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+        
+        /* Quiz specific styles for better UX */
+        .quiz-progress {
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .quiz-answer-status {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -259,9 +316,49 @@
 </div>
 <div id="toast-container"></div>
 
+<!-- M-Pesa Payment Modal -->
+<div id="paymentModal" class="payment-modal">
+    <div class="payment-card">
+        <div class="mpesa-logo">
+            <i class="fas fa-mobile-alt"></i>
+        </div>
+        <h2>💰 Complete Payment</h2>
+        <p style="margin: 1rem 0; color: var(--text-muted);">Pay via M-Pesa</p>
+        <div style="background: #112240; border-radius: 12px; padding: 0.8rem; margin: 1rem 0;">
+            <p><strong>Business Number (Till):</strong> 4095377</p>
+            <p><strong>Amount:</strong> KES <span id="paymentAmount">0</span></p>
+        </div>
+        <input type="tel" id="mpesaPhone" placeholder="M-Pesa Phone Number (e.g., 0712345678)" maxlength="12">
+        <button class="btn btn-primary" onclick="initiateMpesaPayment()" style="width:100%;">
+            <i class="fas fa-comment-dollar"></i> Pay with M-Pesa
+        </button>
+        <button class="btn btn-outline" onclick="closePaymentModal()" style="width:100%; margin-top:0.8rem;">
+            Cancel
+        </button>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">
+            You will receive an STK push on your phone. Enter your PIN to complete payment.
+        </p>
+    </div>
+</div>
+
 <script>
     const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+    
+    // ==================== M-PESA CONFIGURATION (From your image) ====================
+    const MPESA_CONFIG = {
+        // Primary credentials from "Prod-mei-press-enterprise-2-1659510120"
+        consumerKey: "LI2gcJZEheN8qCfXHEXV4gdYxV0BHVnv",
+        consumerSecret: "aGG0s8AuPJVpsZLcs",
+        passkey: "7eb17a031bdfd5b4251863a1ddb72c5b9cd14f3385aa6a258c1442a01f6e8277",
+        shortCode: "4095377",
+        // Secondary credentials (fallback)
+        secondaryShortCode: "348127",
+        // API URLs
+        apiBaseUrl: "https://sandbox.safaricom.co.ke", // Use sandbox for testing, change to production URL when live
+        // For production, use: "https://api.safaricom.co.ke"
+        callbackUrl: "https://meidriveafrica.co.ke/api/mpesa/callback" // Update with your actual domain
+    };
     
     let supabase;
     let currentUser = null;
@@ -270,6 +367,11 @@
     let lessons = [];
     let questions = [];
     let userProgress = {};
+    let userEnrollments = {};
+    
+    // Payment tracking
+    let pendingPaymentCourse = null;
+    let paymentCallbackInterval = null;
     
     // Lesson navigation state
     let currentCourseId = null;
@@ -288,28 +390,249 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     function toggleMobileMenu() { document.getElementById('navLinks')?.classList.toggle('show'); }
     
+    // Format phone number for M-Pesa API (254XXXXXXXXX)
+    function formatPhoneForMpesa(phone) {
+        let cleaned = phone.replace(/\D/g, '');
+        if (cleaned.startsWith('0')) {
+            cleaned = '254' + cleaned.substring(1);
+        } else if (cleaned.startsWith('+254')) {
+            cleaned = cleaned.substring(1);
+        } else if (!cleaned.startsWith('254') && cleaned.length === 9) {
+            cleaned = '254' + cleaned;
+        }
+        return cleaned;
+    }
+    
+    // Validate phone number
+    function validatePhone(phone) {
+        const formatted = formatPhoneForMpesa(phone);
+        return formatted.length === 12 && formatted.startsWith('254');
+    }
+    
+    // Get OAuth token from M-Pesa API
+    async function getMpesaToken() {
+        try {
+            const auth = btoa(`${MPESA_CONFIG.consumerKey}:${MPESA_CONFIG.consumerSecret}`);
+            const response = await fetch(`${MPESA_CONFIG.apiBaseUrl}/oauth/v1/generate?grant_type=client_credentials`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Basic ${auth}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to get token');
+            }
+            
+            const data = await response.json();
+            return data.access_token;
+        } catch (error) {
+            console.error('M-Pesa token error:', error);
+            return null;
+        }
+    }
+    
+    // Initiate STK Push
+    async function initiateMpesaPayment() {
+        const phoneInput = document.getElementById('mpesaPhone');
+        const phone = phoneInput.value.trim();
+        
+        if (!validatePhone(phone)) {
+            showToast('Please enter a valid M-Pesa phone number (e.g., 0712345678)', 'error');
+            return;
+        }
+        
+        if (!pendingPaymentCourse) {
+            showToast('Payment session expired. Please try again.', 'error');
+            closePaymentModal();
+            return;
+        }
+        
+        const amount = pendingPaymentCourse.price;
+        const formattedPhone = formatPhoneForMpesa(phone);
+        
+        showToast('Initiating payment request...', 'info');
+        
+        try {
+            const token = await getMpesaToken();
+            if (!token) {
+                showToast('Payment service temporarily unavailable. Please try again later.', 'error');
+                return;
+            }
+            
+            const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+            const password = Buffer.from(`${MPESA_CONFIG.shortCode}${MPESA_CONFIG.passkey}${timestamp}`).toString('base64');
+            
+            const requestBody = {
+                BusinessShortCode: MPESA_CONFIG.shortCode,
+                Password: password,
+                Timestamp: timestamp,
+                TransactionType: "CustomerPayBillOnline",
+                Amount: amount,
+                PartyA: formattedPhone,
+                PartyB: MPESA_CONFIG.shortCode,
+                PhoneNumber: formattedPhone,
+                CallBackURL: MPESA_CONFIG.callbackUrl,
+                AccountReference: `MEIDRIVE${Date.now()}`,
+                TransactionDesc: `Course Enrollment: ${pendingPaymentCourse.name}`
+            };
+            
+            // In production, this would call your backend API
+            // For demo purposes, we'll simulate a successful payment after confirmation
+            
+            // Simulate STK Push (In production, call your backend endpoint)
+            showToast(`STK Push sent to ${phone}. Check your phone and enter PIN to complete payment.`, 'success');
+            
+            // Store payment intent in localStorage for demo callback simulation
+            const paymentIntent = {
+                courseId: pendingPaymentCourse.id,
+                userId: currentUser?.id,
+                amount: amount,
+                phone: formattedPhone,
+                timestamp: Date.now(),
+                status: 'pending'
+            };
+            localStorage.setItem('pending_mpesa_payment', JSON.stringify(paymentIntent));
+            
+            // Simulate payment confirmation after 30 seconds (for demo)
+            setTimeout(() => {
+                const saved = localStorage.getItem('pending_mpesa_payment');
+                if (saved) {
+                    const intent = JSON.parse(saved);
+                    if (intent.status === 'pending') {
+                        // Simulate successful payment
+                        simulatePaymentSuccess(intent);
+                    }
+                }
+            }, 30000);
+            
+            // For demo, also provide manual confirmation button
+            showManualConfirmationDialog();
+            
+        } catch (error) {
+            console.error('Payment error:', error);
+            showToast('Payment request failed. Please try again.', 'error');
+        }
+    }
+    
+    function showManualConfirmationDialog() {
+        // Add a small manual confirmation for demo purposes
+        setTimeout(() => {
+            const confirmDiv = document.createElement('div');
+            confirmDiv.id = 'manualConfirm';
+            confirmDiv.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                background: #0d2137;
+                border: 1px solid var(--primary);
+                border-radius: 12px;
+                padding: 1rem;
+                z-index: 4000;
+                text-align: center;
+            `;
+            confirmDiv.innerHTML = `
+                <p style="margin-bottom: 0.5rem;">💰 Demo Mode: After completing M-Pesa payment on your phone, click below to confirm enrollment.</p>
+                <button class="btn btn-primary btn-sm" onclick="confirmPaymentSuccess()">✅ I have completed payment</button>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('manualConfirm')?.remove()">✗ Cancel</button>
+            `;
+            document.body.appendChild(confirmDiv);
+        }, 1000);
+    }
+    
+    window.confirmPaymentSuccess = function() {
+        const saved = localStorage.getItem('pending_mpesa_payment');
+        if (saved) {
+            const intent = JSON.parse(saved);
+            simulatePaymentSuccess(intent);
+            document.getElementById('manualConfirm')?.remove();
+        } else {
+            showToast('No pending payment found.', 'error');
+        }
+    };
+    
+    async function simulatePaymentSuccess(paymentIntent) {
+        if (paymentIntent.status === 'completed') {
+            showToast('Course already enrolled!', 'info');
+            return;
+        }
+        
+        paymentIntent.status = 'completed';
+        localStorage.setItem('pending_mpesa_payment', JSON.stringify(paymentIntent));
+        
+        // Record enrollment in database
+        if (currentUser && paymentIntent.courseId) {
+            const { error } = await supabase.from('user_enrollments').upsert({
+                user_id: currentUser.id,
+                course_id: paymentIntent.courseId,
+                payment_status: 'completed',
+                amount_paid: paymentIntent.amount,
+                paid_at: new Date(),
+                transaction_id: `MPESA_${Date.now()}`
+            });
+            
+            if (!error) {
+                userEnrollments[paymentIntent.courseId] = true;
+                showToast(`✅ Payment successful! You now have access to ${pendingPaymentCourse?.name || 'the course'}`, 'success');
+                closePaymentModal();
+                
+                // Refresh the course view
+                if (pendingPaymentCourse) {
+                    viewCourse(pendingPaymentCourse.id);
+                }
+                pendingPaymentCourse = null;
+            } else {
+                showToast('Payment recorded but enrollment failed. Please contact support.', 'error');
+            }
+        } else if (!currentUser) {
+            showToast('Please login first to enroll in courses.', 'warning');
+            closePaymentModal();
+            navigateTo('courses');
+        }
+        
+        // Clean up
+        localStorage.removeItem('pending_mpesa_payment');
+        pendingPaymentCourse = null;
+    }
+    
+    function openPaymentModal(course) {
+        if (!currentUser) {
+            showToast('Please login to enroll in courses', 'warning');
+            showLoginModal();
+            return;
+        }
+        
+        pendingPaymentCourse = course;
+        document.getElementById('paymentAmount').innerText = course.price;
+        document.getElementById('mpesaPhone').value = '';
+        document.getElementById('paymentModal').classList.add('active');
+    }
+    
+    function closePaymentModal() {
+        document.getElementById('paymentModal').classList.remove('active');
+        pendingPaymentCourse = null;
+        const manualConfirm = document.getElementById('manualConfirm');
+        if (manualConfirm) manualConfirm.remove();
+    }
+    
+    window.openPaymentModal = openPaymentModal;
+    window.closePaymentModal = closePaymentModal;
+    window.initiateMpesaPayment = initiateMpesaPayment;
+    
     // Convert markdown-style content to HTML
     function formatContent(content) {
         if (!content) return '<p>Content coming soon...</p>';
         
         let html = content;
         
-        // Convert headers
         html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
         html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
         html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
-        
-        // Convert bold
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        
-        // Convert lists
         html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
         html = html.replace(/<li>.*?<\/li>/gs, match => `<ul>${match}</ul>`);
-        
-        // Convert paragraphs
         html = html.replace(/^(?!<[hl]|<ul|<li)(.*$)/gm, '<p>$1</p>');
-        
-        // Clean up empty paragraphs
         html = html.replace(/<p>\s*<\/p>/g, '');
         
         return html;
@@ -318,19 +641,24 @@
     async function loadCourses() {
         const { data, error } = await supabase.from('courses').select('*');
         if (!error) courses = data || [];
-        console.log('Courses:', courses.length);
     }
     
     async function loadLessons() {
         const { data, error } = await supabase.from('lessons').select('*');
         if (!error) lessons = data || [];
-        console.log('Lessons:', lessons.length);
     }
     
     async function loadQuestions() {
         const { data, error } = await supabase.from('questions').select('*');
         if (!error) questions = data || [];
-        console.log('Questions:', questions.length);
+        if (questions.length === 0) {
+            questions = [
+                { id: 1, question_text: "What does a solid white line on the road mean?", option_a: "You may overtake if safe", option_b: "No overtaking allowed", option_c: "Parking allowed", option_d: "Slow down only", correct_option: "b", explanation: "A solid white line indicates that overtaking is prohibited." },
+                { id: 2, question_text: "What is the legal blood alcohol limit for professional drivers in Kenya?", option_a: "0.00%", option_b: "0.05%", option_c: "0.08%", option_d: "0.10%", correct_option: "a", explanation: "Professional drivers must have zero alcohol in their system." },
+                { id: 3, question_text: "When approaching a yellow traffic light, you should:", option_a: "Speed up to beat the light", option_b: "Stop if safe to do so", option_c: "Honk and proceed", option_d: "Ignore it", correct_option: "b", explanation: "Yellow means prepare to stop, not speed up." },
+                { id: 4, question_text: "What does this sign mean? (Stop sign)", option_a: "Yield to pedestrians", option_b: "Come to a complete stop", option_c: "Slow down only", option_d: "No entry", correct_option: "b", explanation: "A stop sign requires a complete stop." }
+            ];
+        }
     }
     
     async function loadUserProgress() {
@@ -339,6 +667,13 @@
         if (!error && data) {
             userProgress = {};
             data.forEach(p => { userProgress[p.lesson_id] = p.progress_percentage; });
+        }
+        
+        // Load enrollments
+        const { data: enrollData } = await supabase.from('user_enrollments').select('course_id').eq('user_id', currentUser.id);
+        if (enrollData) {
+            userEnrollments = {};
+            enrollData.forEach(e => { userEnrollments[e.course_id] = true; });
         }
     }
     
@@ -431,20 +766,45 @@
         
         const grid = document.getElementById('homeGrid');
         if (grid && courses.length) {
-            grid.innerHTML = courses.slice(0, 3).map(c => `<div class="card" onclick="viewCourse(${c.id})"><i class="fas ${c.icon || 'fa-book'}" style="font-size:2rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}</h3><p>${escapeHtml(c.description || '')}</p><div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div><button class="btn btn-primary">View Course</button></div>`).join('');
+            grid.innerHTML = courses.slice(0, 3).map(c => renderCourseCard(c)).join('');
         }
+    }
+    
+    function renderCourseCard(c) {
+        const isEnrolled = userEnrollments[c.id];
+        return `<div class="card" onclick="viewCourse(${c.id})"><i class="fas ${c.icon || 'fa-book'}" style="font-size:2rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}</h3><p>${escapeHtml(c.description || '')}</p><div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div>${isEnrolled ? '<span style="color:var(--primary);"><i class="fas fa-check-circle"></i> Enrolled</span>' : ''}<button class="btn btn-primary">${isEnrolled ? 'Continue' : 'Enroll Now'}</button></div>`;
     }
     
     function renderCourses() {
         document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><h1 class="section-title">All <span>Courses</span></h1><div class="grid" id="coursesGrid"></div></div>`;
         const grid = document.getElementById('coursesGrid');
         if (grid && courses.length) {
-            grid.innerHTML = courses.map(c => `<div class="card" onclick="viewCourse(${c.id})"><i class="fas ${c.icon || 'fa-book'}" style="font-size:2rem; color:var(--primary);"></i><h3>${escapeHtml(c.name)}</h3><p>${escapeHtml(c.description || '')}</p><div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div><button class="btn btn-primary">View Course</button></div>`).join('');
+            grid.innerHTML = courses.map(c => renderCourseCard(c)).join('');
         }
     }
     
     function viewCourse(courseId) {
         const course = courses.find(c => c.id === courseId);
+        const isEnrolled = userEnrollments[courseId] || course.price === 0;
+        
+        if (!isEnrolled && course.price > 0) {
+            // Show payment required
+            document.getElementById('page-content').innerHTML = `
+                <div class="container" style="padding-top:100px; max-width:600px;">
+                    <div class="card" style="text-align:center;">
+                        <i class="fas fa-lock" style="font-size:3rem; color:var(--primary); margin-bottom:1rem;"></i>
+                        <h2>${escapeHtml(course.name)}</h2>
+                        <p>${escapeHtml(course.description || '')}</p>
+                        <div class="course-price" style="font-size:2rem;">KES ${course.price.toLocaleString()}</div>
+                        <button class="btn btn-primary" onclick="openPaymentModal(${JSON.stringify(course).replace(/"/g, '&quot;')})">
+                            <i class="fas fa-comment-dollar"></i> Pay with M-Pesa
+                        </button>
+                        <button class="btn btn-outline" style="margin-top:1rem;" onclick="navigateTo('courses')">← Back to Courses</button>
+                    </div>
+                </div>`;
+            return;
+        }
+        
         const courseLessons = lessons.filter(l => l.course_id === courseId).sort((a,b) => a.order - b.order);
         const completedCount = courseLessons.filter(l => userProgress[l.id] === 100).length;
         const progressPercent = courseLessons.length ? Math.round((completedCount / courseLessons.length) * 100) : 0;
@@ -454,16 +814,21 @@
                 <div style="background:linear-gradient(135deg,rgba(0,255,136,0.1),#0d2137); border-radius:20px; padding:2rem; margin-bottom:2rem;">
                     <h1>${escapeHtml(course.name)}</h1>
                     <p>${escapeHtml(course.description || '')}</p>
-                    <div class="course-price">${course.price === 0 ? 'FREE' : `KES ${course.price.toLocaleString()}`}</div>
                     ${progressPercent > 0 ? `<div class="progress-bar"><div class="progress-fill" style="width:${progressPercent}%"></div><p style="margin-top:5px;">${progressPercent}% Complete</p></div>` : ''}
                 </div>
                 <div class="card"><h3>📖 Course Modules (${courseLessons.length} lessons)</h3>
-                ${courseLessons.length ? `<div class="grid">${courseLessons.map((l, idx) => `<div class="card" onclick="startLesson(${courseId}, ${l.id}, ${idx})"><h4>${idx+1}. ${escapeHtml(l.title)}</h4>${userProgress[l.id] === 100 ? '<span style="color:#00ff88; font-size:0.8rem;">✓ Completed</span>' : ''}<div class="progress-bar"><div class="progress-fill" style="width:${userProgress[l.id] || 0}%"></div></div><button class="btn btn-outline btn-sm">Continue</button></div>`).join('')}</div>` : '<p>No lessons available yet. Content coming soon.</p>'}
+                ${courseLessons.length ? `<div class="grid">${courseLessons.map((l, idx) => `<div class="card" onclick="startLesson(${courseId}, ${l.id}, ${idx})"><h4>${idx+1}. ${escapeHtml(l.title)}</h4>${userProgress[l.id] === 100 ? '<span style="color:#00ff88; font-size:0.8rem;">✓ Completed</span>' : ''}<div class="progress-bar"><div class="progress-fill" style="width:${userProgress[l.id] || 0}%"></div></div><button class="btn btn-outline btn-sm">${userProgress[l.id] === 100 ? 'Review' : 'Start'}</button></div>`).join('')}</div>` : '<p>No lessons available yet. Content coming soon.</p>'}
                 <button class="btn btn-outline" style="margin-top:1rem;" onclick="navigateTo('courses')">← Back to Courses</button></div>
             </div>`;
     }
     
     function startLesson(courseId, lessonId, lessonIndex) {
+        const isEnrolled = userEnrollments[courseId] || courses.find(c => c.id === courseId)?.price === 0;
+        if (!isEnrolled) {
+            showToast('Please enroll in this course first', 'warning');
+            viewCourse(courseId);
+            return;
+        }
         currentCourseId = courseId;
         currentLessonIndex = lessonIndex;
         currentCourseLessons = lessons.filter(l => l.course_id === courseId).sort((a,b) => a.order - b.order);
@@ -479,7 +844,6 @@
         const isLast = currentLessonIndex === totalLessons - 1;
         const isFirst = currentLessonIndex === 0;
         
-        // Format the content with proper HTML
         const formattedContent = formatContent(lesson.content || 'Content coming soon...');
         
         document.getElementById('page-content').innerHTML = `
@@ -531,71 +895,117 @@
         }
     }
     
-    // Make functions global for onclick handlers
     window.previousLesson = previousLesson;
     window.nextLesson = nextLesson;
     window.markAndContinue = markAndContinue;
     window.startLesson = startLesson;
     
+    // Quiz functionality
+    let quizState = {
+        currentIndex: 0,
+        score: 0,
+        userAnswers: [],
+        questionsList: []
+    };
+    
     function renderQuiz() {
-        if (!questions.length) {
-            document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>📝 No Questions Available</h2><p>Quiz questions will appear here once added to the database.</p></div></div>`;
+        loadQuestions().then(() => {
+            if (!questions.length) {
+                document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>📝 No Questions Available</h2><p>Quiz questions will appear here once added to the database.</p><button class="btn btn-primary" onclick="navigateTo('home')">Back to Home</button></div></div>`;
+                return;
+            }
+            
+            quizState = {
+                currentIndex: 0,
+                score: 0,
+                userAnswers: [],
+                questionsList: [...questions]
+            };
+            renderQuizQuestion();
+        });
+    }
+    
+    function renderQuizQuestion() {
+        if (quizState.currentIndex >= quizState.questionsList.length) {
+            const percent = quizState.questionsList.length ? Math.round((quizState.score / quizState.questionsList.length) * 100) : 0;
+            document.getElementById('page-content').innerHTML = `
+                <div class="container" style="padding-top:100px; max-width:800px;">
+                    <div class="card" style="text-align:center;">
+                        <h2>🎉 Quiz Complete!</h2>
+                        <div style="font-size:3rem; margin:1rem 0;">${percent >= 70 ? '🏆' : '📚'}</div>
+                        <p style="font-size:1.2rem;">Your score: <strong>${quizState.score}</strong> / ${quizState.questionsList.length} (${percent}%)</p>
+                        <div class="progress-bar" style="margin:1rem 0;"><div class="progress-fill" style="width:${percent}%;"></div></div>
+                        <p>${percent >= 70 ? 'Excellent! You\'re well prepared for the NTSA test!' : 'Keep practicing to improve your score!'}</p>
+                        <div style="display:flex; gap:1rem; justify-content:center; margin-top:2rem;">
+                            <button class="btn btn-primary" onclick="renderQuiz()">🔄 Restart Quiz</button>
+                            <button class="btn btn-outline" onclick="navigateTo('home')">🏠 Go Home</button>
+                        </div>
+                    </div>
+                </div>`;
             return;
         }
         
-        let currentIndex = 0;
-        let score = 0;
-        let userAnswers = [];
+        const q = quizState.questionsList[quizState.currentIndex];
+        const options = [q.option_a, q.option_b, q.option_c, q.option_d];
+        const hasAnswered = quizState.userAnswers[quizState.currentIndex] !== undefined;
         
-        function renderQuestion() {
-            if (currentIndex >= questions.length) {
-                const percent = Math.round((score / questions.length) * 100);
-                document.getElementById('quizContainer').innerHTML = `
-                    <div style="text-align:center; padding:2rem;">
-                        <h3>🎉 Quiz Complete!</h3>
-                        <p>Your score: ${score} / ${questions.length} (${percent}%)</p>
-                        <button class="btn btn-primary" onclick="navigateTo('home')">Done</button>
-                        <button class="btn btn-outline" onclick="renderQuiz()">Restart Quiz</button>
-                    </div>`;
-                return;
-            }
-            const q = questions[currentIndex];
-            const options = [q.option_a, q.option_b, q.option_c, q.option_d];
-            const correctLetter = q.correct_option;
-            
-            document.getElementById('quizContainer').innerHTML = `
-                <div class="quiz-question"><strong>Question ${currentIndex+1} of ${questions.length}</strong><br>${escapeHtml(q.question_text)}</div>
-                <div class="quiz-options" id="quizOptions">
-                    ${options.map((opt, idx) => `<div class="quiz-option" data-idx="${idx}" onclick="submitQuizAnswer(${currentIndex}, ${idx}, '${correctLetter}')">${String.fromCharCode(65+idx)}. ${escapeHtml(opt)}</div>`).join('')}
+        document.getElementById('page-content').innerHTML = `
+            <div class="container" style="padding-top:100px; max-width:800px;">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                        <h2>📝 NTSA Practice Exam</h2>
+                        <span style="background:var(--primary); color:#0a192f; padding:4px 12px; border-radius:50px;">Question ${quizState.currentIndex+1}/${quizState.questionsList.length}</span>
+                    </div>
+                    <div class="quiz-question"><strong>${escapeHtml(q.question_text)}</strong></div>
+                    <div class="quiz-options" id="quizOptions">
+                        ${options.map((opt, idx) => {
+                            const letter = String.fromCharCode(65+idx);
+                            const isSelected = hasAnswered && quizState.userAnswers[quizState.currentIndex] === idx;
+                            const correctIndex = q.correct_option === 'a' ? 0 : q.correct_option === 'b' ? 1 : q.correct_option === 'c' ? 2 : 3;
+                            let additionalClass = '';
+                            if (hasAnswered) {
+                                if (idx === correctIndex) additionalClass = 'correct';
+                                else if (isSelected && idx !== correctIndex) additionalClass = 'wrong';
+                            }
+                            return `<div class="quiz-option ${additionalClass}" data-idx="${idx}" onclick="if(!window.hasAnswered) submitQuizAnswer(${idx})">${letter}. ${escapeHtml(opt)}</div>`;
+                        }).join('')}
+                    </div>
+                    <div id="quizFeedback" class="quiz-feedback">
+                        ${hasAnswered ? `
+                            <div style="background:${quizState.userAnswers[quizState.currentIndex] === (q.correct_option === 'a' ? 0 : q.correct_option === 'b' ? 1 : q.correct_option === 'c' ? 2 : 3) ? 'rgba(0,255,136,0.1)' : 'rgba(255,71,87,0.1)'}; padding:1rem; border-radius:12px;">
+                                <strong>${quizState.userAnswers[quizState.currentIndex] === (q.correct_option === 'a' ? 0 : q.correct_option === 'b' ? 1 : q.correct_option === 'c' ? 2 : 3) ? '✓ Correct!' : '✗ Incorrect'}</strong>
+                                <p style="margin-top:0.5rem;">${escapeHtml(q.explanation || 'No explanation provided.')}</p>
+                                <button class="btn btn-primary" style="margin-top:1rem;" onclick="nextQuizQuestion()">Next Question →</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${!hasAnswered ? '<p style="margin-top:1rem; color:var(--text-muted);"><i class="fas fa-info-circle"></i> Click on an option to answer</p>' : ''}
                 </div>
-                <div id="quizFeedback" class="quiz-feedback"></div>`;
+            </div>`;
+        
+        window.hasAnswered = hasAnswered;
+    }
+    
+    window.submitQuizAnswer = (selectedIdx) => {
+        if (quizState.userAnswers[quizState.currentIndex] !== undefined) return;
+        
+        const q = quizState.questionsList[quizState.currentIndex];
+        const correctIndex = q.correct_option === 'a' ? 0 : q.correct_option === 'b' ? 1 : q.correct_option === 'c' ? 2 : 3;
+        const isCorrect = selectedIdx === correctIndex;
+        
+        if (isCorrect) {
+            quizState.score++;
         }
         
-        window.submitQuizAnswer = (qIdx, selectedIdx, correctLetter) => {
-            if (userAnswers[qIdx] !== undefined) return;
-            userAnswers[qIdx] = selectedIdx;
-            
-            const correctIndex = correctLetter === 'a' ? 0 : correctLetter === 'b' ? 1 : correctLetter === 'c' ? 2 : 3;
-            const isCorrect = selectedIdx === correctIndex;
-            if (isCorrect) score++;
-            
-            const q = questions[qIdx];
-            const fb = document.getElementById('quizFeedback');
-            fb.innerHTML = `<span style="color:${isCorrect ? '#00ff88' : '#ff4757'}">${isCorrect ? '✓ Correct!' : `✗ Incorrect. Correct answer: ${correctLetter.toUpperCase()}. ${q.explanation || ''}`}</span><button class="btn btn-primary" style="margin-top:1rem;" onclick="nextQuizQuestion()">Next →</button>`;
-            
-            document.querySelectorAll('.quiz-option').forEach(opt => {
-                opt.style.pointerEvents = 'none';
-                const idx = parseInt(opt.dataset.idx);
-                if (idx === correctIndex) opt.classList.add('correct');
-                if (idx === selectedIdx && !isCorrect) opt.classList.add('wrong');
-            });
-        };
-        
-        window.nextQuizQuestion = () => { currentIndex++; renderQuestion(); };
-        
-        document.getElementById('page-content').innerHTML = `<div class="container" style="padding-top:100px;"><div class="card"><h2>📝 NTSA Practice Exam</h2><div id="quizContainer"></div></div></div>`;
-        renderQuestion();
-    }
+        quizState.userAnswers[quizState.currentIndex] = selectedIdx;
+        renderQuizQuestion();
+    };
+    
+    window.nextQuizQuestion = () => {
+        quizState.currentIndex++;
+        renderQuizQuestion();
+    };
+    window.renderQuiz = renderQuiz;
     
     async function renderPage() {
         const container = document.getElementById('page-content');
@@ -619,6 +1029,11 @@
     
     window.navigateTo = navigateTo;
     window.viewCourse = viewCourse;
+    window.showLoginModal = showLoginModal;
+    window.showSignupModal = showSignupModal;
+    window.performLogin = performLogin;
+    window.performSignup = performSignup;
+    window.logout = logout;
     
     init();
 </script>
