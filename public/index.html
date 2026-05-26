@@ -26,7 +26,6 @@
             --text-muted: #a0b3d9; 
         }
         
-        /* Fixed navbar - no shaking */
         .navbar { 
             position: fixed; 
             top: 0; 
@@ -126,7 +125,6 @@
         .progress-bar { background: #1e2a3a; border-radius: 10px; height: 6px; margin: 12px 0; }
         .progress-fill { background: var(--primary); height: 6px; border-radius: 10px; width: 0%; }
         
-        /* Quiz styles */
         .quiz-question { font-size: 1.2rem; margin-bottom: 1.5rem; font-weight: 500; }
         .quiz-option { 
             background: #112240; 
@@ -142,7 +140,6 @@
         .quiz-option.wrong { background: rgba(255,71,87,0.2); border-color: #ff4757; }
         .quiz-feedback { margin-top: 1rem; padding: 12px; border-radius: 12px; }
         
-        /* Lesson navigation */
         .lesson-nav { 
             display: flex; 
             justify-content: space-between; 
@@ -152,15 +149,16 @@
         }
         .lesson-content { 
             line-height: 1.8; 
-            white-space: pre-wrap; 
             font-size: 1rem; 
+            min-height: 300px;
         }
-        .lesson-content h1, .lesson-content h2, .lesson-content h3 { 
-            margin: 1rem 0 0.5rem; 
-            color: var(--primary); 
-        }
+        .lesson-content h1 { font-size: 1.8rem; margin: 1rem 0 0.5rem; color: var(--primary); }
+        .lesson-content h2 { font-size: 1.5rem; margin: 1rem 0 0.5rem; color: var(--primary); }
+        .lesson-content h3 { font-size: 1.3rem; margin: 0.8rem 0 0.5rem; color: var(--primary); }
         .lesson-content p { margin: 0.5rem 0; }
         .lesson-content ul, .lesson-content ol { margin: 0.5rem 0 0.5rem 1.5rem; }
+        .lesson-content li { margin: 0.25rem 0; }
+        .lesson-content strong { color: var(--primary); }
         
         .loading-spinner { 
             width: 40px; 
@@ -235,6 +233,11 @@
             .mobile-menu { display: block; } 
             .grid { grid-template-columns: 1fr; }
         }
+        
+        button:disabled, .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -268,6 +271,11 @@
     let questions = [];
     let userProgress = {};
     
+    // Lesson navigation state
+    let currentCourseId = null;
+    let currentLessonIndex = 0;
+    let currentCourseLessons = [];
+    
     function showToast(msg, type = 'info') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -279,6 +287,33 @@
     
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     function toggleMobileMenu() { document.getElementById('navLinks')?.classList.toggle('show'); }
+    
+    // Convert markdown-style content to HTML
+    function formatContent(content) {
+        if (!content) return '<p>Content coming soon...</p>';
+        
+        let html = content;
+        
+        // Convert headers
+        html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+        html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+        html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+        
+        // Convert bold
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Convert lists
+        html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+        html = html.replace(/<li>.*?<\/li>/gs, match => `<ul>${match}</ul>`);
+        
+        // Convert paragraphs
+        html = html.replace(/^(?!<[hl]|<ul|<li)(.*$)/gm, '<p>$1</p>');
+        
+        // Clean up empty paragraphs
+        html = html.replace(/<p>\s*<\/p>/g, '');
+        
+        return html;
+    }
     
     async function loadCourses() {
         const { data, error } = await supabase.from('courses').select('*');
@@ -428,11 +463,6 @@
             </div>`;
     }
     
-    // Lesson navigation state
-    let currentCourseId = null;
-    let currentLessonIndex = 0;
-    let currentCourseLessons = [];
-    
     function startLesson(courseId, lessonId, lessonIndex) {
         currentCourseId = courseId;
         currentLessonIndex = lessonIndex;
@@ -449,6 +479,9 @@
         const isLast = currentLessonIndex === totalLessons - 1;
         const isFirst = currentLessonIndex === 0;
         
+        // Format the content with proper HTML
+        const formattedContent = formatContent(lesson.content || 'Content coming soon...');
+        
         document.getElementById('page-content').innerHTML = `
             <div class="container" style="padding-top:100px; max-width:900px;">
                 <div class="card">
@@ -457,11 +490,11 @@
                         <span style="background:var(--primary); color:#0a192f; padding:4px 12px; border-radius:50px;">Lesson ${currentLessonIndex+1} of ${totalLessons}</span>
                     </div>
                     <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-                    <div class="lesson-content">${escapeHtml(lesson.content || 'Content coming soon...')}</div>
+                    <div class="lesson-content">${formattedContent}</div>
                     <div class="lesson-nav">
-                        <button class="btn btn-outline" onclick="previousLesson()" ${isFirst ? 'disabled' : ''} style="${isFirst ? 'opacity:0.5; cursor:not-allowed;' : ''}">◀ Previous</button>
+                        <button class="btn btn-outline" onclick="previousLesson()" ${isFirst ? 'disabled' : ''}>◀ Previous</button>
                         <button class="btn btn-primary" onclick="markAndContinue()">✓ Mark Complete & Continue</button>
-                        <button class="btn btn-outline" onclick="nextLesson()" ${isLast ? 'disabled' : ''} style="${isLast ? 'opacity:0.5; cursor:not-allowed;' : ''}">Next ▶</button>
+                        <button class="btn btn-outline" onclick="nextLesson()" ${isLast ? 'disabled' : ''}>Next ▶</button>
                     </div>
                     <button class="btn btn-outline" style="margin-top:1rem;" onclick="viewCourse(${currentCourseId})">← Back to Course</button>
                 </div>
@@ -472,10 +505,8 @@
         const lesson = currentCourseLessons[currentLessonIndex];
         if (!lesson) return;
         
-        // Mark current lesson as complete
         await updateProgress(lesson.id, 100);
         
-        // Move to next lesson if not last
         if (currentLessonIndex < currentCourseLessons.length - 1) {
             currentLessonIndex++;
             renderLessonPage();
@@ -531,29 +562,27 @@
             const q = questions[currentIndex];
             const options = [q.option_a, q.option_b, q.option_c, q.option_d];
             const correctLetter = q.correct_option;
-            const correctIndex = correctLetter === 'a' ? 0 : correctLetter === 'b' ? 1 : correctLetter === 'c' ? 2 : 3;
             
             document.getElementById('quizContainer').innerHTML = `
                 <div class="quiz-question"><strong>Question ${currentIndex+1} of ${questions.length}</strong><br>${escapeHtml(q.question_text)}</div>
                 <div class="quiz-options" id="quizOptions">
-                    ${options.map((opt, idx) => `<div class="quiz-option" data-idx="${idx}" onclick="submitQuizAnswer(${currentIndex}, ${idx}, ${correctIndex === idx})">${String.fromCharCode(65+idx)}. ${escapeHtml(opt)}</div>`).join('')}
+                    ${options.map((opt, idx) => `<div class="quiz-option" data-idx="${idx}" onclick="submitQuizAnswer(${currentIndex}, ${idx}, '${correctLetter}')">${String.fromCharCode(65+idx)}. ${escapeHtml(opt)}</div>`).join('')}
                 </div>
                 <div id="quizFeedback" class="quiz-feedback"></div>`;
         }
         
-        window.submitQuizAnswer = (qIdx, selectedIdx, isCorrect) => {
+        window.submitQuizAnswer = (qIdx, selectedIdx, correctLetter) => {
             if (userAnswers[qIdx] !== undefined) return;
             userAnswers[qIdx] = selectedIdx;
+            
+            const correctIndex = correctLetter === 'a' ? 0 : correctLetter === 'b' ? 1 : correctLetter === 'c' ? 2 : 3;
+            const isCorrect = selectedIdx === correctIndex;
             if (isCorrect) score++;
             
             const q = questions[qIdx];
-            const correctLetter = q.correct_option;
-            const correctIndex = correctLetter === 'a' ? 0 : correctLetter === 'b' ? 1 : correctLetter === 'c' ? 2 : 3;
-            
             const fb = document.getElementById('quizFeedback');
             fb.innerHTML = `<span style="color:${isCorrect ? '#00ff88' : '#ff4757'}">${isCorrect ? '✓ Correct!' : `✗ Incorrect. Correct answer: ${correctLetter.toUpperCase()}. ${q.explanation || ''}`}</span><button class="btn btn-primary" style="margin-top:1rem;" onclick="nextQuizQuestion()">Next →</button>`;
             
-            // Disable further clicks on options
             document.querySelectorAll('.quiz-option').forEach(opt => {
                 opt.style.pointerEvents = 'none';
                 const idx = parseInt(opt.dataset.idx);
