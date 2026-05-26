@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Course Player | MEI DRIVE AFRICA</title>
+    <title>MEI DRIVE AFRICA | Professional Driver Training</title>
     <meta name="theme-color" content="#0a192f">
-    <meta name="description" content="NTSA-approved driver training course player with progress tracking">
+    <meta name="description" content="NTSA-approved driver training platform with interactive courses">
     
-    <!-- Favicon (brand-compatible "M" emblem) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGQSURBVHgB7VfNdYJAEB5WEJUgVkBKkEoIVoBUQLQCpQKpQKxAqECpQKxAqECoQKhAqECoIDoP8kMY2N27cJkvM8nuzvDtzPezuxIkSTq1jkP/uI4fKSFJ0jjHGMuyrHMcF6E+DMOOQL/fn63rTykQBAF2u13mFjCbzYR1XaeInDnGmOL7PvZ+HxGJMMbQaDTQaDRuBpimyRnjgNvtFrZtKxMTEaxWKygpB2yxWGBd1xHlE/r9PkzTxL7vI8ZkMkG9Xh/j+XyO4/GI+XyOVqt1c8C2bTidTgiCQHoOwzBQq9UQRRGCIECs18PhgNPphH3fw/d9+L4P27bx9PSE1+srTvzwDeB7v9/jfr+j2+3K4/1+T4lJkoQoijJ+PB5xOp0wTROO4yBJEmzbphie50FVVVQqFdi2jW3bUhzTNFEul/G+78WfiChN03+CnE4nxHGMNE0RRRFUVUW5XMZ+v0eWZTK+WCxQrVYpPo5jWJaFNE0RhiECz/Ng2zYqlQrSNEWSJCWfdjodStI0het6UrDb7ajP/X6Pfd/LaVEUpRC73Y4kSdJ/SX4BqHAS3K6CEYoAAAAASUVORK5CYII=">
-    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGQSURBVHgB7VfNdYJAEB5WEJUgVkBKkEoIVoBUQLQCpQKpQKxAqECpQKxAqECoQKhAqECoIDoP8kMY2N27cJkvM8nuzvDtzPezuxIkSTq1jkP/uI4fKSFJ0jjHGMuyrHMcF6E+DMOOQL/fn63rTykQBAF2u13mFjCbzYR1XaeInDnGmOL7PvZ+HxGJMMbQaDTQaDRuBpimyRnjgNvtFrZtKxMTEaxWKygpB2yxWGBd1xHlE/r9PkzTxL7vI8ZkMkG9Xh/j+XyO4/GI+XyOVqt1c8C2bTidTgiCQHoOwzBQq9UQRRGCIECs18PhgNPphH3fw/d9+L4P27bx9PSE1+srTvzwDeB7v9/jfr+j2+3K4/1+T4lJkoQoijJ+PB5xOp0wTROO4yBJEmzbphie50FVVVQqFdi2jW3bUhzTNFEul/G+78WfiChN03+CnE4nxHGMNE0RRRFUVUW5XMZ+v0eWZTK+WCxQrVYpPo5jWJaFNE0RhiECz/Ng2zYqlQrSNEWSJCWfdjodStI0het6UrDb7ajP/X6Pfd/LaVEUpRC73Y4kSdJ/SX4BqHAS3K6CEYoAAAAASUVORK5CYII=">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,11 +21,13 @@
         
         .navbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(10,25,47,0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 1000; padding: 0.8rem 2rem; }
         .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-        .logo { font-size: 1.3rem; font-weight: 800; background: linear-gradient(135deg, #00ff88, #00cc66); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .logo { font-size: 1.3rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #00ff88, #00cc66); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #0a192f; }
+        .logo span { background: linear-gradient(135deg, #00ff88, #00cc66); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .nav-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
         .nav-links button { background: transparent; border: none; color: #a0b3d9; padding: 8px 14px; border-radius: 50px; cursor: pointer; transition: 0.2s; font-weight: 500; }
         .nav-links button:hover { background: rgba(0,255,136,0.1); color: var(--primary); }
+        .nav-links button.active { background: rgba(0,255,136,0.15); color: var(--primary); }
         .btn { padding: 12px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
         .btn-primary { background: linear-gradient(135deg, #00ff88, #00cc66); color: #0a192f; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,255,136,0.3); }
@@ -34,9 +35,13 @@
         .btn-outline:hover { background: rgba(0,255,136,0.1); }
         .btn-sm { padding: 8px 20px; font-size: 13px; }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+        .hero { text-align: center; padding: 120px 20px 60px; background: linear-gradient(135deg, rgba(10,25,47,0.95), rgba(13,33,55,0.85)); margin-bottom: 2rem; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero h1 span { color: var(--primary); }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.8rem; margin: 2rem 0; }
-        .card { background: #0d2137; border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; transition: 0.2s; }
-        .card:hover { border-color: var(--primary); }
+        .card { background: #0d2137; border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; transition: 0.2s; cursor: pointer; }
+        .card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .course-price { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin: 0.5rem 0; }
         .progress-bar { background: #1e2a3a; border-radius: 10px; height: 6px; margin: 12px 0; }
         .progress-fill { background: var(--primary); height: 6px; border-radius: 10px; width: 0%; transition: width 0.3s; }
         .lesson-content { line-height: 1.8; padding: 1rem 0; }
@@ -49,10 +54,14 @@
         .toast { background: #0d2137; border-left: 4px solid var(--primary); padding: 12px 20px; border-radius: 12px; margin-top: 8px; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); color: var(--text-muted); margin-top: 3rem; }
-        .lesson-nav { display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem; flex-wrap: wrap; }
-        .enrolled-badge { display: inline-block; background: rgba(0,255,136,0.2); color: var(--primary); font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; margin-left: 10px; }
+        .stats-bar { background: #0d2137; padding: 2rem; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 2rem; text-align: center; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+        .stat-item h3 { font-size: 2rem; color: var(--primary); }
+        .section-title { text-align: center; font-size: 2rem; margin: 2rem 0; }
+        .section-title span { color: var(--primary); }
         .user-badge { background: rgba(0,255,136,0.15); border-radius: 40px; padding: 6px 16px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
         .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
+        .enrolled-badge { display: inline-block; background: rgba(0,255,136,0.2); color: var(--primary); font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; margin-left: 10px; }
+        .lesson-nav { display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem; flex-wrap: wrap; }
         .units-sidebar { background: #0d2137; border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); position: sticky; top: 90px; height: fit-content; }
         .unit-item { padding: 12px 16px; margin-bottom: 8px; border-radius: 12px; cursor: pointer; transition: 0.2s; border-left: 3px solid transparent; }
         .unit-item:hover { background: rgba(0,255,136,0.08); }
@@ -63,6 +72,7 @@
         .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; }
         
         @media (max-width: 768px) { 
+            .hero h1 { font-size: 2rem; } 
             .nav-links { display: none; width: 100%; flex-direction: column; padding: 1rem 0; } 
             .nav-links.show { display: flex; } 
             .mobile-menu { display: block; } 
@@ -79,14 +89,14 @@
 <div id="app">
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo" onclick="window.location.href='index.html'">
+            <div class="logo" onclick="navigateTo('home')">
                 <div class="logo-icon">M</div>
-                MEI DRIVE <span style="color:#00ff88;">AFRICA</span>
+                MEI DRIVE <span>AFRICA</span>
             </div>
             <div class="mobile-menu" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></div>
             <div class="nav-links" id="navLinks">
-                <button onclick="window.location.href='index.html'"><i class="fas fa-home"></i> Home</button>
-                <button onclick="window.location.href='courses.html'"><i class="fas fa-book"></i> Courses</button>
+                <button id="navHome" onclick="navigateTo('home')"><i class="fas fa-home"></i> Home</button>
+                <button id="navCourses" onclick="navigateTo('courses')"><i class="fas fa-book"></i> Courses</button>
                 <div id="authButtons"></div>
             </div>
         </div>
@@ -103,6 +113,8 @@
     
     let supabase;
     let currentUser = null;
+    let currentPage = 'home';
+    let courses = [];
     let currentCourse = null;
     let courseLessons = [];
     let currentLessonIndex = 0;
@@ -121,48 +133,44 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     function toggleMobileMenu() { document.getElementById('navLinks')?.classList.toggle('show'); }
     
-    async function loadCourseData(courseId) {
+    async function loadCourses() {
         try {
-            const { data: course, error: courseError } = await supabase
-                .from('courses')
-                .select('*')
-                .eq('id', courseId)
-                .single();
-            if (courseError) throw courseError;
-            currentCourse = course;
-            
-            const { data: lessons, error: lessonsError } = await supabase
+            const { data, error } = await supabase.from('courses').select('*');
+            if (error) throw error;
+            courses = data || [];
+            if (courses.length === 0) {
+                courses = [
+                    { id: 1, name: 'Defensive Driving Course', description: 'Master defensive driving techniques for safer roads.', price: 2999, duration: '6 weeks', icon: 'fa-shield-alt' },
+                    { id: 2, name: 'PSV Driver Training', description: 'Professional public service vehicle operator certification.', price: 3999, duration: '8 weeks', icon: 'fa-bus' },
+                    { id: 3, name: 'EV Driving Essentials', description: 'Electric vehicle operation and safety training.', price: 2499, duration: '4 weeks', icon: 'fa-car-battery' }
+                ];
+            }
+        } catch (err) {
+            console.error('Error loading courses:', err);
+            courses = [
+                { id: 1, name: 'Defensive Driving Course', description: 'Master defensive driving techniques for safer roads.', price: 2999, duration: '6 weeks', icon: 'fa-shield-alt' },
+                { id: 2, name: 'PSV Driver Training', description: 'Professional public service vehicle operator certification.', price: 3999, duration: '8 weeks', icon: 'fa-bus' },
+                { id: 3, name: 'EV Driving Essentials', description: 'Electric vehicle operation and safety training.', price: 2499, duration: '4 weeks', icon: 'fa-car-battery' }
+            ];
+        }
+    }
+    
+    async function loadCourseLessons(courseId) {
+        try {
+            const { data, error } = await supabase
                 .from('lessons')
                 .select('*')
                 .eq('course_id', courseId)
                 .order('order', { ascending: true });
-            if (!lessonsError && lessons && lessons.length) {
-                courseLessons = lessons;
-            } else {
-                // fallback demo content
-                courseLessons = [{
-                    id: 0,
-                    title: 'Welcome to ' + (course.name || 'this course'),
-                    content: `## 🚗 Welcome to ${course.name || 'Professional Driving'}!\n\n${course.description || 'Start your journey to becoming a certified driver with MEI DRIVE AFRICA.'}\n\n### 📌 What you will learn:\n- Road safety fundamentals & NTSA guidelines\n- Defensive driving techniques\n- Kenyan traffic rules and regulations\n- Practical driving skills & hazard perception\n- Professional driver ethics\n\n✅ Click **"Mark Complete"** when you've finished this introduction.`,
-                    order: 1,
-                    estimated_minutes: 12
-                }];
-            }
-            
-            await loadUserData();
-            renderCoursePlayer();
-        } catch (err) {
-            console.error('Error loading course:', err);
-            document.getElementById('page-content').innerHTML = `
-                <div class="container" style="padding-top: 120px;">
-                    <div class="card" style="text-align:center;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff4757; margin-bottom: 1rem;"></i>
-                        <h2>Course Not Found</h2>
-                        <p>${escapeHtml(err.message)}</p>
-                        <button class="btn btn-primary" onclick="window.location.href='courses.html'"><i class="fas fa-arrow-left"></i> Browse Courses</button>
-                    </div>
-                </div>`;
-        }
+            if (!error && data && data.length) return data;
+        } catch (err) {}
+        
+        // Demo lessons
+        return [
+            { id: `${courseId}_1`, title: 'Introduction to Safe Driving', content: `## Welcome!\n\nThis course will transform your driving skills.\n\n### Key topics covered:\n- Road safety fundamentals\n- Vehicle control basics\n- NTSA regulations overview`, estimated_minutes: 15, order: 1 },
+            { id: `${courseId}_2`, title: 'Defensive Driving Techniques', content: `## Defensive Driving\n\nLearn how to anticipate hazards and react safely.\n\n### Essential techniques:\n- Scanning ahead\n- Maintaining safe following distance\n- Identifying escape routes`, estimated_minutes: 20, order: 2 },
+            { id: `${courseId}_3`, title: 'Traffic Rules & Regulations', content: `## Kenyan Traffic Laws\n\nUnderstanding the Highway Code is essential for every driver.\n\n### Key rules:\n- Speed limits in different zones\n- Right of way rules\n- Traffic sign meanings`, estimated_minutes: 18, order: 3 }
+        ];
     }
     
     async function loadUserData() {
@@ -170,7 +178,7 @@
         currentUser = session?.user || null;
         updateAuthUI();
         
-        if (currentUser && currentCourse) {
+        if (currentUser) {
             const { data: progress } = await supabase
                 .from('user_progress')
                 .select('lesson_id, progress_percentage')
@@ -207,7 +215,7 @@
         userProgress = {};
         userEnrollments = {};
         updateAuthUI(); 
-        renderCoursePlayer();
+        navigateTo('home');
         showToast('Logged out successfully', 'info');
     }
     
@@ -224,7 +232,7 @@
                         ${mode === 'login' ? 'No account? ' : 'Already have an account? '}
                         <span style="color:var(--primary);cursor:pointer;" onclick="showAuthModal('${mode === 'login' ? 'signup' : 'login'}')">${mode === 'login' ? 'Sign Up' : 'Login'}</span>
                     </p>
-                    <button class="btn btn-outline" style="width:100%; margin-top:0.5rem;" onclick="location.reload()">Cancel</button>
+                    <button class="btn btn-outline" style="width:100%; margin-top:0.5rem;" onclick="navigateTo('home')">Cancel</button>
                 </div>
             </div>`;
     }
@@ -236,48 +244,56 @@
         if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
         
         if (mode === 'signup') {
-            const fullName = document.getElementById('signupName')?.value;
-            const { error } = await supabase.auth.signUp({ 
-                email, password, 
-                options: { data: { full_name: fullName || email.split('@')[0] } } 
-            });
+            const { error } = await supabase.auth.signUp({ email, password });
             if (error) { showToast(error.message, 'error'); return; }
-            showToast('Account created! Please verify your email (check spam).', 'success');
+            showToast('Account created! Please verify your email.', 'success');
+            navigateTo('home');
         } else {
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) { showToast(error.message, 'error'); return; }
-            showToast(`Welcome back, ${email.split('@')[0]}!`, 'success');
+            showToast(`Welcome back!`, 'success');
+            await loadUserData();
+            navigateTo('home');
         }
-        await loadUserData();
-        renderCoursePlayer();
     }
     
-    function isEnrolled() {
-        if (!currentCourse) return false;
-        if (currentCourse.price === 0 || currentCourse.price === '0' || currentCourse.type === 'free') return true;
-        return userEnrollments[currentCourse.id] === true;
+    function isEnrolled(courseId) {
+        if (!currentUser) return false;
+        const course = courses.find(c => c.id === courseId);
+        if (course && (course.price === 0 || course.type === 'free')) return true;
+        return userEnrollments[courseId] === true;
     }
     
-    async function enrollFree() {
+    async function enrollInCourse(courseId) {
         if (!currentUser) { showAuthModal('login'); return; }
         const { error } = await supabase.from('user_enrollments').upsert({
             user_id: currentUser.id,
-            course_id: currentCourse.id,
+            course_id: courseId,
             payment_status: 'completed',
             amount_paid: 0,
             paid_at: new Date().toISOString()
         });
         if (!error) {
-            userEnrollments[currentCourse.id] = true;
-            showToast('✅ Successfully enrolled! Start learning now.', 'success');
-            renderCoursePlayer();
+            userEnrollments[courseId] = true;
+            showToast('✅ Successfully enrolled!', 'success');
+            viewCourse(courseId);
         } else {
-            showToast('Enrollment failed. Please try again.', 'error');
+            showToast('Enrollment failed', 'error');
         }
     }
     
+    async function viewCourse(courseId) {
+        currentCourse = courses.find(c => c.id === courseId);
+        if (!currentCourse) return;
+        
+        courseLessons = await loadCourseLessons(courseId);
+        currentLessonIndex = 0;
+        currentPage = 'course';
+        renderCoursePlayer();
+    }
+    
     function formatLessonContent(content) {
-        if (!content) return '<p>📘 Content is being prepared by our expert instructors. Stay tuned!</p>';
+        if (!content) return '<p>📘 Content is being prepared.</p>';
         let html = content;
         html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
         html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
@@ -299,11 +315,7 @@
     }
     
     async function markLessonComplete(lessonId) {
-        if (!currentUser) { showToast('Login to track your progress', 'warning'); showAuthModal('login'); return; }
-        if (userProgress[lessonId] === 100) {
-            showToast('You already completed this lesson!', 'info');
-            return;
-        }
+        if (!currentUser) { showToast('Login to track progress', 'warning'); showAuthModal('login'); return; }
         const { error } = await supabase.from('user_progress').upsert({
             user_id: currentUser.id,
             lesson_id: lessonId,
@@ -312,28 +324,25 @@
         });
         if (!error) {
             userProgress[lessonId] = 100;
-            showToast('🎉 Lesson completed! Great progress.', 'success');
+            showToast('🎉 Lesson completed!', 'success');
             if (currentLessonIndex < courseLessons.length - 1) {
-                setTimeout(() => {
-                    currentLessonIndex++;
-                    renderCoursePlayer();
-                    window.scrollTo({ top: 100, behavior: 'smooth' });
-                }, 500);
+                currentLessonIndex++;
+                renderCoursePlayer();
+                window.scrollTo({ top: 100, behavior: 'smooth' });
             } else {
                 renderCoursePlayer();
-                showToast('🏆 Congratulations! You have finished all lessons.', 'success');
+                showToast('🏆 Congratulations! Course completed!', 'success');
             }
-        } else {
-            showToast('Error saving progress', 'error');
         }
     }
     
     function renderCoursePlayer() {
         if (!currentCourse) return;
         
-        const enrolled = isEnrolled();
+        const enrolled = isEnrolled(currentCourse.id);
         const progressPercent = getCourseProgress();
         const currentLesson = courseLessons[currentLessonIndex];
+        const completedCount = courseLessons.filter(l => userProgress[l.id] === 100).length;
         
         if (!enrolled && currentCourse.price > 0) {
             document.getElementById('page-content').innerHTML = `
@@ -341,16 +350,14 @@
                     <div class="card" style="text-align:center;">
                         <i class="fas fa-lock" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
                         <h2>${escapeHtml(currentCourse.name)}</h2>
-                        <p>${escapeHtml(currentCourse.description || 'Premium course with interactive content, quizzes, and certificate.')}</p>
-                        <div style="font-size: 2rem; font-weight: 800; color: var(--primary); margin: 1rem 0;">KES ${(currentCourse.price || 2999).toLocaleString()}</div>
-                        <button class="btn btn-primary" onclick="enrollFree()"><i class="fas fa-shopping-cart"></i> Enroll Now</button>
-                        <button class="btn btn-outline" style="margin-top: 1rem;" onclick="window.location.href='courses.html'"><i class="fas fa-arrow-left"></i> Browse Courses</button>
+                        <p>${escapeHtml(currentCourse.description)}</p>
+                        <div style="font-size: 2rem; font-weight: 800; color: var(--primary); margin: 1rem 0;">KES ${currentCourse.price.toLocaleString()}</div>
+                        <button class="btn btn-primary" onclick="enrollInCourse(${currentCourse.id})"><i class="fas fa-shopping-cart"></i> Enroll Now</button>
+                        <button class="btn btn-outline" style="margin-top: 1rem;" onclick="navigateTo('courses')"><i class="fas fa-arrow-left"></i> Back to Courses</button>
                     </div>
                 </div>`;
             return;
         }
-        
-        const completedCount = courseLessons.filter(l => userProgress[l.id] === 100).length;
         
         document.getElementById('page-content').innerHTML = `
             <div class="container" style="padding-top: 100px;">
@@ -366,7 +373,7 @@
                                 <div class="unit-item ${idx === currentLessonIndex ? 'active' : ''}" onclick="changeLesson(${idx})">
                                     <div class="unit-number">UNIT ${idx + 1}</div>
                                     <div class="unit-title">${escapeHtml(lesson.title)}</div>
-                                    <div class="unit-duration"><i class="far fa-clock"></i> ${lesson.estimated_minutes || 15} min</div>
+                                    <div class="unit-duration"><i class="far fa-clock"></i> ${lesson.estimated_minutes} min</div>
                                     ${userProgress[lesson.id] === 100 ? '<div style="margin-top: 6px;"><i class="fas fa-check-circle" style="color: #00ff88; font-size: 11px;"></i> <span style="font-size: 11px; color: #00ff88;">Completed</span></div>' : ''}
                                 </div>
                             `).join('')}
@@ -386,9 +393,56 @@
                             <button class="btn btn-outline" onclick="nextLesson()" ${currentLessonIndex === courseLessons.length - 1 ? 'disabled' : ''}>Next <i class="fas fa-arrow-right"></i></button>
                         </div>
                         <div style="margin-top: 1.5rem; text-align: center;">
-                            <button class="btn btn-outline btn-sm" onclick="window.location.href='courses.html'"><i class="fas fa-arrow-left"></i> Back to All Courses</button>
+                            <button class="btn btn-outline btn-sm" onclick="navigateTo('courses')"><i class="fas fa-arrow-left"></i> Back to All Courses</button>
                         </div>
                     </div>
+                </div>
+            </div>`;
+    }
+    
+    function renderHome() {
+        const completedCourses = Object.keys(userEnrollments).length;
+        document.getElementById('page-content').innerHTML = `
+            <div class="hero">
+                <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
+                <p>NTSA-approved courses for Learner, EV, Boda Boda, PSV, and more.</p>
+                <button class="btn btn-primary" onclick="navigateTo('courses')">🚀 Explore Courses</button>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-item"><h3>${courses.length}</h3><p>Courses</p></div>
+                <div class="stat-item"><h3>${courses.reduce((sum, c) => sum + 3, 0)}</h3><p>Lessons</p></div>
+                <div class="stat-item"><h3>${completedCourses}</h3><p>Enrolled</p></div>
+            </div>
+            <div class="container">
+                <h2 class="section-title">Featured <span>Courses</span></h2>
+                <div class="grid">
+                    ${courses.slice(0, 3).map(c => `
+                        <div class="card" onclick="viewCourse(${c.id})">
+                            <i class="fas ${c.icon || 'fa-car'}" style="font-size: 2rem; color: var(--primary);"></i>
+                            <h3>${escapeHtml(c.name)}${isEnrolled(c.id) ? '<span class="enrolled-badge"><i class="fas fa-check-circle"></i> Enrolled</span>' : ''}</h3>
+                            <p>${escapeHtml(c.description)}</p>
+                            <div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div>
+                            <button class="btn btn-primary">${isEnrolled(c.id) ? 'Continue Learning' : 'Enroll Now'}</button>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>`;
+    }
+    
+    function renderCourses() {
+        document.getElementById('page-content').innerHTML = `
+            <div class="container" style="padding-top: 100px;">
+                <h1 class="section-title">All <span>Courses</span></h1>
+                <div class="grid">
+                    ${courses.map(c => `
+                        <div class="card" onclick="viewCourse(${c.id})">
+                            <i class="fas ${c.icon || 'fa-car'}" style="font-size: 2rem; color: var(--primary);"></i>
+                            <h3>${escapeHtml(c.name)}${isEnrolled(c.id) ? '<span class="enrolled-badge"><i class="fas fa-check-circle"></i> Enrolled</span>' : ''}</h3>
+                            <p>${escapeHtml(c.description)}</p>
+                            <div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div>
+                            <button class="btn btn-primary">${isEnrolled(c.id) ? 'Continue Learning' : 'Enroll Now'}</button>
+                        </div>
+                    `).join('')}
                 </div>
             </div>`;
     }
@@ -404,39 +458,35 @@
     function prevLesson() { if (currentLessonIndex > 0) changeLesson(currentLessonIndex - 1); }
     function nextLesson() { if (currentLessonIndex < courseLessons.length - 1) changeLesson(currentLessonIndex + 1); }
     
-    async function init() {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    function navigateTo(page) {
+        currentPage = page;
+        if (page === 'home') renderHome();
+        else if (page === 'courses') renderCourses();
+        else if (page === 'course' && currentCourse) renderCoursePlayer();
+        else renderHome();
         
-        const urlParams = new URLSearchParams(window.location.search);
-        let courseId = urlParams.get('id');
+        document.querySelectorAll('.nav-links button').forEach(btn => btn.classList.remove('active'));
+        if (page === 'home') document.getElementById('navHome')?.classList.add('active');
+        if (page === 'courses') document.getElementById('navCourses')?.classList.add('active');
         
-        // fallback: check sessionStorage if no id param
-        if (!courseId) {
-            const storedCourse = sessionStorage.getItem('selectedCourseId');
-            if (storedCourse) courseId = storedCourse;
-        }
-        
-        if (!courseId) {
-            document.getElementById('page-content').innerHTML = `
-                <div class="container" style="padding-top: 120px;">
-                    <div class="card" style="text-align:center;">
-                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
-                        <h2>No Course Selected</h2>
-                        <p>Please select a course from our catalog to begin learning.</p>
-                        <button class="btn btn-primary" onclick="window.location.href='courses.html'"><i class="fas fa-book"></i> View All Courses</button>
-                    </div>
-                </div>`;
-            return;
-        }
-        
-        await loadCourseData(parseInt(courseId));
+        if (window.innerWidth <= 768) document.getElementById('navLinks')?.classList.remove('show');
+        window.scrollTo({ top: 0 });
     }
     
+    async function init() {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        await loadCourses();
+        await loadUserData();
+        navigateTo('home');
+    }
+    
+    window.viewCourse = viewCourse;
+    window.enrollInCourse = enrollInCourse;
+    window.navigateTo = navigateTo;
     window.changeLesson = changeLesson;
     window.prevLesson = prevLesson;
     window.nextLesson = nextLesson;
     window.markLessonComplete = markLessonComplete;
-    window.enrollFree = enrollFree;
     window.showAuthModal = showAuthModal;
     window.handleAuth = handleAuth;
     window.logout = logout;
