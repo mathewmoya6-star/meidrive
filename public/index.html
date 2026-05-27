@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>MEI Drive Africa | NTSA Approved Driver Training</title>
+    
+    <!-- Favicon - MEI DRIVE AFRICA Logo -->
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB3UlEQVR4nO3aMW7CUBAG4RcKJApKKkpKSgoKFJS0FBQUNBRUFFRQ0FFQUNAhUSAlFikglN/StrRI+CVi2XpPMtL4F9n2s/VfmyIAAAAAAAAAAAAAAAAAAAAAAH/jtE1Jm5Tmn7ZxPzRN02mappM0Tadpmk7TNE1pmmZpmqZpmqZpmqZpmqZpmqZpmqZpmqZpmqZpmqZp/5wXQ8qF1HvYgaYAAAAASUVORK5CYII=">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -109,7 +112,6 @@
         <button id="authSubmitBtn" style="background: var(--primary); color: var(--dark);">Login</button>
         <div style="margin-top: 15px; text-align: center;">
             <span id="authToggleText">Don't have an account?</span>
-            <!-- FIX #1: id="authToggleLink" added so text updates dynamically -->
             <a href="javascript:void(0)" id="authToggleLink" onclick="toggleAuthMode()" style="color: var(--primary);"> Register</a>
         </div>
         <button onclick="closeAuthModal()" style="background: transparent; border: 1px solid var(--gray); color: white;">Cancel</button>
@@ -236,14 +238,14 @@
     const coursesPerPage = 6;
 
     const DEFAULT_COURSES = [
-        { id: 1, name: 'Learner Hub - Complete Driver Training', description: 'NTSA-approved curriculum from basics to road readiness. Covers traffic rules, vehicle controls, defensive driving.', price: 0, type: 'free', icon: '\uD83D\uDCDA', duration: '40 hours', level: 'Beginner' },
-        { id: 2, name: 'Boda Boda Professional Course', description: 'Professional motorcycle taxi training including safety, customer service, road regulations.', price: 0, type: 'free', icon: '\uD83C\uDFCD\uFE0F', duration: '20 hours', level: 'Beginner' },
-        { id: 3, name: 'Defensive Driving Course', description: 'Master advanced driving techniques, hazard perception, emergency maneuvers.', price: 1999, type: 'premium', icon: '\uD83D\uDEE1\uFE0F', duration: '16 hours', level: 'Advanced' },
-        { id: 4, name: 'Professional Driver Course', description: 'Comprehensive training for PSV, logistics, and commercial drivers.', price: 4999, type: 'premium', icon: '\uD83D\uDE9B', duration: '32 hours', level: 'Professional' },
-        { id: 5, name: 'Electric Vehicle Course', description: 'Master EV technology, charging systems, battery maintenance.', price: 2999, type: 'premium', icon: '\u26A1', duration: '12 hours', level: 'Intermediate' },
-        { id: 6, name: 'School Transport Safety', description: 'Specialized certification for school bus drivers.', price: 1999, type: 'premium', icon: '\uD83D\uDEB8', duration: '24 hours', level: 'Professional' },
-        { id: 7, name: 'E-Safety Library', description: 'Digital safety for drivers - online records, cybersecurity.', price: 0, type: 'free', icon: '\uD83D\uDCBB', duration: 'Self-paced', level: 'All Levels' },
-        { id: 8, name: 'Quiz Bank - Exam Preparation', description: '1000+ NTSA practice questions for driving theory test.', price: 0, type: 'free', icon: '\uD83D\uDCDD', duration: 'Self-paced', level: 'All Levels' }
+        { id: 1, name: 'Learner Hub - Complete Driver Training', description: 'NTSA-approved curriculum from basics to road readiness. Covers traffic rules, vehicle controls, defensive driving.', price: 0, type: 'free', icon: '📚', duration: '40 hours', level: 'Beginner' },
+        { id: 2, name: 'Boda Boda Professional Course', description: 'Professional motorcycle taxi training including safety, customer service, road regulations.', price: 0, type: 'free', icon: '🏍️', duration: '20 hours', level: 'Beginner' },
+        { id: 3, name: 'Defensive Driving Course', description: 'Master advanced driving techniques, hazard perception, emergency maneuvers.', price: 1999, type: 'premium', icon: '🛡️', duration: '16 hours', level: 'Advanced' },
+        { id: 4, name: 'Professional Driver Course', description: 'Comprehensive training for PSV, logistics, and commercial drivers.', price: 4999, type: 'premium', icon: '🚛', duration: '32 hours', level: 'Professional' },
+        { id: 5, name: 'Electric Vehicle Course', description: 'Master EV technology, charging systems, battery maintenance.', price: 2999, type: 'premium', icon: '⚡', duration: '12 hours', level: 'Intermediate' },
+        { id: 6, name: 'School Transport Safety', description: 'Specialized certification for school bus drivers.', price: 1999, type: 'premium', icon: '🚸', duration: '24 hours', level: 'Professional' },
+        { id: 7, name: 'E-Safety Library', description: 'Digital safety for drivers - online records, cybersecurity.', price: 0, type: 'free', icon: '💻', duration: 'Self-paced', level: 'All Levels' },
+        { id: 8, name: 'Quiz Bank - Exam Preparation', description: '1000+ NTSA practice questions for driving theory test.', price: 0, type: 'free', icon: '📝', duration: 'Self-paced', level: 'All Levels' }
     ];
 
     function showToast(msg, type='success') {
@@ -264,12 +266,11 @@
         renderCoursesPage();
     }
 
-    // FIX #3 + #4: Proper error visibility
     async function loadUserEnrollments() {
         if(!currentUser) return;
         try {
             const { data, error } = await supabase.from('enrollments').select('course_id, progress').eq('user_id', currentUser.id);
-            if(error) { console.error('Load enrollments failed:', error.message, error); }
+            if(error) { console.error('Load enrollments failed:', error.message); }
             userEnrollments.clear();
             if(data) data.forEach(e => userEnrollments.set(e.course_id, e.progress || 0));
         } catch(e) { console.error('loadUserEnrollments exception:', e); }
@@ -279,13 +280,12 @@
         }
     }
 
-    // FIX #3: No more silent failures
     async function saveEnrollment(courseId, progress=0) {
         if(!currentUser) return false;
         const { error } = await supabase.from('enrollments').upsert({
             user_id: currentUser.id, course_id: courseId, progress, updated_at: new Date()
         });
-        if(error) { console.error('Enrollment error:', error.message, error); return false; }
+        if(error) { console.error('Enrollment error:', error.message); return false; }
         return true;
     }
 
@@ -298,7 +298,7 @@
         if(!pendingPaymentCourse) return;
         showToast('Processing payment... Please check your phone', 'success');
         setTimeout(async () => {
-            showToast(`\u2705 KES ${pendingPaymentCourse.price.toLocaleString()} paid! Enrolling now.`, 'success');
+            showToast(`✅ KES ${pendingPaymentCourse.price.toLocaleString()} paid! Enrolling now.`, 'success');
             const ok = await saveEnrollment(pendingPaymentCourse.id, 0);
             if(ok) { userEnrollments.set(pendingPaymentCourse.id, 0); showToast(`Enrolled in ${pendingPaymentCourse.name}!`, 'success'); updateDashboardStats(); renderSelectedCourseCard(); renderEnrolledCoursesList(); renderAvailableCoursesList(); }
             closePaymentModal(); pendingPaymentCourse = null;
@@ -327,7 +327,7 @@
         const progress = Math.min(100, newProgress);
         userEnrollments.set(courseId, progress);
         await supabase.from('enrollments').update({ progress, updated_at: new Date() }).eq('user_id', currentUser.id).eq('course_id', courseId);
-        if(progress === 100) showToast('\uD83C\uDF89 Course completed! Great job!', 'success');
+        if(progress === 100) showToast('🎉 Course completed! Great job!', 'success');
         updateDashboardStats(); renderSelectedCourseCard(); renderEnrolledCoursesList();
     }
 
@@ -341,15 +341,15 @@
         c.innerHTML = paged.map(co => {
             const free = co.type==='free'||co.price===0;
             return `<div class="course-card" onclick="selectCourse(${co.id})">
-                <div class="course-icon">${co.icon||'\uD83D\uDCDA'}</div>
+                <div class="course-icon">${co.icon||'📚'}</div>
                 <span class="course-badge ${free?'badge-free':'badge-premium'}">${free?'FREE':'PREMIUM'}</span>
                 <h3>${escapeHtml(co.name)}</h3>
                 <p>${escapeHtml((co.description||'').substring(0,100))}...</p>
                 <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--gray);margin-bottom:10px;">
-                    <span>\u23F1\uFE0F ${co.duration||'Self-paced'}</span><span>\uD83D\uDCCA ${co.level||'All Levels'}</span>
+                    <span>⏱️ ${co.duration||'Self-paced'}</span><span>📊 ${co.level||'All Levels'}</span>
                 </div>
                 <div class="course-price ${free?'free':'premium'}">${free?'FREE':`KES ${(co.price||0).toLocaleString()}`}</div>
-                <button class="btn-view" onclick="event.stopPropagation();selectCourse(${co.id})">View Course &rarr;</button>
+                <button class="btn-view" onclick="event.stopPropagation();selectCourse(${co.id})">View Course →</button>
             </div>`;
         }).join('');
         const total = Math.ceil(allCourses.length/coursesPerPage);
@@ -365,16 +365,16 @@
 
     function renderSelectedCourseCard() {
         const c = document.getElementById('selectedCourseCard');
-        if(!selectedCourseId){c.innerHTML='<div class="course-card"><p>\uD83D\uDCCC Select a course from the homepage to start learning</p></div>';return;}
+        if(!selectedCourseId){c.innerHTML='<div class="course-card"><p>📌 Select a course from the homepage to start learning</p></div>';return;}
         const co = allCourses.find(x=>x.id===selectedCourseId); if(!co) return;
         const enrolled=userEnrollments.has(co.id), p=userEnrollments.get(co.id)||0, free=co.type==='free'||co.price===0;
         c.innerHTML=`<div class="course-card">
-            <div class="course-icon">${co.icon||'\uD83D\uDCDA'}</div>
-            <span class="course-badge ${enrolled?'badge-enrolled':(free?'badge-free':'badge-premium')}">${enrolled?'\u2705 ENROLLED':(free?'FREE':'PREMIUM')}</span>
+            <div class="course-icon">${co.icon||'📚'}</div>
+            <span class="course-badge ${enrolled?'badge-enrolled':(free?'badge-free':'badge-premium')}">${enrolled?'✅ ENROLLED':(free?'FREE':'PREMIUM')}</span>
             <h3>${escapeHtml(co.name)}</h3><p>${escapeHtml(co.description||'')}</p>
-            <div style="display:flex;gap:15px;font-size:0.8rem;color:var(--gray);margin:10px 0;"><span>\u23F1\uFE0F ${co.duration||'Self-paced'}</span><span>\uD83D\uDCCA ${co.level||'All Levels'}</span></div>
-            ${enrolled?`<div class="progress-bar"><div class="progress-fill" style="width:${p}%"></div></div><p style="text-align:center;">${p}% Complete</p><button class="btn-continue" onclick="updateProgress(${co.id},${p+10})">${p===100?'\uD83D\uDCCB Review Course':'\u25B6\uFE0F Continue Learning'}</button>`:
-            `<div class="course-price ${free?'free':'premium'}">${free?'FREE':`KES ${co.price.toLocaleString()}`}</div><button class="btn-enroll" onclick="enrollInCourse(${co.id})">${co.price>0?'\uD83D\uDCB3 Pay & Enroll':'\uD83C\uDF93 Enroll Now'}</button>`}
+            <div style="display:flex;gap:15px;font-size:0.8rem;color:var(--gray);margin:10px 0;"><span>⏱️ ${co.duration||'Self-paced'}</span><span>📊 ${co.level||'All Levels'}</span></div>
+            ${enrolled?`<div class="progress-bar"><div class="progress-fill" style="width:${p}%"></div></div><p style="text-align:center;">${p}% Complete</p><button class="btn-continue" onclick="updateProgress(${co.id},${p+10})">${p===100?'📋 Review Course':'▶️ Continue Learning'}</button>`:
+            `<div class="course-price ${free?'free':'premium'}">${free?'FREE':`KES ${co.price.toLocaleString()}`}</div><button class="btn-enroll" onclick="enrollInCourse(${co.id})">${co.price>0?'💳 Pay & Enroll':'🎓 Enroll Now'}</button>`}
         </div>`;
     }
 
@@ -382,14 +382,14 @@
         const c=document.getElementById('enrolledCoursesList');
         const en=allCourses.filter(x=>userEnrollments.has(x.id));
         if(!en.length){c.innerHTML='<div class="course-card"><p>No enrolled courses yet.</p></div>';return;}
-        c.innerHTML=en.map(co=>{const p=userEnrollments.get(co.id)||0;return`<div class="course-card"><div class="course-icon">${co.icon||'\uD83D\uDCDA'}</div><span class="course-badge badge-enrolled">\u2705 ENROLLED</span><h3>${escapeHtml(co.name)}</h3><div class="progress-bar"><div class="progress-fill" style="width:${p}%"></div></div><p style="text-align:center;">${p}% Complete</p><button class="btn-continue" onclick="updateProgress(${co.id},${p+10})">Continue &rarr;</button></div>`;}).join('');
+        c.innerHTML=en.map(co=>{const p=userEnrollments.get(co.id)||0;return`<div class="course-card"><div class="course-icon">${co.icon||'📚'}</div><span class="course-badge badge-enrolled">✅ ENROLLED</span><h3>${escapeHtml(co.name)}</h3><div class="progress-bar"><div class="progress-fill" style="width:${p}%"></div></div><p style="text-align:center;">${p}% Complete</p><button class="btn-continue" onclick="updateProgress(${co.id},${p+10})">Continue →</button></div>`;}).join('');
     }
 
     function renderAvailableCoursesList() {
         const c=document.getElementById('availableCoursesList');
         const av=allCourses.filter(x=>!userEnrollments.has(x.id));
-        if(!av.length){c.innerHTML='<div class="course-card"><p>\uD83C\uDF89 You\'re enrolled in all courses!</p></div>';return;}
-        c.innerHTML=av.map(co=>{const free=co.type==='free'||co.price===0;return`<div class="course-card"><div class="course-icon">${co.icon||'\uD83D\uDCDA'}</div><span class="course-badge ${free?'badge-free':'badge-premium'}">${free?'FREE':'PREMIUM'}</span><h3>${escapeHtml(co.name)}</h3><p>${escapeHtml((co.description||'').substring(0,80))}...</p><div class="course-price ${free?'free':'premium'}">${free?'FREE':`KES ${co.price.toLocaleString()}`}</div><button class="btn-enroll" onclick="enrollInCourse(${co.id})">${co.price>0?'\uD83D\uDCB3 Pay & Enroll':'\uD83C\uDF93 Enroll Now'}</button></div>`;}).join('');
+        if(!av.length){c.innerHTML='<div class="course-card"><p>🎉 You\'re enrolled in all courses!</p></div>';return;}
+        c.innerHTML=av.map(co=>{const free=co.type==='free'||co.price===0;return`<div class="course-card"><div class="course-icon">${co.icon||'📚'}</div><span class="course-badge ${free?'badge-free':'badge-premium'}">${free?'FREE':'PREMIUM'}</span><h3>${escapeHtml(co.name)}</h3><p>${escapeHtml((co.description||'').substring(0,80))}...</p><div class="course-price ${free?'free':'premium'}">${free?'FREE':`KES ${co.price.toLocaleString()}`}</div><button class="btn-enroll" onclick="enrollInCourse(${co.id})">${co.price>0?'💳 Pay & Enroll':'🎓 Enroll Now'}</button></div>`;}).join('');
     }
 
     function updateDashboardStats() {
@@ -415,13 +415,12 @@
     function showDashboard(){document.getElementById('landingPage').style.display='none';document.getElementById('dashboardPage').style.display='block';updateDashboardStats();renderSelectedCourseCard();renderEnrolledCoursesList();renderAvailableCoursesList();document.getElementById('dashboardSidebar').classList.remove('active');}
     function showDashboardSection(s){document.getElementById('dashboardOverview').style.display=s==='overview'?'block':'none';document.getElementById('dashboardCourses').style.display=s==='courses'?'block':'none';document.querySelectorAll('#dashboardSidebar a').forEach(a=>a.classList.remove('active'));if(s==='overview')document.querySelector('#dashboardSidebar a:first-child').classList.add('active');else document.querySelector('#dashboardSidebar a:last-child').classList.add('active');}
 
-    // FIX #1: showAuthModal now updates toggle link text correctly
     function showAuthModal(mode) {
         authMode=mode;
         document.getElementById('modalTitle').innerText=mode==='login'?'Login':'Register';
         document.getElementById('authSubmitBtn').innerText=mode==='login'?'Login':'Register';
         document.getElementById('authToggleText').innerHTML=mode==='login'?"Don't have an account?":"Already have an account?";
-        document.getElementById('authToggleLink').innerText=mode==='login'?' Register':' Login';  // FIX #1
+        document.getElementById('authToggleLink').innerText=mode==='login'?' Register':' Login';
         document.getElementById('authModal').classList.add('active');
     }
     function closeAuthModal(){document.getElementById('authModal').classList.remove('active');document.getElementById('authEmail').value='';document.getElementById('authPassword').value='';}
@@ -451,15 +450,14 @@
     document.getElementById('nextPageBtn').onclick=nextPage;
     document.getElementById('prevPageBtn').onclick=prevPage;
 
-    // FIX #2 + #5: No toast on page reload, courses loaded before dashboard
     supabase.auth.onAuthStateChange(async (event, session) => {
         if(session) {
             currentUser=session.user;
-            if(allCourses.length===0) await loadCourses();  // FIX #5
+            if(allCourses.length===0) await loadCourses();
             await loadUserEnrollments();
             showDashboard();
             updateProfileUI();
-            if(event!=='INITIAL_SESSION'){  // FIX #2
+            if(event!=='INITIAL_SESSION'){
                 showToast(`Welcome ${currentUser.email.split('@')[0]}!`,'success');
             }
         } else {
