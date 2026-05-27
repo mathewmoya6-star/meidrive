@@ -1,12 +1,456 @@
-<!doctype html>
+do sql based on this <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEI DRIVE AFRICA | Professional Driver Training</title>
+    <!-- Custom Favicon for MEI DRIVE AFRICA -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%230A192F'/%3E%3Crect x='10' y='10' width='180' height='180' rx='35' fill='none' stroke='%2300FF88' stroke-width='3'/%3E%3Ctext x='100' y='85' font-size='48' text-anchor='middle' fill='%2300FF88' font-weight='800' font-family='Arial, sans-serif'%3EMEI%3C/text%3E%3Ctext x='100' y='135' font-size='28' text-anchor='middle' fill='%2300FF88' font-weight='700' font-family='Arial, sans-serif'%3EDRIVE%3C/text%3E%3Ctext x='100' y='168' font-size='16' text-anchor='middle' fill='%2300FF88' opacity='0.8'%3EAFRICA%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' rx='40' fill='%230A192F'/%3E%3Ctext x='100' y='115' font-size='50' text-anchor='middle' fill='%2300FF88' font-weight='800'%3EM%3C/text%3E%3C/svg%3E">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: #0A192F; color: #fff; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0D2137; }
+        ::-webkit-scrollbar-thumb { background: #00FF88; border-radius: 4px; }
+        .navbar {
+            background: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        .logo { 
+            font-size: 26px; 
+            font-weight: 800; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #00FF88, #00cc6a);
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            color: #0A192F;
+        }
+        .logo span { color: #00FF88; }
+        .nav-links { display: flex; gap: 35px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { color: #fff; text-decoration: none; transition: all 0.3s; font-weight: 500; cursor: pointer; }
+        .nav-links a:hover { color: #00FF88; }
+        .auth-buttons { display: flex; gap: 12px; }
+        .btn-login, .btn-register {
+            padding: 8px 24px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-login { background: transparent; border: 1.5px solid #00FF88; color: #00FF88; }
+        .btn-login:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-2px); }
+        .btn-register { background: #00FF88; color: #0A192F; }
+        .btn-register:hover { background: #00cc6a; transform: translateY(-2px); }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-email { color: #00FF88; font-size: 14px; }
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-logout:hover { background: rgba(255, 255, 255, 0.2); }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, #0A192F 0%, #0D2137 50%, #0A192F 100%);
+            position: relative;
+            padding: 120px 20px 80px;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-content { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero h1 { font-size: 68px; margin-bottom: 24px; line-height: 1.2; font-weight: 800; letter-spacing: -1px; }
+        .hero h1 span { color: #00FF88; }
+        .hero p { font-size: 20px; opacity: 0.85; margin-bottom: 24px; }
+        .hero-buttons { display: flex; gap: 20px; justify-content: center; margin-bottom: 60px; flex-wrap: wrap; }
+        .btn-primary {
+            background: #00FF88;
+            color: #0A192F;
+            padding: 14px 38px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3); }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #00FF88;
+            color: #00FF88;
+            padding: 12px 38px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .btn-secondary:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-3px); }
+        .stats { display: flex; justify-content: center; gap: 80px; flex-wrap: wrap; }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 42px; font-weight: 800; color: #00FF88; }
+        .stat-label { font-size: 14px; opacity: 0.7; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #0D2137;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        .modal-content h2 { margin-bottom: 20px; text-align: center; color: #00FF88; }
+        .modal-content input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            background: rgba(10, 25, 47, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+        .modal-content input:focus { outline: none; border-color: #00FF88; }
+        .modal-content button {
+            width: 100%;
+            padding: 14px;
+            background: #00FF88;
+            color: #0A192F;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .modal-switch { text-align: center; color: rgba(255, 255, 255, 0.6); cursor: pointer; }
+        .modal-switch span { color: #00FF88; }
+        .close-modal { position: absolute; top: 20px; right: 30px; font-size: 30px; cursor: pointer; color: white; }
+        .error-msg { color: #ff4444; text-align: center; margin-bottom: 15px; font-size: 14px; }
+        .success-msg { color: #00FF88; text-align: center; margin-bottom: 15px; font-size: 14px; }
+        .courses-section { padding: 80px 5%; background: #0A192F; }
+        .section-title { text-align: center; font-size: 42px; margin-bottom: 16px; font-weight: 700; }
+        .section-title span { color: #00FF88; }
+        .section-subtitle { text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 50px; font-size: 18px; }
+        .courses-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto; }
+        .course-card {
+            background: rgba(13, 33, 55, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(0, 255, 136, 0.15);
+        }
+        .course-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 255, 136, 0.1); border-color: rgba(0, 255, 136, 0.4); }
+        .course-icon { font-size: 52px; margin-bottom: 20px; }
+        .course-card h3 { font-size: 24px; margin-bottom: 12px; font-weight: 700; }
+        .course-card p { opacity: 0.7; line-height: 1.6; margin-bottom: 20px; }
+        .course-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0, 255, 136, 0.15); flex-wrap: wrap; gap: 10px; }
+        .duration { font-size: 14px; opacity: 0.6; }
+        .start-btn { background: #00FF88; color: #0A192F; border: none; padding: 8px 22px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .start-btn:hover { transform: scale(1.05); background: #00cc6a; }
+        .features-section { padding: 80px 5%; background: #0D2137; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .feature { text-align: center; padding: 30px; background: rgba(10, 25, 47, 0.6); border-radius: 16px; border: 1px solid rgba(0, 255, 136, 0.1); transition: all 0.3s; }
+        .feature:hover { border-color: rgba(0, 255, 136, 0.3); transform: translateY(-5px); }
+        .feature-icon { font-size: 48px; margin-bottom: 20px; }
+        .feature h4 { font-size: 20px; margin-bottom: 12px; font-weight: 700; }
+        .feature p { opacity: 0.7; }
+        .loading { text-align: center; padding: 60px; }
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(0, 255, 136, 0.2); border-top-color: #00FF88; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .footer { background: #051020; text-align: center; padding: 40px; border-top: 1px solid rgba(0, 255, 136, 0.1); }
+        .footer p { opacity: 0.6; font-size: 14px; }
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; text-align: center; position: relative; }
+            .hero h1 { font-size: 36px; }
+            .hero p { font-size: 16px; }
+            .section-title { font-size: 28px; }
+            .courses-grid { grid-template-columns: 1fr; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .stats { gap: 40px; }
+            .nav-links { gap: 20px; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <div class="logo-icon">M</div>
+            MEI DRIVE <span>AFRICA</span>
+        </div>
+        <div class="nav-links">
+            <a onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})">Home</a>
+            <a onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Courses</a>
+            <a onclick="window.location.href='quiz.html'">Quiz Bank</a>
+            <a onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</a>
+        </div>
+        <div id="authContainer" class="auth-buttons"></div>
+    </nav>
+
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modalTitle">Login</h2>
+            <div id="modalError" class="error-msg"></div>
+            <div id="modalSuccess" class="success-msg"></div>
+            <input type="email" id="modalEmail" placeholder="Email address">
+            <input type="password" id="modalPassword" placeholder="Password">
+            <button id="modalSubmitBtn">Login</button>
+            <div class="modal-switch" id="modalSwitch">Don't have an account? <span>Register</span></div>
+        </div>
+    </div>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Practice Daily.<br><span>Revise Smarter.</span> Pass with Confidence.</h1>
+            <p>For Learners and Experienced Drivers — Refresh Your Skills with MEI DRIVE AFRICA. NTSA-approved courses.</p>
+            <div class="hero-buttons">
+                <div class="btn-primary" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Explore Courses</div>
+                <div class="btn-secondary" onclick="window.actions.openModal('register')">Get Started</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item"><div class="stat-number" id="coursesCount">0</div><div class="stat-label">Courses</div></div>
+                <div class="stat-item"><div class="stat-number" id="questionsCount">0</div><div class="stat-label">Practice Questions</div></div>
+                <div class="stat-item"><div class="stat-number">10K+</div><div class="stat-label">Active Students</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="courses-section" id="courses">
+        <h2 class="section-title">Our <span>Courses</span></h2>
+        <div class="section-subtitle">Choose the right course for your driving journey</div>
+        <div class="courses-grid" id="coursesGrid"><div class="loading"><div class="spinner"></div>Loading courses...</div></div>
+    </section>
+
+    <section class="features-section">
+        <h2 class="section-title">Why Choose <span>Us</span></h2>
+        <div class="features-grid">
+            <div class="feature"><div class="feature-icon">✅</div><h4>NTSA Approved</h4><p>Officially certified curriculum</p></div>
+            <div class="feature"><div class="feature-icon">📚</div><h4>1000+ Quiz Bank</h4><p>Real exam-style questions</p></div>
+            <div class="feature"><div class="feature-icon">👨‍🏫</div><h4>Expert Instructors</h4><p>Certified professionals</p></div>
+            <div class="feature"><div class="feature-icon">💻</div><h4>Learn Anywhere</h4><p>Online access anytime</p></div>
+        </div>
+    </section>
+
+    <footer class="footer" id="contact">
+        <p>&copy; 2026 MEI DRIVE AFRICA. All rights reserved. | NTSA Approved Training Provider</p>
+        <p style="margin-top: 10px; font-size: 12px;">Email: admin@meidriveafrica.com</p>
+    </footer>
+
+    <script>
+        (function() {
+            if (window.__MEI_SUPABASE_INITIALIZED__) return;
+            window.__MEI_SUPABASE_INITIALIZED__ = true;
+            
+            const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+            
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            window.__MEI_SUPABASE__ = supabase;
+            
+            const STATE = {
+                user: null,
+                authModalOpen: false,
+                authMode: 'login',
+                authError: null,
+                authSuccess: null,
+                courses: [],
+                quizCount: 0,
+                loading: { courses: true, quizCount: true }
+            };
+            
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+            }
+            
+            function renderUI() {
+                const authContainer = document.getElementById('authContainer');
+                if (STATE.user) {
+                    authContainer.innerHTML = `<div class="user-info"><span class="user-email">${escapeHtml(STATE.user.email)}</span><button class="btn-logout" onclick="window.actions.logout()">Logout</button></div>`;
+                } else {
+                    authContainer.innerHTML = `<button class="btn-login" onclick="window.actions.openModal('login')">Login</button><button class="btn-register" onclick="window.actions.openModal('register')">Register</button>`;
+                }
+                
+                const modal = document.getElementById('authModal');
+                if (STATE.authModalOpen) {
+                    modal.classList.add('active');
+                    document.getElementById('modalTitle').textContent = STATE.authMode === 'login' ? 'Login' : 'Register';
+                    document.getElementById('modalSubmitBtn').textContent = STATE.authMode === 'login' ? 'Login' : 'Register';
+                    document.getElementById('modalSwitch').innerHTML = STATE.authMode === 'login' ? 'Don\'t have an account? <span>Register</span>' : 'Already have an account? <span>Login</span>';
+                    document.getElementById('modalError').textContent = STATE.authError || '';
+                    document.getElementById('modalSuccess').textContent = STATE.authSuccess || '';
+                } else {
+                    modal.classList.remove('active');
+                }
+                
+                document.getElementById('coursesCount').textContent = STATE.courses.length;
+                document.getElementById('questionsCount').textContent = STATE.quizCount || '500+';
+                
+                const grid = document.getElementById('coursesGrid');
+                if (STATE.loading.courses && STATE.courses.length === 0) {
+                    grid.innerHTML = '<div class="loading"><div class="spinner"></div>Loading courses...</div>';
+                } else if (STATE.courses.length === 0) {
+                    grid.innerHTML = '<div class="loading">No courses available. Please check back later.</div>';
+                } else {
+                    grid.innerHTML = STATE.courses.map(course => `
+                        <div class="course-card" onclick="window.actions.selectCourse('${course.title.replace(/'/g, "\\'")}')">
+                            <div class="course-icon">${course.icon || '📚'}</div>
+                            <h3>${escapeHtml(course.title)}</h3>
+                            <p>${escapeHtml(course.description || 'Professional driver training course')}</p>
+                            <div class="course-meta">
+                                <span class="duration">⏱️ ${course.duration || 'Flexible'}</span>
+                                ${course.units_count > 0 ? `<span class="duration">📚 ${course.units_count} Units</span>` : ''}
+                                <button class="start-btn">Start Learning →</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+            
+            const actions = {
+                async login(email, password) {
+                    STATE.authError = null;
+                    STATE.authSuccess = null;
+                    renderUI();
+                    const { data, error } = await window.__MEI_SUPABASE__.auth.signInWithPassword({ email, password });
+                    if (error) {
+                        STATE.authError = error.message;
+                    } else {
+                        STATE.user = data.user;
+                        STATE.authSuccess = 'Login successful!';
+                        STATE.authModalOpen = false;
+                        setTimeout(() => { STATE.authSuccess = null; renderUI(); }, 2000);
+                    }
+                    renderUI();
+                },
+                async register(email, password) {
+                    STATE.authError = null;
+                    STATE.authSuccess = null;
+                    renderUI();
+                    const { error } = await window.__MEI_SUPABASE__.auth.signUp({ email, password });
+                    if (error) {
+                        STATE.authError = error.message;
+                    } else {
+                        STATE.authSuccess = 'Registration successful! You can now login.';
+                        setTimeout(() => { STATE.authMode = 'login'; STATE.authSuccess = null; renderUI(); }, 2000);
+                    }
+                    renderUI();
+                },
+                async logout() {
+                    await window.__MEI_SUPABASE__.auth.signOut();
+                    STATE.user = null;
+                    renderUI();
+                    window.location.href = 'index.html';
+                },
+                openModal(mode) {
+                    STATE.authMode = mode;
+                    STATE.authModalOpen = true;
+                    STATE.authError = null;
+                    STATE.authSuccess = null;
+                    document.getElementById('modalEmail').value = '';
+                    document.getElementById('modalPassword').value = '';
+                    renderUI();
+                },
+                closeModal() { STATE.authModalOpen = false; renderUI(); },
+                async handleAuthSubmit() {
+                    const email = document.getElementById('modalEmail').value;
+                    const password = document.getElementById('modalPassword').value;
+                    if (!email || !password) { STATE.authError = 'Please enter both email and password'; renderUI(); return; }
+                    if (password.length < 6) { STATE.authError = 'Password must be at least 6 characters'; renderUI(); return; }
+                    if (STATE.authMode === 'login') await actions.login(email, password);
+                    else await actions.register(email, password);
+                },
+                selectCourse(title) {
+                    sessionStorage.setItem('selectedCourse', title);
+                    window.location.href = 'course.html';
+                },
+                async loadCourses() {
+                    STATE.loading.courses = true;
+                    renderUI();
+                    const { data, error } = await window.__MEI_SUPABASE__.from('courses').select('*').order('id');
+                    if (!error && data) STATE.courses = data;
+                    STATE.loading.courses = false;
+                    renderUI();
+                },
+                async loadQuizCount() {
+                    STATE.loading.quizCount = true;
+                    const { count, error } = await window.__MEI_SUPABASE__.from('quiz_questions').select('*', { count: 'exact', head: true });
+                    if (!error && count) STATE.quizCount = count;
+                    STATE.loading.quizCount = false;
+                    renderUI();
+                },
+                async syncAuth() {
+                    const { data: { session } } = await window.__MEI_SUPABASE__.auth.getSession();
+                    STATE.user = session?.user || null;
+                    renderUI();
+                }
+            };
+            
+            window.actions = actions;
+            document.getElementById('modalSubmitBtn').onclick = () => actions.handleAuthSubmit();
+            document.getElementById('modalSwitch').onclick = () => { STATE.authMode = STATE.authMode === 'login' ? 'register' : 'login'; renderUI(); };
+            document.querySelector('.close-modal').onclick = () => actions.closeModal();
+            window.onclick = (event) => { if (event.target === document.getElementById('authModal')) actions.closeModal(); };
+            
+            async function init() { await actions.syncAuth(); await actions.loadCourses(); await actions.loadQuizCount(); }
+            init();
+        })();
+    </script>
+</body>
 </html>
