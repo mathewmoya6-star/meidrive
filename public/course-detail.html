@@ -6,6 +6,10 @@
     <title>Course Details | MEI DRIVE AFRICA</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase.js - Loaded ONCE at the beginning -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #0A192F; color: #fff; overflow-x: hidden; }
@@ -375,13 +379,13 @@
         </div>
         
         <div class="course-header" id="courseHeader">
-            <!-- Dynamic content loaded via JavaScript -->
+            <div style="text-align:center; width:100%; padding:40px;">Loading course details...</div>
         </div>
         
         <div class="modules-section">
             <h2><i class="fas fa-book-open"></i> Course Modules & Units</h2>
             <div class="modules-grid" id="modulesGrid">
-                <!-- Dynamic modules loaded via JavaScript -->
+                <div style="text-align:center; padding:40px;">Loading modules...</div>
             </div>
         </div>
     </section>
@@ -394,16 +398,20 @@
 
     <script>
         // ============================================
-        // SUPABASE CONFIGURATION
+        // SINGLE SUPABASE INSTANCE - NO DUPLICATION
         // ============================================
         const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
         
-        let supabase = null;
+        // SINGLE Supabase client - created ONCE
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Global state
         let currentUser = null;
         let currentEnrollments = [];
         let isLoginMode = true;
         let selectedCourse = null;
+        let isInitialized = false;
 
         // Get course ID from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
@@ -424,30 +432,69 @@
 
         const course = courses.find(c => c.id === courseId) || courses[0];
 
+        // Helper functions
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('paymentToast');
+            toast.textContent = msg;
+            toast.style.background = isError ? '#8b0000' : '#1a472a';
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
         // ============================================
-        // INITIALIZATION
+        // DATABASE FUNCTIONS
         // ============================================
-        async function initSupabase() {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                await syncAuth();
-                await loadUserEnrollments();
+        
+        async function loadUserEnrollments() {
+            if (!currentUser) { 
+                currentEnrollments = []; 
                 renderCourseDetail();
-                renderModules();
-            } else {
-                setTimeout(initSupabase, 500);
+                return; 
+            }
+            try {
+                const { data, error } = await supabase
+                    .from('enrollments')
+                    .select('course_id')
+                    .eq('user_id', currentUser.id);
+                
+                if (error) throw error;
+                
+                currentEnrollments = data ? data.map(e => e.course_id) : [];
+                renderCourseDetail();
+            } catch(error) {
+                console.error('loadUserEnrollments error:', error);
+                currentEnrollments = [];
+                renderCourseDetail();
             }
         }
 
-        async function loadUserEnrollments() {
-            if (!supabase || !currentUser) { currentEnrollments = []; renderCourseDetail(); return; }
+        async function createProfileIfNotExists(user) {
             try {
-                const { data } = await supabase.from('enrollments').select('course_id').eq('user_id', currentUser.id);
-                currentEnrollments = data ? data.map(e => e.course_id) : [];
-                renderCourseDetail();
-            } catch(e) { currentEnrollments = []; renderCourseDetail(); }
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('id', user.id)
+                    .maybeSingle();
+                
+                if (error && error.code !== 'PGRST116') throw error;
+                
+                if (!data) {
+                    await supabase.from('profiles').insert([{
+                        id: user.id,
+                        email: user.email,
+                        full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+                        role: 'learner'
+                    }]);
+                }
+            } catch(error) {
+                console.error('createProfileIfNotExists error:', error);
+            }
         }
 
+        // ============================================
+        // UI RENDERING FUNCTIONS
+        // ============================================
+        
         function renderCourseDetail() {
             const isEnrolled = currentEnrollments.includes(course.id);
             const header = document.getElementById('courseHeader');
@@ -462,7 +509,7 @@
                         <div class="meta-item"><i class="fas fa-clock"></i> Duration: ${course.duration}</div>
                         <div class="meta-item"><i class="fas fa-layer-group"></i> Modules: ${course.units}</div>
                         <div class="meta-item"><i class="fas fa-certificate"></i> Certificate: ${course.certificate ? 'Yes' : 'No'}</div>
-                        <div class="meta-item"><i class="fas fa-users"></i> Students: ${Math.floor(Math.random() * 500) + 100}+</div>
+                        <div class="meta-item"><i class="fas fa-users"></i> Students: 500+</div>
                     </div>
                     <div class="course-price-large">💰 KES ${course.price.toLocaleString()}</div>
                     ${!isEnrolled ? 
@@ -504,8 +551,9 @@
         }
 
         // ============================================
-        // M-PESA PAYMENT
+        // ENROLLMENT & PAYMENT FUNCTIONS
         // ============================================
+        
         async function enrollCourse(id, name, price) {
             if (!currentUser) { 
                 showToast('Please login first to enroll', true); 
@@ -538,44 +586,94 @@
             if (formattedPhone.startsWith('+')) formattedPhone = formattedPhone.substring(1);
             
             const payBtn = document.getElementById('processPaymentBtn');
+            const originalText = payBtn.innerHTML;
             payBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
             payBtn.disabled = true;
             
+            const statusDiv = document.getElementById('paymentStatus');
+            statusDiv.className = 'payment-status';
+            statusDiv.innerHTML = '⏳ Processing payment...';
+            statusDiv.style.display = 'block';
+            
             try {
-                const { error } = await supabase.from('enrollments').insert([{
-                    user_id: currentUser.id,
-                    course_id: selectedCourse.id,
-                    course_name: selectedCourse.name,
-                    price: selectedCourse.price,
-                    status: 'active',
-                    enrolled_at: new Date().toISOString(),
-                    payment_method: 'mpesa',
-                    phone_number: formattedPhone
-                }]);
+                // Check for existing enrollment
+                const { data: existing } = await supabase
+                    .from('enrollments')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('course_id', selectedCourse.id)
+                    .maybeSingle();
                 
-                if (error) throw new Error(error.message);
+                if (existing) {
+                    throw new Error('Already enrolled in this course');
+                }
+                
+                // Create enrollment
+                const { error } = await supabase
+                    .from('enrollments')
+                    .insert([{
+                        user_id: currentUser.id,
+                        course_id: selectedCourse.id,
+                        course_name: selectedCourse.name,
+                        price: selectedCourse.price,
+                        status: 'active',
+                        enrolled_at: new Date().toISOString(),
+                        payment_method: 'mpesa',
+                        phone_number: formattedPhone,
+                        transaction_id: 'MPESA_' + Date.now()
+                    }]);
+                
+                if (error) throw error;
                 
                 currentEnrollments.push(selectedCourse.id);
                 renderCourseDetail();
+                
+                statusDiv.className = 'payment-status success';
+                statusDiv.innerHTML = '✅ Payment successful! You are now enrolled.';
                 showToast(`✅ Successfully enrolled in ${selectedCourse.name}!`);
-                closeMpesaModal();
+                
+                setTimeout(() => {
+                    closeMpesaModal();
+                }, 2000);
+                
             } catch (error) {
-                showToast('Payment failed. Please try again.', true);
+                console.error('Payment error:', error);
+                statusDiv.className = 'payment-status error';
+                statusDiv.innerHTML = `❌ ${error.message}`;
+                showToast(error.message, true);
             } finally {
-                payBtn.innerHTML = '💳 Pay with M-Pesa';
+                payBtn.innerHTML = originalText;
                 payBtn.disabled = false;
             }
         }
 
         // ============================================
-        // AUTH FUNCTIONS
+        // AUTHENTICATION FUNCTIONS
         // ============================================
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('paymentToast');
-            toast.textContent = msg;
-            toast.style.background = isError ? '#8b0000' : '#1a472a';
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 3000);
+        
+        async function syncAuth() {
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error) throw error;
+                
+                const newUser = session?.user || null;
+                
+                if (newUser && !currentUser) {
+                    await createProfileIfNotExists(newUser);
+                    await loadUserEnrollments();
+                }
+                
+                currentUser = newUser;
+                
+                const container = document.getElementById('authContainer');
+                if (currentUser) {
+                    container.innerHTML = `<div class="user-info"><span class="user-email"><i class="fas fa-user-circle"></i> ${currentUser.email.split('@')[0]}</span><button class="btn-logout" onclick="logout()">Logout</button></div>`;
+                } else {
+                    container.innerHTML = `<button class="btn-login" onclick="openModal('login')">Login</button><button class="btn-register" onclick="openModal('register')">Register</button>`;
+                }
+            } catch(error) {
+                console.error('syncAuth error:', error);
+            }
         }
 
         function openModal(mode) {
@@ -584,60 +682,112 @@
             document.getElementById('modalSubmitBtn').innerHTML = isLoginMode ? 'Login' : 'Register';
             document.getElementById('fullNameGroup').style.display = isLoginMode ? 'none' : 'block';
             document.getElementById('modalSwitch').innerHTML = isLoginMode ? "Don't have an account? <span style='color:#00FF88;'>Register</span>" : "Already have an account? <span style='color:#00FF88;'>Login</span>";
+            document.getElementById('modalError').textContent = '';
+            document.getElementById('modalEmail').value = '';
+            document.getElementById('modalPassword').value = '';
+            if (document.getElementById('modalFullName')) document.getElementById('modalFullName').value = '';
             document.getElementById('authModal').classList.add('active');
         }
 
         function closeModal() { document.getElementById('authModal').classList.remove('active'); }
-        function closeMpesaModal() { document.getElementById('mpesaModal').classList.remove('active'); }
+        function closeMpesaModal() { document.getElementById('mpesaModal').classList.remove('active'); selectedCourse = null; }
 
         async function handleAuthSubmit() {
             const email = document.getElementById('modalEmail').value;
             const password = document.getElementById('modalPassword').value;
-            if (!email || !password) { showToast('Please fill all fields', true); return; }
+            if (!email || !password) {
+                document.getElementById('modalError').textContent = 'Please fill all fields';
+                return;
+            }
             
-            if (isLoginMode) {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) { showToast(error.message, true); } 
-                else { closeModal(); showToast('✅ Login successful!'); await syncAuth(); await loadUserEnrollments(); }
-            } else {
-                const fullName = document.getElementById('modalFullName').value;
-                if (!fullName) { showToast('Please enter your full name', true); return; }
-                const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
-                if (error) { showToast(error.message, true); } 
-                else {
-                    if (data.user) await supabase.from('profiles').insert([{ id: data.user.id, email, full_name: fullName, role: 'learner' }]);
+            const submitBtn = document.getElementById('modalSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+            
+            try {
+                if (isLoginMode) {
+                    const { error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    showToast('✅ Login successful!');
+                    closeModal();
+                    await syncAuth();
+                    await loadUserEnrollments();
+                } else {
+                    const fullName = document.getElementById('modalFullName').value;
+                    if (!fullName) {
+                        document.getElementById('modalError').textContent = 'Please enter your full name';
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Register';
+                        return;
+                    }
+                    const { data, error } = await supabase.auth.signUp({ 
+                        email, 
+                        password, 
+                        options: { data: { full_name: fullName } } 
+                    });
+                    if (error) throw error;
+                    
+                    if (data.user) {
+                        await createProfileIfNotExists(data.user);
+                    }
+                    
                     showToast('✅ Registration successful! Check your email to confirm.');
-                    setTimeout(() => openModal('login'), 2000);
+                    openModal('login');
                 }
+            } catch(error) {
+                document.getElementById('modalError').textContent = error.message;
+                showToast(error.message, true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = isLoginMode ? 'Login' : 'Register';
             }
-        }
-
-        async function syncAuth() {
-            if (!supabase) return;
-            const { data: { session } } = await supabase.auth.getSession();
-            currentUser = session?.user || null;
-            const container = document.getElementById('authContainer');
-            if (currentUser) {
-                container.innerHTML = `<div class="user-info"><span class="user-email"><i class="fas fa-user-circle"></i> ${currentUser.email.split('@')[0]}</span><button class="btn-logout" onclick="logout()">Logout</button></div>`;
-            } else {
-                container.innerHTML = `<button class="btn-login" onclick="openModal('login')">Login</button><button class="btn-register" onclick="openModal('register')">Register</button>`;
-            }
-            await loadUserEnrollments();
         }
 
         async function logout() { 
-            await supabase.auth.signOut(); 
-            currentUser = null; 
-            currentEnrollments = [];
-            await syncAuth(); 
-            showToast('Logged out successfully'); 
+            try {
+                await supabase.auth.signOut(); 
+                currentUser = null; 
+                currentEnrollments = [];
+                await syncAuth(); 
+                renderCourseDetail();
+                showToast('Logged out successfully'); 
+            } catch(error) {
+                showToast('Error logging out', true);
+            }
         }
 
-        // Event Listeners
+        // ============================================
+        // INITIALIZATION - SINGLE START
+        // ============================================
+        
+        async function initializeApp() {
+            try {
+                // Set up auth state listener
+                supabase.auth.onAuthStateChange(async (event, session) => {
+                    console.log('Auth state changed:', event);
+                    await syncAuth();
+                    if (session?.user) {
+                        await loadUserEnrollments();
+                    }
+                });
+                
+                // Initial sync
+                await syncAuth();
+                await loadUserEnrollments();
+                renderModules();
+                
+            } catch(error) {
+                console.error('Initialize error:', error);
+                showToast('Error loading page. Please refresh.', true);
+            }
+        }
+
+        // Event listeners
         document.getElementById('modalSubmitBtn').onclick = handleAuthSubmit;
         document.getElementById('modalSwitch').onclick = () => openModal(isLoginMode ? 'register' : 'login');
         document.getElementById('processPaymentBtn').onclick = processMpesaPayment;
 
+        // Make functions global
         window.toggleModule = toggleModule;
         window.enrollCourse = enrollCourse;
         window.openModal = openModal;
@@ -645,11 +795,8 @@
         window.closeMpesaModal = closeMpesaModal;
         window.logout = logout;
 
-        // Initialize
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-        script.onload = initSupabase;
-        document.head.appendChild(script);
+        // Start the app - NO extra script tag creation
+        initializeApp();
     </script>
 </body>
 </html>
