@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details | MEI DRIVE AFRICA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0A192F; color: #fff; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0D2137; }
+        ::-webkit-scrollbar-thumb { background: #00FF88; border-radius: 4px; }
+        
+        .navbar {
+            background: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        .logo { 
+            font-size: 26px; 
+            font-weight: 800; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00FF88, #00cc6a);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 10px;
+            color: #0A192F;
+            flex-direction: column;
+            line-height: 1.2;
+            text-align: center;
+        }
+        .logo-icon small { font-size: 7px; }
+        .logo span { color: #00FF88; }
+        .nav-links { display: flex; gap: 35px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { color: #fff; text-decoration: none; transition: all 0.3s; font-weight: 500; cursor: pointer; }
+        .nav-links a:hover { color: #00FF88; }
+        .auth-buttons { display: flex; gap: 12px; }
+        .btn-login, .btn-register {
+            padding: 8px 24px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-login { background: transparent; border: 1.5px solid #00FF88; color: #00FF88; }
+        .btn-login:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-2px); }
+        .btn-register { background: #00FF88; color: #0A192F; }
+        .btn-register:hover { background: #00cc6a; transform: translateY(-2px); }
+        .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .user-email { color: #00FF88; font-size: 14px; }
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        /* Course Detail Section */
+        .course-detail {
+            padding: 120px 5% 60px;
+            min-height: 100vh;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00FF88;
+            color: #00FF88;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+        .back-btn:hover { background: rgba(0, 255, 136, 0.2); transform: translateX(-5px); }
+        
+        .course-header {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+            background: rgba(13, 33, 55, 0.6);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        .course-icon-large {
+            font-size: 80px;
+            background: rgba(0, 255, 136, 0.1);
+            width: 140px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            border: 2px solid #00FF88;
+        }
+        .course-info {
+            flex: 1;
+        }
+        .course-info h1 {
+            font-size: 42px;
+            color: #00FF88;
+            margin-bottom: 15px;
+        }
+        .course-price-large {
+            font-size: 36px;
+            font-weight: 800;
+            color: #00FF88;
+            margin: 20px 0;
+        }
+        .course-meta-detail {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 16px;
+            border-radius: 30px;
+        }
+        .enroll-btn-large {
+            background: #00FF88;
+            color: #0A192F;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .enroll-btn-large:hover { transform: scale(1.05); background: #00cc6a; }
+        .enrolled-badge-large {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00FF88;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        
+        .modules-section {
+            background: rgba(13, 33, 55, 0.4);
+            border-radius: 24px;
+            padding: 40px;
+            margin-top: 30px;
+        }
+        .modules-section h2 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #00FF88;
+        }
+        .modules-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .module-card {
+            background: rgba(10, 25, 47, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 255, 136, 0.15);
+        }
+        .module-header {
+            padding: 18px 25px;
+            background: rgba(0, 255, 136, 0.05);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .module-header:hover { background: rgba(0, 255, 136, 0.1); }
+        .module-header h3 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+        .module-header h3 i { color: #00FF88; }
+        .module-header span i { transition: transform 0.3s; }
+        .module-content {
+            padding: 0 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .module-content.active {
+            max-height: 500px;
+            padding: 20px 25px;
+        }
+        .unit-list-detail {
+            list-style: none;
+        }
+        .unit-list-detail li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .unit-list-detail li i {
+            color: #00FF88;
+            width: 25px;
+        }
+        .unit-list-detail li:last-child { border-bottom: none; }
+        
+        .footer { background: #051020; text-align: center; padding: 40px; border-top: 1px solid rgba(0, 255, 136, 0.1); margin-top: 60px; }
+        .footer p { opacity: 0.6; font-size: 14px; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #0D2137;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        .modal-content h2 { margin-bottom: 20px; color: #00FF88; }
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #fff;
+            background: none;
+            border: none;
+        }
+        .mpesa-input {
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 2px;
+            width: 100%;
+            padding: 14px;
+            background: #0A192F;
+            border: 1px solid #00FF88;
+            border-radius: 8px;
+            color: white;
+        }
+        .payment-status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+        .payment-status.success { background: rgba(0, 255, 136, 0.2); color: #00FF88; display: block; }
+        .payment-status.error { background: rgba(255, 0, 0, 0.2); color: #ff4444; display: block; }
+        .payment-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a472a;
+            color: #00FF88;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 3000;
+            display: none;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; position: relative; }
+            .course-header { flex-direction: column; text-align: center; }
+            .course-meta-detail { justify-content: center; }
+            .course-info h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <div class="logo-icon">MEI<br><small>DRIVE AFRICA</small></div>
+            <span>MEI DRIVE <span>AFRICA</span></span>
+        </div>
+        <div class="nav-links">
+            <a onclick="window.location.href='index.html'">Home</a>
+            <a onclick="window.location.href='index.html#courses'">Courses</a>
+            <a onclick="window.location.href='quiz.html'">Quiz Bank</a>
+            <a onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</a>
+        </div>
+        <div id="authContainer" class="auth-buttons"></div>
+    </nav>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 id="modalTitle">Login</h2>
+            <div id="modalError" style="color:#ff4444; margin-bottom:15px;"></div>
+            <input type="email" id="modalEmail" placeholder="Email address" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+            <input type="password" id="modalPassword" placeholder="Password" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+            <div id="fullNameGroup" style="display:none;">
+                <input type="text" id="modalFullName" placeholder="Full Name" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+            </div>
+            <button id="modalSubmitBtn" style="width:100%; padding:14px; background:#00FF88; color:#0A192F; font-weight:700; border:none; border-radius:8px; cursor:pointer;">Login</button>
+            <div class="modal-switch" id="modalSwitch" style="text-align:center; margin-top:15px; cursor:pointer;">Don't have an account? <span style="color:#00FF88;">Register</span></div>
+        </div>
+    </div>
+
+    <!-- M-Pesa Payment Modal -->
+    <div id="mpesaModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeMpesaModal()">&times;</button>
+            <h2><i class="fas fa-mobile-alt"></i> M-Pesa Payment</h2>
+            <div style="text-align:center; margin-bottom:20px;">
+                <p id="paymentCourseName" style="font-size:18px;"></p>
+                <p id="paymentAmount" style="font-size:32px; color:#00FF88; font-weight:700;"></p>
+            </div>
+            <input type="tel" id="mpesaPhone" placeholder="M-Pesa Number (e.g., 0712345678)" class="mpesa-input">
+            <button id="processPaymentBtn" style="width:100%; padding:14px; margin-top:15px; background:#00FF88; color:#0A192F; font-weight:700; border:none; border-radius:8px; cursor:pointer;">
+                💳 Pay with M-Pesa
+            </button>
+            <div id="paymentStatus" class="payment-status"></div>
+            <p style="font-size:12px; text-align:center; margin-top:15px; opacity:0.6;">Paybill: 4095377 | You'll receive a prompt on your phone</p>
+        </div>
+    </div>
+
+    <section class="course-detail" id="courseDetail">
+        <div class="back-btn" onclick="window.location.href='index.html'">
+            <i class="fas fa-arrow-left"></i> Back to All Courses
+        </div>
+        
+        <div class="course-header" id="courseHeader">
+            <!-- Dynamic content loaded via JavaScript -->
+        </div>
+        
+        <div class="modules-section">
+            <h2><i class="fas fa-book-open"></i> Course Modules & Units</h2>
+            <div class="modules-grid" id="modulesGrid">
+                <!-- Dynamic modules loaded via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer" id="contact">
+        <p>&copy; 2026 MEI DRIVE AFRICA. All rights reserved.</p>
+    </footer>
+
+    <div id="paymentToast" class="payment-toast"></div>
+
+    <script>
+        // ============================================
+        // SUPABASE CONFIGURATION
+        // ============================================
+        const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+        
+        let supabase = null;
+        let currentUser = null;
+        let currentEnrollments = [];
+        let isLoginMode = true;
+        let selectedCourse = null;
+
+        // Get course ID from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = parseInt(urlParams.get('id')) || 1;
+
+        // Complete Course Data
+        const courses = [
+            { id: 1, name: 'Learner Hub', price: 5000, icon: 'fa-car', description: 'Complete NTSA-approved driver training with theory and practical lessons. 21 comprehensive units covering everything from basics to advanced driving.', longDescription: 'This comprehensive course covers all aspects of professional driving including road rules, vehicle control, defensive driving techniques, and practical on-road training. Perfect for new drivers seeking certification.', duration: '8 weeks', units: 21, certificate: true, modules: ['Introduction to Driving', 'Fundamental Driving Rules', 'Model Town', 'Human Factors in Traffic', 'Vehicle Constructions & Controls', 'Self-Inspection of Vehicle', 'Observation', 'Vehicle Control', 'Communication on the Road', 'Speed Management', 'Space Management', 'Emergency Manoeuvres', 'Skid Control and Recovery', 'Adverse Driving Conditions', 'Preventive Maintenance', 'Conditions of Carriage', 'Hazardous Materials', 'Emergency Procedures', 'Work Planning', 'Customer Care', 'Examination & Quiz Bank'] },
+            { id: 2, name: 'PSV Training', price: 7500, icon: 'fa-bus', description: 'Professional Public Service Vehicle operator training. Covers passenger safety, customer service, hygiene, and PSV regulations.', longDescription: 'Designed for matatu, bus, and taxi operators. This course covers passenger safety, route management, customer service excellence, and compliance with PSV regulations.', duration: '6 weeks', units: 16, certificate: true, modules: ['Introduction to PSV Operations', 'Categories of PSV Vehicles', 'Customer Service & Passenger Care', 'Hygiene, Sanitation & Public Health', 'Passenger Safety Management', 'Road Discipline & Defensive Driving', 'Digital Apps & Modern PSV Technology', 'Professional Conduct & Ethics', 'Special Needs & Vulnerable Passengers', 'PSV Security Awareness', 'Driver Health & Fatigue Management', 'PSV Laws & Regulations', 'Emergency Response & Incident Management', 'Daily PSV Vehicle Inspection', 'PSV Conductor Professional Training', 'Practical PSV Driver Training'] },
+            { id: 3, name: 'EV Vehicle Course', price: 8000, icon: 'fa-charging-station', description: 'Master electric vehicle driving, charging systems, battery management, and EV-specific safety protocols.', longDescription: 'Learn everything about electric vehicles including charging station operation, battery management, regenerative braking, and EV-specific safety protocols for both drivers and riders.', duration: '4 weeks', units: 10, certificate: true, modules: ['Understanding EV Charging Systems', 'Types of EV Charging', 'Safe Charging Procedures', 'EV Driving Skills', 'Electric Motorcycle Riding Skills', 'Night Driving & Riding', 'Wet Weather Operations', 'Passenger & Customer Safety', 'Daily Vehicle Inspection', 'Emergency Response for EVs'] },
+            { id: 4, name: 'Boda Safety Course', price: 4500, icon: 'fa-motorcycle', description: 'Comprehensive safety training for boda boda riders. Defensive riding, passenger safety, helmet usage.', longDescription: 'Essential training for commercial motorcycle operators covering defensive riding, passenger safety, proper protective equipment, accident prevention, and professional conduct.', duration: '3 weeks', units: 26, certificate: true, modules: ['Introduction to Boda Boda Safety', 'Motorcycle Parts & Controls', 'Personal Protective Equipment (PPE)', 'Pre-Ride Inspection', 'Starting & Moving Safely', 'Defensive Riding Techniques', 'Road Signs & Traffic Rules', 'Lane Discipline & Positioning', 'Safe Braking Techniques', 'Cornering & Turning', 'Overtaking Safely', 'Riding in Traffic', 'Riding at Night', 'Riding During Rain & Bad Weather', 'Passenger (Pillion) Safety', 'Know Your Passenger', 'Personal Hygiene & Professional Conduct', 'Motorcycle Maintenance Basics', 'Fuel & Lubrication Safety', 'Emergency Handling & First Aid', 'Common Causes of Accidents', 'Alcohol, Drugs & Fatigue', 'Customer Care & Communication', 'Digital Safety & Mobile Phone Use', 'Environmental Responsibility', 'Final Safety Guidelines'] },
+            { id: 5, name: 'Driver Refresher Course', price: 3500, icon: 'fa-rotate-right', description: 'Perfect for licensed drivers wanting to refresh their skills. Updated traffic rules and modern techniques.', longDescription: 'Update your driving knowledge with current traffic laws, modern defensive driving techniques, and best practices for safe road use. Ideal for experienced drivers.', duration: '2 weeks', units: 8, certificate: true, modules: ['Road Safety Awareness', 'Defensive Driving Techniques', 'Updated Traffic Laws & Regulations', 'Vehicle Inspection & Maintenance', 'Emergency Response & First Aid', 'Customer Care & Professionalism', 'Special Driving Conditions', 'Environmental Responsibility & Eco-Driving'] },
+            { id: 6, name: 'Defensive Driving', price: 6000, icon: 'fa-shield-haltered', description: 'Advanced techniques to anticipate hazards and avoid accidents. Space management and hazard perception.', longDescription: 'Master the art of defensive driving including hazard anticipation, space management, emergency maneuvers, and crash avoidance techniques for professional drivers.', duration: '4 weeks', units: 30, certificate: true, modules: ['Advanced Defensive Driving', 'Psychology of Driving & Human Behaviour', 'Risk Management & Hazard Perception', 'Advanced Vehicle Control Techniques', 'Speed Management & Safe Stopping Distances', 'Situational Awareness & Observation Skills', 'Advanced Urban Driving Techniques', 'Highway & Expressway Driving', 'Night Driving & Reduced Visibility', 'Wet Weather, Fog & Flood Driving', 'Mountain, Gravel & Off-Road Driving', 'Fatigue Management & Driver Wellness', 'Alcohol, Drugs & Impairment', 'Professional Driver Conduct & Ethics', 'Passenger & Customer Safety Management', 'Emergency Response & Crash Management', 'Vehicle Dynamics & Mechanical Systems', 'Tyre Safety & Advanced Management', 'Fuel Efficient & Eco-Safe Driving', 'Security Awareness & Anti-Carjacking', 'Fleet Safety & Commercial Operations', 'Journey Planning & Route Risk', 'Modern Vehicle Technologies & ADAS', 'Defensive Riding for Motorcycles', 'First Aid for Drivers', 'Incident Reporting & Legal', 'Daily Inspection & Preventive Maintenance', 'Case Studies & Crash Analysis', 'Practical Defensive Exercises', 'Final Professional Guidelines'] },
+            { id: 7, name: 'Quiz Bank', price: 2000, icon: 'fa-file-alt', description: 'Comprehensive test preparation with 1000+ NTSA-style questions. Mock exams and instant feedback.', longDescription: 'Prepare for your driving exams with over 1000 practice questions covering all topics including road signs, traffic rules, and defensive driving techniques.', duration: '2 weeks', units: 15, certificate: false, modules: ['Road Signs Quiz (200 questions)', 'Highway Code (150 questions)', 'Defensive Driving (120 questions)', 'Traffic Rules & Regulations (120 questions)', 'Parking & Stopping (70 questions)', 'Roundabouts & Junctions (60 questions)', 'Vehicle Inspection (60 questions)', 'Emergency Handling (50 questions)', 'First Aid (40 questions)', 'Night Driving (40 questions)', 'Weather & Hazard Driving (40 questions)', 'Motorcycle/Boda Safety (50 questions)', 'PSV & Passenger Safety (40 questions)', 'Eco Driving & Fuel Economy (20 questions)', 'Professional Conduct (20 questions)'] },
+            { id: 8, name: 'E-Road Safety Library', price: 3000, icon: 'fa-book-open', description: 'Digital resource library with interactive modules, video tutorials, and downloadable safety guides.', longDescription: 'Access a comprehensive digital library of road safety materials including video tutorials, animated road scenarios, downloadable guides, and regular content updates.', duration: '6 months access', units: 12, certificate: false, modules: ['Digital Safety Library Access', 'Video Tutorial Library', 'Animated Road Scenarios', 'Downloadable Safety Guides', 'Interactive Quizzes & Assessments', 'Real-World Case Studies', 'Monthly Traffic Law Updates', 'Emergency Response Guides', 'Vehicle Maintenance Guides', 'Legal & Insurance Resources', 'Fleet Management Tools', 'Continuous Content Updates'] },
+            { id: 9, name: 'School Bus/Van Safety', price: 5500, icon: 'fa-children', description: 'Specialized safety training for school transport drivers. Child safety and emergency evacuation.', longDescription: 'Specialized training for school transport operators covering child safety, proper loading/unloading procedures, emergency evacuation, and student behavior management.', duration: '5 weeks', units: 7, certificate: true, modules: ['Introduction to School Transport Safety', 'Child Safety Management', 'Safe Driving Practices for School Transport', 'Vehicle Safety & Daily Inspection', 'Emergency Response & Evacuation', 'Professional Conduct & Communication', 'Traffic Laws & School Transport Regulations'] }
+        ];
+
+        const course = courses.find(c => c.id === courseId) || courses[0];
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        async function initSupabase() {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                await syncAuth();
+                await loadUserEnrollments();
+                renderCourseDetail();
+                renderModules();
+            } else {
+                setTimeout(initSupabase, 500);
+            }
+        }
+
+        async function loadUserEnrollments() {
+            if (!supabase || !currentUser) { currentEnrollments = []; renderCourseDetail(); return; }
+            try {
+                const { data } = await supabase.from('enrollments').select('course_id').eq('user_id', currentUser.id);
+                currentEnrollments = data ? data.map(e => e.course_id) : [];
+                renderCourseDetail();
+            } catch(e) { currentEnrollments = []; renderCourseDetail(); }
+        }
+
+        function renderCourseDetail() {
+            const isEnrolled = currentEnrollments.includes(course.id);
+            const header = document.getElementById('courseHeader');
+            header.innerHTML = `
+                <div class="course-icon-large">
+                    <i class="fas ${course.icon}"></i>
+                </div>
+                <div class="course-info">
+                    <h1>${course.name}</h1>
+                    <p style="opacity:0.8; line-height:1.6;">${course.longDescription || course.description}</p>
+                    <div class="course-meta-detail">
+                        <div class="meta-item"><i class="fas fa-clock"></i> Duration: ${course.duration}</div>
+                        <div class="meta-item"><i class="fas fa-layer-group"></i> Modules: ${course.units}</div>
+                        <div class="meta-item"><i class="fas fa-certificate"></i> Certificate: ${course.certificate ? 'Yes' : 'No'}</div>
+                        <div class="meta-item"><i class="fas fa-users"></i> Students: ${Math.floor(Math.random() * 500) + 100}+</div>
+                    </div>
+                    <div class="course-price-large">💰 KES ${course.price.toLocaleString()}</div>
+                    ${!isEnrolled ? 
+                        `<button class="enroll-btn-large" onclick="enrollCourse(${course.id}, '${course.name.replace(/'/g, "\\'")}', ${course.price})"><i class="fas fa-shopping-cart"></i> Enroll Now - M-Pesa</button>` :
+                        `<span class="enrolled-badge-large"><i class="fas fa-check-circle"></i> ✓ Enrolled - Access Granted</span>`
+                    }
+                </div>
+            `;
+        }
+
+        function renderModules() {
+            const modulesGrid = document.getElementById('modulesGrid');
+            modulesGrid.innerHTML = course.modules.map((module, idx) => `
+                <div class="module-card">
+                    <div class="module-header" onclick="toggleModule(${idx})">
+                        <h3><i class="fas fa-book"></i> Module ${idx+1}: ${module}</h3>
+                        <span><i class="fas fa-chevron-down" id="icon-${idx}"></i></span>
+                    </div>
+                    <div class="module-content" id="content-${idx}">
+                        <ul class="unit-list-detail">
+                            <li><i class="fas fa-play-circle"></i> Introduction to ${module}</li>
+                            <li><i class="fas fa-graduation-cap"></i> Learning Objectives & Outcomes</li>
+                            <li><i class="fas fa-video"></i> Video Tutorial: ${module}</li>
+                            <li><i class="fas fa-shield-alt"></i> Safety Guidelines & Best Practices</li>
+                            <li><i class="fas fa-tasks"></i> Practical Exercise: ${module}</li>
+                            <li><i class="fas fa-question-circle"></i> Module Assessment Quiz</li>
+                            <li><i class="fas fa-download"></i> Download Module Materials (PDF)</li>
+                        </ul>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleModule(idx) {
+            const content = document.getElementById(`content-${idx}`);
+            const icon = document.getElementById(`icon-${idx}`);
+            content.classList.toggle('active');
+            icon.className = content.classList.contains('active') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+        }
+
+        // ============================================
+        // M-PESA PAYMENT
+        // ============================================
+        async function enrollCourse(id, name, price) {
+            if (!currentUser) { 
+                showToast('Please login first to enroll', true); 
+                openModal('login'); 
+                return; 
+            }
+            if (currentEnrollments.includes(id)) { 
+                showToast('You are already enrolled in this course', true); 
+                return; 
+            }
+            
+            selectedCourse = { id, name, price };
+            document.getElementById('paymentCourseName').innerHTML = `<strong>${name}</strong>`;
+            document.getElementById('paymentAmount').innerHTML = `KES ${price.toLocaleString()}`;
+            document.getElementById('mpesaPhone').value = '';
+            document.getElementById('paymentStatus').className = 'payment-status';
+            document.getElementById('paymentStatus').style.display = 'none';
+            document.getElementById('mpesaModal').classList.add('active');
+        }
+
+        async function processMpesaPayment() {
+            const phone = document.getElementById('mpesaPhone').value;
+            if (!phone || phone.length < 10) {
+                showToast('Please enter a valid M-Pesa phone number', true);
+                return;
+            }
+            
+            let formattedPhone = phone.replace(/\s/g, '');
+            if (formattedPhone.startsWith('0')) formattedPhone = '254' + formattedPhone.substring(1);
+            if (formattedPhone.startsWith('+')) formattedPhone = formattedPhone.substring(1);
+            
+            const payBtn = document.getElementById('processPaymentBtn');
+            payBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+            payBtn.disabled = true;
+            
+            try {
+                const { error } = await supabase.from('enrollments').insert([{
+                    user_id: currentUser.id,
+                    course_id: selectedCourse.id,
+                    course_name: selectedCourse.name,
+                    price: selectedCourse.price,
+                    status: 'active',
+                    enrolled_at: new Date().toISOString(),
+                    payment_method: 'mpesa',
+                    phone_number: formattedPhone
+                }]);
+                
+                if (error) throw new Error(error.message);
+                
+                currentEnrollments.push(selectedCourse.id);
+                renderCourseDetail();
+                showToast(`✅ Successfully enrolled in ${selectedCourse.name}!`);
+                closeMpesaModal();
+            } catch (error) {
+                showToast('Payment failed. Please try again.', true);
+            } finally {
+                payBtn.innerHTML = '💳 Pay with M-Pesa';
+                payBtn.disabled = false;
+            }
+        }
+
+        // ============================================
+        // AUTH FUNCTIONS
+        // ============================================
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('paymentToast');
+            toast.textContent = msg;
+            toast.style.background = isError ? '#8b0000' : '#1a472a';
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        function openModal(mode) {
+            isLoginMode = mode === 'login';
+            document.getElementById('modalTitle').innerHTML = isLoginMode ? 'Login' : 'Register';
+            document.getElementById('modalSubmitBtn').innerHTML = isLoginMode ? 'Login' : 'Register';
+            document.getElementById('fullNameGroup').style.display = isLoginMode ? 'none' : 'block';
+            document.getElementById('modalSwitch').innerHTML = isLoginMode ? "Don't have an account? <span style='color:#00FF88;'>Register</span>" : "Already have an account? <span style='color:#00FF88;'>Login</span>";
+            document.getElementById('authModal').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('authModal').classList.remove('active'); }
+        function closeMpesaModal() { document.getElementById('mpesaModal').classList.remove('active'); }
+
+        async function handleAuthSubmit() {
+            const email = document.getElementById('modalEmail').value;
+            const password = document.getElementById('modalPassword').value;
+            if (!email || !password) { showToast('Please fill all fields', true); return; }
+            
+            if (isLoginMode) {
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) { showToast(error.message, true); } 
+                else { closeModal(); showToast('✅ Login successful!'); await syncAuth(); await loadUserEnrollments(); }
+            } else {
+                const fullName = document.getElementById('modalFullName').value;
+                if (!fullName) { showToast('Please enter your full name', true); return; }
+                const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+                if (error) { showToast(error.message, true); } 
+                else {
+                    if (data.user) await supabase.from('profiles').insert([{ id: data.user.id, email, full_name: fullName, role: 'learner' }]);
+                    showToast('✅ Registration successful! Check your email to confirm.');
+                    setTimeout(() => openModal('login'), 2000);
+                }
+            }
+        }
+
+        async function syncAuth() {
+            if (!supabase) return;
+            const { data: { session } } = await supabase.auth.getSession();
+            currentUser = session?.user || null;
+            const container = document.getElementById('authContainer');
+            if (currentUser) {
+                container.innerHTML = `<div class="user-info"><span class="user-email"><i class="fas fa-user-circle"></i> ${currentUser.email.split('@')[0]}</span><button class="btn-logout" onclick="logout()">Logout</button></div>`;
+            } else {
+                container.innerHTML = `<button class="btn-login" onclick="openModal('login')">Login</button><button class="btn-register" onclick="openModal('register')">Register</button>`;
+            }
+            await loadUserEnrollments();
+        }
+
+        async function logout() { 
+            await supabase.auth.signOut(); 
+            currentUser = null; 
+            currentEnrollments = [];
+            await syncAuth(); 
+            showToast('Logged out successfully'); 
+        }
+
+        // Event Listeners
+        document.getElementById('modalSubmitBtn').onclick = handleAuthSubmit;
+        document.getElementById('modalSwitch').onclick = () => openModal(isLoginMode ? 'register' : 'login');
+        document.getElementById('processPaymentBtn').onclick = processMpesaPayment;
+
+        window.toggleModule = toggleModule;
+        window.enrollCourse = enrollCourse;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.closeMpesaModal = closeMpesaModal;
+        window.logout = logout;
+
+        // Initialize
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.onload = initSupabase;
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>
