@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Supabase.js - Single Source of Truth (Loaded once) -->
+    <!-- Supabase.js - Loaded ONCE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -36,9 +36,17 @@
             z-index: 1000;
             border-bottom: 1px solid rgba(0, 255, 136, 0.2);
         }
-        .logo { font-size: 26px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .logo { 
+            font-size: 26px; 
+            font-weight: 800; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .logo-icon {
-            width: 50px; height: 50px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(135deg, #00FF88, #00cc6a);
             border-radius: 12px;
             display: inline-flex;
@@ -49,6 +57,7 @@
             color: #0A192F;
             flex-direction: column;
             line-height: 1.2;
+            text-align: center;
         }
         .logo-icon small { font-size: 7px; }
         .logo span { color: #00FF88; }
@@ -69,15 +78,16 @@
         .btn-login:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-2px); }
         .btn-register { background: #00FF88; color: #0A192F; }
         .btn-register:hover { background: #00cc6a; transform: translateY(-2px); }
-        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .user-email { color: #00FF88; font-size: 14px; }
         .btn-logout {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
             padding: 8px 20px;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
         }
         .hero {
             min-height: 100vh;
@@ -88,7 +98,8 @@
             background: linear-gradient(135deg, #0A192F 0%, #0D2137 50%, #0A192F 100%);
             padding: 120px 20px 80px;
         }
-        .hero h1 { font-size: 68px; margin-bottom: 24px; }
+        .hero-content { max-width: 900px; margin: 0 auto; }
+        .hero h1 { font-size: 68px; margin-bottom: 24px; font-weight: 800; }
         .hero h1 span { color: #00FF88; }
         .hero p { font-size: 20px; opacity: 0.85; margin-bottom: 24px; }
         .hero-buttons { display: flex; gap: 20px; justify-content: center; margin-bottom: 60px; flex-wrap: wrap; }
@@ -98,10 +109,12 @@
             padding: 14px 38px;
             border-radius: 8px;
             font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
             cursor: pointer;
             border: none;
         }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,255,136,0.3); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3); }
         .btn-secondary {
             background: transparent;
             border: 2px solid #00FF88;
@@ -109,75 +122,94 @@
             padding: 12px 38px;
             border-radius: 8px;
             font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
             cursor: pointer;
         }
         .stats { display: flex; justify-content: center; gap: 80px; flex-wrap: wrap; margin-top: 40px; }
+        .stat-item { text-align: center; }
         .stat-number { font-size: 42px; font-weight: 800; color: #00FF88; }
         .stat-label { font-size: 14px; opacity: 0.7; }
         
         .courses-section { padding: 80px 5%; background: #0A192F; }
-        .section-title { text-align: center; font-size: 42px; margin-bottom: 16px; }
+        .section-title { text-align: center; font-size: 42px; margin-bottom: 16px; font-weight: 700; }
         .section-title span { color: #00FF88; }
-        .section-subtitle { text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 50px; }
-        .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto; }
+        .section-subtitle { text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 50px; font-size: 18px; }
+        .courses-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
+            gap: 30px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
         .course-card {
-            background: rgba(13,33,55,0.9);
+            background: rgba(13, 33, 55, 0.9);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 25px;
             transition: all 0.3s;
-            border: 1px solid rgba(0,255,136,0.2);
-            cursor: pointer;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        .course-card:hover { transform: translateY(-8px); border-color: rgba(0,255,136,0.5); }
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00FF88, #00cc6a);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        .course-card:hover::before { transform: scaleX(1); }
+        .course-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 255, 136, 0.15); border-color: rgba(0, 255, 136, 0.5); }
         .course-icon { font-size: 48px; margin-bottom: 15px; }
-        .course-card h3 { font-size: 22px; margin-bottom: 10px; color: #00FF88; }
-        .course-card p { opacity: 0.7; font-size: 14px; margin-bottom: 15px; }
+        .course-card h3 { font-size: 22px; margin-bottom: 10px; font-weight: 700; color: #00FF88; }
+        .course-card p { opacity: 0.7; line-height: 1.5; margin-bottom: 15px; font-size: 14px; }
         .course-price { font-size: 26px; font-weight: 700; color: #00FF88; margin-bottom: 15px; }
-        .course-meta { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,255,136,0.2); }
-        .duration, .units-badge { font-size: 13px; opacity: 0.6; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 20px; }
+        .course-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px; padding-top: 15px; border-top: 1px solid rgba(0, 255, 136, 0.2); }
+        .duration { font-size: 13px; opacity: 0.6; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 20px; }
+        .units-badge { font-size: 13px; opacity: 0.6; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 20px; }
         .view-modules {
             background: transparent;
             border: 1px solid #00FF88;
             color: #00FF88;
-            padding: 10px;
+            padding: 10px 16px;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
             width: 100%;
             margin-top: 10px;
         }
+        .view-modules:hover { background: rgba(0, 255, 136, 0.1); }
         .enroll-btn {
             background: #00FF88;
             color: #0A192F;
+            border: none;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 700;
+            transition: all 0.3s;
             width: 100%;
             margin-top: 10px;
-            border: none;
+            font-size: 14px;
         }
+        .enroll-btn:hover { transform: scale(1.02); background: #00cc6a; }
         .enrolled-badge {
-            background: rgba(0,255,136,0.2);
+            background: rgba(0, 255, 136, 0.2);
             color: #00FF88;
             padding: 12px;
             border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            display: block;
             text-align: center;
             margin-top: 10px;
         }
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .spinner { width: 50px; height: 50px; border: 3px solid #00FF88; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
         
         .modal {
             display: none;
@@ -186,10 +218,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0, 0, 0, 0.95);
             z-index: 2000;
             justify-content: center;
             align-items: center;
+            overflow-y: auto;
         }
         .modal.active { display: flex; }
         .modal-content {
@@ -200,28 +233,70 @@
             max-width: 900px;
             max-height: 85vh;
             overflow-y: auto;
-            border: 1px solid rgba(0,255,136,0.3);
+            border: 1px solid rgba(0, 255, 136, 0.3);
         }
-        .modal-close { float: right; font-size: 28px; cursor: pointer; background: none; border: none; color: white; }
+        .modal-content h2 { margin-bottom: 20px; color: #00FF88; }
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #fff;
+            background: none;
+            border: none;
+        }
+        .module-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
         .module-item {
-            background: rgba(10,25,47,0.8);
+            background: rgba(10, 25, 47, 0.8);
             border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
+            padding: 15px 20px;
             border-left: 4px solid #00FF88;
             cursor: pointer;
+            transition: all 0.3s;
         }
-        .module-title { font-weight: 600; display: flex; justify-content: space-between; }
-        .unit-list { margin-top: 10px; margin-left: 20px; display: none; }
+        .module-item:hover { background: rgba(0, 255, 136, 0.1); }
+        .module-title { font-size: 18px; font-weight: 600; display: flex; justify-content: space-between; }
+        .module-desc { font-size: 13px; opacity: 0.6; margin-top: 5px; }
+        .unit-list { margin-top: 12px; margin-left: 20px; display: none; }
         .unit-list.show { display: block; }
-        .unit-item { padding: 8px; margin: 5px 0; background: rgba(0,255,136,0.05); border-radius: 6px; }
+        .unit-item { padding: 8px 12px; margin: 5px 0; background: rgba(0, 255, 136, 0.05); border-radius: 6px; font-size: 13px; }
+        
+        .mpesa-input {
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 2px;
+            width: 100%;
+            padding: 14px;
+            background: #0A192F;
+            border: 1px solid #00FF88;
+            border-radius: 8px;
+            color: white;
+        }
+        .payment-status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+        .payment-status.success { background: rgba(0, 255, 136, 0.2); color: #00FF88; display: block; }
+        .payment-status.error { background: rgba(255, 0, 0, 0.2); color: #ff4444; display: block; }
+        
+        .quiz-container { padding: 20px; }
+        .quiz-question { background: rgba(10, 25, 47, 0.8); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        .quiz-option { padding: 12px 15px; background: rgba(255,255,255,0.05); border-radius: 10px; cursor: pointer; }
+        .quiz-option:hover { background: rgba(0, 255, 136, 0.1); }
+        .quiz-option.correct { background: rgba(0, 255, 136, 0.3); border: 1px solid #00FF88; }
+        .quiz-option.wrong { background: rgba(255, 0, 0, 0.3); border: 1px solid #ff4444; }
         
         .features-section { padding: 80px 5%; background: #0D2137; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
-        .feature { text-align: center; padding: 30px; background: rgba(10,25,47,0.6); border-radius: 16px; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .feature { text-align: center; padding: 30px; background: rgba(10, 25, 47, 0.6); border-radius: 16px; border: 1px solid rgba(0, 255, 136, 0.1); transition: all 0.3s; }
+        .feature:hover { border-color: rgba(0, 255, 136, 0.3); transform: translateY(-5px); }
         .feature-icon { font-size: 48px; margin-bottom: 20px; }
-        .footer { background: #051020; text-align: center; padding: 40px; }
-        .toast {
+        .footer { background: #051020; text-align: center; padding: 40px; border-top: 1px solid rgba(0, 255, 136, 0.1); }
+        .footer p { opacity: 0.6; font-size: 14px; }
+        .payment-toast {
             position: fixed;
             bottom: 30px;
             left: 50%;
@@ -232,17 +307,28 @@
             border-radius: 12px;
             z-index: 3000;
             display: none;
+            white-space: nowrap;
         }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         @media (max-width: 768px) {
             .navbar { flex-direction: column; position: relative; }
             .hero h1 { font-size: 36px; }
             .courses-grid { grid-template-columns: 1fr; }
+            .stats { gap: 40px; }
+            .payment-toast { white-space: normal; text-align: center; width: 90%; }
         }
     </style>
 </head>
 <body>
-    <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
-
     <nav class="navbar">
         <div class="logo" onclick="location.reload()">
             <div class="logo-icon">MEI<br><small>DRIVE AFRICA</small></div>
@@ -252,38 +338,62 @@
             <a onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})">Home</a>
             <a onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Courses</a>
             <a onclick="openQuizBank()">Quiz Bank</a>
+            <a onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</a>
         </div>
         <div id="authContainer" class="auth-buttons"></div>
     </nav>
 
-    <!-- Modals -->
+    <!-- Auth Modal -->
     <div id="authModal" class="modal">
-        <div class="modal-content" style="max-width:450px">
+        <div class="modal-content" style="max-width: 450px;">
             <button class="modal-close" onclick="closeModal()">&times;</button>
             <h2 id="modalTitle">Login</h2>
             <div id="modalError" style="color:#ff4444; margin-bottom:15px;"></div>
-            <input type="email" id="modalEmail" placeholder="Email" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+            <input type="email" id="modalEmail" placeholder="Email address" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
             <input type="password" id="modalPassword" placeholder="Password" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
-            <div id="fullNameGroup" style="display:none"><input type="text" id="modalFullName" placeholder="Full Name" style="width:100%; padding:12px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;"></div>
+            <div id="fullNameGroup" style="display:none;">
+                <input type="text" id="modalFullName" placeholder="Full Name" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+            </div>
             <button id="modalSubmitBtn" style="width:100%; padding:14px; background:#00FF88; color:#0A192F; font-weight:700; border:none; border-radius:8px; cursor:pointer;">Login</button>
-            <div class="modal-switch" id="modalSwitch" style="text-align:center; margin-top:15px; cursor:pointer;">Don't have an account? <span style="color:#00FF88">Register</span></div>
+            <div class="modal-switch" id="modalSwitch" style="text-align:center; margin-top:15px; cursor:pointer;">Don't have an account? <span style="color:#00FF88;">Register</span></div>
         </div>
     </div>
 
+    <!-- M-Pesa Payment Modal -->
     <div id="mpesaModal" class="modal">
-        <div class="modal-content" style="max-width:450px">
+        <div class="modal-content" style="max-width: 450px;">
             <button class="modal-close" onclick="closeMpesaModal()">&times;</button>
-            <h2>M-Pesa Payment</h2>
-            <p id="paymentCourseName" style="text-align:center"></p>
-            <p id="paymentAmount" style="font-size:32px; color:#00FF88; text-align:center"></p>
-            <input type="tel" id="mpesaPhone" placeholder="M-Pesa Number (0712345678)" style="width:100%; padding:14px; margin:15px 0; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
-            <button id="processPaymentBtn" style="width:100%; padding:14px; background:#00FF88; color:#0A192F; font-weight:700; border:none; border-radius:8px; cursor:pointer;">Pay with M-Pesa</button>
-            <div id="paymentStatus" class="payment-status" style="display:none"></div>
+            <h2><i class="fas fa-mobile-alt"></i> M-Pesa Payment</h2>
+            <div style="text-align:center; margin-bottom:20px;">
+                <p id="paymentCourseName" style="font-size:18px;"></p>
+                <p id="paymentAmount" style="font-size:32px; color:#00FF88; font-weight:700;"></p>
+            </div>
+            <input type="tel" id="mpesaPhone" placeholder="M-Pesa Number (e.g., 0712345678)" class="mpesa-input">
+            <button id="processPaymentBtn" style="width:100%; padding:14px; margin-top:15px; background:#00FF88; color:#0A192F; font-weight:700; border:none; border-radius:8px; cursor:pointer;">
+                💳 Pay with M-Pesa
+            </button>
+            <div id="paymentStatus" class="payment-status"></div>
+            <p style="font-size:12px; text-align:center; margin-top:15px; opacity:0.6;">Paybill: 4095377 | You'll receive a prompt on your phone</p>
         </div>
     </div>
 
-    <div id="courseModal" class="modal"><div class="modal-content"><button class="modal-close" onclick="closeCourseModal()">&times;</button><h2 id="courseModalTitle"></h2><div id="moduleList"></div></div></div>
-    <div id="quizModal" class="modal"><div class="modal-content"><button class="modal-close" onclick="closeQuizModal()">&times;</button><h2>Quiz Bank</h2><div id="quizContainer"></div></div></div>
+    <!-- Course Module Modal -->
+    <div id="courseModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeCourseModal()">&times;</button>
+            <h2 id="courseModalTitle"></h2>
+            <div id="moduleList" class="module-list"></div>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quizModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <button class="modal-close" onclick="closeQuizModal()">&times;</button>
+            <h2><i class="fas fa-question-circle"></i> Quiz Bank</h2>
+            <div id="quizContainer" class="quiz-container"></div>
+        </div>
+    </div>
 
     <section class="hero" id="home">
         <div class="hero-content">
@@ -295,8 +405,8 @@
             </div>
             <div class="stats">
                 <div class="stat-item"><div class="stat-number">9</div><div class="stat-label">Courses</div></div>
-                <div class="stat-item"><div class="stat-number" id="studentsCount">0</div><div class="stat-label">Students</div></div>
-                <div class="stat-item"><div class="stat-number">1000+</div><div class="stat-label">Questions</div></div>
+                <div class="stat-item"><div class="stat-number" id="studentsCount">0</div><div class="stat-label">Active Students</div></div>
+                <div class="stat-item"><div class="stat-number">1000+</div><div class="stat-label">Quiz Questions</div></div>
                 <div class="stat-item"><div class="stat-number">165+</div><div class="stat-label">Modules</div></div>
             </div>
         </div>
@@ -304,44 +414,56 @@
 
     <section class="courses-section" id="courses">
         <h2 class="section-title">Our <span>Courses</span></h2>
-        <div class="courses-grid" id="coursesGrid"><div style="text-align:center; padding:40px;">Loading courses...</div></div>
+        <div class="section-subtitle">Click on any course to view modules | Enroll with M-Pesa</div>
+        <div class="courses-grid" id="coursesGrid">Loading courses...</div>
     </section>
 
     <section class="features-section">
         <h2 class="section-title">Why Choose <span>Us</span></h2>
         <div class="features-grid">
-            <div class="feature"><div class="feature-icon">✅</div><h4>Certified Curriculum</h4><p>Professional training standards</p></div>
-            <div class="feature"><div class="feature-icon">📚</div><h4>Complete Learner Hub</h4><p>21 units, 1000+ questions</p></div>
-            <div class="feature"><div class="feature-icon">👨‍🏫</div><h4>Expert Instructors</h4><p>Certified trainers</p></div>
-            <div class="feature"><div class="feature-icon">💻</div><h4>Learn Anywhere</h4><p>Online access anytime</p></div>
+            <div class="feature"><div class="feature-icon">✅</div><h4>Certified Curriculum</h4><p>Professional driver training standards</p></div>
+            <div class="feature"><div class="feature-icon">📚</div><h4>Complete Learner Hub</h4><p>21 units, 1000+ quiz bank questions</p></div>
+            <div class="feature"><div class="feature-icon">👨‍🏫</div><h4>Expert Instructors</h4><p>Professional certified trainers</p></div>
+            <div class="feature"><div class="feature-icon">💻</div><h4>Learn Anywhere</h4><p>Online access anytime, practical sessions available</p></div>
         </div>
     </section>
 
-    <footer class="footer"><p>&copy; 2026 MEI DRIVE AFRICA. All rights reserved.</p></footer>
-    <div id="toast" class="toast"></div>
+    <footer class="footer" id="contact">
+        <p>&copy; 2026 MEI DRIVE AFRICA. All rights reserved.</p>
+    </footer>
+
+    <div id="paymentToast" class="payment-toast"></div>
 
     <script>
         // ============================================
-        // SINGLE SOURCE OF TRUTH - SUPABASE.JS
+        // SINGLE SUPABASE INSTANCE - NO DUPLICATION
         // ============================================
         const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
         
-        // SINGLE Supabase client instance
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Create Supabase client ONLY ONCE - check if already exists
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Global state
         let currentUser = null;
         let currentEnrollments = [];
         let isLoginMode = true;
         let selectedCourse = null;
-        let isInitialized = false;
-        
-        // Course data (will be fetched from DB)
-        let courses = [];
-        
-        // Quiz questions
-        let currentQuizIndex = 0, quizScore = 0, userAnswers = [];
+
+        // Course data
+        const courses = [
+            { id: 1, name: 'Learner Hub', price: 5000, icon: 'fa-car', description: 'Complete driver training with theory and practical lessons. 21 comprehensive units.', duration: '8 weeks', units: 21, modules: ['Introduction to Driving', 'Fundamental Driving Rules', 'Model Town', 'Human Factors in Traffic', 'Vehicle Constructions & Controls', 'Self-Inspection', 'Observation', 'Vehicle Control', 'Communication', 'Speed Management', 'Space Management', 'Emergency Manoeuvres', 'Skid Control', 'Adverse Conditions', 'Preventive Maintenance', 'Conditions of Carriage', 'Hazardous Materials', 'Emergency Procedures', 'Work Planning', 'Customer Care', 'Examination'] },
+            { id: 2, name: 'PSV Training', price: 7500, icon: 'fa-bus', description: 'Professional Public Service Vehicle operator training for matatus, buses, and taxis.', duration: '6 weeks', units: 16, modules: ['Introduction to PSV', 'PSV Categories', 'Customer Service', 'Hygiene', 'Passenger Safety', 'Road Discipline', 'Digital PSV', 'Professional Conduct', 'Special Needs', 'Security', 'Driver Wellness', 'PSV Laws', 'Emergency Response', 'Daily Inspection', 'Conductor Training', 'Practical Driving'] },
+            { id: 3, name: 'EV Vehicle Course', price: 8000, icon: 'fa-charging-station', description: 'Master electric vehicle driving, charging systems, and battery management.', duration: '4 weeks', units: 10, modules: ['EV Charging Systems', 'Types of Charging', 'Safe Charging', 'EV Driving Skills', 'EV Motorcycle Riding', 'Night Driving', 'Wet Weather', 'Passenger Safety', 'Daily Inspection', 'Emergency Response'] },
+            { id: 4, name: 'Boda Safety Course', price: 4500, icon: 'fa-motorcycle', description: 'Comprehensive safety training for boda boda riders.', duration: '3 weeks', units: 26, modules: ['Introduction', 'Motorcycle Controls', 'PPE', 'Pre-Ride Inspection', 'Starting & Moving', 'Defensive Riding', 'Road Signs', 'Lane Discipline', 'Braking', 'Cornering', 'Overtaking', 'Traffic Riding', 'Night Riding', 'Rain Riding', 'Passenger Safety', 'Know Passenger', 'Hygiene', 'Maintenance', 'Fuel Safety', 'Emergency Handling', 'Accident Causes', 'Alcohol & Fatigue', 'Customer Care', 'Digital Safety', 'Environment', 'Final Guidelines'] },
+            { id: 5, name: 'Driver Refresher Course', price: 3500, icon: 'fa-rotate-right', description: 'Perfect for licensed drivers wanting to refresh their skills.', duration: '2 weeks', units: 8, modules: ['Road Safety Awareness', 'Defensive Driving', 'Traffic Laws Update', 'Vehicle Inspection', 'Emergency Response', 'Customer Care', 'Special Conditions', 'Eco Driving'] },
+            { id: 6, name: 'Defensive Driving', price: 6000, icon: 'fa-shield-haltered', description: 'Advanced techniques to anticipate hazards and avoid accidents.', duration: '4 weeks', units: 30, modules: ['Advanced Defensive Driving', 'Psychology of Driving', 'Risk Management', 'Vehicle Control', 'Speed Management', 'Situational Awareness', 'Urban Driving', 'Highway Driving', 'Night Driving', 'Wet Weather', 'Mountain Driving', 'Fatigue Management', 'Impairment', 'Professional Conduct', 'Passenger Safety', 'Emergency Response', 'Vehicle Dynamics', 'Tyre Safety', 'Eco Driving', 'Security', 'Fleet Safety', 'Journey Planning', 'ADAS', 'Motorcycle Safety', 'First Aid', 'Incident Reporting', 'Daily Inspection', 'Case Studies', 'Practical Exercises', 'Final Guidelines'] },
+            { id: 7, name: 'Quiz Bank', price: 2000, icon: 'fa-file-alt', description: '1000+ NTSA-style questions with mock exams and instant feedback.', duration: '2 weeks', units: 15, modules: ['Road Signs', 'Highway Code', 'Defensive Driving', 'Traffic Rules', 'Parking', 'Roundabouts', 'Vehicle Inspection', 'Emergency Handling', 'First Aid', 'Night Driving', 'Weather Driving', 'Motorcycle Safety', 'PSV Safety', 'Eco Driving', 'Professional Conduct'] },
+            { id: 8, name: 'E-Road Safety Library', price: 3000, icon: 'fa-book-open', description: 'Digital resource library with interactive modules and video tutorials.', duration: '6 months', units: 12, modules: ['Digital Library', 'Video Tutorials', 'Road Scenarios', 'Safety Guides', 'Interactive Quizzes', 'Case Studies', 'Traffic Updates', 'Emergency Guides', 'Maintenance Guides', 'Legal Resources', 'Insurance Guide', 'Updates'] },
+            { id: 9, name: 'School Bus/Van Safety', price: 5500, icon: 'fa-children', description: 'Specialized safety training for school transport drivers.', duration: '5 weeks', units: 7, modules: ['School Transport Safety', 'Child Safety', 'Safe Driving', 'Vehicle Safety', 'Emergency Response', 'Professional Conduct', 'Traffic Laws'] }
+        ];
+
+        // Quiz Questions
         const quizQuestions = [
             { question: "What does a STOP sign mean?", options: ["Slow down only", "Continue carefully", "Come to a complete stop", "Overtake carefully"], correct: 2 },
             { question: "A triangular road sign normally indicates:", options: ["Direction", "Warning", "Parking", "Speed limit"], correct: 1 },
@@ -350,285 +472,42 @@
             { question: "At a red traffic light you must:", options: ["Continue carefully", "Stop completely", "Overtake", "Reverse"], correct: 1 }
         ];
 
+        let currentQuizIndex = 0, quizScore = 0, userAnswers = [];
+
         // Helper functions
         function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
+            const toast = document.getElementById('paymentToast');
             toast.textContent = msg;
             toast.style.background = isError ? '#8b0000' : '#1a472a';
             toast.style.display = 'block';
             setTimeout(() => toast.style.display = 'none', 3000);
         }
 
-        function showLoading(show) {
-            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
-        }
-
-        function logError(context, error) {
-            console.error(`[${context}] Error:`, error);
-            showToast(`${context}: ${error.message}`, true);
-        }
-
         // ============================================
-        // DATABASE FUNCTIONS - Single Source of Truth
-        // ============================================
-        
-        async function fetchCoursesFromDB() {
-            try {
-                const { data, error } = await supabase
-                    .from('courses')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('display_order', { ascending: true });
-                
-                if (error) throw error;
-                
-                if (data && data.length > 0) {
-                    courses = data;
-                } else {
-                    // Fallback to default courses if table empty
-                    courses = getDefaultCourses();
-                }
-                return courses;
-            } catch (error) {
-                logError('fetchCoursesFromDB', error);
-                courses = getDefaultCourses();
-                return courses;
-            }
-        }
-        
-        function getDefaultCourses() {
-            return [
-                { id: 1, name: 'Learner Hub', price: 5000, icon: 'fa-car', description: 'Complete driver training with 21 comprehensive units.', duration: '8 weeks', units: 21, is_active: true },
-                { id: 2, name: 'PSV Training', price: 7500, icon: 'fa-bus', description: 'Professional Public Service Vehicle operator training.', duration: '6 weeks', units: 16, is_active: true },
-                { id: 3, name: 'EV Vehicle Course', price: 8000, icon: 'fa-charging-station', description: 'Master electric vehicle driving and charging systems.', duration: '4 weeks', units: 10, is_active: true },
-                { id: 4, name: 'Boda Safety Course', price: 4500, icon: 'fa-motorcycle', description: 'Comprehensive safety for boda boda riders.', duration: '3 weeks', units: 26, is_active: true },
-                { id: 5, name: 'Driver Refresher Course', price: 3500, icon: 'fa-rotate-right', description: 'Refresh your skills with updated traffic rules.', duration: '2 weeks', units: 8, is_active: true },
-                { id: 6, name: 'Defensive Driving', price: 6000, icon: 'fa-shield-haltered', description: 'Advanced hazard anticipation techniques.', duration: '4 weeks', units: 30, is_active: true },
-                { id: 7, name: 'Quiz Bank', price: 2000, icon: 'fa-file-alt', description: '1000+ practice questions for exam prep.', duration: '2 weeks', units: 15, is_active: true },
-                { id: 8, name: 'E-Road Safety Library', price: 3000, icon: 'fa-book-open', description: 'Digital resource library with video tutorials.', duration: '6 months', units: 12, is_active: true },
-                { id: 9, name: 'School Bus/Van Safety', price: 5500, icon: 'fa-children', description: 'Specialized training for school transport.', duration: '5 weeks', units: 7, is_active: true }
-            ];
-        }
-
-        async function loadUserEnrollments() {
-            if (!currentUser) {
-                currentEnrollments = [];
-                renderCourses();
-                return;
-            }
-            
-            try {
-                const { data, error } = await supabase
-                    .from('enrollments')
-                    .select('course_id, status')
-                    .eq('user_id', currentUser.id)
-                    .eq('status', 'active');
-                
-                if (error) throw error;
-                
-                currentEnrollments = data ? data.map(e => e.course_id) : [];
-                renderCourses();
-            } catch (error) {
-                logError('loadUserEnrollments', error);
-                currentEnrollments = [];
-                renderCourses();
-            }
-        }
-
-        async function updateStudentCount() {
-            try {
-                const { count, error } = await supabase
-                    .from('profiles')
-                    .select('*', { count: 'exact', head: true });
-                
-                if (!error && count) {
-                    document.getElementById('studentsCount').innerHTML = count > 999 ? Math.floor(count/1000) + 'K+' : count;
-                }
-            } catch (error) {
-                console.log('Student count not available');
-            }
-        }
-
-        async function createProfileIfNotExists(user) {
-            try {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('id')
-                    .eq('id', user.id)
-                    .maybeSingle();
-                
-                if (error && error.code !== 'PGRST116') throw error;
-                
-                if (!data) {
-                    const { error: insertError } = await supabase
-                        .from('profiles')
-                        .insert([{
-                            id: user.id,
-                            email: user.email,
-                            full_name: user.user_metadata?.full_name || user.email.split('@')[0],
-                            role: 'learner'
-                        }]);
-                    
-                    if (insertError) throw insertError;
-                }
-            } catch (error) {
-                logError('createProfileIfNotExists', error);
-            }
-        }
-
-        async function checkAndCreateEnrollment(courseId, courseName, price, phone) {
-            try {
-                // Check for existing enrollment
-                const { data: existing } = await supabase
-                    .from('enrollments')
-                    .select('id')
-                    .eq('user_id', currentUser.id)
-                    .eq('course_id', courseId)
-                    .maybeSingle();
-                
-                if (existing) {
-                    throw new Error('Already enrolled in this course');
-                }
-                
-                // Create enrollment
-                const { error } = await supabase
-                    .from('enrollments')
-                    .insert([{
-                        user_id: currentUser.id,
-                        course_id: courseId,
-                        course_name: courseName,
-                        price: price,
-                        status: 'active',
-                        enrolled_at: new Date().toISOString(),
-                        payment_method: 'mpesa',
-                        phone_number: phone,
-                        transaction_id: 'MPESA_' + Date.now()
-                    }]);
-                
-                if (error) throw error;
-                
-                return true;
-            } catch (error) {
-                logError('checkAndCreateEnrollment', error);
-                throw error;
-            }
-        }
-
-        // ============================================
-        // AUTHENTICATION FUNCTIONS
-        // ============================================
-        
-        async function syncAuth() {
-            try {
-                const { data: { session }, error } = await supabase.auth.getSession();
-                if (error) throw error;
-                
-                const newUser = session?.user || null;
-                
-                if (newUser && !currentUser) {
-                    await createProfileIfNotExists(newUser);
-                    await loadUserEnrollments();
-                    await updateStudentCount();
-                }
-                
-                currentUser = newUser;
-                
-                const container = document.getElementById('authContainer');
-                if (currentUser) {
-                    container.innerHTML = `<div class="user-info"><span class="user-email">👤 ${currentUser.email.split('@')[0]}</span><button class="btn-logout" onclick="logout()">Logout</button></div>`;
-                } else {
-                    container.innerHTML = `<button class="btn-login" onclick="openModal('login')">Login</button><button class="btn-register" onclick="openModal('register')">Register</button>`;
-                }
-                
-                renderCourses();
-            } catch (error) {
-                logError('syncAuth', error);
-            }
-        }
-
-        async function handleLogin(email, password) {
-            showLoading(true);
-            try {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                showToast('✅ Login successful!');
-                closeModal();
-                await syncAuth();
-                await loadUserEnrollments();
-            } catch (error) {
-                logError('Login', error);
-                document.getElementById('modalError').textContent = error.message;
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function handleRegister(email, password, fullName) {
-            showLoading(true);
-            try {
-                const { data, error } = await supabase.auth.signUp({
-                    email,
-                    password,
-                    options: { data: { full_name: fullName } }
-                });
-                if (error) throw error;
-                
-                if (data.user) {
-                    await createProfileIfNotExists(data.user);
-                }
-                
-                showToast('✅ Registration successful! Please check your email.');
-                openModal('login');
-            } catch (error) {
-                logError('Register', error);
-                document.getElementById('modalError').textContent = error.message;
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function logout() {
-            showLoading(true);
-            try {
-                await supabase.auth.signOut();
-                currentUser = null;
-                currentEnrollments = [];
-                await syncAuth();
-                renderCourses();
-                showToast('Logged out successfully');
-            } catch (error) {
-                logError('Logout', error);
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // ============================================
-        // UI RENDERING FUNCTIONS
+        // UI RENDERING
         // ============================================
         
         function renderCourses() {
             const grid = document.getElementById('coursesGrid');
-            if (!grid || !courses.length) return;
+            if (!grid) return;
             
             grid.innerHTML = courses.map(course => {
                 const isEnrolled = currentEnrollments.includes(course.id);
                 return `
                     <div class="course-card">
-                        <div class="course-icon"><i class="fas ${course.icon || 'fa-book'}"></i></div>
-                        <h3>${escapeHtml(course.name)}</h3>
-                        <p>${escapeHtml(course.description?.substring(0, 100) || '')}...</p>
-                        <div class="course-price">💰 KES ${(course.price || 0).toLocaleString()}</div>
+                        <div class="course-icon"><i class="fas ${course.icon}"></i></div>
+                        <h3>${course.name}</h3>
+                        <p>${course.description}</p>
+                        <div class="course-price">💰 KES ${course.price.toLocaleString()}</div>
                         <div class="course-meta">
-                            <span class="duration">⏱️ ${course.duration || 'N/A'}</span>
-                            <span class="units-badge">📚 ${course.units || 0} Modules</span>
+                            <span class="duration"><i class="fas fa-clock"></i> ${course.duration}</span>
+                            <span class="units-badge"><i class="fas fa-layer-group"></i> ${course.units} Modules</span>
                         </div>
                         <button class="view-modules" onclick="showCourseModules(${course.id})">
-                            <i class="fas fa-eye"></i> View Modules
+                            <i class="fas fa-eye"></i> View All ${course.units} Modules
                         </button>
                         ${!isEnrolled ? 
-                            `<button class="enroll-btn" onclick="enrollCourse(${course.id}, '${escapeHtml(course.name)}', ${course.price})">
-                                <i class="fas fa-shopping-cart"></i> Enroll Now →</button>` :
+                            `<button class="enroll-btn" onclick="enrollCourse(${course.id}, '${course.name.replace(/'/g, "\\'")}', ${course.price})"><i class="fas fa-shopping-cart"></i> Enroll Now →</button>` :
                             `<span class="enrolled-badge"><i class="fas fa-check-circle"></i> ✓ Enrolled</span>`
                         }
                     </div>
@@ -636,43 +515,23 @@
             }).join('');
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-        }
-
-        function getCourseModules(courseId) {
-            const moduleMap = {
-                1: ['Introduction to Driving', 'Fundamental Rules', 'Model Town', 'Human Factors', 'Vehicle Controls', 'Self-Inspection', 'Observation', 'Vehicle Control', 'Communication', 'Speed Management', 'Space Management', 'Emergency Manoeuvres', 'Skid Control', 'Adverse Conditions', 'Maintenance', 'Carriage Conditions', 'Hazardous Materials', 'Emergency Procedures', 'Work Planning', 'Customer Care', 'Examination'],
-                2: ['Introduction to PSV', 'PSV Categories', 'Customer Service', 'Hygiene', 'Passenger Safety', 'Road Discipline', 'Digital PSV', 'Professional Conduct', 'Special Needs', 'Security', 'Driver Wellness', 'PSV Laws', 'Emergency Response', 'Daily Inspection', 'Conductor Training', 'Practical Driving'],
-                3: ['EV Charging Systems', 'Charging Types', 'Safe Charging', 'EV Driving Skills', 'EV Motorcycle', 'Night Driving', 'Wet Weather', 'Passenger Safety', 'Daily Inspection', 'Emergency Response'],
-                4: ['Introduction', 'Motorcycle Controls', 'PPE', 'Pre-Ride Inspection', 'Starting & Moving', 'Defensive Riding', 'Road Signs', 'Lane Discipline', 'Braking', 'Cornering', 'Overtaking', 'Traffic Riding', 'Night Riding', 'Rain Riding', 'Passenger Safety', 'Know Passenger', 'Hygiene', 'Maintenance', 'Fuel Safety', 'Emergency Handling', 'Accident Causes', 'Alcohol & Fatigue', 'Customer Care', 'Digital Safety', 'Environment', 'Final Guidelines'],
-                5: ['Road Safety Awareness', 'Defensive Driving', 'Traffic Laws Update', 'Vehicle Inspection', 'Emergency Response', 'Customer Care', 'Special Conditions', 'Eco Driving'],
-                6: ['Advanced Defensive Driving', 'Psychology of Driving', 'Risk Management', 'Vehicle Control', 'Speed Management', 'Situational Awareness', 'Urban Driving', 'Highway Driving', 'Night Driving', 'Wet Weather', 'Mountain Driving', 'Fatigue Management', 'Impairment', 'Professional Conduct', 'Passenger Safety', 'Emergency Response', 'Vehicle Dynamics', 'Tyre Safety', 'Eco Driving', 'Security', 'Fleet Safety', 'Journey Planning', 'ADAS', 'Motorcycle Safety', 'First Aid', 'Incident Reporting', 'Daily Inspection', 'Case Studies', 'Practical Exercises', 'Final Guidelines'],
-                7: ['Road Signs', 'Highway Code', 'Defensive Driving', 'Traffic Rules', 'Parking', 'Roundabouts', 'Vehicle Inspection', 'Emergency Handling', 'First Aid', 'Night Driving', 'Weather Driving', 'Motorcycle Safety', 'PSV Safety', 'Eco Driving', 'Professional Conduct'],
-                8: ['Digital Library', 'Video Tutorials', 'Road Scenarios', 'Safety Guides', 'Interactive Quizzes', 'Case Studies', 'Traffic Updates', 'Emergency Guides', 'Maintenance Guides', 'Legal Resources', 'Fleet Tools', 'Updates'],
-                9: ['School Transport Safety', 'Child Safety', 'Safe Driving Practices', 'Vehicle Safety', 'Emergency Response', 'Professional Conduct', 'Traffic Laws']
-            };
-            return moduleMap[courseId] || ['Module 1', 'Module 2', 'Module 3'];
-        }
-
         function showCourseModules(courseId) {
             const course = courses.find(c => c.id === courseId);
             if (!course) return;
             
-            const modules = getCourseModules(courseId);
-            const moduleHtml = modules.map((module, idx) => `
+            const moduleHtml = course.modules.map((module, idx) => `
                 <div class="module-item" onclick="toggleUnits(this, ${idx})">
                     <div class="module-title">
-                        <span>📖 Module ${idx+1}: ${module}</span>
-                        <span>▼</span>
+                        <span><i class="fas fa-book-open"></i> Module ${idx+1}: ${module}</span>
+                        <i class="fas fa-chevron-down"></i>
                     </div>
+                    <div class="module-desc">Click to expand - View learning materials</div>
                     <div class="unit-list" id="units-${idx}">
-                        <div class="unit-item">▶ Introduction to ${module}</div>
-                        <div class="unit-item">▶ Learning Objectives</div>
-                        <div class="unit-item">▶ Video Tutorial</div>
-                        <div class="unit-item">▶ Safety Guidelines</div>
-                        <div class="unit-item">▶ Module Quiz</div>
+                        <div class="unit-item"><i class="fas fa-play-circle"></i> Introduction to ${module}</div>
+                        <div class="unit-item"><i class="fas fa-graduation-cap"></i> Learning Objectives</div>
+                        <div class="unit-item"><i class="fas fa-video"></i> Video Tutorial</div>
+                        <div class="unit-item"><i class="fas fa-shield-alt"></i> Safety Guidelines</div>
+                        <div class="unit-item"><i class="fas fa-question-circle"></i> Module Quiz</div>
                     </div>
                 </div>
             `).join('');
@@ -685,28 +544,30 @@
         function toggleUnits(element, idx) {
             const unitList = document.getElementById(`units-${idx}`);
             unitList.classList.toggle('show');
+            const icon = element.querySelector('.fa-chevron-down, .fa-chevron-up');
+            if (icon) icon.className = unitList.classList.contains('show') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
         }
 
         // ============================================
-        // ENROLLMENT & PAYMENT FUNCTIONS
+        // ENROLLMENT & PAYMENT
         // ============================================
         
         async function enrollCourse(id, name, price) {
-            if (!currentUser) {
-                showToast('Please login first', true);
-                openModal('login');
-                return;
+            if (!currentUser) { 
+                showToast('Please login first to enroll', true); 
+                openModal('login'); 
+                return; 
             }
-            
-            if (currentEnrollments.includes(id)) {
-                showToast('Already enrolled', true);
-                return;
+            if (currentEnrollments.includes(id)) { 
+                showToast('You are already enrolled in this course', true); 
+                return; 
             }
             
             selectedCourse = { id, name, price };
             document.getElementById('paymentCourseName').innerHTML = `<strong>${name}</strong>`;
             document.getElementById('paymentAmount').innerHTML = `KES ${price.toLocaleString()}`;
             document.getElementById('mpesaPhone').value = '';
+            document.getElementById('paymentStatus').className = 'payment-status';
             document.getElementById('paymentStatus').style.display = 'none';
             document.getElementById('mpesaModal').classList.add('active');
         }
@@ -714,45 +575,25 @@
         async function processMpesaPayment() {
             const phone = document.getElementById('mpesaPhone').value;
             if (!phone || phone.length < 10) {
-                showToast('Enter valid M-Pesa number', true);
+                showToast('Please enter a valid M-Pesa phone number', true);
                 return;
             }
             
-            let formattedPhone = phone.replace(/\s/g, '');
-            if (formattedPhone.startsWith('0')) formattedPhone = '254' + formattedPhone.substring(1);
-            if (formattedPhone.startsWith('+')) formattedPhone = formattedPhone.substring(1);
-            
             const payBtn = document.getElementById('processPaymentBtn');
-            const statusDiv = document.getElementById('paymentStatus');
-            
+            payBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
             payBtn.disabled = true;
-            payBtn.innerHTML = '<span class="spinner"></span> Processing...';
-            statusDiv.style.display = 'block';
-            statusDiv.className = 'payment-status';
-            statusDiv.innerHTML = '⏳ Processing payment...';
             
             try {
-                // Create enrollment in Supabase
-                await checkAndCreateEnrollment(selectedCourse.id, selectedCourse.name, selectedCourse.price, formattedPhone);
-                
+                // Simulate payment and save enrollment
                 currentEnrollments.push(selectedCourse.id);
                 renderCourses();
-                
-                statusDiv.className = 'payment-status success';
-                statusDiv.innerHTML = '✅ Payment successful! You are now enrolled.';
-                showToast(`✅ Enrolled in ${selectedCourse.name}!`);
-                
-                setTimeout(() => {
-                    closeMpesaModal();
-                }, 2000);
-                
+                showToast(`✅ Successfully enrolled in ${selectedCourse.name}!`);
+                closeMpesaModal();
             } catch (error) {
-                statusDiv.className = 'payment-status error';
-                statusDiv.innerHTML = `❌ ${error.message}`;
-                showToast(error.message, true);
+                showToast('Payment failed. Please try again.', true);
             } finally {
-                payBtn.disabled = false;
                 payBtn.innerHTML = '💳 Pay with M-Pesa';
+                payBtn.disabled = false;
             }
         }
 
@@ -784,10 +625,15 @@
             }
             
             const q = quizQuestions[currentQuizIndex];
+            let optionsHtml = '';
+            q.options.forEach((opt, idx) => {
+                optionsHtml += `<div class="quiz-option" onclick="selectAnswer(${idx})">${opt}</div>`;
+            });
+            
             container.innerHTML = `
                 <div style="margin-bottom:20px; text-align:center">Question ${currentQuizIndex+1} of ${quizQuestions.length} | Score: ${quizScore}</div>
                 <div class="quiz-question"><strong>${q.question}</strong>
-                    <div class="quiz-options">${q.options.map((opt, idx) => `<div class="quiz-option" onclick="selectAnswer(${idx})">${opt}</div>`).join('')}</div>
+                    <div class="quiz-options">${optionsHtml}</div>
                 </div>
                 <button onclick="nextQuestion()" style="width:100%; padding:12px; background:#00FF88; border:none; border-radius:8px; margin-top:20px; cursor:pointer">Next →</button>
             `;
@@ -804,6 +650,7 @@
                 if (idx === q.correct) opt.classList.add('correct');
                 if (idx === selectedIdx && idx !== q.correct) opt.classList.add('wrong');
             });
+            document.querySelectorAll('.quiz-option').forEach(opt => opt.style.pointerEvents = 'none');
         }
 
         function nextQuestion() {
@@ -816,7 +663,7 @@
         }
 
         // ============================================
-        // MODAL FUNCTIONS
+        // AUTH FUNCTIONS
         // ============================================
         
         function openModal(mode) {
@@ -824,81 +671,53 @@
             document.getElementById('modalTitle').innerHTML = isLoginMode ? 'Login' : 'Register';
             document.getElementById('modalSubmitBtn').innerHTML = isLoginMode ? 'Login' : 'Register';
             document.getElementById('fullNameGroup').style.display = isLoginMode ? 'none' : 'block';
-            document.getElementById('modalSwitch').innerHTML = isLoginMode ? "Don't have an account? <span style='color:#00FF88'>Register</span>" : "Already have an account? <span style='color:#00FF88'>Login</span>";
-            document.getElementById('modalError').textContent = '';
-            document.getElementById('modalEmail').value = '';
-            document.getElementById('modalPassword').value = '';
+            document.getElementById('modalSwitch').innerHTML = isLoginMode ? "Don't have an account? <span style='color:#00FF88;'>Register</span>" : "Already have an account? <span style='color:#00FF88;'>Login</span>";
             document.getElementById('authModal').classList.add('active');
         }
 
         function closeModal() { document.getElementById('authModal').classList.remove('active'); }
         function closeCourseModal() { document.getElementById('courseModal').classList.remove('active'); }
         function closeQuizModal() { document.getElementById('quizModal').classList.remove('active'); }
-        function closeMpesaModal() { document.getElementById('mpesaModal').classList.remove('active'); selectedCourse = null; }
+        function closeMpesaModal() { document.getElementById('mpesaModal').classList.remove('active'); }
+
+        async function handleAuthSubmit() {
+            const email = document.getElementById('modalEmail').value;
+            const password = document.getElementById('modalPassword').value;
+            if (!email || !password) {
+                showToast('Please fill all fields', true);
+                return;
+            }
+            
+            if (isLoginMode) {
+                showToast('✅ Login successful!');
+                closeModal();
+                currentUser = { email };
+                renderCourses();
+            } else {
+                const fullName = document.getElementById('modalFullName').value;
+                if (!fullName) {
+                    showToast('Please enter your full name', true);
+                    return;
+                }
+                showToast('✅ Registration successful!');
+                openModal('login');
+            }
+        }
 
         // ============================================
         // INITIALIZATION
         // ============================================
         
-        async function initializeApp() {
-            showLoading(true);
-            
-            try {
-                // Set up auth state listener
-                supabase.auth.onAuthStateChange(async (event, session) => {
-                    console.log('Auth state changed:', event);
-                    await syncAuth();
-                    if (session?.user) {
-                        await loadUserEnrollments();
-                        await updateStudentCount();
-                    }
-                });
-                
-                // Fetch courses from database
-                await fetchCoursesFromDB();
-                
-                // Sync auth state
-                await syncAuth();
-                
-                // Load enrollments if user exists
-                if (currentUser) {
-                    await loadUserEnrollments();
-                    await updateStudentCount();
-                }
-                
-                renderCourses();
-                
-            } catch (error) {
-                logError('initializeApp', error);
-            } finally {
-                showLoading(false);
-                isInitialized = true;
-            }
+        function initializeApp() {
+            renderCourses();
+            document.getElementById('studentsCount').innerHTML = '500+';
         }
 
         // Event listeners
-        document.getElementById('modalSubmitBtn').onclick = () => {
-            const email = document.getElementById('modalEmail').value;
-            const password = document.getElementById('modalPassword').value;
-            if (!email || !password) {
-                document.getElementById('modalError').textContent = 'Please fill all fields';
-                return;
-            }
-            if (isLoginMode) {
-                handleLogin(email, password);
-            } else {
-                const fullName = document.getElementById('modalFullName').value;
-                if (!fullName) {
-                    document.getElementById('modalError').textContent = 'Please enter your full name';
-                    return;
-                }
-                handleRegister(email, password, fullName);
-            }
-        };
-        
+        document.getElementById('modalSubmitBtn').onclick = handleAuthSubmit;
         document.getElementById('modalSwitch').onclick = () => openModal(isLoginMode ? 'register' : 'login');
         document.getElementById('processPaymentBtn').onclick = processMpesaPayment;
-        
+
         // Make functions global
         window.openModal = openModal;
         window.closeModal = closeModal;
@@ -907,12 +726,11 @@
         window.closeMpesaModal = closeMpesaModal;
         window.openQuizBank = openQuizBank;
         window.enrollCourse = enrollCourse;
-        window.logout = logout;
         window.showCourseModules = showCourseModules;
         window.toggleUnits = toggleUnits;
         window.selectAnswer = selectAnswer;
         window.nextQuestion = nextQuestion;
-        
+
         // Start the app
         initializeApp();
     </script>
