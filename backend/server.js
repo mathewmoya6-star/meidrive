@@ -1,126 +1,65 @@
-// server.js - Main Entry Point
 import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import compression from 'compression';
-import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import paymentRoutes from './routes/payments.js';
 
 dotenv.config();
-
-// Import routes
-import authRoutes from './routes/auth.js';
-import courseRoutes from './routes/courses.js';
-import enrollmentRoutes from './routes/enrollments.js';
-import paymentRoutes from './routes/payments.js';
-import adminRoutes from './routes/admin.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ============================================
-// SECURITY MIDDLEWARE
-// ============================================
-
-// Helmet for security headers
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net"],
-            imgSrc: ["'self'", "data:", "https:"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        },
-    },
-}));
-
-// CORS
+// CORS configuration - Allow frontend to access backend
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://www.meidriveafrica.com', 'https://meidriveafrica.com'],
+    origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', 'https://meidriveafrica.com', 'https://www.meidriveafrica.com'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Compression
-app.use(compression());
-
-// Logging
-app.use(morgan('combined'));
-
-// JSON and URL encoded
+// Middleware to parse JSON requests
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.',
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-
-app.use('/api/', limiter);
-
-// Special rate limit for auth routes
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 20,
-    skipSuccessfulRequests: true,
-});
-
 // ============================================
-// STATIC FILES
+// HEALTH CHECK ENDPOINT
 // ============================================
-app.use(express.static(path.join(__dirname, 'public')));
-
-// ============================================
-// API ROUTES
-// ============================================
-
-// Health check
 app.get('/api/health', (req, res) => {
     res.json({
+        success: true,
         status: 'OK',
-        service: 'MEI DRIVE AFRICA API',
-        version: '2.0.0',
-        environment: process.env.NODE_ENV || 'development',
+        message: 'MEI DRIVE AFRICA API is running - PRODUCTION MODE',
+        environment: 'PRODUCTION',
+        mpesa: 'LIVE - REAL MONEY',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            health: 'GET /api/health',
+            mpesaTest: 'GET /api/payments/mpesa/test',
+            mpesaInitiate: 'POST /api/payments/mpesa/initiate',
+            mpesaStatus: 'POST /api/payments/mpesa/status',
+            mpesaCallback: 'POST /api/payments/mpesa/callback'
+        },
+        warning: '⚠️ REAL MONEY - Production mode active'
+    });
+});
+
+// Simple test endpoint
+app.get('/api/test', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Backend is working in PRODUCTION mode!',
+        environment: 'PRODUCTION',
+        mpesa: 'LIVE - Real transactions will deduct money',
         timestamp: new Date().toISOString()
     });
 });
 
-// Routes
-app.use('/api/auth', authLimiter, authRoutes);
-app.use('/api/courses', courseRoutes);
-app.use('/api/enrollments', enrollmentRoutes);
+// ============================================
+// M-PESA PAYMENT ROUTES (LIVE PRODUCTION)
+// ============================================
 app.use('/api/payments', paymentRoutes);
-app.use('/api/admin', adminRoutes);
 
 // ============================================
-// FRONTEND ROUTES
-// ============================================
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/course.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'course.html'));
-});
-
-app.get('/admin.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-// ============================================
-// ERROR HANDLING
+// 404 HANDLER - Route not found
 // ============================================
 app.use((req, res) => {
     res.status(404).json({
@@ -130,6 +69,9 @@ app.use((req, res) => {
     });
 });
 
+// ============================================
+// GLOBAL ERROR HANDLER
+// ============================================
 app.use((err, req, res, next) => {
     console.error('Server error:', err);
     res.status(500).json({
@@ -146,21 +88,25 @@ app.listen(PORT, () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════════╗
 ║                                                                   ║
-║     🚗 MEI DRIVE AFRICA - PROFESSIONAL BACKEND                    ║
+║     🚗 MEI DRIVE AFRICA - PRODUCTION BACKEND API                 ║
 ║                                                                   ║
 ║     Status: ✅ RUNNING                                            ║
 ║     Port: ${PORT}                                                   ║
-║     Environment: ${process.env.NODE_ENV || 'development'}            ║
+║     Environment: PRODUCTION                                       ║
+║     M-Pesa Mode: LIVE - REAL MONEY                                ║
+║                                                                   ║
+║     ⚠️  WARNING: Real money will be deducted!                     ║
 ║                                                                   ║
 ║     API Endpoints:                                                ║
-║     • Health:      GET  /api/health                               ║
-║     • Auth:        POST /api/auth/login, /api/auth/register       ║
-║     • Courses:     GET  /api/courses                              ║
-║     • Enrollments: GET/POST /api/enrollments                      ║
-║     • Payments:    POST /api/payments/mpesa/initiate              ║
-║     • Admin:       /api/admin (requires admin role)               ║
+║     • Health:      GET  http://localhost:${PORT}/api/health         ║
+║     • Test:        GET  http://localhost:${PORT}/api/test           ║
+║     • M-Pesa Test: GET  http://localhost:${PORT}/api/payments/mpesa/test ║
+║     • Initiate:    POST http://localhost:${PORT}/api/payments/mpesa/initiate ║
 ║                                                                   ║
-║     Frontend: http://localhost:${PORT}                              ║
+║     Real M-Pesa Production:                                       ║
+║     • Paybill: 4095377                                            ║
+║     • Real customer phone numbers only                            ║
+║     • Real money will be deducted                                 ║
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
     `);
