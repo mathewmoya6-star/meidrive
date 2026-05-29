@@ -6,24 +6,26 @@ import paymentRoutes from './routes/payments.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Production Backend URL - CORRECTED
+// Render.com uses PORT environment variable (defaults to 10000)
+const PORT = process.env.PORT || 10000;
+
+// Production Backend URL - CORRECT Render.com URL
 const BACKEND_URL = process.env.BACKEND_URL || 'https://meidriveafrica-backend.onrender.com';
 
 // CORS configuration - Allow frontend to access backend
 app.use(cors({
     origin: [
-        'http://localhost:5500', 
-        'http://127.0.0.1:5500', 
-        'http://localhost:3000', 
-        'https://meidriveafrica.com', 
+        'http://localhost:5500',
+        'http://127.0.0.1:5500',
+        'http://localhost:3000',
+        'https://meidriveafrica.com',
         'https://www.meidriveafrica.com',
-        'https://meidriveafrica-backend.onrender.com'  // ✅ CORRECTED URL
+        'https://meidriveafrica-backend.onrender.com'
     ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // Middleware to parse JSON requests
@@ -31,7 +33,19 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ============================================
-// HEALTH CHECK ENDPOINT
+// HEALTH CHECK ENDPOINT (For Render.com)
+// ============================================
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: 'production'
+    });
+});
+
+// ============================================
+// MAIN HEALTH CHECK ENDPOINT
 // ============================================
 app.get('/api/health', (req, res) => {
     res.json({
@@ -41,6 +55,7 @@ app.get('/api/health', (req, res) => {
         environment: 'PRODUCTION',
         mpesa: 'LIVE - REAL MONEY',
         backend_url: BACKEND_URL,
+        port: PORT,
         timestamp: new Date().toISOString(),
         endpoints: {
             health: 'GET /api/health',
@@ -65,6 +80,18 @@ app.get('/api/test', (req, res) => {
     });
 });
 
+// Root endpoint
+app.get('/', (req, res) => {
+    res.json({
+        success: true,
+        message: 'MEI DRIVE AFRICA API',
+        version: '2.0.0',
+        status: 'running',
+        environment: 'production',
+        endpoints: '/api/health, /api/payments/mpesa/test'
+    });
+});
+
 // ============================================
 // M-PESA PAYMENT ROUTES (LIVE PRODUCTION)
 // ============================================
@@ -79,6 +106,8 @@ app.use((req, res) => {
         error: 'Endpoint not found',
         message: `Cannot ${req.method} ${req.url}`,
         available_endpoints: [
+            'GET /',
+            'GET /health',
             'GET /api/health',
             'GET /api/test',
             'GET /api/payments/mpesa/test',
@@ -102,9 +131,9 @@ app.use((err, req, res, next) => {
 });
 
 // ============================================
-// START SERVER
+// START SERVER - Bind to all interfaces for Render
 // ============================================
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════════╗
 ║                                                                   ║
