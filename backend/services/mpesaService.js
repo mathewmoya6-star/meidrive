@@ -14,12 +14,16 @@ const supabase = createClient(
 
 // =====================================================
 // REAL PRODUCTION M-PESA CREDENTIALS
+// From Safaricom Developer Portal screenshot
 // =====================================================
-const MPESA_CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || 'LI2gcJZEheN8qCfXHEXV4gdYXvOBHVnv';
-const MPESA_CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || 'aGGo8AuPJVpsZLcs';
+const MPESA_CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY || 'LI2gcJZEheN8qCfXHEXV4gdYxVOBHVNv';
+const MPESA_CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET || 'aGG0s8AuPJVpsZLcs';
 const MPESA_PASSKEY = process.env.MPESA_PASSKEY || '7eb17a031bdfd5b4251863a1ddb72c5b9cd14f3385aa6a258c1442a0116e8277';
 const MPESA_SHORTCODE = process.env.MPESA_SHORTCODE || '4095377';
 const ENVIRONMENT = 'production'; // REAL PRODUCTION - LIVE MONEY
+
+// Your actual Render.com backend URL
+const BACKEND_URL = process.env.BACKEND_URL || 'https://meidriveafrica-backend.onrender.com';
 
 // Store transactions in memory (fallback only - database is primary)
 const transactionStore = new Map();
@@ -32,12 +36,13 @@ async function getMpesaAccessToken() {
     const url = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
     
     console.log('🔑 Getting REAL PRODUCTION M-Pesa access token...');
+    console.log('⚠️ This will use LIVE M-Pesa - Real money will be deducted');
     
     try {
         const response = await axios.get(url, {
             headers: { Authorization: `Basic ${auth}` }
         });
-        console.log('✅ PRODUCTION access token obtained');
+        console.log('✅ PRODUCTION access token obtained successfully');
         return response.data.access_token;
     } catch (error) {
         console.error('❌ Token error:', error.response?.data || error.message);
@@ -57,6 +62,7 @@ function formatPhoneNumber(phone) {
     } else if (!cleaned.startsWith('254')) {
         cleaned = '254' + cleaned;
     }
+    console.log(`📱 Formatted phone for PRODUCTION: ${cleaned}`);
     return cleaned;
 }
 
@@ -86,10 +92,12 @@ export async function initiateStkPush(phoneNumber, amount, accountReference, tra
         PartyA: formattedPhone,
         PartyB: MPESA_SHORTCODE,
         PhoneNumber: formattedPhone,
-        CallBackURL: `https://mei-drive-api.onrender.com/api/payments/mpesa/callback`,
+        CallBackURL: `${BACKEND_URL}/api/payments/mpesa/callback`,
         AccountReference: accountReference,
         TransactionDesc: transactionDesc.substring(0, 36)
     };
+    
+    console.log('📤 Sending STK Push Request to Safaricom...');
     
     const url = 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
     
@@ -149,6 +157,7 @@ export async function createPaymentRecord(userId, courseId, amount, phoneNumber,
         .single();
     
     if (error) throw error;
+    console.log(`✅ Payment record created: ${data.id}`);
     return data;
 }
 
@@ -169,6 +178,7 @@ export async function updatePaymentStatus(checkoutRequestId, status, receiptNumb
         .single();
     
     if (error) throw error;
+    console.log(`✅ Payment status updated: ${status}`);
     return data;
 }
 
@@ -181,7 +191,10 @@ export async function initiatePayment(userId, courseId, courseTitle, amount, pho
         const transactionDesc = `${courseTitle.substring(0, 35)}`;
         
         console.log('💰💰💰 REAL PRODUCTION PAYMENT INITIATED 💰💰💰');
-        console.log('⚠️ REAL MONEY WILL BE DEDUCTED');
+        console.log('⚠️ REAL MONEY WILL BE DEDUCTED FROM CUSTOMER');
+        console.log(`📱 Phone: ${phoneNumber}`);
+        console.log(`💰 Amount: ${amount}`);
+        console.log(`📚 Course: ${courseTitle}`);
         
         const result = await initiateStkPush(phoneNumber, amount, accountReference, transactionDesc, userId, courseId);
         
@@ -197,6 +210,9 @@ export async function initiatePayment(userId, courseId, courseTitle, amount, pho
                 status: 'pending',
                 createdAt: new Date().toISOString()
             });
+            
+            console.log('✅ STK Push initiated successfully');
+            console.log(`Checkout Request ID: ${result.CheckoutRequestID}`);
             
             return {
                 success: true,
@@ -269,8 +285,9 @@ export async function processCallback(callbackData) {
     
     if (status === 'completed') {
         console.log('✅✅✅ PRODUCTION PAYMENT SUCCESSFUL! ✅✅✅');
-        console.log(`Receipt: ${mpesaReceiptNumber}`);
-        console.log(`Amount: ${amount}`);
+        console.log(`Receipt Number: ${mpesaReceiptNumber}`);
+        console.log(`Amount Paid: ${amount}`);
+        console.log(`Checkout ID: ${CheckoutRequestID}`);
     } else {
         console.log('❌ PRODUCTION PAYMENT FAILED:', ResultDesc);
     }
