@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* Your existing styles remain exactly the same */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #0A192F; color: #fff; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 8px; }
@@ -348,6 +349,7 @@
     </style>
 </head>
 <body>
+    <!-- Your HTML structure remains exactly the same -->
     <nav class="navbar">
         <div class="logo" onclick="location.reload()">
             <div class="logo-icon">MEI<br><small>DRIVE AFRICA</small></div>
@@ -471,9 +473,9 @@
     
     <script>
         // ============================================
-        // BACKEND API URL (REAL M-PESA INTEGRATION)
+        // PRODUCTION BACKEND API URL - UPDATED!
         // ============================================
-        const API_URL = 'http://localhost:3000';
+        const API_URL = 'https://meidriveafrica-backend.onrender.com';
         
         // Check backend connection
         async function checkBackendStatus() {
@@ -481,14 +483,14 @@
             try {
                 const response = await fetch(`${API_URL}/api/health`);
                 if (response.ok) {
-                    statusDiv.innerHTML = '🟢 Backend: Online';
+                    statusDiv.innerHTML = '🟢 Backend: Online - Production Mode';
                     statusDiv.className = 'status-badge online';
                     return true;
                 } else {
                     throw new Error('Backend not responding');
                 }
             } catch (error) {
-                statusDiv.innerHTML = '🔴 Backend: Offline (Start server with "node server.js")';
+                statusDiv.innerHTML = '🔴 Backend: Offline - Please contact support';
                 statusDiv.className = 'status-badge offline';
                 return false;
             }
@@ -804,7 +806,7 @@
                 // Check if backend is available
                 const backendOnline = await checkBackendStatus();
                 if (!backendOnline) {
-                    showToast('❌ Backend server is not running. Please start the backend with "node server.js"', true);
+                    showToast('❌ Backend server is not responding. Please try again later.', true);
                     payBtn.innerHTML = originalText;
                     payBtn.disabled = false;
                     return;
