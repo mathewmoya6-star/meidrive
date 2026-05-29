@@ -3,34 +3,47 @@ import axios from 'axios';
 
 const router = express.Router();
 
-// M-Pesa Production Credentials
+// M-Pesa Sandbox Credentials (for testing)
+// Change to 'production' when you have live credentials
 const MPESA_CONSUMER_KEY = 'LI2gcJZEheN8qCfXHEXV4gdYXvOBHVnv';
 const MPESA_CONSUMER_SECRET = 'aGGo8AuPJVpsZLcs';
 const MPESA_PASSKEY = '7eb17a031bdfd5b4251863a1ddb72c5b9cd14f3385aa6a258c1442a0116e8277';
 const MPESA_SHORTCODE = '4095377';
-const ENVIRONMENT = 'production'; // Changed to production
+const ENVIRONMENT = 'sandbox'; // CHANGE THIS to 'production' ONLY when you have live credentials
 
 // Helper: Get M-Pesa Access Token
 async function getAccessToken() {
-    const auth = Buffer.from(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`).toString('base64');
-    // Production URL
-    const url = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
+    // Use sandbox URL for testing
+    const url = ENVIRONMENT === 'production' 
+        ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
+        : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
     
-    console.log('🔑 Getting M-Pesa production access token...');
+    const auth = Buffer.from(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`).toString('base64');
+    
+    console.log(`🔑 Getting M-Pesa ${ENVIRONMENT} access token...`);
+    console.log(`URL: ${url}`);
     
     try {
         const response = await axios.get(url, {
-            headers: { Authorization: `Basic ${auth}` }
+            headers: { 
+                Authorization: `Basic ${auth}`,
+                'Content-Type': 'application/json'
+            }
         });
         console.log('✅ Access token obtained successfully');
         return response.data.access_token;
     } catch (error) {
-        console.error('❌ Token error:', error.response?.data || error.message);
+        console.error('❌ Token error details:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            message: error.message
+        });
         throw new Error(`Failed to get token: ${error.response?.data?.errorMessage || error.message}`);
     }
 }
 
-// Helper: Format phone number to 254XXXXXXXXX
+// Helper: Format phone number
 function formatPhoneNumber(phone) {
     let cleaned = phone.toString().replace(/\s/g, '');
     if (cleaned.startsWith('0')) {
@@ -50,7 +63,7 @@ router.get('/mpesa/test', async (req, res) => {
         const token = await getAccessToken();
         res.json({
             success: true,
-            message: 'M-Pesa Production connection successful!',
+            message: `M-Pesa ${ENVIRONMENT} connection successful!`,
             environment: ENVIRONMENT,
             shortcode: MPESA_SHORTCODE,
             tokenObtained: !!token
@@ -59,19 +72,19 @@ router.get('/mpesa/test', async (req, res) => {
         console.error('Test endpoint error:', error.message);
         res.status(500).json({
             success: false,
-            error: error.message
+            error: error.message,
+            environment: ENVIRONMENT
         });
     }
 });
 
-// Initiate STK Push (Lipa Na M-Pesa Online)
+// Initiate STK Push
 router.post('/mpesa/initiate', async (req, res) => {
     try {
         const { phoneNumber, amount, courseId, courseName, userId } = req.body;
         
-        console.log('📱 Initiating payment:', { phoneNumber, amount, courseId, courseName });
+        console.log('💰 Payment initiated:', { phoneNumber, amount, courseId, courseName, environment: ENVIRONMENT });
         
-        // Validate input
         if (!phoneNumber || !amount) {
             return res.status(400).json({
                 success: false,
@@ -79,7 +92,6 @@ router.post('/mpesa/initiate', async (req, res) => {
             });
         }
         
-        // Validate amount (minimum 1 KES for production)
         if (amount < 1) {
             return res.status(400).json({
                 success: false,
@@ -90,19 +102,15 @@ router.post('/mpesa/initiate', async (req, res) => {
         const formattedPhone = formatPhoneNumber(phoneNumber);
         const accountRef = `MEI-${courseId || 'COURSE'}-${Date.now()}`;
         
-        console.log('Account reference:', accountRef);
-        
-        // Get access token
         const token = await getAccessToken();
-        
-        // Generate timestamp and password
         const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
         const password = Buffer.from(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`).toString('base64');
         
-        console.log('Timestamp:', timestamp);
-        console.log('Shortcode:', MPESA_SHORTCODE);
+        // Use sandbox or production URL based on environment
+        const apiUrl = ENVIRONMENT === 'production'
+            ? 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+            : 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
         
-        // Prepare STK Push request
         const stkPushRequest = {
             BusinessShortCode: MPESA_SHORTCODE,
             Password: password,
@@ -112,17 +120,14 @@ router.post('/mpesa/initiate', async (req, res) => {
             PartyA: formattedPhone,
             PartyB: MPESA_SHORTCODE,
             PhoneNumber: formattedPhone,
-            CallBackURL: `${process.env.CALLBACK_URL || 'https://your-domain.com'}/api/payments/mpesa/callback`,
+            CallBackURL: `${process.env.CALLBACK_URL || 'http://localhost:3000'}/api/payments/mpesa/callback`,
             AccountReference: accountRef,
             TransactionDesc: `Payment for ${courseName || 'Course Enrollment'}`
         };
         
         console.log('STK Push Request:', JSON.stringify(stkPushRequest, null, 2));
         
-        // Production URL
-        const url = 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-        
-        const response = await axios.post(url, stkPushRequest, {
+        const response = await axios.post(apiUrl, stkPushRequest, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -137,7 +142,8 @@ router.post('/mpesa/initiate', async (req, res) => {
             checkoutRequestID: response.data.CheckoutRequestID,
             merchantRequestID: response.data.MerchantRequestID,
             responseCode: response.data.ResponseCode,
-            responseDescription: response.data.ResponseDescription
+            responseDescription: response.data.ResponseDescription,
+            environment: ENVIRONMENT
         });
         
     } catch (error) {
@@ -145,17 +151,19 @@ router.post('/mpesa/initiate', async (req, res) => {
         
         const errorMessage = error.response?.data?.errorMessage || 
                            error.response?.data?.ResponseDescription || 
+                           error.message ||
                            'Failed to initiate payment';
         
         res.status(500).json({
             success: false,
             error: errorMessage,
+            environment: ENVIRONMENT,
             details: error.response?.data
         });
     }
 });
 
-// M-Pesa Callback URL (Safaricom sends confirmation here)
+// M-Pesa Callback URL
 router.post('/mpesa/callback', async (req, res) => {
     console.log('📞 Callback received at:', new Date().toISOString());
     console.log('Callback body:', JSON.stringify(req.body, null, 2));
@@ -173,32 +181,26 @@ router.post('/mpesa/callback', async (req, res) => {
             
             console.log(`Callback Result: ${ResultCode} - ${ResultDesc}`);
             
-            // Extract metadata
-            let metadata = {};
             if (CallbackMetadata && CallbackMetadata.Item) {
+                const metadata = {};
                 CallbackMetadata.Item.forEach(item => {
                     metadata[item.Name] = item.Value;
                 });
-            }
-            
-            console.log('Payment Metadata:', metadata);
-            
-            if (ResultCode === 0) {
-                console.log('✅ Payment successful!');
-                console.log(`Receipt Number: ${metadata.MpesaReceiptNumber}`);
-                console.log(`Amount: ${metadata.Amount}`);
-                console.log(`Phone: ${metadata.PhoneNumber}`);
-                // Here you would update your database
-            } else {
-                console.log('❌ Payment failed:', ResultDesc);
+                console.log('Payment Metadata:', metadata);
+                
+                if (ResultCode === 0) {
+                    console.log('✅ PAYMENT SUCCESSFUL!');
+                    console.log(`Receipt: ${metadata.MpesaReceiptNumber}`);
+                    console.log(`Amount: ${metadata.Amount}`);
+                    console.log(`Phone: ${metadata.PhoneNumber}`);
+                }
             }
         }
         
-        // Always acknowledge receipt to M-Pesa
         res.json({ ResultCode: 0, ResultDesc: 'Success' });
         
     } catch (error) {
-        console.error('Callback processing error:', error);
+        console.error('Callback error:', error);
         res.json({ ResultCode: 0, ResultDesc: 'Success' });
     }
 });
@@ -207,8 +209,6 @@ router.post('/mpesa/callback', async (req, res) => {
 router.post('/mpesa/status', async (req, res) => {
     try {
         const { checkoutRequestID } = req.body;
-        
-        console.log('🔍 Checking status for:', checkoutRequestID);
         
         if (!checkoutRequestID) {
             return res.status(400).json({
@@ -221,6 +221,10 @@ router.post('/mpesa/status', async (req, res) => {
         const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
         const password = Buffer.from(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`).toString('base64');
         
+        const apiUrl = ENVIRONMENT === 'production'
+            ? 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query'
+            : 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query';
+        
         const queryRequest = {
             BusinessShortCode: MPESA_SHORTCODE,
             Password: password,
@@ -228,17 +232,12 @@ router.post('/mpesa/status', async (req, res) => {
             CheckoutRequestID: checkoutRequestID
         };
         
-        // Production URL
-        const url = 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query';
-        
-        const response = await axios.post(url, queryRequest, {
+        const response = await axios.post(apiUrl, queryRequest, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
-        
-        console.log('Status response:', response.data);
         
         const isCompleted = response.data.ResultCode === '0';
         const isPending = response.data.ResultCode === '1037';
@@ -247,7 +246,8 @@ router.post('/mpesa/status', async (req, res) => {
             success: true,
             status: isCompleted ? 'completed' : (isPending ? 'pending' : 'failed'),
             resultCode: response.data.ResultCode,
-            resultDesc: response.data.ResultDesc
+            resultDesc: response.data.ResultDesc,
+            environment: ENVIRONMENT
         });
         
     } catch (error) {
