@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+how is this <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -326,6 +326,18 @@
             padding: 60px;
             color: #ff6666;
         }
+        .status-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        .status-badge.online { border-left: 3px solid #00FF88; }
+        .status-badge.offline { border-left: 3px solid #ff4444; }
         @media (max-width: 768px) {
             .navbar { flex-direction: column; position: relative; }
             .hero h1 { font-size: 36px; }
@@ -450,17 +462,88 @@
     </footer>
 
     <div id="paymentToast" class="payment-toast"></div>
+    
+    <!-- Backend Status Badge -->
+    <div id="backendStatus" class="status-badge offline">🔌 Backend: Checking...</div>
 
-    <!-- Load Supabase with async/defer to prevent conflicts -->
+    <!-- Load Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     
     <script>
         // ============================================
-        // WAIT FOR SUPABASE TO LOAD - NO DUPLICATE DECLARATION
+        // BACKEND API URL (REAL M-PESA INTEGRATION)
+        // ============================================
+        const API_URL = 'http://localhost:3000';
+        
+        // Check backend connection
+        async function checkBackendStatus() {
+            const statusDiv = document.getElementById('backendStatus');
+            try {
+                const response = await fetch(`${API_URL}/api/health`);
+                if (response.ok) {
+                    statusDiv.innerHTML = '🟢 Backend: Online';
+                    statusDiv.className = 'status-badge online';
+                    return true;
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '🔴 Backend: Offline (Start server with "node server.js")';
+                statusDiv.className = 'status-badge offline';
+                return false;
+            }
+        }
+        
+        // ============================================
+        // REAL M-PESA PAYMENT FUNCTION (CALLS BACKEND)
+        // ============================================
+        async function processRealMpesaPayment(phoneNumber, amount, courseId, courseName, userId) {
+            try {
+                const response = await fetch(`${API_URL}/api/payments/mpesa/initiate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phoneNumber: phoneNumber,
+                        amount: amount,
+                        courseId: courseId,
+                        courseName: courseName,
+                        userId: userId
+                    })
+                });
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Payment error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        async function checkPaymentStatus(checkoutRequestID) {
+            try {
+                const response = await fetch(`${API_URL}/api/payments/mpesa/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        checkoutRequestID: checkoutRequestID
+                    })
+                });
+                
+                return await response.json();
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // ============================================
+        // WAIT FOR SUPABASE TO LOAD
         // ============================================
         
         (function() {
-            // Check if already initialized
             if (window._meiAppInitialized) return;
             window._meiAppInitialized = true;
             
@@ -468,9 +551,6 @@
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
             
             let supabase = null;
-            let appReady = false;
-            
-            // Global state
             let currentUser = null;
             let currentEnrollments = [];
             let isLoginMode = true;
@@ -478,6 +558,7 @@
             let courses = [];
             let quizQuestions = [];
             let currentQuizIndex = 0, quizScore = 0, userAnswers = [];
+            let paymentInterval = null;
             
             function showToast(msg, isError = false) {
                 const toast = document.getElementById('paymentToast');
@@ -498,7 +579,6 @@
                 });
             }
             
-            // Wait for Supabase to be available
             function waitForSupabase() {
                 return new Promise((resolve) => {
                     if (window.supabase) {
@@ -519,7 +599,6 @@
                 });
             }
             
-            // Fetch data from Supabase
             async function fetchCourses() {
                 if (!supabase) return [];
                 const { data, error } = await supabase.from('courses').select('*').order('id', { ascending: true });
@@ -692,6 +771,9 @@
                 }
             }
             
+            // ============================================
+            // UPDATED ENROLLMENT WITH REAL M-PESA
+            // ============================================
             window.enrollCourse = function(id, name, price) {
                 if (!currentUser) { showToast('Please login first to enroll', true); window.openModal('login'); return; }
                 if (currentEnrollments.includes(id)) { showToast('You are already enrolled in this course', true); return; }
@@ -704,25 +786,96 @@
                 document.getElementById('mpesaModal').classList.add('active');
             };
             
+            // ============================================
+            // REAL M-PESA PAYMENT PROCESSING
+            // ============================================
             window.processMpesaPayment = async function() {
                 const phone = document.getElementById('mpesaPhone').value;
-                if (!phone || phone.length < 10) { showToast('Please enter a valid M-Pesa phone number', true); return; }
+                if (!phone || phone.length < 10) { 
+                    showToast('Please enter a valid M-Pesa phone number', true); 
+                    return; 
+                }
+                
                 const payBtn = document.getElementById('processPaymentBtn');
-                payBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+                const originalText = payBtn.innerHTML;
+                payBtn.innerHTML = '<span class="loading-spinner"></span> Initiating payment...';
                 payBtn.disabled = true;
+                
+                // Check if backend is available
+                const backendOnline = await checkBackendStatus();
+                if (!backendOnline) {
+                    showToast('❌ Backend server is not running. Please start the backend with "node server.js"', true);
+                    payBtn.innerHTML = originalText;
+                    payBtn.disabled = false;
+                    return;
+                }
+                
                 try {
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    const success = await saveEnrollment(selectedCourse.id, 'MPESA-' + Date.now());
-                    if (success) {
-                        currentEnrollments.push(selectedCourse.id);
-                        renderCourses();
-                        showToast(`✅ Successfully enrolled in ${selectedCourse.name}!`);
-                        window.closeMpesaModal();
-                    } else throw new Error('Enrollment failed');
+                    // Initiate payment via backend
+                    const result = await processRealMpesaPayment(
+                        phone,
+                        selectedCourse.price,
+                        selectedCourse.id,
+                        selectedCourse.name,
+                        currentUser?.id || 'guest'
+                    );
+                    
+                    if (!result.success) {
+                        throw new Error(result.error || 'Payment initiation failed');
+                    }
+                    
+                    showToast('📱 Check your phone for M-Pesa prompt. Enter PIN to complete payment.', false);
+                    document.getElementById('paymentStatus').innerHTML = '<div class="status success">📱 Payment initiated! Check your phone for M-Pesa prompt.</div>';
+                    document.getElementById('paymentStatus').style.display = 'block';
+                    
+                    // Poll for payment status
+                    let attempts = 0;
+                    const maxAttempts = 30; // 60 seconds max
+                    
+                    if (paymentInterval) clearInterval(paymentInterval);
+                    
+                    paymentInterval = setInterval(async () => {
+                        attempts++;
+                        try {
+                            const status = await checkPaymentStatus(result.checkoutRequestID);
+                            
+                            if (status.status === 'completed') {
+                                clearInterval(paymentInterval);
+                                // Save enrollment to Supabase
+                                const success = await saveEnrollment(selectedCourse.id, 'MPESA-' + Date.now());
+                                if (success) {
+                                    currentEnrollments.push(selectedCourse.id);
+                                    renderCourses();
+                                    showToast(`✅ Payment successful! You are now enrolled in ${selectedCourse.name}`);
+                                    window.closeMpesaModal();
+                                }
+                                payBtn.innerHTML = originalText;
+                                payBtn.disabled = false;
+                            } else if (status.status === 'failed') {
+                                clearInterval(paymentInterval);
+                                showToast(`❌ Payment failed: ${status.resultDesc || 'Unknown error'}`, true);
+                                document.getElementById('paymentStatus').innerHTML = `<div class="status error">❌ Payment failed: ${status.resultDesc}</div>`;
+                                payBtn.innerHTML = originalText;
+                                payBtn.disabled = false;
+                            }
+                            
+                            if (attempts >= maxAttempts) {
+                                clearInterval(paymentInterval);
+                                if (status?.status !== 'completed') {
+                                    showToast('⏰ Payment timeout. Please check your M-Pesa messages.', true);
+                                }
+                                payBtn.innerHTML = originalText;
+                                payBtn.disabled = false;
+                            }
+                        } catch (err) {
+                            console.error('Status check error:', err);
+                        }
+                    }, 2000);
+                    
                 } catch (error) {
-                    showToast('Payment failed. Please try again.', true);
-                } finally {
-                    payBtn.innerHTML = '💳 Pay with M-Pesa';
+                    console.error('Payment error:', error);
+                    showToast(error.message || 'Payment failed. Please try again.', true);
+                    payBtn.innerHTML = originalText;
                     payBtn.disabled = false;
                 }
             };
@@ -732,7 +885,6 @@
                 const { data: enrollmentsData } = await supabase.from('enrollments').select('course_id, enrolled_at, payment_status').eq('user_id', currentUser.id);
                 let html = `<div style="padding:20px;"><h3>Welcome, ${escapeHtml(currentUser.email)}!</h3><div style="margin-top:30px;"><h4>My Enrolled Courses (${enrollmentsData?.length || 0})</h4>`;
                 if (enrollmentsData && enrollmentsData.length) {
-                    // Get course names
                     const courseIds = enrollmentsData.map(e => e.course_id);
                     const { data: coursesData } = await supabase.from('courses').select('id, name').in('id', courseIds);
                     const courseMap = {};
@@ -793,7 +945,10 @@
             window.closeModal = () => document.getElementById('authModal')?.classList.remove('active');
             window.closeCourseModal = () => document.getElementById('courseModal')?.classList.remove('active');
             window.closeQuizModal = () => document.getElementById('quizModal')?.classList.remove('active');
-            window.closeMpesaModal = () => document.getElementById('mpesaModal')?.classList.remove('active');
+            window.closeMpesaModal = () => {
+                if (paymentInterval) clearInterval(paymentInterval);
+                document.getElementById('mpesaModal')?.classList.remove('active');
+            };
             window.closeDashboardModal = () => document.getElementById('dashboardModal')?.classList.remove('active');
             
             async function handleAuthSubmit() {
@@ -809,6 +964,10 @@
             }
             
             async function init() {
+                // Check backend status
+                await checkBackendStatus();
+                setInterval(checkBackendStatus, 30000); // Check every 30 seconds
+                
                 const supabaseModule = await waitForSupabase();
                 if (!supabaseModule) {
                     document.getElementById('coursesGrid').innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load. Please refresh.</div>';
