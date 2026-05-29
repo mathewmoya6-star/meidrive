@@ -1,2 +1,51 @@
-node_modules/ 
-.env 
+# ====================================================
+# ROOT .gitignore - MEI DRIVE AFRICA (Frontend)
+# ====================================================
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables (if accidentally placed in root)
+.env
+.env.local
+.env.production
+.env.development
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build files
+dist/
+build/
+.next/
+out/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Coverage files
+coverage/
+.nyc_output/
+
+# Misc
+*.bak
+*.backup
