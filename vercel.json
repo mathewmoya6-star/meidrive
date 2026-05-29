@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "name": "mei-drive-africa",
+  "builds": [
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/admin-login.html",
+      "dest": "/admin-login.html"
+    },
+    {
+      "src": "/admin-dashboard.html",
+      "dest": "/admin-dashboard.html"
+    },
+    {
+      "src": "/admin-portal.html",
+      "dest": "/admin-portal.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay for Course - MEI Drive Africa</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0A192F 0%, #0D2137 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .payment-container {
+            background: rgba(13, 33, 55, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        h1 { color: #00FF88; margin-bottom: 10px; }
+        .subtitle { color: #8892b0; margin-bottom: 30px; }
+        .course-info {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 3px solid #00FF88;
+        }
+        .course-name { color: #00FF88; font-weight: bold; font-size: 18px; }
+        .course-price { color: white; font-size: 24px; font-weight: bold; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; color: #ccd6f6; margin-bottom: 8px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(10, 25, 47, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #00FF88;
+            color: #0A192F;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover { background: #00cc6a; transform: translateY(-2px); }
+        button:disabled { background: #8892b0; cursor: not-allowed; }
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        .status.success { background: rgba(0, 255, 136, 0.2); color: #00FF88; border: 1px solid #00FF88; }
+        .status.error { background: rgba(255, 68, 68, 0.2); color: #ff4444; border: 1px solid #ff4444; }
+        .status.info { background: rgba(100, 100, 255, 0.2); color: #8888ff; border: 1px solid #8888ff; }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #0A192F;
+            border-top-color: #00FF88;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <h1>💰 Complete Payment</h1>
+        <div class="subtitle">Pay securely with M-Pesa</div>
+        
+        <div class="course-info">
+            <div class="course-name">Boda Boda Course</div>
+            <div class="course-price">KES 2,999</div>
+        </div>
+        
+        <div class="input-group">
+            <label>📱 M-Pesa Phone Number</label>
+            <input type="tel" id="phoneNumber" placeholder="0712345678" value="0703738707">
+        </div>
+        
+        <button id="payBtn">💳 Pay Now</button>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        // Fix #1, #2: Backend URL - CHANGE THIS TO YOUR DEPLOYED BACKEND
+        const BACKEND_URL = 'https://meidriveafrica-api.onrender.com'; // Replace with your backend URL
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            setTimeout(() => {
+                if (statusDiv.style.display !== 'none') {
+                    statusDiv.style.display = 'none';
+                }
+            }, 8000);
+        }
+        
+        async function payForCourse(phoneNumber, amount, courseName) {
+            // Fix #11: Format phone number for display (backend will format for API)
+            if (!phoneNumber.match(/^07\d{8}$|^01\d{8}$|^254\d{9}$/)) {
+                throw new Error('Invalid phone number format. Use 07XXXXXXXX or 254XXXXXXXXX');
+            }
+            
+            const response = await fetch(`${BACKEND_URL}/api/mpesa/stkpush`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phoneNumber: phoneNumber,
+                    amount: amount,
+                    accountReference: courseName,
+                    transactionDesc: `Payment for ${courseName}`
+                })
+            });
+            
+            // Fix #4: Handle non-JSON responses
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                throw new Error(`Server error: ${text.substring(0, 100)}`);
+            }
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Payment failed');
+            }
+            
+            return result;
+        }
+        
+        // Fix #13, #14: Loading state and error handling
+        document.getElementById('payBtn').addEventListener('click', async () => {
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const amount = 2999;
+            const courseName = 'Boda Boda Course';
+            const btn = document.getElementById('payBtn');
+            
+            // Fix #12: Input validation
+            if (!phoneNumber) {
+                showStatus('Please enter your M-Pesa phone number', 'error');
+                return;
+            }
+            
+            if (!phoneNumber.match(/^07\d{8}$|^01\d{8}$|^254\d{9}$/)) {
+                showStatus('Please enter a valid phone number (e.g., 0712345678 or 254712345678)', 'error');
+                return;
+            }
+            
+            // Fix #13: Disable button and show loading
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Processing...';
+            showStatus('Sending payment request...', 'info');
+            
+            try {
+                const result = await payForCourse(phoneNumber, amount, courseName);
+                
+                if (result.success) {
+                    showStatus('✅ STK Push sent! Check your phone for the M-Pesa prompt and enter your PIN.', 'success');
+                    // Reset form after successful payment
+                    setTimeout(() => {
+                        if (confirm('Payment initiated! Did you receive the M-Pesa prompt?')) {
+                            // Optionally redirect to course page
+                            // window.location.href = '/course.html';
+                        }
+                    }, 2000);
+                } else {
+                    showStatus(`❌ Payment failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                
+                // Fix #14: Detailed error messages
+                let errorMessage = error.message;
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    errorMessage = 'Cannot connect to payment server. Please try again later.';
+                } else if (error.message.includes('500')) {
+                    errorMessage = 'Server error. Our team has been notified.';
+                } else if (error.message.includes('400')) {
+                    errorMessage = 'Invalid request. Please check your phone number and try again.';
+                }
+                
+                showStatus(`❌ ${errorMessage}`, 'error');
+            } finally {
+                // Re-enable button
+                btn.disabled = false;
+                btn.innerHTML = '💳 Pay Now';
+            }
+        });
+        
+        // Check backend health on load
+        async function checkBackend() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/`);
+                if (response.ok) {
+                    console.log('✅ Backend connected');
+                    showStatus('✅ Connected to payment server. Ready to pay!', 'success');
+                    setTimeout(() => {
+                        const statusDiv = document.getElementById('status');
+                        if (statusDiv.style.display !== 'none') {
+                            statusDiv.style.display = 'none';
+                        }
+                    }, 3000);
+                }
+            } catch (error) {
+                console.error('Backend health check failed:', error);
+                showStatus('⚠️ Payment server is offline. Please try again later.', 'error');
+            }
+        }
+        
+        checkBackend();
+    </script>
+</body>
+</html>

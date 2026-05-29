@@ -1,0 +1,101 @@
+{
+  "course_id": 5,
+  "title": "🛵 Boda Boda Professional Training",
+  "description": "Professional motorcycle taxi training covering safety, passenger transport, defensive riding, and business management for boda boda operators.",
+  "duration": "20 hours",
+  "level": "Beginner",
+  "price": 5500,
+  "units": [
+    {
+      "unit_number": 1,
+      "title": "Motorcycle Controls & Basic Operation",
+      "duration": "3 hours",
+      "content": "# Motorcycle Controls & Basic Operation\n\n## Controls Familiarization\n- Throttle: Right hand grip, twist to accelerate\n- Front brake: Right hand lever\n- Clutch: Left hand lever\n- Rear brake: Right foot pedal\n- Gear shifter: Left foot lever\n\n## Starting Procedure\n1. Insert key and turn to ON\n2. Check neutral light is illuminated\n3. Pull in clutch\n4. Press starter button\n5. Allow engine to warm briefly\n\n## Moving Off\n1. Check mirrors and blind spot\n2. Signal intention\n3. Pull in clutch\n4. Select first gear\n5. Release clutch gradually while applying throttle\n6. Place feet on foot pegs\n\n## Stopping\n1. Check mirrors\n2. Signal if turning\n3. Apply both brakes smoothly\n4. Pull in clutch before stopping\n5. Place left foot down\n6. Select neutral\n\n## Basic Maneuvers\n- Low-speed control using clutch and rear brake\n- Figure-eight turns\n- U-turns within 2 car widths\n- Emergency stopping\n- Obstacle avoidance",
+      "key_points": [
+        "Always check neutral before starting",
+        "Use both brakes for smooth stopping",
+        "Keep feet on pegs when moving",
+        "Practice low-speed control in safe area",
+        "Never ride without proper training"
+      ]
+    },
+    {
+      "unit_number": 2,
+      "title": "Protective Gear & Safety Equipment",
+      "duration": "2 hours",
+      "content": "# Protective Gear & Safety Equipment\n\n## Helmet\n- Must be ECE or DOT certified\n- Proper fit: snug but not tight\n- Chin strap must be fastened\n- Replace every 5 years or after impact\n- Full-face helmets provide best protection\n\n## Protective Clothing\n- Jacket with armor at shoulders, elbows, back\n- Pants with knee protection\n- Gloves with palm sliders and knuckle protection\n- Over-ankle boots with oil-resistant soles\n- Bright or reflective colors for visibility\n\n## Visibility Equipment\n- Reflective vest for night riding\n- LED lights for added visibility\n- Hi-vis helmet cover\n- Reflective tape on luggage\n- Daytime running lights\n\n## Passenger Gear\n- Passengers must wear helmets\n- Provide clean, well-maintained helmets\n- Ensure helmets fit properly\n- Have spare helmets available\n- Explain safety to passengers\n\n## Maintenance of Gear\n- Clean helmet visor regularly\n- Check for wear and damage\n- Replace worn straps\n- Waterproof as needed\n- Store properly to prevent damage",
+      "key_points": [
+        "Always wear DOT/ECE certified helmet with chin strap fastened",
+        "Full protective gear recommended for all rides",
+        "Passengers must wear helmets by law",
+        "Use reflective gear for night visibility",
+        "Replace helmets every 5 years or after impact"
+      ]
+    },
+    {
+      "unit_number": 3,
+      "title": "Passenger Safety Protocols",
+      "duration": "3 hours",
+      "content": "# Passenger Safety Protocols\n\n## Helmet Provision\n- Carry at least one passenger helmet\n- Ensure helmet fits properly\n- Explain how to fasten chin strap\n- Clean helmets between passengers\n- Replace damaged helmets immediately\n\n## Mounting Procedure\n1. Inform passenger to mount from left side\n2. Keep motorcycle stable with front brake\n3. Passenger places left foot on peg\n4. Passenger swings right leg over seat\n5. Passenger sits squarely on seat\n\n## Proper Seating Position\n- Sit as far forward as comfortable\n- Keep feet on passenger pegs\n- Hold rider's waist or grab handles\n- Lean with rider in turns\n- Keep knees against fuel tank\n\n## Luggage Management\n- Secure bags to carrier\n- Distribute weight evenly\n- Don't exceed weight limits\n- Use bungee cords or straps\n- Check luggage security before moving\n\n## Communication\n- Agree on signals before departure\n- Tap rider's shoulder to indicate stop\n- Passenger should report discomfort\n- Explain route and stops\n- Handle passenger concerns politely",
+      "key_points": [
+        "Passengers must wear helmets by law",
+        "Passenger mounts from left side only",
+        "Explain proper seating and holding position",
+        "Secure luggage properly before moving",
+        "Agree on communication signals before departure"
+      ]
+    },
+    {
+      "unit_number": 4,
+      "title": "Defensive Riding Techniques",
+      "duration": "4 hours",
+      "content": "# Defensive Riding Techniques\n\n## Visibility to Others\n- Ride with headlights on at all times\n- Position in lane to be seen\n- Avoid lingering in blind spots\n- Use lane positioning for visibility\n- Wear bright or reflective clothing\n\n## Hazard Anticipation\n- Scan 12 seconds ahead\n- Watch for car doors opening\n- Anticipate vehicles pulling out\n- Be alert for pedestrians crossing\n- Expect the unexpected from other drivers\n\n## Following Distance\n- Maintain 2-second minimum following distance\n- Increase to 4 seconds in wet conditions\n- Add 1 second for nighttime riding\n- Add 1 second for carrying passenger\n- Add 1 second for unfamiliar roads\n\n## Intersection Safety\n- Cover brake approaching intersections\n- Watch for turning vehicles\n- Be visible at stop lines\n- Check both directions before proceeding\n- Never assume other drivers see you\n\n## Night Riding\n- Reduce speed significantly\n- Increase following distance\n- Use high beams when safe\n- Watch for unlit vehicles and pedestrians\n- Be extra cautious of fatigue",
+      "key_points": [
+        "Assume other drivers don't see you",
+        "Maintain 2-second minimum following distance",
+        "Cover brakes when approaching intersections",
+        "Reduce speed and increase distance at night",
+        "Position yourself to be visible"
+      ]
+    },
+    {
+      "unit_number": 5,
+      "title": "Route Optimization & Navigation",
+      "duration": "3 hours",
+      "content": "# Route Optimization & Navigation\n\n## Navigation Tools\n- Google Maps for real-time traffic\n- Uber map for job navigation\n- Local knowledge of shortcuts\n- Traffic pattern awareness\n- Landmark-based navigation\n\n## Route Planning\n- Know peak hour congestion areas\n- Identify alternative routes\n- Plan for construction zones\n- Avoid known accident blackspots\n- Consider weather conditions\n\n## Time Management\n- Estimate trip durations accurately\n- Communicate delays to customers\n- Build buffer time between jobs\n- Know when to decline trips\n- Balance speed with safety\n\n## Knowledge of Areas\n- Major landmarks and buildings\n- Popular destinations\n- One-way streets and restrictions\n- Stage locations for passengers\n- Hospital and police station locations\n\n## Efficient Navigation\n- Combine trips when possible\n- Avoid backtracking\n- Know short cuts\n- Use main roads at night\n- Avoid unsafe short cuts in bad areas",
+      "key_points": [
+        "Use navigation apps for real-time traffic",
+        "Know peak hour congestion and alternative routes",
+        "Communicate delays honestly to customers",
+        "Learn major landmarks and destinations",
+        "Balance efficiency with safety"
+      ]
+    },
+    {
+      "unit_number": 6,
+      "title": "Customer Service & Pricing",
+      "duration": "3 hours",
+      "content": "# Customer Service & Pricing\n\n## Professional Appearance\n- Clean, well-maintained motorcycle\n- Clean riding gear\n- Professional demeanor\n- Punctual for pickups\n- Courteous communication\n\n## Pricing Strategy\n- Know standard fares for common routes\n- Be transparent about pricing\n- Agree on price before departure\n- Never overcharge customers\n- Offer reasonable rates\n\n## App-Based Rides\n- Understand app pricing structure\n- Accept rides promptly\n- Navigate efficiently\n- Rate passengers professionally\n- Maintain high acceptance rate\n\n## Handling Complaints\n- Listen without interrupting\n- Apologize for legitimate issues\n- Offer reasonable solutions\n- Never argue with customers\n- Report serious complaints to platform\n\n## Building Reputation\n- Provide clean, safe rides\n- Be consistently punctual\n- Be courteous to all passengers\n- Maintain high rating\n- Encourage satisfied customers to rate",
+      "key_points": [
+        "Keep yourself and motorcycle clean and professional",
+        "Agree on price before departure",
+        "Handle complaints calmly and professionally",
+        "Build reputation through consistent good service",
+        "Never argue with customers"
+      ]
+    },
+    {
+      "unit_number": 7,
+      "title": "Emergency Procedures & First Aid",
+      "duration": "2 hours",
+      "content": "# Emergency Procedures & First Aid\n\n## Emergency Braking\n- Apply both brakes progressively\n- Keep handlebars straight\n- Weight back and low\n- Downshift as speed decreases\n- Avoid locking wheels\n\n## Accident Scene Management\n1. Assess danger to self and others\n2. Move to safe location if possible\n3. Call emergency services (999)\n4. Provide first aid if trained\n5. Exchange information with other party\n6. Take photos of scene\n7. Report to police within 24 hours\n\n## Basic First Aid for Riders\n- Road rash cleaning and bandaging\n- Splinting suspected fractures\n- Recognizing concussion symptoms\n- Managing bleeding\n- Treating shock\n\n## Insurance Procedures\n- Know your insurance coverage\n- Keep insurance details accessible\n- Report accidents to insurer promptly\n- Document everything\n- Keep copies of all paperwork\n\n## Emergency Contacts\n- Keep emergency contacts in phone\n- ICE (In Case of Emergency) in contacts\n- Share location with trusted person\n- Know nearest hospitals\n- Carry medical information card",
+      "key_points": [
+        "Practice emergency braking in safe area",
+        "Know emergency services numbers (999)",
+        "Report accidents to police within 24 hours",
+        "Keep insurance and emergency contact accessible",
+        "Document accident scenes with photos"
+      ]
+    }
+  ]
+}

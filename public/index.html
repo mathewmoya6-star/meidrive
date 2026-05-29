@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEI DRIVE AFRICA | Professional Driver Training Courses</title>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300FF88'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%230A192F' font-weight='bold'>M</text></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0A192F; color: #fff; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0D2137; }
+        ::-webkit-scrollbar-thumb { background: #00FF88; border-radius: 4px; }
+        
+        .navbar {
+            background: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 16px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        .logo { 
+            font-size: 26px; 
+            font-weight: 800; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00FF88, #00cc6a);
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 10px;
+            color: #0A192F;
+            flex-direction: column;
+            line-height: 1.2;
+            text-align: center;
+        }
+        .logo-icon small { font-size: 7px; }
+        .logo span { color: #00FF88; }
+        .nav-links { display: flex; gap: 35px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { color: #fff; text-decoration: none; transition: all 0.3s; font-weight: 500; cursor: pointer; }
+        .nav-links a:hover { color: #00FF88; }
+        .auth-buttons { display: flex; gap: 12px; }
+        .btn-login, .btn-register {
+            padding: 8px 24px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-login { background: transparent; border: 1.5px solid #00FF88; color: #00FF88; }
+        .btn-login:hover { background: rgba(0, 255, 136, 0.1); transform: translateY(-2px); }
+        .btn-register { background: #00FF88; color: #0A192F; }
+        .btn-register:hover { background: #00cc6a; transform: translateY(-2px); }
+        .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .user-email { color: #00FF88; font-size: 14px; }
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, #0A192F 0%, #0D2137 50%, #0A192F 100%);
+            padding: 120px 20px 80px;
+        }
+        .hero-content { max-width: 900px; margin: 0 auto; }
+        .hero h1 { font-size: 68px; margin-bottom: 24px; font-weight: 800; }
+        .hero h1 span { color: #00FF88; }
+        .hero p { font-size: 20px; opacity: 0.85; margin-bottom: 24px; }
+        .hero-buttons { display: flex; gap: 20px; justify-content: center; margin-bottom: 60px; flex-wrap: wrap; }
+        .btn-primary {
+            background: #00FF88;
+            color: #0A192F;
+            padding: 14px 38px;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3); }
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #00FF88;
+            color: #00FF88;
+            padding: 12px 38px;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .stats { display: flex; justify-content: center; gap: 80px; flex-wrap: wrap; margin-top: 40px; }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 42px; font-weight: 800; color: #00FF88; }
+        .stat-label { font-size: 14px; opacity: 0.7; }
+        
+        .courses-section { padding: 80px 5%; background: #0A192F; }
+        .section-title { text-align: center; font-size: 42px; margin-bottom: 16px; font-weight: 700; }
+        .section-title span { color: #00FF88; }
+        .section-subtitle { text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 50px; font-size: 18px; }
+        .courses-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
+            gap: 30px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        .course-card {
+            background: rgba(13, 33, 55, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00FF88, #00cc6a);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        .course-card:hover::before { transform: scaleX(1); }
+        .course-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 255, 136, 0.15); border-color: rgba(0, 255, 136, 0.5); }
+        .course-icon { font-size: 48px; margin-bottom: 15px; }
+        .course-card h3 { font-size: 22px; margin-bottom: 10px; font-weight: 700; color: #00FF88; }
+        .course-card p { opacity: 0.7; line-height: 1.5; margin-bottom: 15px; font-size: 14px; }
+        .course-price { font-size: 26px; font-weight: 700; color: #00FF88; margin-bottom: 15px; }
+        .course-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px; padding-top: 15px; border-top: 1px solid rgba(0, 255, 136, 0.2); }
+        .duration { font-size: 13px; opacity: 0.6; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 20px; }
+        .units-badge { font-size: 13px; opacity: 0.6; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 20px; }
+        .view-modules {
+            background: transparent;
+            border: 1px solid #00FF88;
+            color: #00FF88;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .view-modules:hover { background: rgba(0, 255, 136, 0.1); }
+        .enroll-btn {
+            background: #00FF88;
+            color: #0A192F;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .enroll-btn:hover { transform: scale(1.02); background: #00cc6a; }
+        .enrolled-badge {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00FF88;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #0D2137;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        .modal-content h2 { margin-bottom: 20px; color: #00FF88; }
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #fff;
+            background: none;
+            border: none;
+        }
+        .module-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .module-item {
+            background: rgba(10, 25, 47, 0.8);
+            border-radius: 12px;
+            padding: 15px 20px;
+            border-left: 4px solid #00FF88;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .module-item:hover { background: rgba(0, 255, 136, 0.1); }
+        .module-title { font-size: 18px; font-weight: 600; display: flex; justify-content: space-between; }
+        .module-desc { font-size: 13px; opacity: 0.6; margin-top: 5px; }
+        .unit-list { margin-top: 12px; margin-left: 20px; display: none; }
+        .unit-list.show { display: block; }
+        .unit-item { padding: 8px 12px; margin: 5px 0; background: rgba(0, 255, 136, 0.05); border-radius: 6px; font-size: 13px; }
+        
+        .mpesa-input {
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 2px;
+            width: 100%;
+            padding: 14px;
+            background: #0A192F;
+            border: 1px solid #00FF88;
+            border-radius: 8px;
+            color: white;
+        }
+        .payment-status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+        .payment-status.success { background: rgba(0, 255, 136, 0.2); color: #00FF88; display: block; }
+        .payment-status.error { background: rgba(255, 0, 0, 0.2); color: #ff4444; display: block; }
+        
+        .quiz-container { padding: 20px; }
+        .quiz-question { background: rgba(10, 25, 47, 0.8); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        .quiz-option { padding: 12px 15px; background: rgba(255,255,255,0.05); border-radius: 10px; cursor: pointer; }
+        .quiz-option:hover { background: rgba(0, 255, 136, 0.1); }
+        .quiz-option.correct { background: rgba(0, 255, 136, 0.3); border: 1px solid #00FF88; }
+        .quiz-option.wrong { background: rgba(255, 0, 0, 0.3); border: 1px solid #ff4444; }
+        
+        .features-section { padding: 80px 5%; background: #0D2137; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
+        .feature { text-align: center; padding: 30px; background: rgba(10, 25, 47, 0.6); border-radius: 16px; border: 1px solid rgba(0, 255, 136, 0.1); transition: all 0.3s; }
+        .feature:hover { border-color: rgba(0, 255, 136, 0.3); transform: translateY(-5px); }
+        .feature-icon { font-size: 48px; margin-bottom: 20px; }
+        .footer { background: #051020; text-align: center; padding: 40px; border-top: 1px solid rgba(0, 255, 136, 0.1); }
+        .footer p { opacity: 0.6; font-size: 14px; }
+        .payment-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a472a;
+            color: #00FF88;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 3000;
+            display: none;
+            white-space: nowrap;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-courses {
+            text-align: center;
+            padding: 60px;
+            font-size: 18px;
+            color: #00FF88;
+        }
+        .error-message {
+            text-align: center;
+            padding: 60px;
+            color: #ff6666;
+        }
+        .status-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+        .status-badge.online { border-left: 3px solid #00FF88; }
+        .status-badge.offline { border-left: 3px solid #ff4444; }
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; position: relative; }
+            .hero h1 { font-size: 36px; }
+            .courses-grid { grid-template-columns: 1fr; }
+            .stats { gap: 40px; }
+            .payment-toast { white-space: normal; text-align: center; width: 90%; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" onclick="location.reload()">
+            <div class="logo-icon">MEI<br><small>DRIVE AFRICA</small></div>
+            <span>MEI DRIVE <span>AFRICA</span></span>
+        </div>
+        <div class="nav-links">
+            <a onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})">Home</a>
+            <a onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Courses</a>
+            <a onclick="window.openQuizBank()">Quiz Bank</a>
+            <a onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact</a>
+            <a onclick="window.openDashboard()">Dashboard</a>
+        </div>
+        <div id="authContainer" class="auth-buttons"></div>
+    </nav>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="modal-close" onclick="window.closeModal()">&times;</button>
+            <h2 id="modalTitle">Login</h2>
+            <div id="modalError" style="color:#ff4444; margin-bottom:15px;"></div>
+            <input type="email" id="modalEmail" placeholder="Email address" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+            <input type="password" id="modalPassword" placeholder="Password" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+            <div id="fullNameGroup" style="display:none;">
+                <input type="text" id="modalFullName" placeholder="Full Name" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+            </div>
+            <button id="modalSubmitBtn" style="width:100%; padding:14px; background:#00FF88; color:#0A192F; font-weight:700; border:none; border-radius:8px; cursor:pointer;">Login</button>
+            <div class="modal-switch" id="modalSwitch" style="text-align:center; margin-top:15px; cursor:pointer;">Don't have an account? <span style="color:#00FF88;">Register</span></div>
+        </div>
+    </div>
+
+    <!-- M-Pesa Payment Modal -->
+    <div id="mpesaModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="modal-close" onclick="window.closeMpesaModal()">&times;</button>
+            <h2><i class="fas fa-mobile-alt"></i> M-Pesa Payment</h2>
+            <div style="text-align:center; margin-bottom:20px;">
+                <p id="paymentCourseName" style="font-size:18px;"></p>
+                <p id="paymentAmount" style="font-size:32px; color:#00FF88; font-weight:700;"></p>
+            </div>
+            <input type="tel" id="mpesaPhone" placeholder="M-Pesa Number (e.g., 0712345678)" class="mpesa-input">
+            <button id="processPaymentBtn" style="width:100%; padding:14px; margin-top:15px; background:#00FF88; color:#0A192F; font-weight:700; border:none; border-radius:8px; cursor:pointer;">
+                💳 Pay with M-Pesa
+            </button>
+            <div id="paymentStatus" class="payment-status"></div>
+            <p style="font-size:12px; text-align:center; margin-top:15px; opacity:0.6;">Paybill: 4095377 | You'll receive a prompt on your phone</p>
+        </div>
+    </div>
+
+    <!-- Course Module Modal -->
+    <div id="courseModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="window.closeCourseModal()">&times;</button>
+            <h2 id="courseModalTitle"></h2>
+            <div id="moduleList" class="module-list"></div>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quizModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <button class="modal-close" onclick="window.closeQuizModal()">&times;</button>
+            <h2><i class="fas fa-question-circle"></i> Quiz Bank</h2>
+            <div id="quizContainer" class="quiz-container"></div>
+        </div>
+    </div>
+
+    <!-- Dashboard Modal -->
+    <div id="dashboardModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <button class="modal-close" onclick="window.closeDashboardModal()">&times;</button>
+            <h2><i class="fas fa-tachometer-alt"></i> My Dashboard</h2>
+            <div id="dashboardContent"></div>
+        </div>
+    </div>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Practice Daily.<br><span>Revise Smarter.</span> Pass with Confidence.</h1>
+            <p>Professional Driver Training | Expert Instructors | 1000+ Quiz Questions</p>
+            <div class="hero-buttons">
+                <div class="btn-primary" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Explore Courses</div>
+                <div class="btn-secondary" onclick="window.openModal('register')">Get Started</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item"><div class="stat-number" id="coursesCount">0</div><div class="stat-label">Courses</div></div>
+                <div class="stat-item"><div class="stat-number" id="studentsCount">0</div><div class="stat-label">Active Students</div></div>
+                <div class="stat-item"><div class="stat-number" id="quizCount">0</div><div class="stat-label">Quiz Questions</div></div>
+                <div class="stat-item"><div class="stat-number" id="modulesCount">0</div><div class="stat-label">Modules</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="courses-section" id="courses">
+        <h2 class="section-title">Our <span>Courses</span></h2>
+        <div class="section-subtitle">Click on any course to view modules | Enroll with M-Pesa</div>
+        <div class="courses-grid" id="coursesGrid"><div class="loading-courses"><i class="fas fa-spinner fa-spin"></i> Loading courses from database...</div></div>
+    </section>
+
+    <section class="features-section">
+        <h2 class="section-title">Why Choose <span>Us</span></h2>
+        <div class="features-grid">
+            <div class="feature"><div class="feature-icon">✅</div><h4>Certified Curriculum</h4><p>NTSA-approved driver training standards</p></div>
+            <div class="feature"><div class="feature-icon">📚</div><h4>Complete Learner Hub</h4><p>Comprehensive learning materials and resources</p></div>
+            <div class="feature"><div class="feature-icon">👨‍🏫</div><h4>Expert Instructors</h4><p>Professional certified trainers</p></div>
+            <div class="feature"><div class="feature-icon">💻</div><h4>Learn Anywhere</h4><p>Online access anytime, practical sessions available</p></div>
+        </div>
+    </section>
+
+    <footer class="footer" id="contact">
+        <p>&copy; 2026 MEI DRIVE AFRICA. All rights reserved.</p>
+    </footer>
+
+    <div id="paymentToast" class="payment-toast"></div>
+    
+    <!-- Backend Status Badge -->
+    <div id="backendStatus" class="status-badge offline">🔌 Backend: Checking...</div>
+
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    
+    <script>
+        // ============================================
+        // BACKEND API URL (REAL M-PESA INTEGRATION)
+        // ============================================
+        const API_URL = 'http://localhost:3000';
+        
+        // Check backend connection
+        async function checkBackendStatus() {
+            const statusDiv = document.getElementById('backendStatus');
+            try {
+                const response = await fetch(`${API_URL}/api/health`);
+                if (response.ok) {
+                    statusDiv.innerHTML = '🟢 Backend: Online';
+                    statusDiv.className = 'status-badge online';
+                    return true;
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '🔴 Backend: Offline (Start server with "node server.js")';
+                statusDiv.className = 'status-badge offline';
+                return false;
+            }
+        }
+        
+        // ============================================
+        // REAL M-PESA PAYMENT FUNCTION (CALLS BACKEND)
+        // ============================================
+        async function processRealMpesaPayment(phoneNumber, amount, courseId, courseName, userId) {
+            try {
+                const response = await fetch(`${API_URL}/api/payments/mpesa/initiate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phoneNumber: phoneNumber,
+                        amount: amount,
+                        courseId: courseId,
+                        courseName: courseName,
+                        userId: userId
+                    })
+                });
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Payment error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        async function checkPaymentStatus(checkoutRequestID) {
+            try {
+                const response = await fetch(`${API_URL}/api/payments/mpesa/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        checkoutRequestID: checkoutRequestID
+                    })
+                });
+                
+                return await response.json();
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // ============================================
+        // WAIT FOR SUPABASE TO LOAD
+        // ============================================
+        
+        (function() {
+            if (window._meiAppInitialized) return;
+            window._meiAppInitialized = true;
+            
+            const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+            
+            let supabase = null;
+            let currentUser = null;
+            let currentEnrollments = [];
+            let isLoginMode = true;
+            let selectedCourse = null;
+            let courses = [];
+            let quizQuestions = [];
+            let currentQuizIndex = 0, quizScore = 0, userAnswers = [];
+            let paymentInterval = null;
+            
+            function showToast(msg, isError = false) {
+                const toast = document.getElementById('paymentToast');
+                if (!toast) return;
+                toast.textContent = msg;
+                toast.style.background = isError ? '#8b0000' : '#1a472a';
+                toast.style.display = 'block';
+                setTimeout(() => toast.style.display = 'none', 3000);
+            }
+            
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/[&<>]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    return m;
+                });
+            }
+            
+            function waitForSupabase() {
+                return new Promise((resolve) => {
+                    if (window.supabase) {
+                        resolve(window.supabase);
+                        return;
+                    }
+                    let attempts = 0;
+                    const interval = setInterval(() => {
+                        attempts++;
+                        if (window.supabase) {
+                            clearInterval(interval);
+                            resolve(window.supabase);
+                        } else if (attempts > 50) {
+                            clearInterval(interval);
+                            resolve(null);
+                        }
+                    }, 100);
+                });
+            }
+            
+            async function fetchCourses() {
+                if (!supabase) return [];
+                const { data, error } = await supabase.from('courses').select('*').order('id', { ascending: true });
+                if (error) throw error;
+                courses = data || [];
+                document.getElementById('coursesCount').innerHTML = courses.length;
+                let totalModules = 0;
+                courses.forEach(c => totalModules += (c.units || 0));
+                document.getElementById('modulesCount').innerHTML = totalModules;
+                return courses;
+            }
+            
+            async function fetchQuizQuestions() {
+                if (!supabase) return [];
+                const { data, error } = await supabase.from('quiz_questions').select('*').limit(50);
+                if (!error && data && data.length) {
+                    quizQuestions = data;
+                    document.getElementById('quizCount').innerHTML = quizQuestions.length;
+                } else {
+                    quizQuestions = [
+                        { id: 1, question: "What does a STOP sign mean?", option1: "Slow down only", option2: "Continue carefully", option3: "Come to a complete stop", option4: "Overtake carefully", correct: 3 },
+                        { id: 2, question: "A triangular road sign normally indicates:", option1: "Direction", option2: "Warning", option3: "Parking", option4: "Speed limit", correct: 2 },
+                        { id: 3, question: "Defensive driving means:", option1: "Aggressive driving", option2: "Anticipating and avoiding danger", option3: "Driving fast", option4: "Ignoring rules", correct: 2 }
+                    ];
+                    document.getElementById('quizCount').innerHTML = quizQuestions.length;
+                }
+                return quizQuestions;
+            }
+            
+            async function fetchStudentCount() {
+                if (!supabase) return;
+                try {
+                    const { count } = await supabase.from('enrollments').select('*', { count: 'exact', head: true });
+                    document.getElementById('studentsCount').innerHTML = count || '128';
+                } catch(e) {
+                    document.getElementById('studentsCount').innerHTML = '350+';
+                }
+            }
+            
+            function renderCourses() {
+                const grid = document.getElementById('coursesGrid');
+                if (!grid) return;
+                if (!courses.length) {
+                    grid.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> No courses available. Please check database connection.</div>';
+                    return;
+                }
+                grid.innerHTML = courses.map(course => {
+                    const isEnrolled = currentEnrollments.includes(course.id);
+                    return `
+                        <div class="course-card">
+                            <div class="course-icon"><i class="fas ${course.icon || 'fa-car'}"></i></div>
+                            <h3>${escapeHtml(course.name)}</h3>
+                            <p>${escapeHtml(course.description || 'Professional driver training course')}</p>
+                            <div class="course-price">💰 KES ${(course.price || 0).toLocaleString()}</div>
+                            <div class="course-meta">
+                                <span class="duration"><i class="fas fa-clock"></i> ${course.duration || 'Flexible'}</span>
+                                <span class="units-badge"><i class="fas fa-layer-group"></i> ${course.units || 0} Modules</span>
+                            </div>
+                            <button class="view-modules" onclick="window.showCourseModules(${course.id})">
+                                <i class="fas fa-eye"></i> View All ${course.units || 0} Modules
+                            </button>
+                            ${!isEnrolled ? 
+                                `<button class="enroll-btn" onclick="window.enrollCourse(${course.id}, '${escapeHtml(course.name).replace(/'/g, "\\'")}', ${course.price || 0})"><i class="fas fa-shopping-cart"></i> Enroll Now →</button>` :
+                                `<span class="enrolled-badge"><i class="fas fa-check-circle"></i> ✓ Enrolled</span>`
+                            }
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            window.showCourseModules = function(courseId) {
+                const course = courses.find(c => c.id === courseId);
+                if (!course) return;
+                let modulesList = course.modules;
+                if (typeof modulesList === 'string') {
+                    try { modulesList = JSON.parse(modulesList); } catch(e) { modulesList = ['Introduction', 'Core Concepts', 'Safety', 'Assessment']; }
+                }
+                if (!Array.isArray(modulesList) || !modulesList.length) modulesList = ['Introduction', 'Safety Guidelines', 'Practical Training', 'Final Exam'];
+                const moduleHtml = modulesList.map((module, idx) => `
+                    <div class="module-item" onclick="window.toggleUnits(this, ${idx})">
+                        <div class="module-title"><span><i class="fas fa-book-open"></i> Module ${idx+1}: ${escapeHtml(module)}</span><i class="fas fa-chevron-down"></i></div>
+                        <div class="module-desc">Click to expand - Learning materials</div>
+                        <div class="unit-list" id="units-${idx}">
+                            <div class="unit-item"><i class="fas fa-play-circle"></i> Introduction to ${escapeHtml(module)}</div>
+                            <div class="unit-item"><i class="fas fa-graduation-cap"></i> Learning Objectives</div>
+                            <div class="unit-item"><i class="fas fa-video"></i> Video Tutorial</div>
+                            <div class="unit-item"><i class="fas fa-question-circle"></i> Module Quiz</div>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('courseModalTitle').innerHTML = `<i class="fas ${course.icon || 'fa-book'}"></i> ${escapeHtml(course.name)} - ${course.units || 0} Modules`;
+                document.getElementById('moduleList').innerHTML = moduleHtml;
+                document.getElementById('courseModal').classList.add('active');
+            };
+            
+            window.toggleUnits = function(element, idx) {
+                const unitList = document.getElementById(`units-${idx}`);
+                if (unitList) {
+                    unitList.classList.toggle('show');
+                    const icon = element.querySelector('.fa-chevron-down, .fa-chevron-up');
+                    if (icon) icon.className = unitList.classList.contains('show') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+                }
+            };
+            
+            async function loadUserEnrollments() {
+                if (!currentUser || !supabase) return;
+                const { data } = await supabase.from('enrollments').select('course_id').eq('user_id', currentUser.id);
+                currentEnrollments = data ? data.map(e => e.course_id) : [];
+                renderCourses();
+            }
+            
+            async function saveEnrollment(courseId, mpesaCode = null) {
+                if (!currentUser) return false;
+                const { error } = await supabase.from('enrollments').insert([{ 
+                    user_id: currentUser.id, course_id: courseId, payment_status: 'completed', payment_method: 'mpesa', mpesa_code: mpesaCode || 'MPESA-' + Date.now()
+                }]);
+                if (error) throw error;
+                return true;
+            }
+            
+            window.login = async function(email, password) {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                currentUser = { id: data.user.id, email: data.user.email };
+                updateAuthUI();
+                await loadUserEnrollments();
+                showToast('✅ Login successful!');
+                window.closeModal();
+                return true;
+            };
+            
+            window.register = async function(email, password, fullName) {
+                const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+                if (error) throw error;
+                showToast('✅ Registration successful! Please check your email to confirm.');
+                window.openModal('login');
+                return true;
+            };
+            
+            window.logout = async function() {
+                await supabase.auth.signOut();
+                currentUser = null;
+                currentEnrollments = [];
+                updateAuthUI();
+                renderCourses();
+                showToast('Logged out successfully');
+            };
+            
+            async function checkAuthSession() {
+                if (!supabase) return;
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    currentUser = { id: session.user.id, email: session.user.email };
+                    updateAuthUI();
+                    await loadUserEnrollments();
+                } else {
+                    updateAuthUI();
+                }
+            }
+            
+            function updateAuthUI() {
+                const container = document.getElementById('authContainer');
+                if (!container) return;
+                if (currentUser) {
+                    container.innerHTML = `<div class="user-info"><span class="user-email"><i class="fas fa-user"></i> ${currentUser.email}</span><button class="btn-logout" onclick="window.logout()"><i class="fas fa-sign-out-alt"></i> Logout</button></div>`;
+                } else {
+                    container.innerHTML = `<button class="btn-login" onclick="window.openModal('login')">Login</button><button class="btn-register" onclick="window.openModal('register')">Register</button>`;
+                    currentEnrollments = [];
+                    renderCourses();
+                }
+            }
+            
+            // ============================================
+            // UPDATED ENROLLMENT WITH REAL M-PESA
+            // ============================================
+            window.enrollCourse = function(id, name, price) {
+                if (!currentUser) { showToast('Please login first to enroll', true); window.openModal('login'); return; }
+                if (currentEnrollments.includes(id)) { showToast('You are already enrolled in this course', true); return; }
+                selectedCourse = { id, name, price };
+                document.getElementById('paymentCourseName').innerHTML = `<strong>${escapeHtml(name)}</strong>`;
+                document.getElementById('paymentAmount').innerHTML = `KES ${price.toLocaleString()}`;
+                document.getElementById('mpesaPhone').value = '';
+                document.getElementById('paymentStatus').className = 'payment-status';
+                document.getElementById('paymentStatus').style.display = 'none';
+                document.getElementById('mpesaModal').classList.add('active');
+            };
+            
+            // ============================================
+            // REAL M-PESA PAYMENT PROCESSING
+            // ============================================
+            window.processMpesaPayment = async function() {
+                const phone = document.getElementById('mpesaPhone').value;
+                if (!phone || phone.length < 10) { 
+                    showToast('Please enter a valid M-Pesa phone number', true); 
+                    return; 
+                }
+                
+                const payBtn = document.getElementById('processPaymentBtn');
+                const originalText = payBtn.innerHTML;
+                payBtn.innerHTML = '<span class="loading-spinner"></span> Initiating payment...';
+                payBtn.disabled = true;
+                
+                // Check if backend is available
+                const backendOnline = await checkBackendStatus();
+                if (!backendOnline) {
+                    showToast('❌ Backend server is not running. Please start the backend with "node server.js"', true);
+                    payBtn.innerHTML = originalText;
+                    payBtn.disabled = false;
+                    return;
+                }
+                
+                try {
+                    // Initiate payment via backend
+                    const result = await processRealMpesaPayment(
+                        phone,
+                        selectedCourse.price,
+                        selectedCourse.id,
+                        selectedCourse.name,
+                        currentUser?.id || 'guest'
+                    );
+                    
+                    if (!result.success) {
+                        throw new Error(result.error || 'Payment initiation failed');
+                    }
+                    
+                    showToast('📱 Check your phone for M-Pesa prompt. Enter PIN to complete payment.', false);
+                    document.getElementById('paymentStatus').innerHTML = '<div class="status success">📱 Payment initiated! Check your phone for M-Pesa prompt.</div>';
+                    document.getElementById('paymentStatus').style.display = 'block';
+                    
+                    // Poll for payment status
+                    let attempts = 0;
+                    const maxAttempts = 30; // 60 seconds max
+                    
+                    if (paymentInterval) clearInterval(paymentInterval);
+                    
+                    paymentInterval = setInterval(async () => {
+                        attempts++;
+                        try {
+                            const status = await checkPaymentStatus(result.checkoutRequestID);
+                            
+                            if (status.status === 'completed') {
+                                clearInterval(paymentInterval);
+                                // Save enrollment to Supabase
+                                const success = await saveEnrollment(selectedCourse.id, 'MPESA-' + Date.now());
+                                if (success) {
+                                    currentEnrollments.push(selectedCourse.id);
+                                    renderCourses();
+                                    showToast(`✅ Payment successful! You are now enrolled in ${selectedCourse.name}`);
+                                    window.closeMpesaModal();
+                                }
+                                payBtn.innerHTML = originalText;
+                                payBtn.disabled = false;
+                            } else if (status.status === 'failed') {
+                                clearInterval(paymentInterval);
+                                showToast(`❌ Payment failed: ${status.resultDesc || 'Unknown error'}`, true);
+                                document.getElementById('paymentStatus').innerHTML = `<div class="status error">❌ Payment failed: ${status.resultDesc}</div>`;
+                                payBtn.innerHTML = originalText;
+                                payBtn.disabled = false;
+                            }
+                            
+                            if (attempts >= maxAttempts) {
+                                clearInterval(paymentInterval);
+                                if (status?.status !== 'completed') {
+                                    showToast('⏰ Payment timeout. Please check your M-Pesa messages.', true);
+                                }
+                                payBtn.innerHTML = originalText;
+                                payBtn.disabled = false;
+                            }
+                        } catch (err) {
+                            console.error('Status check error:', err);
+                        }
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Payment error:', error);
+                    showToast(error.message || 'Payment failed. Please try again.', true);
+                    payBtn.innerHTML = originalText;
+                    payBtn.disabled = false;
+                }
+            };
+            
+            window.openDashboard = async function() {
+                if (!currentUser) { showToast('Please login first', true); window.openModal('login'); return; }
+                const { data: enrollmentsData } = await supabase.from('enrollments').select('course_id, enrolled_at, payment_status').eq('user_id', currentUser.id);
+                let html = `<div style="padding:20px;"><h3>Welcome, ${escapeHtml(currentUser.email)}!</h3><div style="margin-top:30px;"><h4>My Enrolled Courses (${enrollmentsData?.length || 0})</h4>`;
+                if (enrollmentsData && enrollmentsData.length) {
+                    const courseIds = enrollmentsData.map(e => e.course_id);
+                    const { data: coursesData } = await supabase.from('courses').select('id, name').in('id', courseIds);
+                    const courseMap = {};
+                    if (coursesData) coursesData.forEach(c => courseMap[c.id] = c.name);
+                    
+                    html += enrollmentsData.map(enc => `<div style="background:rgba(0,255,136,0.1); padding:15px; border-radius:10px; margin-bottom:10px; border-left:3px solid #00FF88;"><strong>${escapeHtml(courseMap[enc.course_id] || 'Course')}</strong><br><small>Enrolled: ${new Date(enc.enrolled_at).toLocaleDateString()}</small><br><small>Status: ${enc.payment_status}</small></div>`).join('');
+                } else {
+                    html += '<p>No courses enrolled yet. <a onclick="window.closeDashboardModal();document.getElementById(\'courses\').scrollIntoView({behavior:\'smooth\'})" style="color:#00FF88; cursor:pointer;">Browse courses →</a></p>';
+                }
+                html += `</div></div>`;
+                document.getElementById('dashboardContent').innerHTML = html;
+                document.getElementById('dashboardModal').classList.add('active');
+            };
+            
+            window.openQuizBank = function() {
+                if (!quizQuestions.length) fetchQuizQuestions().then(() => startQuiz());
+                else startQuiz();
+            };
+            
+            function startQuiz() { currentQuizIndex = 0; quizScore = 0; userAnswers = []; loadQuizQuestion(); document.getElementById('quizModal').classList.add('active'); }
+            
+            function loadQuizQuestion() {
+                const container = document.getElementById('quizContainer');
+                if (!container) return;
+                if (currentQuizIndex >= quizQuestions.length) {
+                    container.innerHTML = `<div style="text-align:center; padding:20px"><div style="font-size:48px">🎉</div><div style="font-size:28px; color:#00FF88">Quiz Complete!</div><div style="font-size:24px">Score: ${quizScore}/${quizQuestions.length} (${Math.round(quizScore/quizQuestions.length*100)}%)</div><button onclick="window.openQuizBank()" style="background:#00FF88; padding:12px 30px; border:none; border-radius:8px; margin-top:20px; cursor:pointer">Restart</button><button onclick="window.closeQuizModal()" style="background:#0D2137; border:1px solid #00FF88; padding:12px 30px; margin-top:20px; margin-left:10px; cursor:pointer; color:#00FF88">Close</button></div>`;
+                    return;
+                }
+                const q = quizQuestions[currentQuizIndex];
+                const options = [q.option1, q.option2, q.option3, q.option4];
+                let optionsHtml = '';
+                options.forEach((opt, idx) => { if(opt) optionsHtml += `<div class="quiz-option" onclick="window.selectAnswer(${idx})">${escapeHtml(opt)}</div>`; });
+                container.innerHTML = `<div style="margin-bottom:20px; text-align:center">Question ${currentQuizIndex+1} of ${quizQuestions.length} | Score: ${quizScore}</div><div class="quiz-question"><strong>${escapeHtml(q.question)}</strong><div class="quiz-options">${optionsHtml}</div></div><button onclick="window.nextQuestion()" style="width:100%; padding:12px; background:#00FF88; border:none; border-radius:8px; margin-top:20px; cursor:pointer">Next →</button>`;
+            }
+            
+            window.selectAnswer = function(selectedIdx) {
+                if (userAnswers[currentQuizIndex] !== undefined) return;
+                userAnswers[currentQuizIndex] = selectedIdx;
+                const q = quizQuestions[currentQuizIndex];
+                const correctIdx = (q.correct || 1) - 1;
+                if (selectedIdx === correctIdx) quizScore++;
+                const opts = document.querySelectorAll('.quiz-option');
+                opts.forEach((opt, idx) => { if(idx === correctIdx) opt.classList.add('correct'); if(idx === selectedIdx && idx !== correctIdx) opt.classList.add('wrong'); });
+                document.querySelectorAll('.quiz-option').forEach(opt => opt.style.pointerEvents = 'none');
+            };
+            
+            window.nextQuestion = function() { if(userAnswers[currentQuizIndex] !== undefined) { currentQuizIndex++; loadQuizQuestion(); } else alert('Please select an answer'); };
+            
+            window.openModal = function(mode) {
+                isLoginMode = mode === 'login';
+                document.getElementById('modalTitle').innerHTML = isLoginMode ? 'Login' : 'Register';
+                document.getElementById('modalSubmitBtn').innerHTML = isLoginMode ? 'Login' : 'Register';
+                document.getElementById('fullNameGroup').style.display = isLoginMode ? 'none' : 'block';
+                document.getElementById('modalSwitch').innerHTML = isLoginMode ? "Don't have an account? <span style='color:#00FF88;'>Register</span>" : "Already have an account? <span style='color:#00FF88;'>Login</span>";
+                document.getElementById('authModal').classList.add('active');
+            };
+            
+            window.closeModal = () => document.getElementById('authModal')?.classList.remove('active');
+            window.closeCourseModal = () => document.getElementById('courseModal')?.classList.remove('active');
+            window.closeQuizModal = () => document.getElementById('quizModal')?.classList.remove('active');
+            window.closeMpesaModal = () => {
+                if (paymentInterval) clearInterval(paymentInterval);
+                document.getElementById('mpesaModal')?.classList.remove('active');
+            };
+            window.closeDashboardModal = () => document.getElementById('dashboardModal')?.classList.remove('active');
+            
+            async function handleAuthSubmit() {
+                const email = document.getElementById('modalEmail').value;
+                const password = document.getElementById('modalPassword').value;
+                if (!email || !password) { showToast('Please fill all fields', true); return; }
+                if (isLoginMode) await window.login(email, password);
+                else {
+                    const fullName = document.getElementById('modalFullName').value;
+                    if (!fullName) { showToast('Please enter your full name', true); return; }
+                    await window.register(email, password, fullName);
+                }
+            }
+            
+            async function init() {
+                // Check backend status
+                await checkBackendStatus();
+                setInterval(checkBackendStatus, 30000); // Check every 30 seconds
+                
+                const supabaseModule = await waitForSupabase();
+                if (!supabaseModule) {
+                    document.getElementById('coursesGrid').innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load. Please refresh.</div>';
+                    return;
+                }
+                supabase = supabaseModule.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                try {
+                    await Promise.all([fetchCourses(), fetchQuizQuestions(), fetchStudentCount(), checkAuthSession()]);
+                    renderCourses();
+                } catch(err) {
+                    console.error('Init error:', err);
+                    document.getElementById('coursesGrid').innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Connection error. Please refresh.</div>';
+                }
+            }
+            
+            document.getElementById('modalSubmitBtn').onclick = handleAuthSubmit;
+            document.getElementById('modalSwitch').onclick = () => window.openModal(isLoginMode ? 'register' : 'login');
+            document.getElementById('processPaymentBtn').onclick = window.processMpesaPayment;
+            
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
+        })();
+    </script>
+</body>
+</html>

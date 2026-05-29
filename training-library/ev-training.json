@@ -1,0 +1,101 @@
+{
+  "course_id": 4,
+  "title": "⚡ Electric Vehicle Training",
+  "description": "Master electric vehicle technology, charging infrastructure, battery management, and EV-specific safety protocols for modern sustainable transport.",
+  "duration": "15 hours",
+  "level": "Beginner to Intermediate",
+  "price": 8000,
+  "units": [
+    {
+      "unit_number": 1,
+      "title": "EV Technology Overview",
+      "duration": "2 hours",
+      "content": "# EV Technology Overview\n\n## Types of Electric Vehicles\n\n### Battery Electric Vehicle (BEV)\n- Fully electric, no internal combustion engine\n- Powered solely by battery pack\n- Must be plugged in to charge\n- Zero tailpipe emissions\n- Examples: Tesla Model 3, Nissan Leaf\n\n### Plug-in Hybrid Electric Vehicle (PHEV)\n- Combines electric motor with petrol engine\n- Can plug in to charge battery\n- Electric range typically 30-50 km\n- Switches to petrol for longer trips\n\n### Hybrid Electric Vehicle (HEV)\n- Cannot be plugged in\n- Battery charges through regenerative braking\n- Electric motor assists petrol engine\n- No external charging needed\n\n## Key Components\n\n### Electric Motor\n- Converts electrical energy to mechanical energy\n- Provides instant torque\n- Fewer moving parts than combustion engine\n- Requires no oil changes\n\n### Battery Pack\n- Stores electrical energy\n- Lithium-ion technology\n- Largest and heaviest component\n- Located under vehicle floor\n\n### Power Electronics\n- Converts DC battery power to AC for motor\n- Manages energy flow\n- Controls charging\n- Includes inverter and converter\n\n## Benefits of EVs\n- Lower operating costs\n- Reduced maintenance\n- Instant torque and smooth acceleration\n- Quiet operation\n- Zero tailpipe emissions\n\n## Common Myths\n- EVs run out of charge quickly (Range 300-500 km typical)\n- EV batteries need frequent replacement (8-10 year warranty)\n- EVs are slow (Many accelerate faster than petrol cars)\n- Charging takes too long (Fast charge 30-45 minutes)",
+      "key_points": [
+        "BEVs are fully electric with zero emissions",
+        "EVs have instant torque and fewer moving parts",
+        "Battery packs have 8-10 year warranties",
+        "Typical EV range is 300-500 km per charge",
+        "EVs have lower operating and maintenance costs"
+      ]
+    },
+    {
+      "unit_number": 2,
+      "title": "EV Controls & Dashboard",
+      "duration": "2 hours",
+      "content": "# EV Controls & Dashboard\n\n## Key Dashboard Displays\n\n### Battery Charge Indicator\n- Shows current battery level as percentage\n- Visual bar graph representation\n- Color coding (green=good, yellow=low, red=critical)\n- Located prominently on display\n\n### Range Estimate\n- Shows estimated remaining distance\n- Calculated based on recent driving\n- Affected by driving style and conditions\n- May show both city and highway range\n\n### Energy Consumption\n- Real-time consumption display (kWh/100km)\n- Average consumption over trip\n- Instantaneous usage indicator\n- Helps optimize driving efficiency\n\n### Regenerative Braking Indicator\n- Shows when regen is active\n- Indicates energy being recovered\n- Bar graph showing regen strength\n- Helps understand efficiency\n\n## EV-Specific Controls\n\n### Regenerative Braking Settings\n- Adjustable regen levels (Low/Medium/High)\n- One-pedal driving mode\n- Coasting mode selection\n- Accessed through drive mode selector\n\n### Charging Port Release\n- Button to open charge port door\n- Located on dashboard or key fob\n- May have manual release inside\n- Pre-heat/cool battery option\n\n### Pre-conditioning\n- Climate control while charging\n- Set departure time for optimal battery\n- Remote activation via app\n- Uses grid power, not battery\n\n## Warning Lights\n- Battery temperature warning (red = overheating)\n- Charging system fault\n- Electric drive system warning\n- High-voltage system warning\n- Reduced power mode indicator",
+      "key_points": [
+        "Monitor battery percentage and range estimate",
+        "Use energy consumption display to optimize driving",
+        "Adjust regenerative braking to preference",
+        "Pre-condition while plugged in to preserve range",
+        "Understand EV-specific warning lights"
+      ]
+    },
+    {
+      "unit_number": 3,
+      "title": "Battery Management & Range Optimization",
+      "duration": "3 hours",
+      "content": "# Battery Management & Range Optimization\n\n## Optimal Charging Practices\n\n### Daily Charging\n- Keep battery between 20% and 80% for daily driving\n- Avoid frequent 100% charges\n- Set charge limit in vehicle settings\n- Plug in when parked if possible\n- Battery management system prevents overcharging\n\n### Long Trip Charging\n- Charge to 100% before long trips\n- Time completion with departure\n- Use fast chargers for en-route charging\n- Plan charging stops every 2-3 hours\n- Target 10-80% for fast charging (optimal speed)\n\n### Extreme Temperature Considerations\n- Battery performance reduced in cold\n- Pre-condition while plugged in\n- Park in garage or shade when hot\n- Avoid charging when battery extremely hot or cold\n- Battery cooling system activates automatically\n\n## Factors Affecting Range\n\n### Driving Style\n- Aggressive acceleration reduces range by 30%+\n- Smooth driving maximizes efficiency\n- High speeds (>100 km/h) reduce range\n- Use cruise control on highways\n- Anticipate stops to coast\n\n### Environmental Conditions\n- Cold weather reduces range 20-40%\n- Hot weather reduces range 10-20%\n- Headwinds reduce range\n- Rain and wet roads increase resistance\n- Mountainous terrain reduces range\n\n### Vehicle Load\n- Every 100 kg reduces range ~5%\n- Roof racks reduce range significantly\n- Ensure proper tyre pressure\n- Remove unnecessary cargo\n- Closed windows reduce drag\n\n## Range Anxiety Management\n- Plan trips using charging apps\n- Know locations of fast chargers\n- Keep buffer of 50 km minimum\n- Slow down if range is tight\n- Reduce climate control usage\n- Use eco driving mode\n\n## Battery Health\n- Avoid frequent fast charging\n- Don't leave at 100% for extended periods\n- Don't let battery sit at 0%\n- Use scheduled charging\n- Battery warranty typically 8 years/160,000 km",
+      "key_points": [
+        "Keep battery between 20-80% for daily driving",
+        "Aggressive driving reduces range by 30%+",
+        "Cold weather reduces range 20-40%",
+        "Plan trips with charging stops every 2-3 hours",
+        "Maintain 50 km range buffer"
+      ]
+    },
+    {
+      "unit_number": 4,
+      "title": "Charging Infrastructure",
+      "duration": "2 hours",
+      "content": "# Charging Infrastructure\n\n## Charging Levels\n\n### Level 1 (Standard Outlet)\n- 120V household outlet\n- 8-16 km of range per hour\n- Full charge: 40-60 hours\n- Suitable for overnight charging\n- No installation required\n\n### Level 2 (Home/Public)\n- 240V (similar to dryer outlet)\n- 30-50 km of range per hour\n- Full charge: 6-10 hours\n- Most common home charging solution\n- Professional installation recommended\n\n### DC Fast Charging (Level 3)\n- 400V+ commercial chargers\n- 150-500+ km of range per hour\n- 10-80% charge in 30-45 minutes\n- Only for long trips\n- More expensive than Level 2\n\n## Charging Networks in Kenya\n\n### Public Charging Locations\n- Shopping malls (Two Rivers, Garden City, Village Market)\n- Hotels (Sankara, Radisson Blu)\n- Office buildings\n- Petrol stations\n- Airport parking\n\n### Charging Apps\n- PlugShare (find stations worldwide)\n- Kenya Power EV charging map\n- ChargeNet Kenya\n- Company-specific apps (EVChaja)\n\n## Home Charging Installation\n- Assess electrical panel capacity\n- Hire certified electrician\n- Install dedicated circuit\n- Consider time-of-use rates\n- Apply for any permits\n\n## Charging Etiquette\n- Don't leave car plugged in when full\n- Move car promptly after charging\n- Don't block chargers if not charging\n- Be courteous to other EV drivers\n- Report broken chargers\n\n## Costs\n- Level 2 home: KES 300-500 per full charge\n- DC fast charging: KES 1,000-2,000 per full charge\n- Time-of-use rates may offer cheaper overnight charging\n- Some public chargers free with parking",
+      "key_points": [
+        "Level 1: 8-16 km/hour (40-60 hours full charge)",
+        "Level 2: 30-50 km/hour (6-10 hours full charge)",
+        "DC Fast: 150-500+ km/hour (30-45 minutes to 80%)",
+        "Use apps to locate charging stations",
+        "Don't occupy chargers when not charging"
+      ]
+    },
+    {
+      "unit_number": 5,
+      "title": "Regenerative Braking",
+      "duration": "2 hours",
+      "content": "# Regenerative Braking\n\n## How Regenerative Braking Works\n- Electric motor acts as generator during deceleration\n- Kinetic energy converted to electrical energy\n- Energy stored back in battery\n- Reduces wear on friction brakes\n- Extends driving range\n\n## Regenerative Braking Modes\n\n### Low Regen\n- Mild deceleration when lifting throttle\n- Feels similar to coasting in petrol car\n- More friction braking needed\n- Better for highway driving\n\n### Medium Regen\n- Moderate deceleration\n- Good balance for mixed driving\n- Recovers moderate energy\n- Default setting for many EVs\n\n### High Regen\n- Strong deceleration when lifting throttle\n- Enables one-pedal driving\n- Maximum energy recovery\n- Best for city driving\n\n## One-Pedal Driving\n- Car slows significantly when lifting throttle\n- Can come to complete stop without brake pedal\n- Requires practice to master\n- Maximizes energy recovery\n- Reduces brake pad wear\n\n## Maximizing Energy Recovery\n- Anticipate stops to coast\n- Lift throttle early for traffic lights\n- Use regen instead of friction brakes\n- Descend hills in high regen mode\n- Smooth, gradual deceleration is best\n\n## Limitations\n- Regen less effective at low speeds\n- May be reduced when battery is full\n- Less effective in slippery conditions\n- Friction brakes still needed for emergency stops\n- Regen doesn't work if battery is too cold\n\n## Safety Considerations\n- Regen may feel unfamiliar initially\n- Practice in safe area\n- Be aware regen may disengage with ABS\n- Use friction brakes for emergency stops\n- Explain regen to others driving your EV",
+      "key_points": [
+        "Regenerative braking recovers energy and extends range",
+        "High regen mode enables one-pedal driving",
+        "Lift throttle early to maximize energy recovery",
+        "Regen less effective at low speeds or full battery",
+        "Practice one-pedal driving in safe area first"
+      ]
+    },
+    {
+      "unit_number": 6,
+      "title": "EV Maintenance & Safety",
+      "duration": "2 hours",
+      "content": "# EV Maintenance & Safety\n\n## No Oil Changes\n- Electric motors don't use engine oil\n- No oil changes needed\n- No oil filters to replace\n- Significant maintenance savings\n- Check owner's manual for specific requirements\n\n## Regular Maintenance Items\n\n### Tyre Rotation and Pressure\n- Same as conventional vehicles\n- Check monthly\n- Rotate every 10,000 km\n- Proper inflation crucial for range\n- EVs are heavier, tyres wear faster\n\n### Brake System\n- Less wear due to regenerative braking\n- Brake fluid changes every 2-3 years\n- Brake pad inspection annually\n- Caliper maintenance for rust prevention\n- Friction brakes still needed\n\n### Cabin Air Filter\n- Replace every 15,000-30,000 km\n- Same as conventional vehicles\n- Affects HVAC performance\n- Easy DIY replacement\n\n### Coolant System\n- Battery and motor cooling\n- Check levels regularly\n- Replace per manufacturer schedule\n- Use correct coolant type\n\n### Windshield Washer Fluid\n- Same as conventional vehicles\n- Check monthly\n- Refill as needed\n\n## High-Voltage Safety\n\n### Orange Cables\n- Identify high-voltage cables (bright orange)\n- Never touch damaged orange cables\n- Stay clear during accidents\n- Only qualified technicians should handle\n\n### Emergency Response\n- EV may be silent when on\n- Cut 12V battery first (usually under hood)\n- Avoid cutting orange cables\n- Don't touch damaged high-voltage components\n- Fire requires special extinguisher\n\n## What to Do in an Accident\n- Ensure vehicle is in PARK\n- Exit vehicle if safe\n- Move away from vehicle\n- Warn emergency responders it's an EV\n- Don't approach if you see orange cables exposed\n\n## Maintenance Schedule\n- Annual safety inspection\n- Battery health check (yearly)\n- Coolant flush (every 5 years/100,000 km)\n- Brake fluid change (every 3 years)\n- Gearbox oil (every 100,000 km)",
+      "key_points": [
+        "EVs require no oil changes - significant savings",
+        "Tyre rotation every 10,000 km (EVs are heavier)",
+        "Never touch damaged orange high-voltage cables",
+        "Warn emergency responders vehicle is EV after accident",
+        "Brake fluid changes still needed every 2-3 years"
+      ]
+    },
+    {
+      "unit_number": 7,
+      "title": "Eco-Driving Techniques",
+      "duration": "2 hours",
+      "content": "# Eco-Driving Techniques\n\n## Smooth Acceleration\n- Avoid rapid acceleration\n- Use gentle throttle inputs\n- Smooth acceleration uses less energy\n- Plan moves to avoid unnecessary speed changes\n- Use eco mode when available\n\n## Anticipatory Driving\n- Look ahead to anticipate stops\n- Coast to traffic lights\n- Avoid last-minute braking\n- Maintain steady speed on highways\n- Use regenerative braking\n\n## Speed Management\n\n### Optimal Speed\n- Most efficient speed: 50-80 km/h\n- Efficiency drops significantly above 100 km/h\n- Every 8 km/h above 100 reduces range ~10%\n- Slower in city, moderate on highway\n\n### Highway Driving\n- Use cruise control for steady speed\n- Reduce speed to extend range\n- Drafting behind trucks (safe distance only)\n- Close windows to reduce drag\n\n## Climate Control Usage\n\n### Heating\n- Uses significant energy\n- Pre-heat while plugged in\n- Use seat heaters instead of cabin heat\n- Lower temperature setting\n- Consider heated steering wheel\n\n### Air Conditioning\n- Uses moderate energy\n- Use recirculation mode\n- Pre-cool while plugged in\n- Park in shade when possible\n- Lower fan speed\n\n## Vehicle Preparation\n- Remove roof racks when not in use\n- Remove unnecessary weight\n- Check tyre pressure monthly\n- Use recommended tyre type\n- Keep vehicle clean (less drag)\n\n## Trip Planning\n- Combine short trips\n- Avoid peak traffic\n- Use navigation to find efficient routes\n- Pre-heat/cool while plugged in\n- Charge to 80% for daily driving\n\n## Eco Driving Score\n- Many EVs provide driving score\n- Monitor efficiency feedback\n- Set efficiency goals\n- Compare with other drivers\n- Improve over time",
+      "key_points": [
+        "Smooth acceleration and anticipation maximize range",
+        "Most efficient speed is 50-80 km/h",
+        "Pre-heat/cool cabin while plugged in",
+        "Remove roof racks and unnecessary weight",
+        "Monitor eco driving score to improve efficiency"
+      ]
+    }
+  ]
+}

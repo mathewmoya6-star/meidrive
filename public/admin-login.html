@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | MEI DRIVE AFRICA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a192f; color: #ffffff; line-height: 1.5; }
+        :root {
+            --primary: #00ff88;
+            --primary-dark: #00cc66;
+            --gradient-green: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+            --dark-card: #0d2137;
+            --border: rgba(0, 255, 136, 0.25);
+            --text-muted: #a0b3d9;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 25, 47, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: var(--gradient-green);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo i { color: var(--primary); font-size: 1.5rem; }
+        .nav-links button {
+            background: transparent;
+            border: none;
+            color: #a0b3d9;
+            padding: 8px 14px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .nav-links button:hover {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--primary);
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 2rem; }
+        .card {
+            background: #0d2137;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h2 { margin-bottom: 1rem; color: var(--primary); }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #0d2137;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .stat-number { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th { color: var(--primary); }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 0.875rem;
+        }
+        .btn-primary { background: var(--gradient-green); color: #0a192f; }
+        .btn-danger { background: #ff4757; color: white; }
+        .btn-warning { background: #ffa502; color: #0a192f; }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #1e2a3a;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #0d2137;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab.active {
+            background: var(--primary);
+            color: #0a192f;
+            border-color: var(--primary);
+        }
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2100;
+        }
+        .toast {
+            background: #0d2137;
+            border-left: 4px solid var(--primary);
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-top: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        .toast-close { cursor: pointer; background: none; border: none; color: var(--text-muted); float: right; margin-left: 12px; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.96);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #0d2137;
+            border: 1px solid var(--primary);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 600px;
+            padding: 2rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content input, .modal-content textarea, .modal-content select {
+            background: #0f1a2c;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 8px;
+            color: white;
+            width: 100%;
+            margin: 8px 0;
+        }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } table { font-size: 12px; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo" onclick="window.location.href='index.html'"><i class="fas fa-car"></i> MEI DRIVE AFRICA</div>
+            <div class="nav-links">
+                <button onclick="window.location.href='index.html'">🏠 Back to Site</button>
+                <button id="logoutBtn" style="display:none;" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="adminContent">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+        // ==================== SUPABASE CONFIGURATION ====================
+        const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+        
+        let supabase = null;
+        let currentUser = null;
+        let isAdmin = false;
+        let currentTab = 'dashboard';
+        
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `${msg} <button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+        
+        async function init() {
+            if (!window.supabase) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                if (!window.supabase) {
+                    document.getElementById('adminContent').innerHTML = '<div class="card"><h2>⚠️ Connection Error</h2><p>Unable to load Supabase. Please refresh.</p></div>';
+                    return;
+                }
+            }
+            
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            
+            // Check authentication
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                showLoginModal();
+                return;
+            }
+            
+            currentUser = session.user;
+            
+            // Check if user is admin
+            const { data: profile } = await supabase
+                .from('user_profiles')
+                .select('is_admin')
+                .eq('id', currentUser.id)
+                .single();
+            
+            if (!profile?.is_admin) {
+                document.getElementById('adminContent').innerHTML = `
+                    <div class="card">
+                        <h2>⛔ Access Denied</h2>
+                        <p>You don't have admin privileges.</p>
+                        <button class="btn btn-primary" onclick="window.location.href='index.html'">Back to Home</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            isAdmin = true;
+            document.getElementById('logoutBtn').style.display = 'inline-block';
+            renderAdminDashboard();
+        }
+        
+        async function renderAdminDashboard() {
+            // Fetch stats from Supabase
+            const [usersCount, courses, enrollments, unitsCount, quizCount] = await Promise.all([
+                supabase.from('user_profiles').select('id', { count: 'exact', head: true }),
+                supabase.from('courses').select('*'),
+                supabase.from('enrollments').select('id', { count: 'exact', head: true }),
+                supabase.from('units').select('id', { count: 'exact', head: true }),
+                supabase.from('quiz_questions').select('id', { count: 'exact', head: true })
+            ]);
+            
+            const statsHtml = `
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number">${usersCount.count || 0}</div><div>Total Users</div></div>
+                    <div class="stat-card"><div class="stat-number">${courses.data?.length || 0}</div><div>Courses</div></div>
+                    <div class="stat-card"><div class="stat-number">${enrollments.count || 0}</div><div>Enrollments</div></div>
+                    <div class="stat-card"><div class="stat-number">${unitsCount.count || 0}</div><div>Units</div></div>
+                    <div class="stat-card"><div class="stat-number">${quizCount.count || 0}</div><div>Quiz Questions</div></div>
+                </div>
+            `;
+            
+            const tabsHtml = `
+                <div class="tabs">
+                    <div class="tab ${currentTab === 'dashboard' ? 'active' : ''}" onclick="setTab('dashboard')">📊 Dashboard</div>
+                    <div class="tab ${currentTab === 'courses' ? 'active' : ''}" onclick="setTab('courses')">📚 Courses</div>
+                    <div class="tab ${currentTab === 'units' ? 'active' : ''}" onclick="setTab('units')">📘 Units</div>
+                    <div class="tab ${currentTab === 'users' ? 'active' : ''}" onclick="setTab('users')">👥 Users</div>
+                    <div class="tab ${currentTab === 'enrollments' ? 'active' : ''}" onclick="setTab('enrollments')">📋 Enrollments</div>
+                    <div class="tab ${currentTab === 'quiz' ? 'active' : ''}" onclick="setTab('quiz')">❓ Quiz</div>
+                </div>
+            `;
+            
+            let contentHtml = '';
+            if (currentTab === 'dashboard') {
+                contentHtml = await renderDashboardContent();
+            } else if (currentTab === 'courses') {
+                contentHtml = await renderCoursesContent();
+            } else if (currentTab === 'units') {
+                contentHtml = await renderUnitsContent();
+            } else if (currentTab === 'users') {
+                contentHtml = await renderUsersContent();
+            } else if (currentTab === 'enrollments') {
+                contentHtml = await renderEnrollmentsContent();
+            } else if (currentTab === 'quiz') {
+                contentHtml = await renderQuizContent();
+            }
+            
+            document.getElementById('adminContent').innerHTML = statsHtml + tabsHtml + contentHtml;
+        }
+        
+        async function renderDashboardContent() {
+            const { data: recentEnrollments } = await supabase
+                .from('enrollments')
+                .select('*, user_profiles(email), courses(name)')
+                .order('enrolled_at', { ascending: false })
+                .limit(5);
+            
+            return `
+                <div class="card">
+                    <h2>Recent Enrollments</h2>
+                    <table>
+                        <thead><tr><th>User</th><th>Course</th><th>Date</th></tr></thead>
+                        <tbody>
+                            ${recentEnrollments?.map(e => `
+                                <tr>
+                                    <td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td>
+                                    <td>${escapeHtml(e.courses?.name || 'N/A')}</td>
+                                    <td>${new Date(e.enrolled_at).toLocaleDateString()}</td>
+                                </tr>
+                            `).join('') || '<tr><td colspan="3">No enrollments yet</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        async function renderCoursesContent() {
+            const { data: courses } = await supabase.from('courses').select('*').order('id');
+            
+            return `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2>Manage Courses</h2>
+                        <button class="btn btn-primary" onclick="showEditCourseModal()">+ Add Course</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Price</th><th>Icon</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            ${courses?.map(c => `
+                                <tr>
+                                    <td>${c.id}</td>
+                                    <td>${escapeHtml(c.name)}</td>
+                                    <td>${escapeHtml(c.type)}</td>
+                                    <td>${c.price === 0 ? 'FREE' : `KES ${c.price}`}</td>
+                                    <td><i class="fas ${c.icon}"></i></td>
+                                    <td>
+                                        <button class="btn btn-warning" onclick="editCourse(${c.id})">Edit</button>
+                                        <button class="btn btn-danger" onclick="deleteCourse(${c.id})">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        async function renderUnitsContent() {
+            const { data: units } = await supabase.from('units').select('*').order('unit_number');
+            
+            return `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2>Manage Units</h2>
+                        <button class="btn btn-primary" onclick="showEditUnitModal()">+ Add Unit</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>#</th><th>Title</th><th>Content Preview</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            ${units?.map(u => `
+                                <tr>
+                                    <td>${u.unit_number}</td>
+                                    <td>${escapeHtml(u.title)}</td>
+                                    <td>${escapeHtml(u.content?.substring(0, 50))}...</td>
+                                    <td>
+                                        <button class="btn btn-warning" onclick="editUnit(${u.id})">Edit</button>
+                                        <button class="btn btn-danger" onclick="deleteUnit(${u.id})">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        async function renderUsersContent() {
+            const { data: users } = await supabase.from('user_profiles').select('*').order('created_at', { ascending: false });
+            
+            return `
+                <div class="card">
+                    <h2>Manage Users</h2>
+                    <table>
+                        <thead><tr><th>Email</th><th>Full Name</th><th>Admin</th><th>Joined</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            ${users?.map(u => `
+                                <tr>
+                                    <td>${escapeHtml(u.email)}</td>
+                                    <td>${escapeHtml(u.full_name)}</td>
+                                    <td>${u.is_admin ? '✅' : '❌'}</td>
+                                    <td>${new Date(u.created_at).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="btn btn-warning" onclick="toggleAdmin('${u.id}', ${!u.is_admin})">${u.is_admin ? 'Remove Admin' : 'Make Admin'}</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        async function renderEnrollmentsContent() {
+            const { data: enrollments } = await supabase
+                .from('enrollments')
+                .select('*, user_profiles(email), courses(name)')
+                .order('enrolled_at', { ascending: false });
+            
+            return `
+                <div class="card">
+                    <h2>All Enrollments</h2>
+                    <table>
+                        <thead><tr><th>User</th><th>Course</th><th>Status</th><th>Amount</th><th>Date</th></tr></thead>
+                        <tbody>
+                            ${enrollments?.map(e => `
+                                <tr>
+                                    <td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td>
+                                    <td>${escapeHtml(e.courses?.name || 'N/A')}</td>
+                                    <td>${escapeHtml(e.payment_status)}</td>
+                                    <td>${e.amount_paid > 0 ? `KES ${e.amount_paid}` : 'FREE'}</td>
+                                    <td>${new Date(e.enrolled_at).toLocaleDateString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        async function renderQuizContent() {
+            const { data: questions } = await supabase.from('quiz_questions').select('*');
+            
+            return `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2>Manage Quiz Questions</h2>
+                        <button class="btn btn-primary" onclick="showEditQuestionModal()">+ Add Question</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>ID</th><th>Question</th><th>Options</th><th>Correct</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            ${questions?.map(q => `
+                                <tr>
+                                    <td>${q.id}</td>
+                                    <td>${escapeHtml(q.question?.substring(0, 50))}...</td>
+                                    <td>A: ${escapeHtml(q.option_a?.substring(0, 20))}<br>B: ${escapeHtml(q.option_b?.substring(0, 20))}</td>
+                                    <td>${q.correct_answer}</td>
+                                    <td>
+                                        <button class="btn btn-warning" onclick="editQuestion(${q.id})">Edit</button>
+                                        <button class="btn btn-danger" onclick="deleteQuestion(${q.id})">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // ==================== CRUD Operations ====================
+        window.setTab = async (tab) => {
+            currentTab = tab;
+            renderAdminDashboard();
+        };
+        
+        window.editCourse = async (id) => {
+            const { data: course } = await supabase.from('courses').select('*').eq('id', id).single();
+            showEditCourseModal(course);
+        };
+        
+        window.showEditCourseModal = (course = null) => {
+            const isEdit = !!course;
+            const modalHtml = `
+                <div class="modal active" id="editModal">
+                    <div class="modal-content">
+                        <h2>${isEdit ? 'Edit' : 'Add'} Course</h2>
+                        <input type="text" id="courseName" placeholder="Course Name" value="${escapeHtml(course?.name || '')}">
+                        <input type="text" id="courseType" placeholder="Type (unique slug)" value="${escapeHtml(course?.type || '')}">
+                        <input type="number" id="coursePrice" placeholder="Price (0 for free)" value="${course?.price || 0}">
+                        <textarea id="courseDesc" placeholder="Description">${escapeHtml(course?.description || '')}</textarea>
+                        <input type="text" id="courseIcon" placeholder="Icon class (e.g., fa-id-card)" value="${escapeHtml(course?.icon || 'fa-book')}">
+                        <button class="btn btn-primary" onclick="saveCourse(${isEdit ? course.id : null})">Save</button>
+                        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        };
+        
+        window.saveCourse = async (id) => {
+            const data = {
+                name: document.getElementById('courseName').value,
+                type: document.getElementById('courseType').value,
+                price: parseInt(document.getElementById('coursePrice').value),
+                description: document.getElementById('courseDesc').value,
+                icon: document.getElementById('courseIcon').value
+            };
+            
+            if (id) {
+                await supabase.from('courses').update(data).eq('id', id);
+                showToast('Course updated!', 'success');
+            } else {
+                await supabase.from('courses').insert(data);
+                showToast('Course added!', 'success');
+            }
+            closeModal();
+            renderAdminDashboard();
+        };
+        
+        window.deleteCourse = async (id) => {
+            if (confirm('Delete this course?')) {
+                await supabase.from('courses').delete().eq('id', id);
+                showToast('Course deleted', 'success');
+                renderAdminDashboard();
+            }
+        };
+        
+        window.editUnit = async (id) => {
+            const { data: unit } = await supabase.from('units').select('*').eq('id', id).single();
+            showEditUnitModal(unit);
+        };
+        
+        window.showEditUnitModal = (unit = null) => {
+            const isEdit = !!unit;
+            const modalHtml = `
+                <div class="modal active" id="editModal">
+                    <div class="modal-content">
+                        <h2>${isEdit ? 'Edit' : 'Add'} Unit</h2>
+                        <input type="number" id="unitNumber" placeholder="Unit Number" value="${unit?.unit_number || ''}">
+                        <input type="text" id="unitTitle" placeholder="Title" value="${escapeHtml(unit?.title || '')}">
+                        <textarea id="unitContent" placeholder="Full Content" rows="10">${escapeHtml(unit?.content || '')}</textarea>
+                        <button class="btn btn-primary" onclick="saveUnit(${isEdit ? unit.id : null})">Save</button>
+                        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        };
+        
+        window.saveUnit = async (id) => {
+            const data = {
+                unit_number: parseInt(document.getElementById('unitNumber').value),
+                title: document.getElementById('unitTitle').value,
+                content: document.getElementById('unitContent').value
+            };
+            
+            if (id) {
+                await supabase.from('units').update(data).eq('id', id);
+                showToast('Unit updated!', 'success');
+            } else {
+                await supabase.from('units').insert(data);
+                showToast('Unit added!', 'success');
+            }
+            closeModal();
+            renderAdminDashboard();
+        };
+        
+        window.deleteUnit = async (id) => {
+            if (confirm('Delete this unit?')) {
+                await supabase.from('units').delete().eq('id', id);
+                showToast('Unit deleted', 'success');
+                renderAdminDashboard();
+            }
+        };
+        
+        window.toggleAdmin = async (userId, makeAdmin) => {
+            await supabase.from('user_profiles').update({ is_admin: makeAdmin }).eq('id', userId);
+            showToast(`User ${makeAdmin ? 'is now admin' : 'admin rights removed'}`, 'success');
+            renderAdminDashboard();
+        };
+        
+        window.editQuestion = async (id) => {
+            const { data: q } = await supabase.from('quiz_questions').select('*').eq('id', id).single();
+            showEditQuestionModal(q);
+        };
+        
+        window.showEditQuestionModal = (q = null) => {
+            const isEdit = !!q;
+            const modalHtml = `
+                <div class="modal active" id="editModal">
+                    <div class="modal-content">
+                        <h2>${isEdit ? 'Edit' : 'Add'} Quiz Question</h2>
+                        <textarea id="questionText" placeholder="Question" rows="2">${escapeHtml(q?.question || '')}</textarea>
+                        <input type="text" id="optA" placeholder="Option A" value="${escapeHtml(q?.option_a || '')}">
+                        <input type="text" id="optB" placeholder="Option B" value="${escapeHtml(q?.option_b || '')}">
+                        <input type="text" id="optC" placeholder="Option C" value="${escapeHtml(q?.option_c || '')}">
+                        <input type="text" id="optD" placeholder="Option D" value="${escapeHtml(q?.option_d || '')}">
+                        <select id="correctAnswer">
+                            <option value="A" ${q?.correct_answer === 'A' ? 'selected' : ''}>A</option>
+                            <option value="B" ${q?.correct_answer === 'B' ? 'selected' : ''}>B</option>
+                            <option value="C" ${q?.correct_answer === 'C' ? 'selected' : ''}>C</option>
+                            <option value="D" ${q?.correct_answer === 'D' ? 'selected' : ''}>D</option>
+                        </select>
+                        <textarea id="explanation" placeholder="Explanation" rows="2">${escapeHtml(q?.explanation || '')}</textarea>
+                        <button class="btn btn-primary" onclick="saveQuestion(${isEdit ? q.id : null})">Save</button>
+                        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        };
+        
+        window.saveQuestion = async (id) => {
+            const data = {
+                question: document.getElementById('questionText').value,
+                option_a: document.getElementById('optA').value,
+                option_b: document.getElementById('optB').value,
+                option_c: document.getElementById('optC').value,
+                option_d: document.getElementById('optD').value,
+                correct_answer: document.getElementById('correctAnswer').value,
+                explanation: document.getElementById('explanation').value
+            };
+            
+            if (id) {
+                await supabase.from('quiz_questions').update(data).eq('id', id);
+                showToast('Question updated!', 'success');
+            } else {
+                await supabase.from('quiz_questions').insert(data);
+                showToast('Question added!', 'success');
+            }
+            closeModal();
+            renderAdminDashboard();
+        };
+        
+        window.deleteQuestion = async (id) => {
+            if (confirm('Delete this question?')) {
+                await supabase.from('quiz_questions').delete().eq('id', id);
+                showToast('Question deleted', 'success');
+                renderAdminDashboard();
+            }
+        };
+        
+        window.closeModal = () => {
+            document.getElementById('editModal')?.remove();
+        };
+        
+        window.logout = async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        };
+        
+        function showLoginModal() {
+            const modalHtml = `
+                <div class="modal active" id="loginModal">
+                    <div class="modal-content">
+                        <h2>Admin Login Required</h2>
+                        <p>Please sign in with your admin account</p>
+                        <input type="email" id="adminEmail" placeholder="Email">
+                        <input type="password" id="adminPassword" placeholder="Password">
+                        <button class="btn btn-primary" onclick="adminLogin()">Login</button>
+                        <button class="btn btn-outline" onclick="window.location.href='index.html'">Back to Site</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+        
+        window.adminLogin = async () => {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                showToast(error.message, 'error');
+                return;
+            }
+            window.location.reload();
+        };
+        
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+        
+        init();
+    </script>
+</body>
+</html>
