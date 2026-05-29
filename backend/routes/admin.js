@@ -1,51 +1,195 @@
 // routes/admin.js
+// REAL PRODUCTION - MEI DRIVE AFRICA
+// ADMIN ROUTES - Requires admin role
+
 import express from 'express';
-import { authenticateUser } from '../middleware/auth.js';
-import { requireAdmin } from '../middleware/admin.js';
-import { supabase, supabaseAdmin } from '../config/database.js';
+import { createClient } from '@supabase/supabase-js';
 
 const router = express.Router();
 
+// Initialize Supabase with SERVICE ROLE (for admin operations)
+const supabase = createClient(
+    process.env.SUPABASE_URL || 'https://qpqkmmkrzxlhcpccefjn.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTUyNTQ3MiwiZXhwIjoyMDk1MTAxNDcyfQ.8xHkQ3W5jZR2gZmDvVXq7jKyB5tQnC2ySmY9aBcfVpA'
+);
+
+// Initialize Supabase Anon for regular operations
+const supabaseAnon = createClient(
+    process.env.SUPABASE_URL || 'https://qpqkmmkrzxlhcpccefjn.supabase.co',
+    process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s'
+);
+
+// Helper: Verify user and admin role
+async function verifyAdmin(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({
+                success: false,
+                error: 'Authorization header required'
+            });
+        }
+        
+        const token = authHeader.split(' ')[1];
+        const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+        
+        if (userError || !user) {
+            return res.status(401).json({
+                success: false,
+                error: 'Invalid or expired token'
+            });
+        }
+        
+        // Check if user has admin role
+        const { data: profile, error: profileError } = await supabase
+            .from('user_profiles')
+            .select('role, is_admin')
+            .eq('id', user.id)
+            .maybeSingle();
+        
+        const isAdmin = profile?.role === 'admin' || profile?.is_admin === true;
+        
+        if (!isAdmin) {
+            return res.status(403).json({
+                success: false,
+                error: 'Access denied. Admin privileges required.'
+            });
+        }
+        
+        req.user = user;
+        req.userId = user.id;
+        req.userRole = profile?.role;
+        next();
+    } catch (error) {
+        return res.status(401).json({
+            success: false,
+            error: 'Authentication failed'
+        });
+    }
+}
+
 // All admin routes require authentication and admin role
-router.use(authenticateUser, requireAdmin);
+router.use(verifyAdmin);
+
+// ============================================
+// DASHBOARD STATISTICS
+// ============================================
+router.get('/dashboard/stats', async (req, res) => {
+    try {
+        // Get counts
+        const { count: totalUsers, error: usersError } = await supabase
+            .from('user_profiles')
+            .select('*', { count: 'exact', head: true });
+        
+        const { count: totalCourses, error: coursesError } = await supabase
+            .from('courses')
+            .select('*', { count: 'exact', head: true });
+        
+        const { count: totalEnrollments, error: enrollError } = await supabase
+            .from('enrollments')
+            .select('*', { count: 'exact', head: true });
+        
+        const { count: completedEnrollments, error: completedError } = await supabase
+            .from('enrollments')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'completed');
+        
+        // Get total revenue from transactions
+        const { data: transactions, error: revenueError } = await supabase
+            .from('transactions')
+            .select('amount')
+            .eq('status', 'completed');
+        
+        const totalRevenue = transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+        
+        // Get recent enrollments with user and course info
+        const { data: recentEnrollments, error: recentError } = await supabase
+            .from('enrollments')
+            .select(`
+                id,
+                enrolled_at,
+                payment_status,
+                user_id,
+                course_id
+            `)
+            .order('enrolled_at', { ascending: false })
+            .limit(10);
+        
+        // Get monthly revenue (last 6 months)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        
+        const { data: monthlyTransactions, error: monthlyError } = await supabase
+            .from('transactions')
+            .select('amount, created_at')
+            .eq('status', 'completed')
+            .gte('created_at', sixMonthsAgo.toISOString())
+            .order('created_at', { ascending: true });
+        
+        res.json({
+            success: true,
+            stats: {
+                total_users: totalUsers || 0,
+                total_courses: totalCourses || 0,
+                total_enrollments: totalEnrollments || 0,
+                completed_enrollments: completedEnrollments || 0,
+                total_revenue: totalRevenue,
+                completion_rate: totalEnrollments ? Math.round((completedEnrollments || 0) / totalEnrollments * 100) : 0
+            },
+            recent_enrollments: recentEnrollments || [],
+            monthly_revenue: monthlyTransactions || []
+        });
+        
+    } catch (error) {
+        console.error('Dashboard stats error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
 
 // ============================================
 // USER MANAGEMENT
 // ============================================
 
-// Get all users (with service role)
+// Get all users
 router.get('/users', async (req, res) => {
     try {
-        // Get all users from auth (requires service role)
-        const { data: users, error: usersError } = await supabaseAdmin.auth.admin.listUsers();
+        const { page = 1, limit = 20, search = '' } = req.query;
+        const offset = (parseInt(page) - 1) * parseInt(limit);
         
-        if (usersError) throw usersError;
+        let query = supabase
+            .from('user_profiles')
+            .select('*', { count: 'exact' });
         
-        // Get profiles for all users
-        const { data: profiles, error: profilesError } = await supabase
-            .from('profiles')
-            .select('*');
+        if (search) {
+            query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
+        }
         
-        if (profilesError) throw profilesError;
+        const { data: profiles, error, count } = await query
+            .range(offset, offset + parseInt(limit) - 1)
+            .order('created_at', { ascending: false });
         
-        // Merge user data with profiles
-        const usersWithProfiles = users.users.map(user => ({
-            id: user.id,
-            email: user.email,
-            created_at: user.created_at,
-            last_sign_in: user.last_sign_in_at,
-            profile: profiles.find(p => p.id === user.id) || {}
-        }));
+        if (error) throw error;
         
         res.json({
             success: true,
-            users: usersWithProfiles,
-            total: usersWithProfiles.length
+            users: profiles,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total: count,
+                pages: Math.ceil(count / limit)
+            }
         });
         
     } catch (error) {
         console.error('Get users error:', error);
-        res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 
@@ -54,26 +198,35 @@ router.get('/users/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
         
-        const { data: user, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
-        
-        if (userError) throw userError;
-        
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
+        const { data: profile, error } = await supabase
+            .from('user_profiles')
             .select('*')
             .eq('id', userId)
             .single();
         
+        if (error) throw error;
+        
+        // Get user enrollments
+        const { data: enrollments } = await supabase
+            .from('enrollments')
+            .select('*, courses:course_id(name, price)')
+            .eq('user_id', userId);
+        
         res.json({
             success: true,
             user: {
-                ...user.user,
-                profile: profile || {}
+                ...profile,
+                enrollments: enrollments || [],
+                total_enrollments: enrollments?.length || 0
             }
         });
         
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Get user error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 
@@ -92,13 +245,13 @@ router.put('/users/:userId/role', async (req, res) => {
         }
         
         const { data, error } = await supabase
-            .from('profiles')
-            .upsert({
-                id: userId,
+            .from('user_profiles')
+            .update({
                 role: role,
                 is_admin: role === 'admin',
                 updated_at: new Date().toISOString()
             })
+            .eq('id', userId)
             .select()
             .single();
         
@@ -107,31 +260,15 @@ router.put('/users/:userId/role', async (req, res) => {
         res.json({
             success: true,
             message: `User role updated to ${role}`,
-            profile: data
+            user: data
         });
         
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// Delete user (requires service role)
-router.delete('/users/:userId', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        
-        // Delete user from auth
-        const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-        
-        if (error) throw error;
-        
-        res.json({
-            success: true,
-            message: 'User deleted successfully'
+        console.error('Update role error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
         });
-        
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
     }
 });
 
@@ -139,24 +276,69 @@ router.delete('/users/:userId', async (req, res) => {
 // COURSE MANAGEMENT
 // ============================================
 
+// Get all courses (admin view)
+router.get('/courses', async (req, res) => {
+    try {
+        const { page = 1, limit = 20, published } = req.query;
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+        
+        let query = supabase.from('courses').select('*', { count: 'exact' });
+        
+        if (published !== undefined) {
+            query = query.eq('is_published', published === 'true');
+        }
+        
+        const { data: courses, error, count } = await query
+            .range(offset, offset + parseInt(limit) - 1)
+            .order('id', { ascending: true });
+        
+        if (error) throw error;
+        
+        res.json({
+            success: true,
+            courses: courses,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total: count,
+                pages: Math.ceil(count / limit)
+            }
+        });
+        
+    } catch (error) {
+        console.error('Get courses error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 // Create new course
 router.post('/courses', async (req, res) => {
     try {
         const {
-            title, slug, subtitle, description, learning_outcomes,
-            prerequisites, target_audience, price, duration_weeks,
-            duration_hours, icon, level, certificate_type,
-            passing_score, is_featured
+            name, description, price, icon, duration, units, modules
         } = req.body;
+        
+        if (!name) {
+            return res.status(400).json({
+                success: false,
+                error: 'Course name is required'
+            });
+        }
         
         const { data, error } = await supabase
             .from('courses')
             .insert({
-                title, slug, subtitle, description,
-                learning_outcomes, prerequisites, target_audience,
-                price, duration_weeks, duration_hours, icon,
-                level, certificate_type, passing_score,
-                is_featured, is_published: false,
+                name,
+                description: description || '',
+                price: price || 0,
+                icon: icon || 'fa-book',
+                duration: duration || 'Flexible',
+                units: units || 0,
+                modules: modules || [],
+                is_published: false,
                 created_at: new Date().toISOString()
             })
             .select()
@@ -171,7 +353,11 @@ router.post('/courses', async (req, res) => {
         });
         
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Create course error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 
@@ -187,7 +373,7 @@ router.put('/courses/:courseId', async (req, res) => {
                 ...updates,
                 updated_at: new Date().toISOString()
             })
-            .eq('id', courseId)
+            .eq('id', parseInt(courseId))
             .select()
             .single();
         
@@ -200,7 +386,11 @@ router.put('/courses/:courseId', async (req, res) => {
         });
         
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Update course error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 
@@ -212,8 +402,11 @@ router.patch('/courses/:courseId/publish', async (req, res) => {
         
         const { data, error } = await supabase
             .from('courses')
-            .update({ is_published, updated_at: new Date().toISOString() })
-            .eq('id', courseId)
+            .update({ 
+                is_published: is_published,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', parseInt(courseId))
             .select()
             .single();
         
@@ -226,7 +419,11 @@ router.patch('/courses/:courseId/publish', async (req, res) => {
         });
         
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Publish course error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 
@@ -235,10 +432,17 @@ router.delete('/courses/:courseId', async (req, res) => {
     try {
         const { courseId } = req.params;
         
+        // First delete enrollments
+        await supabase
+            .from('enrollments')
+            .delete()
+            .eq('course_id', parseInt(courseId));
+        
+        // Then delete course
         const { error } = await supabase
             .from('courses')
             .delete()
-            .eq('id', courseId);
+            .eq('id', parseInt(courseId));
         
         if (error) throw error;
         
@@ -248,152 +452,54 @@ router.delete('/courses/:courseId', async (req, res) => {
         });
         
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// ============================================
-// UNIT MANAGEMENT
-// ============================================
-
-// Add unit to course
-router.post('/courses/:courseId/units', async (req, res) => {
-    try {
-        const { courseId } = req.params;
-        const { unit_number, title, subtitle, description, learning_objectives, content, key_takeaways, estimated_minutes } = req.body;
-        
-        const { data, error } = await supabase
-            .from('units')
-            .insert({
-                course_id: courseId,
-                unit_number,
-                title,
-                subtitle,
-                description,
-                learning_objectives,
-                content,
-                key_takeaways,
-                estimated_minutes,
-                is_published: false
-            })
-            .select()
-            .single();
-        
-        if (error) throw error;
-        
-        res.json({
-            success: true,
-            message: 'Unit added successfully',
-            unit: data
+        console.error('Delete course error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
         });
-        
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// Update unit
-router.put('/units/:unitId', async (req, res) => {
-    try {
-        const { unitId } = req.params;
-        const updates = req.body;
-        
-        const { data, error } = await supabase
-            .from('units')
-            .update({ ...updates, updated_at: new Date().toISOString() })
-            .eq('id', unitId)
-            .select()
-            .single();
-        
-        if (error) throw error;
-        
-        res.json({
-            success: true,
-            message: 'Unit updated successfully',
-            unit: data
-        });
-        
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // ============================================
-// DASHBOARD STATISTICS
-// ============================================
-
-router.get('/dashboard/stats', async (req, res) => {
-    try {
-        // Get counts
-        const [
-            { count: totalUsers },
-            { count: totalCourses },
-            { count: totalEnrollments },
-            { count: totalRevenue },
-            { count: completedEnrollments }
-        ] = await Promise.all([
-            supabase.from('profiles').select('*', { count: 'exact', head: true }),
-            supabase.from('courses').select('*', { count: 'exact', head: true }),
-            supabase.from('enrollments').select('*', { count: 'exact', head: true }),
-            supabase.from('payments').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
-            supabase.from('enrollments').select('*', { count: 'exact', head: true }).eq('status', 'completed')
-        ]);
-        
-        // Get recent enrollments
-        const { data: recentEnrollments } = await supabase
-            .from('enrollments')
-            .select('*, users(email), courses(title)')
-            .order('created_at', { ascending: false })
-            .limit(10);
-        
-        // Get revenue by month
-        const { data: monthlyRevenue } = await supabase
-            .from('payments')
-            .select('amount, created_at')
-            .eq('status', 'completed');
-        
-        res.json({
-            success: true,
-            stats: {
-                total_users: totalUsers || 0,
-                total_courses: totalCourses || 0,
-                total_enrollments: totalEnrollments || 0,
-                completed_enrollments: completedEnrollments || 0,
-                total_revenue: totalRevenue || 0
-            },
-            recent_enrollments: recentEnrollments || [],
-            monthly_revenue: monthlyRevenue || []
-        });
-        
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// ============================================
-// ALL ENROLLMENTS (Admin view)
+// ENROLLMENT MANAGEMENT (Admin view)
 // ============================================
 
 router.get('/enrollments', async (req, res) => {
     try {
         const { page = 1, limit = 20, status } = req.query;
-        const offset = (page - 1) * limit;
+        const offset = (parseInt(page) - 1) * parseInt(limit);
         
         let query = supabase
             .from('enrollments')
-            .select('*, users(email), courses(title, price)', { count: 'exact' });
+            .select('*', { count: 'exact' });
         
         if (status) query = query.eq('status', status);
         
         const { data, error, count } = await query
-            .range(offset, offset + limit - 1)
-            .order('created_at', { ascending: false });
+            .range(offset, offset + parseInt(limit) - 1)
+            .order('enrolled_at', { ascending: false });
         
         if (error) throw error;
         
+        // Get user and course info for each enrollment
+        const enrollmentsWithDetails = await Promise.all(
+            (data || []).map(async (enrollment) => {
+                const [userRes, courseRes] = await Promise.all([
+                    supabase.from('user_profiles').select('full_name, email').eq('id', enrollment.user_id).single(),
+                    supabase.from('courses').select('name, price').eq('id', enrollment.course_id).single()
+                ]);
+                
+                return {
+                    ...enrollment,
+                    user: userRes.data || {},
+                    course: courseRes.data || {}
+                };
+            })
+        );
+        
         res.json({
             success: true,
-            enrollments: data,
+            enrollments: enrollmentsWithDetails,
             pagination: {
                 page: parseInt(page),
                 limit: parseInt(limit),
@@ -403,34 +509,38 @@ router.get('/enrollments', async (req, res) => {
         });
         
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Get enrollments error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 
 // ============================================
-// ALL PAYMENTS (Admin view)
+// TRANSACTION MANAGEMENT (Admin view)
 // ============================================
 
-router.get('/payments', async (req, res) => {
+router.get('/transactions', async (req, res) => {
     try {
         const { page = 1, limit = 20, status } = req.query;
-        const offset = (page - 1) * limit;
+        const offset = (parseInt(page) - 1) * parseInt(limit);
         
         let query = supabase
-            .from('payments')
-            .select('*, users(email), courses(title)', { count: 'exact' });
+            .from('transactions')
+            .select('*', { count: 'exact' });
         
         if (status) query = query.eq('status', status);
         
         const { data, error, count } = await query
-            .range(offset, offset + limit - 1)
+            .range(offset, offset + parseInt(limit) - 1)
             .order('created_at', { ascending: false });
         
         if (error) throw error;
         
         res.json({
             success: true,
-            payments: data,
+            transactions: data || [],
             pagination: {
                 page: parseInt(page),
                 limit: parseInt(limit),
@@ -440,7 +550,11 @@ router.get('/payments', async (req, res) => {
         });
         
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Get transactions error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 
