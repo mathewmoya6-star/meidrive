@@ -3,26 +3,27 @@ import axios from 'axios';
 
 const router = express.Router();
 
-// REAL PRODUCTION M-Pesa Credentials
+// M-Pesa Production Credentials
 const MPESA_CONSUMER_KEY = 'LI2gcJZEheN8qCfXHEXV4gdYXvOBHVnv';
 const MPESA_CONSUMER_SECRET = 'aGGo8AuPJVpsZLcs';
 const MPESA_PASSKEY = '7eb17a031bdfd5b4251863a1ddb72c5b9cd14f3385aa6a258c1442a0116e8277';
 const MPESA_SHORTCODE = '4095377';
-const ENVIRONMENT = 'production'; // PRODUCTION - REAL MONEY
+const ENVIRONMENT = 'production'; // Changed to production for live money
 
 // Helper: Get M-Pesa Access Token
 async function getAccessToken() {
     const auth = Buffer.from(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`).toString('base64');
-    // PRODUCTION URL
-    const url = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
+    const url = ENVIRONMENT === 'production'
+        ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
+        : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
     
-    console.log('🔑 Getting M-Pesa PRODUCTION access token...');
+    console.log(`🔑 Getting M-Pesa ${ENVIRONMENT} access token...`);
     
     try {
         const response = await axios.get(url, {
             headers: { Authorization: `Basic ${auth}` }
         });
-        console.log('✅ PRODUCTION access token obtained');
+        console.log('✅ Access token obtained');
         return response.data.access_token;
     } catch (error) {
         console.error('❌ Token error:', error.response?.data || error.message);
@@ -30,7 +31,7 @@ async function getAccessToken() {
     }
 }
 
-// Helper: Format phone number to 254XXXXXXXXX
+// Helper: Format phone number
 function formatPhoneNumber(phone) {
     let cleaned = phone.toString().replace(/\s/g, '');
     if (cleaned.startsWith('0')) {
@@ -40,41 +41,41 @@ function formatPhoneNumber(phone) {
     } else if (!cleaned.startsWith('254')) {
         cleaned = '254' + cleaned;
     }
-    console.log(`📱 Formatted phone: ${cleaned}`);
     return cleaned;
 }
 
-// Test endpoint - Check if M-Pesa is connected
+// Test endpoint
 router.get('/mpesa/test', async (req, res) => {
     try {
         const token = await getAccessToken();
         res.json({
             success: true,
-            message: 'M-Pesa PRODUCTION connection successful!',
+            message: `M-Pesa ${ENVIRONMENT} connection successful!`,
             environment: ENVIRONMENT,
             shortcode: MPESA_SHORTCODE,
-            warning: '⚠️ REAL MONEY - Production mode',
-            tokenObtained: !!token
+            minimumPayment: 49
         });
     } catch (error) {
-        console.error('Test endpoint error:', error.message);
-        res.status(500).json({
-            success: false,
-            error: error.message,
-            environment: ENVIRONMENT
-        });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// Initiate STK Push (Lipa Na M-Pesa Online) - REAL PRODUCTION
+// Initiate STK Push
 router.post('/mpesa/initiate', async (req, res) => {
     try {
         const { phoneNumber, amount, courseId, courseName, userId } = req.body;
         
-        console.log('💰 REAL PRODUCTION PAYMENT INITIATED:', { phoneNumber, amount, courseId, courseName });
-        console.log('⚠️ REAL MONEY WILL BE DEDUCTED from customer!');
+        console.log('💰 PRODUCTION Payment initiated:', { phoneNumber, amount, courseId, courseName });
         
-        // Validate input
+        // Validate minimum payment (49 KES)
+        const MINIMUM_PAYMENT = 49;
+        if (amount < MINIMUM_PAYMENT) {
+            return res.status(400).json({
+                success: false,
+                error: `Minimum payment amount is ${MINIMUM_PAYMENT} KES`
+            });
+        }
+        
         if (!phoneNumber || !amount) {
             return res.status(400).json({
                 success: false,
@@ -82,30 +83,13 @@ router.post('/mpesa/initiate', async (req, res) => {
             });
         }
         
-        // Validate amount (minimum 1 KES for production)
-        if (amount < 1) {
-            return res.status(400).json({
-                success: false,
-                error: 'Amount must be at least 1 KES'
-            });
-        }
-        
         const formattedPhone = formatPhoneNumber(phoneNumber);
         const accountRef = `MEI-${courseId || 'COURSE'}-${Date.now()}`;
         
-        console.log('Account reference:', accountRef);
-        
-        // Get access token
         const token = await getAccessToken();
-        
-        // Generate timestamp and password
         const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
         const password = Buffer.from(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`).toString('base64');
         
-        console.log('Timestamp:', timestamp);
-        console.log('Shortcode:', MPESA_SHORTCODE);
-        
-        // Prepare STK Push request for PRODUCTION
         const stkPushRequest = {
             BusinessShortCode: MPESA_SHORTCODE,
             Password: password,
@@ -115,15 +99,14 @@ router.post('/mpesa/initiate', async (req, res) => {
             PartyA: formattedPhone,
             PartyB: MPESA_SHORTCODE,
             PhoneNumber: formattedPhone,
-            CallBackURL: `${process.env.CALLBACK_URL || 'https://mei-drive-backend.onrender.com'}/api/payments/mpesa/callback`,
+            CallBackURL: `https://mei-drive-api.onrender.com/api/payments/mpesa/callback`,
             AccountReference: accountRef,
             TransactionDesc: `Payment for ${courseName || 'Course Enrollment'}`
         };
         
-        console.log('STK Push Request:', JSON.stringify(stkPushRequest, null, 2));
-        
-        // PRODUCTION URL
-        const url = 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
+        const url = ENVIRONMENT === 'production'
+            ? 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+            : 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
         
         const response = await axios.post(url, stkPushRequest, {
             headers: {
@@ -132,99 +115,37 @@ router.post('/mpesa/initiate', async (req, res) => {
             }
         });
         
-        console.log('✅ PRODUCTION STK Push Response:', response.data);
-        console.log('⚠️ Customer will receive STK push on their phone NOW!');
+        console.log('✅ STK Push Response:', response.data);
         
         res.json({
             success: true,
-            message: 'STK Push initiated. Check customer phone for M-Pesa prompt.',
+            message: 'STK Push initiated. Check your phone.',
             checkoutRequestID: response.data.CheckoutRequestID,
             merchantRequestID: response.data.MerchantRequestID,
             responseCode: response.data.ResponseCode,
-            responseDescription: response.data.ResponseDescription,
-            environment: ENVIRONMENT,
-            warning: 'REAL MONEY - Transaction in progress'
+            responseDescription: response.data.ResponseDescription
         });
         
     } catch (error) {
-        console.error('❌ PRODUCTION Initiate error:', error.response?.data || error.message);
-        
-        const errorMessage = error.response?.data?.errorMessage || 
-                           error.response?.data?.ResponseDescription || 
-                           'Failed to initiate payment';
-        
+        console.error('❌ Initiate error:', error.response?.data || error.message);
         res.status(500).json({
             success: false,
-            error: errorMessage,
-            environment: ENVIRONMENT,
-            details: error.response?.data
+            error: error.response?.data?.errorMessage || 'Failed to initiate payment'
         });
     }
 });
 
-// M-Pesa Callback URL (Safaricom sends confirmation here) - PRODUCTION
+// M-Pesa Callback
 router.post('/mpesa/callback', async (req, res) => {
-    console.log('📞 PRODUCTION Callback received at:', new Date().toISOString());
-    console.log('Callback body:', JSON.stringify(req.body, null, 2));
-    
-    try {
-        const { Body } = req.body;
-        
-        if (Body && Body.stkCallback) {
-            const {
-                ResultCode,
-                ResultDesc,
-                CheckoutRequestID,
-                CallbackMetadata
-            } = Body.stkCallback;
-            
-            console.log(`PRODUCTION Callback Result: ${ResultCode} - ${ResultDesc}`);
-            
-            // Extract metadata
-            let metadata = {};
-            if (CallbackMetadata && CallbackMetadata.Item) {
-                CallbackMetadata.Item.forEach(item => {
-                    metadata[item.Name] = item.Value;
-                });
-            }
-            
-            console.log('Payment Metadata:', metadata);
-            
-            if (ResultCode === 0) {
-                console.log('✅ PRODUCTION PAYMENT SUCCESSFUL!');
-                console.log(`Receipt Number: ${metadata.MpesaReceiptNumber}`);
-                console.log(`Amount: ${metadata.Amount}`);
-                console.log(`Phone: ${metadata.PhoneNumber}`);
-                console.log(`Time: ${metadata.TransactionDate}`);
-                
-                // TODO: Update your database here
-                // await supabase.from('enrollments').insert([{
-                //     user_id: userId,
-                //     course_id: courseId,
-                //     payment_status: 'completed',
-                //     payment_method: 'mpesa',
-                //     mpesa_code: metadata.MpesaReceiptNumber
-                // }]);
-            } else {
-                console.log('❌ PRODUCTION PAYMENT FAILED:', ResultDesc);
-            }
-        }
-        
-        // Always acknowledge receipt to M-Pesa
-        res.json({ ResultCode: 0, ResultDesc: 'Success' });
-        
-    } catch (error) {
-        console.error('Callback processing error:', error);
-        res.json({ ResultCode: 0, ResultDesc: 'Success' });
-    }
+    console.log('📞 Callback received:', new Date().toISOString());
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+    res.json({ ResultCode: 0, ResultDesc: 'Success' });
 });
 
-// Check transaction status - PRODUCTION
+// Check transaction status
 router.post('/mpesa/status', async (req, res) => {
     try {
         const { checkoutRequestID } = req.body;
-        
-        console.log('🔍 Checking PRODUCTION status for:', checkoutRequestID);
         
         if (!checkoutRequestID) {
             return res.status(400).json({
@@ -244,8 +165,9 @@ router.post('/mpesa/status', async (req, res) => {
             CheckoutRequestID: checkoutRequestID
         };
         
-        // PRODUCTION URL
-        const url = 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query';
+        const url = ENVIRONMENT === 'production'
+            ? 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query'
+            : 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query';
         
         const response = await axios.post(url, queryRequest, {
             headers: {
@@ -254,8 +176,6 @@ router.post('/mpesa/status', async (req, res) => {
             }
         });
         
-        console.log('Status response:', response.data);
-        
         const isCompleted = response.data.ResultCode === '0';
         const isPending = response.data.ResultCode === '1037';
         
@@ -263,8 +183,7 @@ router.post('/mpesa/status', async (req, res) => {
             success: true,
             status: isCompleted ? 'completed' : (isPending ? 'pending' : 'failed'),
             resultCode: response.data.ResultCode,
-            resultDesc: response.data.ResultDesc,
-            environment: ENVIRONMENT
+            resultDesc: response.data.ResultDesc
         });
         
     } catch (error) {
