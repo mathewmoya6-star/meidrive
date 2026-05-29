@@ -8,12 +8,19 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Production Backend URL
-const BACKEND_URL = process.env.BACKEND_URL || 'https://mei-drive-api.onrender.com';
+// Production Backend URL - CORRECTED
+const BACKEND_URL = process.env.BACKEND_URL || 'https://meidriveafrica-backend.onrender.com';
 
 // CORS configuration - Allow frontend to access backend
 app.use(cors({
-    origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', 'https://meidriveafrica.com', 'https://www.meidriveafrica.com', 'https://mei-drive-api.onrender.com'],
+    origin: [
+        'http://localhost:5500', 
+        'http://127.0.0.1:5500', 
+        'http://localhost:3000', 
+        'https://meidriveafrica.com', 
+        'https://www.meidriveafrica.com',
+        'https://meidriveafrica-backend.onrender.com'  // ✅ CORRECTED URL
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
