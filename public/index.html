@@ -7,7 +7,6 @@
     <meta name="description" content="Professional driver training courses and exam preparation">
     <meta name="theme-color" content="#0a192f">
     
-    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="512x512" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIAAQMAAADOtka5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAARnQU1BAACxjwv8YQUAAAB7SURBVHgB7dJBDQAACAMx6J/b6AxoCIaBbAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg5gQ7/QABMpVFSAAAAABJRU5ErkJggg==">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -162,6 +161,38 @@
             margin: 0;
             padding: 12px 0;
         }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .admin-table th, .admin-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .admin-table th {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: rgba(13,33,55,0.8);
+            border-radius: 16px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .stat-card h2 {
+            font-size: 2rem;
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -195,7 +226,6 @@
 <div id="toast-container"></div>
 
 <script>
-    // Use the global MEIDrive object from supabase.js
     const MEI = window.MEIDrive;
     
     let currentUser = null;
@@ -206,6 +236,7 @@
     let userProgress = {};
     let payments = [];
     let users = [];
+    let allEnrollments = [];
     let isAdmin = false;
     let pendingCourse = null;
     
@@ -222,40 +253,22 @@
     function toggleMobileMenu() { document.getElementById('navLinks')?.classList.toggle('show'); }
     
     async function loadAllData() {
-        // Load courses
         courses = await MEI.getAllCourses();
-        if (courses.length === 0) {
-            courses = [
-                { id: 1, name: 'LEARNER HUB', description: 'Complete driver training for new drivers.', price: 2999, duration: '8 weeks', icon: 'fa-car', lessons_count: 21 },
-                { id: 2, name: 'BODA BODA SAFETY', description: 'Professional motorcycle rider training.', price: 2499, duration: '6 weeks', icon: 'fa-motorcycle', lessons_count: 26 },
-                { id: 3, name: 'PSV PROFESSIONAL COURSE', description: 'Public Service Vehicle certification.', price: 3999, duration: '8 weeks', icon: 'fa-bus', lessons_count: 12 },
-                { id: 4, name: 'EV DRIVER & RIDER', description: 'Electric vehicle operations.', price: 1999, duration: '5 weeks', icon: 'fa-car-battery', lessons_count: 10 },
-                { id: 5, name: 'REFRESHER COURSE', description: 'Advanced defensive driving.', price: 1499, duration: '4 weeks', icon: 'fa-sync-alt', lessons_count: 8 },
-                { id: 6, name: 'QUIZ BANK', description: '1000+ NTSA-style exam questions.', price: 999, duration: 'Self-paced', icon: 'fa-question-circle', lessons_count: 15 }
-            ];
-        }
-        
-        // Load quiz questions
         quizQuestions = await MEI.getAllQuizQuestions();
-        if (quizQuestions.length === 0) {
-            quizQuestions = [
-                { id: 1, category: 'Road Signs', question: 'What does a STOP sign mean?', option_a: 'Slow down only', option_b: 'Continue carefully', option_c: 'Come to a complete stop', option_d: 'Overtake carefully', correct_option: 2, explanation: 'A STOP sign requires you to come to a complete stop.' },
-                { id: 2, category: 'Road Signs', question: 'A triangular road sign normally indicates:', option_a: 'Direction', option_b: 'Warning', option_c: 'Parking', option_d: 'Speed limit', correct_option: 1, explanation: 'Triangular signs are warning signs.' }
-            ];
-        }
         
-        // Load user data if logged in
         currentUser = await MEI.getCurrentUser();
         if (currentUser) {
             const enrollments = await MEI.getUserEnrollments(currentUser.id);
             userEnrollments = {};
             enrollments.forEach(e => { userEnrollments[e.course_id] = true; });
             
+            // Check if user is admin (can be set in database or by email)
             isAdmin = currentUser.email === 'admin@meidrive.com' || currentUser.email.includes('admin');
             
             if (isAdmin) {
                 payments = await MEI.getAllPayments();
                 users = await MEI.getAllUsers();
+                allEnrollments = await MEI.getAllEnrollments();
                 document.getElementById('navAdmin').style.display = 'inline-block';
             }
         }
@@ -336,7 +349,6 @@
         window.location.href = `course.html?id=${courseId}`;
     }
     
-    // Show payment modal
     function showPaymentModal(course) {
         pendingCourse = course;
         document.getElementById('page-content').innerHTML = `
@@ -353,8 +365,9 @@
                         <input type="tel" id="mpesaPhone" placeholder="712345678" autocomplete="off">
                     </div>
                     <p style="font-size: 12px; opacity: 0.7;">Enter the M-Pesa number you want to pay from</p>
+                    <p style="font-size: 12px; opacity: 0.7; margin-top: 5px;">Paybill: <strong>${MEI.paybillNumber}</strong></p>
                     <button class="btn btn-primary" style="width:100%; margin-top:1rem;" onclick="processPayment()">
-                        <i class="fas fa-arrow-right"></i> Continue to Pay
+                        <i class="fas fa-arrow-right"></i> Pay Now
                     </button>
                     <button class="btn btn-outline" style="width:100%; margin-top:0.5rem;" onclick="navigateTo('courses')">
                         Cancel
@@ -379,13 +392,13 @@
             phone, 
             pendingCourse.price, 
             pendingCourse.id, 
-            currentUser.id
+            currentUser.id,
+            currentUser.email
         );
         
         if (result.success) {
             showToast('Payment request sent! Check your phone for M-Pesa prompt.', 'success');
             
-            // Poll for payment status
             let attempts = 0;
             const interval = setInterval(async () => {
                 attempts++;
@@ -400,7 +413,7 @@
                     }
                 } else if (attempts > 20) {
                     clearInterval(interval);
-                    showToast('Payment confirmation timeout. Please check your email.', 'warning');
+                    showToast('Payment confirmation timeout. Please check your M-Pesa messages.', 'warning');
                 }
             }, 3000);
             
@@ -553,27 +566,51 @@
     
     function renderAdminDashboard() {
         const totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+        const totalEnrollments = allEnrollments.length;
+        
         document.getElementById('page-content').innerHTML = `
             <div class="container" style="padding-top: 100px;">
                 <h1 class="section-title"><i class="fas fa-user-shield"></i> Admin <span>Dashboard</span></h1>
-                <div class="stats-bar">
-                    <div class="stat-item"><h3>${users.length}</h3><p>Users</p></div>
-                    <div class="stat-item"><h3>${payments.length}</h3><p>Payments</p></div>
-                    <div class="stat-item"><h3>KES ${totalRevenue.toLocaleString()}</h3><p>Revenue</p></div>
+                
+                <div class="admin-stats">
+                    <div class="stat-card"><h2>${users.length}</h2><p>Total Users</p></div>
+                    <div class="stat-card"><h2>${totalEnrollments}</h2><p>Enrollments</p></div>
+                    <div class="stat-card"><h2>KES ${totalRevenue.toLocaleString()}</h2><p>Total Revenue</p></div>
+                    <div class="stat-card"><h2>${payments.length}</h2><p>Transactions</p></div>
                 </div>
-                <div class="card">
-                    <h3>Recent Payments</h3>
-                    <table style="width:100%; border-collapse:collapse;">
-                        <thead><tr><th>Transaction</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3><i class="fas fa-credit-card"></i> Recent Payments</h3>
+                    <table class="admin-table">
+                        <thead><tr><th>Transaction ID</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
                         <tbody>
                             ${payments.slice(0, 10).map(p => `
-                                <tr style="border-bottom:1px solid var(--border);">
-                                    <td style="padding:10px;">${escapeHtml(p.transaction_id || 'N/A')}</td>
+                                <tr>
+                                    <td>${escapeHtml(p.transaction_id || 'N/A')}</td>
                                     <td>KES ${(p.amount || 0).toLocaleString()}</td>
-                                    <td>${p.status || 'pending'}</td>
+                                    <td><span style="color: ${p.status === 'completed' ? '#00ff88' : '#ffaa00'}">${p.status || 'pending'}</span></td>
                                     <td>${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'N/A'}</td>
                                 </tr>
                             `).join('')}
+                            ${payments.length === 0 ? '<tr><td colspan="4" style="text-align:center;">No payments yet</td></tr>' : ''}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-users"></i> Recent Enrollments</h3>
+                    <table class="admin-table">
+                        <thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Date</th></tr></thead>
+                        <tbody>
+                            ${allEnrollments.slice(0, 10).map(e => `
+                                <tr>
+                                    <td>${escapeHtml(e.users?.email || 'N/A')}</td>
+                                    <td>${escapeHtml(e.courses?.name || 'N/A')}</td>
+                                    <td>KES ${(e.amount_paid || 0).toLocaleString()}</td>
+                                    <td>${e.paid_at ? new Date(e.paid_at).toLocaleDateString() : 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                            ${allEnrollments.length === 0 ? '<tr><td colspan="4" style="text-align:center;">No enrollments yet</td></tr>' : ''}
                         </tbody>
                     </table>
                 </div>
