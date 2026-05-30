@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Supabase.js -->
+    <!-- Supabase.js - Loaded ONCE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -277,7 +277,6 @@
             border-left: 3px solid #00FF88;
         }
         
-        /* Loading indicator */
         .loading-container {
             text-align: center;
             padding: 60px;
@@ -320,10 +319,10 @@
             <h2 id="modalTitle">Login</h2>
             <div id="modalError" style="color:#ff4444; margin-bottom:15px;"></div>
             <form id="authForm" onsubmit="event.preventDefault(); handleAuthSubmit();">
-                <input type="email" id="modalEmail" placeholder="Email address" required style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
-                <input type="password" id="modalPassword" placeholder="Password" required style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+                <input type="email" id="modalEmail" placeholder="Email address" autocomplete="email" required style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+                <input type="password" id="modalPassword" placeholder="Password" autocomplete="current-password" required style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
                 <div id="fullNameGroup" style="display:none;">
-                    <input type="text" id="modalFullName" placeholder="Full Name" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+                    <input type="text" id="modalFullName" placeholder="Full Name" autocomplete="name" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
                 </div>
                 <button type="submit" id="modalSubmitBtn" style="width:100%; padding:14px; background:#00FF88; color:#0A192F; font-weight:700; border:none; border-radius:8px; cursor:pointer;">Login</button>
             </form>
@@ -367,7 +366,7 @@
         </div>
     </div>
 
-    <!-- Dashboard Modal (User Account Only) -->
+    <!-- Dashboard Modal -->
     <div id="dashboardModal" class="modal">
         <div class="modal-content" style="max-width:800px">
             <button class="modal-close" onclick="closeDashboardModal()">&times;</button>
@@ -417,12 +416,13 @@
 
     <script>
         // ============================================
-        // SUPABASE CLIENT - SINGLE INSTANCE
+        // SUPABASE CLIENT - SINGLE INSTANCE (NO DUPLICATE!)
         // ============================================
         const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // IMPORTANT: Using a DIFFERENT variable name to avoid conflict
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // App state
         let currentUser = null;
@@ -436,6 +436,7 @@
         // Helper functions
         function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
+            if (!toast) return;
             toast.textContent = msg;
             toast.style.background = isError ? '#8b0000' : '#1a472a';
             toast.style.display = 'block';
@@ -448,11 +449,11 @@
         }
         
         // ============================================
-        // FETCH COURSES FROM SUPABASE (SINGLE SOURCE OF TRUTH)
+        // FETCH COURSES FROM SUPABASE
         // ============================================
         async function fetchCoursesFromSupabase() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await _supabase
                     .from('courses')
                     .select('*')
                     .eq('is_active', true)
@@ -473,21 +474,20 @@
                     
                     renderCourses();
                 } else {
-                    // Show error if no courses in database
-                    document.getElementById('coursesGrid').innerHTML = '<div class="error-container"><i class="fas fa-exclamation-triangle"></i> No courses found. Please run the SQL setup script.</div>';
+                    document.getElementById('coursesGrid').innerHTML = '<div class="error-container"><i class="fas fa-exclamation-triangle"></i> No courses found. Please run SQL setup.</div>';
                 }
             } catch (error) {
                 console.error('Error fetching courses:', error);
-                document.getElementById('coursesGrid').innerHTML = '<div class="error-container"><i class="fas fa-exclamation-triangle"></i> Error loading courses. Please check database connection.</div>';
+                document.getElementById('coursesGrid').innerHTML = '<div class="error-container"><i class="fas fa-exclamation-triangle"></i> Error loading courses. Check console.</div>';
             }
         }
         
         // ============================================
-        // FETCH QUIZ QUESTIONS FROM SUPABASE (SINGLE SOURCE OF TRUTH)
+        // FETCH QUIZ QUESTIONS FROM SUPABASE
         // ============================================
         async function fetchQuizFromSupabase() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await _supabase
                     .from('quiz_questions')
                     .select('*')
                     .limit(50);
@@ -502,16 +502,19 @@
                     }));
                     document.getElementById('quizCount').innerHTML = quizQuestions.length;
                 } else {
-                    // Fallback if no quiz questions in database
+                    // Fallback questions if table empty
                     quizQuestions = [
                         { question: "What does a STOP sign mean?", options: ["Slow down only", "Continue carefully", "Come to a complete stop", "Overtake carefully"], correct: 2 },
                         { question: "A triangular road sign normally indicates:", options: ["Direction", "Warning", "Parking", "Speed limit"], correct: 1 },
-                        { question: "Defensive driving means:", options: ["Aggressive driving", "Anticipating and avoiding danger", "Driving fast", "Ignoring rules"], correct: 1 }
+                        { question: "Defensive driving means:", options: ["Aggressive driving", "Anticipating and avoiding danger", "Driving fast", "Ignoring rules"], correct: 1 },
+                        { question: "Driving under the influence of alcohol is:", options: ["Safe at low speed", "Acceptable at night", "Dangerous and illegal", "Recommended"], correct: 2 },
+                        { question: "At a red traffic light you must:", options: ["Continue carefully", "Stop completely", "Overtake", "Reverse"], correct: 1 }
                     ];
                     document.getElementById('quizCount').innerHTML = quizQuestions.length;
                 }
             } catch (error) {
                 console.error('Error fetching quiz:', error);
+                // Fallback questions
                 quizQuestions = [
                     { question: "What does a STOP sign mean?", options: ["Slow down only", "Continue carefully", "Come to a complete stop", "Overtake carefully"], correct: 2 },
                     { question: "A triangular road sign normally indicates:", options: ["Direction", "Warning", "Parking", "Speed limit"], correct: 1 },
@@ -522,7 +525,7 @@
         }
         
         // ============================================
-        // RENDER COURSES FROM SUPABASE DATA
+        // RENDER COURSES
         // ============================================
         function renderCourses() {
             const grid = document.getElementById('coursesGrid');
@@ -558,7 +561,7 @@
         }
         
         // ============================================
-        // SHOW COURSE MODULES FROM SUPABASE DATA
+        // SHOW COURSE MODULES
         // ============================================
         function showCourseModules(courseId) {
             const course = courses.find(c => c.id === courseId);
@@ -597,7 +600,7 @@
         }
         
         // ============================================
-        // DASHBOARD - FETCHES FROM SUPABASE
+        // DASHBOARD
         // ============================================
         async function openDashboard() {
             if (!currentUser) {
@@ -607,7 +610,7 @@
             }
             
             try {
-                const { data: enrollments } = await supabase
+                const { data: enrollments } = await _supabase
                     .from('enrollments')
                     .select('course_id, course_name, enrolled_at, status')
                     .eq('user_id', currentUser.id);
@@ -668,7 +671,7 @@
         }
         
         // ============================================
-        // ENROLLMENT - SAVES TO SUPABASE
+        // ENROLLMENT
         // ============================================
         function enrollCourse(id, name, price) {
             if (!currentUser) {
@@ -707,7 +710,7 @@
             statusDiv.style.display = 'block';
             
             try {
-                const { error } = await supabase
+                const { error } = await _supabase
                     .from('enrollments')
                     .insert([{
                         user_id: currentUser.id,
@@ -746,33 +749,35 @@
         // AUTH FUNCTIONS
         // ============================================
         async function syncAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await _supabase.auth.getSession();
             currentUser = session?.user || null;
             const container = document.getElementById('authContainer');
             
-            if (currentUser) {
-                container.innerHTML = `
-                    <div class="user-info">
-                        <span class="user-email"><i class="fas fa-user-circle"></i> ${escapeHtml(currentUser.email.split('@')[0])}</span>
-                        <button class="btn-dashboard" onclick="openDashboard()"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
-                        <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                    </div>
-                `;
-                await loadEnrollments();
-            } else {
-                container.innerHTML = `
-                    <button class="btn-login" onclick="openModal('login')"><i class="fas fa-sign-in-alt"></i> Login</button>
-                    <button class="btn-register" onclick="openModal('register')"><i class="fas fa-user-plus"></i> Register</button>
-                `;
-                enrolledCourses = [];
-                renderCourses();
+            if (container) {
+                if (currentUser) {
+                    container.innerHTML = `
+                        <div class="user-info">
+                            <span class="user-email"><i class="fas fa-user-circle"></i> ${escapeHtml(currentUser.email.split('@')[0])}</span>
+                            <button class="btn-dashboard" onclick="openDashboard()"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
+                            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                        </div>
+                    `;
+                    await loadEnrollments();
+                } else {
+                    container.innerHTML = `
+                        <button class="btn-login" onclick="openModal('login')"><i class="fas fa-sign-in-alt"></i> Login</button>
+                        <button class="btn-register" onclick="openModal('register')"><i class="fas fa-user-plus"></i> Register</button>
+                    `;
+                    enrolledCourses = [];
+                    renderCourses();
+                }
             }
         }
         
         async function loadEnrollments() {
             if (!currentUser) return;
             try {
-                const { data } = await supabase
+                const { data } = await _supabase
                     .from('enrollments')
                     .select('course_id')
                     .eq('user_id', currentUser.id);
@@ -782,7 +787,7 @@
         }
         
         async function handleLogin(email, password) {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
             await syncAuth();
             showToast('✅ Login successful!');
@@ -790,7 +795,7 @@
         }
         
         async function handleRegister(email, password, fullName) {
-            const { data, error } = await supabase.auth.signUp({ 
+            const { data, error } = await _supabase.auth.signUp({ 
                 email, 
                 password, 
                 options: { data: { full_name: fullName } } 
@@ -798,7 +803,7 @@
             if (error) throw error;
             
             if (data.user) {
-                await supabase.from('profiles').insert([{
+                await _supabase.from('profiles').insert([{
                     id: data.user.id,
                     email: email,
                     full_name: fullName,
@@ -810,7 +815,7 @@
         }
         
         async function logout() {
-            await supabase.auth.signOut();
+            await _supabase.auth.signOut();
             await syncAuth();
             showToast('Logged out successfully');
         }
@@ -836,6 +841,8 @@
         
         function loadQuizQuestion() {
             const container = document.getElementById('quizContainer');
+            if (!container) return;
+            
             if (currentQuiz >= quizQuestions.length) {
                 container.innerHTML = `
                     <div style="text-align:center; padding:20px">
@@ -901,11 +908,21 @@
             document.getElementById('authModal').classList.add('active');
         }
         
-        function closeModal() { document.getElementById('authModal').classList.remove('active'); }
-        function closeCourseModal() { document.getElementById('courseModal').classList.remove('active'); }
-        function closeQuizModal() { document.getElementById('quizModal').classList.remove('active'); }
-        function closeMpesaModal() { document.getElementById('mpesaModal').classList.remove('active'); }
-        function closeDashboardModal() { document.getElementById('dashboardModal').classList.remove('active'); }
+        function closeModal() { 
+            document.getElementById('authModal').classList.remove('active'); 
+        }
+        function closeCourseModal() { 
+            document.getElementById('courseModal').classList.remove('active'); 
+        }
+        function closeQuizModal() { 
+            document.getElementById('quizModal').classList.remove('active'); 
+        }
+        function closeMpesaModal() { 
+            document.getElementById('mpesaModal').classList.remove('active'); 
+        }
+        function closeDashboardModal() { 
+            document.getElementById('dashboardModal').classList.remove('active'); 
+        }
         
         async function handleAuthSubmit() {
             const email = document.getElementById('modalEmail').value;
@@ -939,31 +956,23 @@
         }
         
         // ============================================
-        // INITIALIZE - FETCH ALL DATA FROM SUPABASE
+        // INITIALIZE
         // ============================================
         async function init() {
-            // Show loading state
             document.getElementById('coursesGrid').innerHTML = '<div class="loading-container"><i class="fas fa-spinner fa-spin"></i> Loading courses from Supabase...</div>';
             
-            // Fetch courses from Supabase
             await fetchCoursesFromSupabase();
-            
-            // Fetch quiz questions from Supabase
             await fetchQuizFromSupabase();
-            
-            // Sync auth state
             await syncAuth();
             
-            // Update student count
             try {
-                const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+                const { count } = await _supabase.from('profiles').select('*', { count: 'exact', head: true });
                 document.getElementById('studentsCount').innerHTML = count || '150+';
             } catch(e) { 
                 document.getElementById('studentsCount').innerHTML = '200+'; 
             }
             
-            // Set up auth listener
-            supabase.auth.onAuthStateChange(async (event, session) => {
+            _supabase.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
                     await syncAuth();
                 }
@@ -988,7 +997,7 @@
         window.handleAuthSubmit = handleAuthSubmit;
         window.processMpesaPayment = processMpesaPayment;
         
-        // Start app
+        // Start
         init();
     </script>
 </body>
