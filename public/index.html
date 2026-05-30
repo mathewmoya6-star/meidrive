@@ -250,7 +250,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Dashboard Styles */
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -277,7 +276,6 @@
             border-left: 3px solid #00FF88;
         }
         
-        /* Course Navigation */
         .course-navigation {
             position: sticky;
             top: 80px;
@@ -452,12 +450,14 @@
 
     <script>
         // ============================================
-        // SUPABASE CLIENT - SINGLE INSTANCE
+        // SUPABASE CLIENT - SINGLE INSTANCE (NO DUPLICATE!)
+        // Using a unique variable name to avoid conflicts
         // ============================================
-        const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+        const _SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+        const _SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Create client with a unique name - NOT "supabase" to avoid conflicts
+        const meiSupabase = window.supabase.createClient(_SUPABASE_URL, _SUPABASE_KEY);
         
         // App state
         let currentUser = null;
@@ -489,7 +489,7 @@
         // ============================================
         async function fetchCoursesFromSupabase() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await meiSupabase
                     .from('courses')
                     .select('*')
                     .eq('is_active', true)
@@ -561,7 +561,7 @@
         // ============================================
         async function fetchQuizFromSupabase() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await meiSupabase
                     .from('quiz_questions')
                     .select('*')
                     .limit(50);
@@ -579,9 +579,7 @@
                     quizQuestions = [
                         { question: "What does a STOP sign mean?", options: ["Slow down only", "Continue carefully", "Come to a complete stop", "Overtake carefully"], correct: 2 },
                         { question: "A triangular road sign normally indicates:", options: ["Direction", "Warning", "Parking", "Speed limit"], correct: 1 },
-                        { question: "Defensive driving means:", options: ["Aggressive driving", "Anticipating and avoiding danger", "Driving fast", "Ignoring rules"], correct: 1 },
-                        { question: "Driving under the influence of alcohol is:", options: ["Safe at low speed", "Acceptable at night", "Dangerous and illegal", "Recommended"], correct: 2 },
-                        { question: "At a red traffic light you must:", options: ["Continue carefully", "Stop completely", "Overtake", "Reverse"], correct: 1 }
+                        { question: "Defensive driving means:", options: ["Aggressive driving", "Anticipating and avoiding danger", "Driving fast", "Ignoring rules"], correct: 1 }
                     ];
                     document.getElementById('quizCount').innerHTML = quizQuestions.length;
                 }
@@ -684,7 +682,7 @@
             }
             
             try {
-                const { data: enrollments } = await supabase
+                const { data: enrollments } = await meiSupabase
                     .from('enrollments')
                     .select('course_id, course_name, enrolled_at, status')
                     .eq('user_id', currentUser.id);
@@ -745,7 +743,7 @@
         }
         
         // ============================================
-        // ENROLLMENT - FIXED
+        // ENROLLMENT
         // ============================================
         function enrollCourse(id, name, price) {
             if (!currentUser) {
@@ -793,7 +791,7 @@
             
             try {
                 // Check if already enrolled (double-check)
-                const { data: existing } = await supabase
+                const { data: existing } = await meiSupabase
                     .from('enrollments')
                     .select('id')
                     .eq('user_id', currentUser.id)
@@ -805,7 +803,7 @@
                 }
                 
                 // Save enrollment to Supabase
-                const { error } = await supabase
+                const { error } = await meiSupabase
                     .from('enrollments')
                     .insert([{
                         user_id: currentUser.id,
@@ -847,7 +845,7 @@
         // AUTH FUNCTIONS
         // ============================================
         async function syncAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await meiSupabase.auth.getSession();
             currentUser = session?.user || null;
             const container = document.getElementById('authContainer');
             
@@ -875,7 +873,7 @@
         async function loadEnrollments() {
             if (!currentUser) return;
             try {
-                const { data } = await supabase
+                const { data } = await meiSupabase
                     .from('enrollments')
                     .select('course_id')
                     .eq('user_id', currentUser.id)
@@ -886,7 +884,7 @@
         }
         
         async function handleLogin(email, password) {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await meiSupabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
             await syncAuth();
             showToast('✅ Login successful!');
@@ -894,7 +892,7 @@
         }
         
         async function handleRegister(email, password, fullName) {
-            const { data, error } = await supabase.auth.signUp({ 
+            const { data, error } = await meiSupabase.auth.signUp({ 
                 email, 
                 password, 
                 options: { data: { full_name: fullName } } 
@@ -902,7 +900,7 @@
             if (error) throw error;
             
             if (data.user) {
-                await supabase.from('profiles').insert([{
+                await meiSupabase.from('profiles').insert([{
                     id: data.user.id,
                     email: email,
                     full_name: fullName,
@@ -914,7 +912,7 @@
         }
         
         async function logout() {
-            await supabase.auth.signOut();
+            await meiSupabase.auth.signOut();
             await syncAuth();
             showToast('Logged out successfully');
         }
@@ -1065,13 +1063,13 @@
             await syncAuth();
             
             try {
-                const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+                const { count } = await meiSupabase.from('profiles').select('*', { count: 'exact', head: true });
                 document.getElementById('studentsCount').innerHTML = count || '150+';
             } catch(e) { 
                 document.getElementById('studentsCount').innerHTML = '200+'; 
             }
             
-            supabase.auth.onAuthStateChange(async (event, session) => {
+            meiSupabase.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
                     await syncAuth();
                 }
