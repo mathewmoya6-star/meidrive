@@ -482,10 +482,10 @@
             <h2 id="modalTitle">Login</h2>
             <div id="modalError" style="color:#ff4444; margin-bottom:15px;"></div>
             <form id="authForm" onsubmit="event.preventDefault(); handleAuthSubmit();">
-                <input type="email" id="modalEmail" placeholder="Email address" required style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
-                <input type="password" id="modalPassword" placeholder="Password" required style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+                <input type="email" id="modalEmail" placeholder="Email address" autocomplete="email" required style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+                <input type="password" id="modalPassword" placeholder="Password" autocomplete="current-password" required style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
                 <div id="fullNameGroup" style="display:none;">
-                    <input type="text" id="modalFullName" placeholder="Full Name" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
+                    <input type="text" id="modalFullName" placeholder="Full Name" autocomplete="name" style="width:100%; padding:12px; margin-bottom:15px; background:#0A192F; border:1px solid #00FF88; border-radius:8px; color:white;">
                 </div>
                 <button type="submit" id="modalSubmitBtn" style="width:100%; padding:14px; background:#00FF88; color:#0A192F; font-weight:700; border:none; border-radius:8px; cursor:pointer;">Login</button>
             </form>
@@ -565,568 +565,559 @@
         // ============================================
         // SINGLE SOURCE OF TRUTH - SUPABASE.JS
         // ALL DATA COMES FROM SUPABASE
-        // NO FALLBACK DATA - SUPABASE IS THE ONLY SOURCE
+        // NO DUPLICATE DECLARATIONS
         // ============================================
         
-        // Supabase configuration
-        const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
-        
-        // Initialize Supabase client - SINGLE SOURCE
-        let supabase = null;
-        
-        try {
-            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase client initialized');
-            } else {
-                throw new Error('Supabase library not loaded');
-            }
-        } catch (error) {
-            console.error('❌ Failed to initialize Supabase:', error);
-            document.getElementById('coursesGrid').innerHTML = '<div class="error-container">❌ Failed to connect to Supabase. Please check your internet connection and refresh the page.</div>';
-        }
-        
-        // App state
-        let currentUser = null;
-        let enrolledCourses = [];
-        let isLoginMode = true;
-        let selectedCourse = null;
-        let courses = [];
-        let quizQuestions = [];
-        
-        function showToast(msg, isError) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.style.background = isError ? '#8b0000' : '#1a472a';
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 3000);
-        }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-        
-        function scrollToSection(sectionId) {
-            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        // ============================================
-        // FETCH ALL DATA FROM SUPABASE
-        // ============================================
-        
-        async function fetchCourses() {
-            if (!supabase) return false;
+        (function() {
+            // Supabase configuration
+            var SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+            var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+            
+            // Initialize Supabase client - SINGLE instance
+            var supabaseClient = null;
             
             try {
-                const { data, error } = await supabase
-                    .from('courses')
-                    .select('*')
-                    .eq('is_published', true)
-                    .order('"order"', { ascending: true, nullsFirst: false });
-                
-                if (error) throw error;
-                
-                if (!data || data.length === 0) {
-                    throw new Error('No courses found in Supabase. Please add courses to your database.');
-                }
-                
-                courses = data;
-                console.log('✅ Courses loaded from Supabase:', courses.length);
-                return true;
-            } catch (error) {
-                console.error('❌ Error fetching courses:', error);
-                document.getElementById('coursesGrid').innerHTML = `<div class="error-container">❌ ${error.message}<br><br>Please ensure your Supabase "courses" table has data.</div>`;
-                return false;
-            }
-        }
-        
-        async function fetchQuizQuestions() {
-            if (!supabase) return false;
-            
-            try {
-                const { data, error } = await supabase
-                    .from('quiz_questions')
-                    .select('*')
-                    .limit(100);
-                
-                if (error) throw error;
-                
-                if (data && data.length > 0) {
-                    quizQuestions = data.map(q => ({
-                        id: q.id,
-                        question: q.question_text,
-                        options: [q.option_a, q.option_b, q.option_c, q.option_d].filter(opt => opt),
-                        correct: { 'A':0, 'B':1, 'C':2, 'D':3 }[q.correct_option] || 0,
-                        explanation: q.explanation || ''
-                    }));
-                    console.log('✅ Quiz questions loaded:', quizQuestions.length);
+                if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('Supabase client initialized');
                 } else {
-                    console.log('No quiz questions found in Supabase');
+                    throw new Error('Supabase library not loaded');
                 }
-                return true;
             } catch (error) {
-                console.error('❌ Error fetching quiz:', error);
-                return false;
+                console.error('Failed to initialize Supabase:', error);
             }
-        }
-        
-        async function fetchStudentCount() {
-            if (!supabase) return;
             
-            try {
-                const { count, error } = await supabase
-                    .from('profiles')
-                    .select('*', { count: 'exact', head: true });
+            // App state
+            var currentUser = null;
+            var enrolledCourses = [];
+            var isLoginMode = true;
+            var selectedCourse = null;
+            var courses = [];
+            var quizQuestions = [];
+            
+            function showToast(msg, isError) {
+                var toast = document.getElementById('toast');
+                if (!toast) return;
+                toast.textContent = msg;
+                toast.style.background = isError ? '#8b0000' : '#1a472a';
+                toast.style.display = 'block';
+                setTimeout(function() { toast.style.display = 'none'; }, 3000);
+            }
+            
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/[&<>]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    return m;
+                });
+            }
+            
+            function scrollToSection(sectionId) {
+                var el = document.getElementById(sectionId);
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // ============================================
+            // FETCH ALL DATA FROM SUPABASE
+            // ============================================
+            
+            async function fetchCourses() {
+                if (!supabaseClient) return false;
                 
-                if (!error && count) {
-                    document.getElementById('studentsCount').innerHTML = count > 999 ? Math.floor(count/1000) + 'K+' : count;
-                }
-            } catch(e) {
-                console.warn('Could not fetch student count');
-            }
-        }
-        
-        async function loadUserEnrollments() {
-            if (!currentUser || !supabase) return;
-            
-            try {
-                const { data, error } = await supabase
-                    .from('enrollments')
-                    .select('course_id')
-                    .eq('user_id', currentUser.id)
-                    .eq('status', 'active');
-                
-                if (error) throw error;
-                
-                enrolledCourses = data ? data.map(e => e.course_id) : [];
-                console.log('✅ User enrollments loaded:', enrolledCourses.length);
-                renderCourses();
-            } catch (error) {
-                console.error('Error loading enrollments:', error);
-            }
-        }
-        
-        // ============================================
-        // RENDER FUNCTIONS
-        // ============================================
-        
-        function renderCourses() {
-            const grid = document.getElementById('coursesGrid');
-            if (!courses.length) {
-                grid.innerHTML = '<div class="error-container">No courses available. Please add courses to your Supabase database.</div>';
-                return;
-            }
-            
-            let html = '';
-            for (let i = 0; i < courses.length; i++) {
-                const course = courses[i];
-                const isEnrolled = enrolledCourses.includes(course.id);
-                const courseTitle = course.title || course.name;
-                const courseDesc = course.description || 'Professional driver training course';
-                const coursePrice = course.price || 0;
-                const courseDuration = course.duration || 'Flexible';
-                const courseUnits = course.units || 0;
-                const courseIcon = course.icon || 'fa-car';
-                
-                html += `
-                    <div class="course-card">
-                        <div class="course-icon"><i class="fas ${courseIcon}"></i></div>
-                        <h3>${escapeHtml(courseTitle)}</h3>
-                        <p>${escapeHtml(courseDesc.substring(0, 100))}${courseDesc.length > 100 ? '...' : ''}</p>
-                        <div class="course-price">KES ${coursePrice.toLocaleString()}</div>
-                        <div class="course-meta">
-                            <span class="duration"><i class="fas fa-clock"></i> ${escapeHtml(courseDuration)}</span>
-                            <span class="units-badge"><i class="fas fa-layer-group"></i> ${courseUnits} Modules</span>
-                        </div>
-                        <button class="view-modules" onclick="showCourseModules(${course.id})">
-                            <i class="fas fa-eye"></i> View Modules
-                        </button>
-                        ${!isEnrolled ? 
-                            `<button class="enroll-btn" onclick="enrollCourse(${course.id}, '${escapeHtml(courseTitle)}', ${coursePrice})">
-                                <i class="fas fa-shopping-cart"></i> Enroll Now
-                            </button>` :
-                            `<span class="enrolled-badge"><i class="fas fa-check-circle"></i> Enrolled ✓</span>`
-                        }
-                    </div>
-                `;
-            }
-            grid.innerHTML = html;
-            
-            // Update stats
-            document.getElementById('coursesCount').innerHTML = courses.length;
-            document.getElementById('quizCount').innerHTML = quizQuestions.length;
-            let totalUnits = 0;
-            courses.forEach(c => totalUnits += (c.units || 0));
-            document.getElementById('modulesCount').innerHTML = totalUnits;
-        }
-        
-        function showCourseModules(courseId) {
-            const course = courses.find(c => c.id === courseId);
-            if (!course) return;
-            
-            let modulesList = course.modules;
-            if (!modulesList) {
-                modulesList = ['Introduction', 'Core Concepts', 'Safety Procedures', 'Practical Training', 'Assessment'];
-            }
-            if (typeof modulesList === 'string') {
-                try { modulesList = JSON.parse(modulesList); } catch(e) { modulesList = ['Introduction', 'Core Concepts', 'Safety Procedures', 'Practical Training', 'Assessment']; }
-            }
-            
-            let moduleText = `📚 ${course.title || course.name}\n\n📖 ${course.units || modulesList.length} Modules:\n\n`;
-            for (let i = 0; i < modulesList.length; i++) {
-                moduleText += `${i+1}. ${modulesList[i]}\n`;
-            }
-            moduleText += `\n💰 Price: KES ${(course.price || 0).toLocaleString()}\n⏱️ Duration: ${course.duration || 'Flexible'}`;
-            alert(moduleText);
-        }
-        
-        // ============================================
-        // ENROLLMENT FUNCTIONS
-        // ============================================
-        
-        function enrollCourse(id, name, price) {
-            if (!currentUser) {
-                showToast('Please login first to enroll', true);
-                openModal('login');
-                return;
-            }
-            if (enrolledCourses.includes(id)) {
-                showToast('You are already enrolled in this course', true);
-                return;
-            }
-            
-            selectedCourse = { id, name, price };
-            document.getElementById('paymentCourseName').innerHTML = `<strong>${escapeHtml(name)}</strong>`;
-            document.getElementById('paymentAmount').innerHTML = `KES ${price.toLocaleString()}`;
-            document.getElementById('mpesaPhone').value = '';
-            document.getElementById('paymentStatus').className = 'payment-status';
-            document.getElementById('paymentStatus').style.display = 'none';
-            document.getElementById('mpesaModal').classList.add('active');
-        }
-        
-        async function processMpesaPayment() {
-            const phone = document.getElementById('mpesaPhone').value;
-            if (!phone || phone.length < 10) {
-                showToast('Enter valid M-Pesa number (e.g., 0712345678)', true);
-                return;
-            }
-            
-            const statusDiv = document.getElementById('paymentStatus');
-            statusDiv.className = 'payment-status info';
-            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing enrollment...';
-            statusDiv.style.display = 'block';
-            
-            try {
-                // Save enrollment to Supabase
-                const { error } = await supabase
-                    .from('enrollments')
-                    .insert([{
-                        user_id: currentUser.id,
-                        course_id: selectedCourse.id,
-                        course_name: selectedCourse.name,
-                        price: selectedCourse.price,
-                        status: 'active',
-                        payment_method: 'mpesa',
-                        phone_number: phone,
-                        transaction_id: 'MPESA_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                        enrolled_at: new Date().toISOString()
-                    }]);
-                
-                if (error) throw error;
-                
-                enrolledCourses.push(selectedCourse.id);
-                renderCourses();
-                statusDiv.className = 'payment-status success';
-                statusDiv.innerHTML = '✅ Payment successful! Enrollment confirmed.';
-                showToast(`✅ Successfully enrolled in ${selectedCourse.name}!`);
-                
-                setTimeout(() => {
-                    closeMpesaModal();
-                }, 2000);
-            } catch (error) {
-                console.error('Enrollment error:', error);
-                statusDiv.className = 'payment-status error';
-                statusDiv.innerHTML = `❌ ${error.message}`;
-                showToast(error.message, true);
-            }
-        }
-        
-        // ============================================
-        // QUIZ FUNCTIONS
-        // ============================================
-        
-        function openQuizBank() {
-            if (!quizQuestions.length) {
-                showToast('No quiz questions available. Please add questions to Supabase.', true);
-                return;
-            }
-            
-            let quizText = '📚 QUIZ BANK - Practice Questions\n\n';
-            for (let i = 0; i < Math.min(10, quizQuestions.length); i++) {
-                const q = quizQuestions[i];
-                quizText += `${i+1}. ${q.question}\n`;
-                for (let j = 0; j < q.options.length; j++) {
-                    quizText += `   ${String.fromCharCode(65+j)}) ${q.options[j]}\n`;
-                }
-                quizText += `   ✓ Answer: ${String.fromCharCode(65+q.correct)}\n`;
-                if (q.explanation) quizText += `   💡 ${q.explanation}\n`;
-                quizText += '\n';
-            }
-            quizText += `\n📊 Total: ${quizQuestions.length} questions available.\n💡 More questions coming soon!`;
-            alert(quizText);
-        }
-        
-        // ============================================
-        // DASHBOARD FUNCTIONS
-        // ============================================
-        
-        async function openDashboard() {
-            if (!currentUser) {
-                showToast('Please login first', true);
-                openModal('login');
-                return;
-            }
-            
-            try {
-                // Fetch fresh enrollments from Supabase
-                const { data: enrollments, error } = await supabase
-                    .from('enrollments')
-                    .select('*')
-                    .eq('user_id', currentUser.id);
-                
-                if (error) throw error;
-                
-                const enrolledCount = enrollments?.length || 0;
-                const completedModules = enrolledCount * 3;
-                const progressPercent = enrolledCount > 0 ? Math.min(100, Math.floor((enrolledCount / 10) * 100)) : 0;
-                
-                let html = `
-                    <div class="dashboard-stats">
-                        <div class="dashboard-stat-card">
-                            <div class="dashboard-stat-number">${enrolledCount}</div>
-                            <div>Courses Enrolled</div>
-                        </div>
-                        <div class="dashboard-stat-card">
-                            <div class="dashboard-stat-number">${completedModules}</div>
-                            <div>Modules Completed</div>
-                        </div>
-                        <div class="dashboard-stat-card">
-                            <div class="dashboard-stat-number">${progressPercent}%</div>
-                            <div>Overall Progress</div>
-                        </div>
-                    </div>
-                    <h4 style="margin: 20px 0 15px 0;">📖 My Enrolled Courses</h4>
-                `;
-                
-                if (enrollments && enrollments.length) {
-                    for (const enc of enrollments) {
-                        const course = courses.find(c => c.id === enc.course_id);
-                        const courseName = enc.course_name || (course ? (course.title || course.name) : 'Course');
-                        html += `
-                            <div class="dashboard-course-item">
-                                <strong><i class="fas fa-book"></i> ${escapeHtml(courseName)}</strong>
-                                <div style="margin-top: 8px; font-size: 13px; opacity: 0.7;">
-                                    <i class="fas fa-calendar-alt"></i> Enrolled: ${new Date(enc.enrolled_at).toLocaleDateString()}
-                                </div>
-                                <div style="margin-top: 5px; font-size: 13px; opacity: 0.7;">
-                                    <i class="fas fa-flag-checkered"></i> Status: ${enc.status || 'Active'}
-                                </div>
-                            </div>
-                        `;
-                    }
-                } else {
-                    html += '<p style="text-align:center; padding:40px;">📭 No courses enrolled yet. <a onclick="closeDashboardModal();scrollToSection(\'courses\')" style="color:#00FF88; cursor:pointer;">Browse courses →</a></p>';
-                }
-                
-                document.getElementById('dashboardContent').innerHTML = html;
-                document.getElementById('dashboardModal').classList.add('active');
-            } catch (error) {
-                console.error('Dashboard error:', error);
-                showToast('Error loading dashboard', true);
-            }
-        }
-        
-        // ============================================
-        // AUTH FUNCTIONS (Supabase)
-        // ============================================
-        
-        async function syncAuth() {
-            if (!supabase) return;
-            
-            const { data: { session } } = await supabase.auth.getSession();
-            currentUser = session?.user || null;
-            const container = document.getElementById('authContainer');
-            
-            if (container) {
-                if (currentUser) {
-                    container.innerHTML = `
-                        <div class="user-info">
-                            <span class="user-email"><i class="fas fa-user-circle"></i> ${escapeHtml(currentUser.email.split('@')[0])}</span>
-                            <button class="btn-dashboard" onclick="openDashboard()"><i class="fas fa-tachometer-alt"></i> Dashboard</button>
-                            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                        </div>
-                    `;
-                    await loadUserEnrollments();
-                } else {
-                    container.innerHTML = `
-                        <button class="btn-login" onclick="openModal('login')"><i class="fas fa-sign-in-alt"></i> Login</button>
-                        <button class="btn-register" onclick="openModal('register')"><i class="fas fa-user-plus"></i> Register</button>
-                    `;
-                    enrolledCourses = [];
-                    renderCourses();
-                }
-            }
-        }
-        
-        async function handleLogin(email, password) {
-            if (!supabase) throw new Error('Supabase not initialized');
-            
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            await syncAuth();
-            showToast('✅ Login successful!');
-            closeModal();
-        }
-        
-        async function handleRegister(email, password, fullName) {
-            if (!supabase) throw new Error('Supabase not initialized');
-            
-            const { data, error } = await supabase.auth.signUp({ 
-                email, 
-                password, 
-                options: { data: { full_name: fullName } } 
-            });
-            if (error) throw error;
-            
-            if (data.user) {
-                // Create profile in Supabase
                 try {
-                    await supabase.from('profiles').insert([{
-                        id: data.user.id,
-                        email: email,
-                        full_name: fullName,
-                        role: 'learner',
-                        created_at: new Date().toISOString()
-                    }]);
-                } catch (profileError) {
-                    console.warn('Profile creation warning:', profileError);
+                    var { data, error } = await supabaseClient
+                        .from('courses')
+                        .select('*')
+                        .eq('is_published', true)
+                        .order('"order"', { ascending: true, nullsFirst: false });
+                    
+                    if (error) throw error;
+                    
+                    if (!data || data.length === 0) {
+                        throw new Error('No courses found in Supabase. Please add courses to your database.');
+                    }
+                    
+                    courses = data;
+                    console.log('Courses loaded from Supabase:', courses.length);
+                    return true;
+                } catch (error) {
+                    console.error('Error fetching courses:', error);
+                    document.getElementById('coursesGrid').innerHTML = '<div class="error-container">Error loading courses. Please ensure your Supabase "courses" table has data.</div>';
+                    return false;
                 }
-                showToast('✅ Registration successful! Please check your email to confirm.');
-                openModal('login');
-            }
-        }
-        
-        async function logout() {
-            if (!supabase) return;
-            
-            await supabase.auth.signOut();
-            await syncAuth();
-            showToast('Logged out successfully');
-        }
-        
-        // ============================================
-        // MODAL FUNCTIONS
-        // ============================================
-        
-        function openModal(mode) {
-            isLoginMode = mode === 'login';
-            document.getElementById('modalTitle').innerHTML = isLoginMode ? 'Login' : 'Register';
-            document.getElementById('modalSubmitBtn').innerHTML = isLoginMode ? 'Login' : 'Register';
-            document.getElementById('fullNameGroup').style.display = isLoginMode ? 'none' : 'block';
-            document.getElementById('modalSwitch').innerHTML = isLoginMode ? "Don't have an account? <span style='color:#00FF88;'>Register</span>" : "Already have an account? <span style='color:#00FF88;'>Login</span>";
-            document.getElementById('modalError').innerHTML = '';
-            document.getElementById('authModal').classList.add('active');
-        }
-        
-        function closeModal() { document.getElementById('authModal').classList.remove('active'); }
-        function closeMpesaModal() { document.getElementById('mpesaModal').classList.remove('active'); }
-        function closeDashboardModal() { document.getElementById('dashboardModal').classList.remove('active'); }
-        
-        async function handleAuthSubmit() {
-            const email = document.getElementById('modalEmail').value;
-            const password = document.getElementById('modalPassword').value;
-            
-            if (!email || !password) {
-                document.getElementById('modalError').innerHTML = 'Please fill all fields';
-                return;
             }
             
-            if (!isLoginMode) {
-                const fullName = document.getElementById('modalFullName').value;
-                if (!fullName) {
-                    document.getElementById('modalError').innerHTML = 'Please enter your full name';
+            async function fetchQuizQuestions() {
+                if (!supabaseClient) return false;
+                
+                try {
+                    var { data, error } = await supabaseClient
+                        .from('quiz_questions')
+                        .select('*')
+                        .limit(100);
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.length > 0) {
+                        quizQuestions = [];
+                        for (var i = 0; i < data.length; i++) {
+                            var q = data[i];
+                            var opts = [q.option_a, q.option_b, q.option_c, q.option_d].filter(function(opt) { return opt; });
+                            var correctMap = { 'A':0, 'B':1, 'C':2, 'D':3 };
+                            quizQuestions.push({
+                                id: q.id,
+                                question: q.question_text,
+                                options: opts,
+                                correct: correctMap[q.correct_option] || 0,
+                                explanation: q.explanation || ''
+                            });
+                        }
+                        console.log('Quiz questions loaded:', quizQuestions.length);
+                    }
+                    return true;
+                } catch (error) {
+                    console.error('Error fetching quiz:', error);
+                    return false;
+                }
+            }
+            
+            async function fetchStudentCount() {
+                if (!supabaseClient) return;
+                
+                try {
+                    var { count, error } = await supabaseClient
+                        .from('profiles')
+                        .select('*', { count: 'exact', head: true });
+                    
+                    if (!error && count) {
+                        document.getElementById('studentsCount').innerHTML = count > 999 ? Math.floor(count/1000) + 'K+' : count;
+                    }
+                } catch(e) {
+                    console.warn('Could not fetch student count');
+                }
+            }
+            
+            async function loadUserEnrollments() {
+                if (!currentUser || !supabaseClient) return;
+                
+                try {
+                    var { data, error } = await supabaseClient
+                        .from('enrollments')
+                        .select('course_id')
+                        .eq('user_id', currentUser.id)
+                        .eq('status', 'active');
+                    
+                    if (error) throw error;
+                    
+                    enrolledCourses = data ? data.map(function(e) { return e.course_id; }) : [];
+                    console.log('User enrollments loaded:', enrolledCourses.length);
+                    renderCourses();
+                } catch (error) {
+                    console.error('Error loading enrollments:', error);
+                }
+            }
+            
+            // ============================================
+            // RENDER FUNCTIONS
+            // ============================================
+            
+            function renderCourses() {
+                var grid = document.getElementById('coursesGrid');
+                if (!courses.length) {
+                    grid.innerHTML = '<div class="error-container">No courses available. Please add courses to your Supabase database.</div>';
                     return;
                 }
+                
+                var html = '';
+                for (var i = 0; i < courses.length; i++) {
+                    var course = courses[i];
+                    var isEnrolled = enrolledCourses.indexOf(course.id) !== -1;
+                    var courseTitle = course.title || course.name;
+                    var courseDesc = course.description || 'Professional driver training course';
+                    var coursePrice = course.price || 0;
+                    var courseDuration = course.duration || 'Flexible';
+                    var courseUnits = course.units || 0;
+                    var courseIcon = course.icon || 'fa-car';
+                    
+                    html += '<div class="course-card">';
+                    html += '<div class="course-icon"><i class="fas ' + courseIcon + '"></i></div>';
+                    html += '<h3>' + escapeHtml(courseTitle) + '</h3>';
+                    html += '<p>' + escapeHtml(courseDesc.substring(0, 100)) + (courseDesc.length > 100 ? '...' : '') + '</p>';
+                    html += '<div class="course-price">KES ' + coursePrice.toLocaleString() + '</div>';
+                    html += '<div class="course-meta">';
+                    html += '<span class="duration"><i class="fas fa-clock"></i> ' + escapeHtml(courseDuration) + '</span>';
+                    html += '<span class="units-badge"><i class="fas fa-layer-group"></i> ' + courseUnits + ' Modules</span>';
+                    html += '</div>';
+                    html += '<button class="view-modules" onclick="showCourseModules(' + course.id + ')"><i class="fas fa-eye"></i> View Modules</button>';
+                    
+                    if (!isEnrolled) {
+                        html += '<button class="enroll-btn" onclick="enrollCourse(' + course.id + ', \'' + escapeHtml(courseTitle) + '\', ' + coursePrice + ')"><i class="fas fa-shopping-cart"></i> Enroll Now</button>';
+                    } else {
+                        html += '<span class="enrolled-badge"><i class="fas fa-check-circle"></i> Enrolled ✓</span>';
+                    }
+                    html += '</div>';
+                }
+                grid.innerHTML = html;
+                
+                // Update stats
+                document.getElementById('coursesCount').innerHTML = courses.length;
+                document.getElementById('quizCount').innerHTML = quizQuestions.length;
+                var totalUnits = 0;
+                for (var j = 0; j < courses.length; j++) {
+                    totalUnits += (courses[j].units || 0);
+                }
+                document.getElementById('modulesCount').innerHTML = totalUnits;
             }
             
-            const submitBtn = document.getElementById('modalSubmitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            
-            try {
-                if (isLoginMode) {
-                    await handleLogin(email, password);
-                } else {
-                    const fullName = document.getElementById('modalFullName').value;
-                    await handleRegister(email, password, fullName);
+            function showCourseModules(courseId) {
+                var course = null;
+                for (var i = 0; i < courses.length; i++) {
+                    if (courses[i].id === courseId) {
+                        course = courses[i];
+                        break;
+                    }
                 }
+                if (!course) return;
+                
+                var modulesList = course.modules;
+                if (!modulesList) {
+                    modulesList = ['Introduction', 'Core Concepts', 'Safety Procedures', 'Practical Training', 'Assessment'];
+                }
+                if (typeof modulesList === 'string') {
+                    try { modulesList = JSON.parse(modulesList); } catch(e) { modulesList = ['Introduction', 'Core Concepts', 'Safety Procedures', 'Practical Training', 'Assessment']; }
+                }
+                
+                var moduleText = '📚 ' + (course.title || course.name) + '\n\n📖 ' + (course.units || modulesList.length) + ' Modules:\n\n';
+                for (var i = 0; i < modulesList.length; i++) {
+                    moduleText += (i+1) + '. ' + modulesList[i] + '\n';
+                }
+                moduleText += '\n💰 Price: KES ' + (course.price || 0).toLocaleString() + '\n⏱️ Duration: ' + (course.duration || 'Flexible');
+                alert(moduleText);
+            }
+            
+            // ============================================
+            // ENROLLMENT FUNCTIONS
+            // ============================================
+            
+            function enrollCourse(id, name, price) {
+                if (!currentUser) {
+                    showToast('Please login first to enroll', true);
+                    openModal('login');
+                    return;
+                }
+                if (enrolledCourses.indexOf(id) !== -1) {
+                    showToast('You are already enrolled in this course', true);
+                    return;
+                }
+                
+                selectedCourse = { id: id, name: name, price: price };
+                document.getElementById('paymentCourseName').innerHTML = '<strong>' + escapeHtml(name) + '</strong>';
+                document.getElementById('paymentAmount').innerHTML = 'KES ' + price.toLocaleString();
+                document.getElementById('mpesaPhone').value = '';
+                document.getElementById('paymentStatus').className = 'payment-status';
+                document.getElementById('paymentStatus').style.display = 'none';
+                document.getElementById('mpesaModal').classList.add('active');
+            }
+            
+            async function processMpesaPayment() {
+                var phone = document.getElementById('mpesaPhone').value;
+                if (!phone || phone.length < 10) {
+                    showToast('Enter valid M-Pesa number (e.g., 0712345678)', true);
+                    return;
+                }
+                
+                var statusDiv = document.getElementById('paymentStatus');
+                statusDiv.className = 'payment-status info';
+                statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing enrollment...';
+                statusDiv.style.display = 'block';
+                
+                try {
+                    var { error } = await supabaseClient
+                        .from('enrollments')
+                        .insert([{
+                            user_id: currentUser.id,
+                            course_id: selectedCourse.id,
+                            course_name: selectedCourse.name,
+                            price: selectedCourse.price,
+                            status: 'active',
+                            payment_method: 'mpesa',
+                            phone_number: phone,
+                            transaction_id: 'MPESA_' + Date.now(),
+                            enrolled_at: new Date().toISOString()
+                        }]);
+                    
+                    if (error) throw error;
+                    
+                    enrolledCourses.push(selectedCourse.id);
+                    renderCourses();
+                    statusDiv.className = 'payment-status success';
+                    statusDiv.innerHTML = '✅ Payment successful! Enrollment confirmed.';
+                    showToast('✅ Successfully enrolled in ' + selectedCourse.name + '!');
+                    
+                    setTimeout(function() { closeMpesaModal(); }, 2000);
+                } catch (error) {
+                    console.error('Enrollment error:', error);
+                    statusDiv.className = 'payment-status error';
+                    statusDiv.innerHTML = '❌ ' + error.message;
+                    showToast(error.message, true);
+                }
+            }
+            
+            // ============================================
+            // QUIZ FUNCTIONS
+            // ============================================
+            
+            function openQuizBank() {
+                if (!quizQuestions.length) {
+                    showToast('No quiz questions available. Please add questions to Supabase.', true);
+                    return;
+                }
+                
+                var quizText = '📚 QUIZ BANK - Practice Questions\n\n';
+                for (var i = 0; i < Math.min(10, quizQuestions.length); i++) {
+                    var q = quizQuestions[i];
+                    quizText += (i+1) + '. ' + q.question + '\n';
+                    for (var j = 0; j < q.options.length; j++) {
+                        quizText += '   ' + String.fromCharCode(65+j) + ') ' + q.options[j] + '\n';
+                    }
+                    quizText += '   ✓ Answer: ' + String.fromCharCode(65+q.correct) + '\n';
+                    if (q.explanation) quizText += '   💡 ' + q.explanation + '\n';
+                    quizText += '\n';
+                }
+                quizText += '\n📊 Total: ' + quizQuestions.length + ' questions available.';
+                alert(quizText);
+            }
+            
+            // ============================================
+            // DASHBOARD FUNCTIONS
+            // ============================================
+            
+            async function openDashboard() {
+                if (!currentUser) {
+                    showToast('Please login first', true);
+                    openModal('login');
+                    return;
+                }
+                
+                try {
+                    var { data: enrollments, error } = await supabaseClient
+                        .from('enrollments')
+                        .select('*')
+                        .eq('user_id', currentUser.id);
+                    
+                    if (error) throw error;
+                    
+                    var enrolledCount = enrollments ? enrollments.length : 0;
+                    var completedModules = enrolledCount * 3;
+                    var progressPercent = enrolledCount > 0 ? Math.min(100, Math.floor((enrolledCount / 10) * 100)) : 0;
+                    
+                    var html = '<div class="dashboard-stats">';
+                    html += '<div class="dashboard-stat-card"><div class="dashboard-stat-number">' + enrolledCount + '</div><div>Courses Enrolled</div></div>';
+                    html += '<div class="dashboard-stat-card"><div class="dashboard-stat-number">' + completedModules + '</div><div>Modules Completed</div></div>';
+                    html += '<div class="dashboard-stat-card"><div class="dashboard-stat-number">' + progressPercent + '%</div><div>Overall Progress</div></div>';
+                    html += '</div>';
+                    html += '<h4 style="margin: 20px 0 15px 0;">📖 My Enrolled Courses</h4>';
+                    
+                    if (enrollments && enrollments.length) {
+                        for (var i = 0; i < enrollments.length; i++) {
+                            var enc = enrollments[i];
+                            var course = null;
+                            for (var j = 0; j < courses.length; j++) {
+                                if (courses[j].id === enc.course_id) {
+                                    course = courses[j];
+                                    break;
+                                }
+                            }
+                            var courseName = enc.course_name || (course ? (course.title || course.name) : 'Course');
+                            html += '<div class="dashboard-course-item">';
+                            html += '<strong><i class="fas fa-book"></i> ' + escapeHtml(courseName) + '</strong>';
+                            html += '<div style="margin-top: 8px; font-size: 13px; opacity: 0.7;">';
+                            html += '<i class="fas fa-calendar-alt"></i> Enrolled: ' + new Date(enc.enrolled_at).toLocaleDateString();
+                            html += '</div><div style="margin-top: 5px; font-size: 13px; opacity: 0.7;">';
+                            html += '<i class="fas fa-flag-checkered"></i> Status: ' + (enc.status || 'Active');
+                            html += '</div></div>';
+                        }
+                    } else {
+                        html += '<p style="text-align:center; padding:40px;">📭 No courses enrolled yet. <a onclick="closeDashboardModal();scrollToSection(\'courses\')" style="color:#00FF88; cursor:pointer;">Browse courses →</a></p>';
+                    }
+                    
+                    document.getElementById('dashboardContent').innerHTML = html;
+                    document.getElementById('dashboardModal').classList.add('active');
+                } catch (error) {
+                    console.error('Dashboard error:', error);
+                    showToast('Error loading dashboard', true);
+                }
+            }
+            
+            // ============================================
+            // AUTH FUNCTIONS (Supabase)
+            // ============================================
+            
+            async function syncAuth() {
+                if (!supabaseClient) return;
+                
+                var { data: { session } } = await supabaseClient.auth.getSession();
+                currentUser = session ? session.user : null;
+                var container = document.getElementById('authContainer');
+                
+                if (container) {
+                    if (currentUser) {
+                        container.innerHTML = '<div class="user-info">' +
+                            '<span class="user-email"><i class="fas fa-user-circle"></i> ' + escapeHtml(currentUser.email.split('@')[0]) + '</span>' +
+                            '<button class="btn-dashboard" onclick="openDashboard()"><i class="fas fa-tachometer-alt"></i> Dashboard</button>' +
+                            '<button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>' +
+                            '</div>';
+                        await loadUserEnrollments();
+                    } else {
+                        container.innerHTML = '<button class="btn-login" onclick="openModal(\'login\')"><i class="fas fa-sign-in-alt"></i> Login</button>' +
+                            '<button class="btn-register" onclick="openModal(\'register\')"><i class="fas fa-user-plus"></i> Register</button>';
+                        enrolledCourses = [];
+                        renderCourses();
+                    }
+                }
+            }
+            
+            async function handleLogin(email, password) {
+                if (!supabaseClient) throw new Error('Supabase not initialized');
+                
+                var { error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+                if (error) throw error;
+                await syncAuth();
+                showToast('✅ Login successful!');
                 closeModal();
-            } catch (error) {
-                document.getElementById('modalError').innerHTML = error.message;
-                showToast(error.message, true);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = isLoginMode ? 'Login' : 'Register';
             }
-        }
-        
-        // ============================================
-        // INITIALIZE - FETCH ALL FROM SUPABASE
-        // ============================================
-        
-        async function init() {
-            if (!supabase) return;
             
-            // Show loading
-            document.getElementById('coursesGrid').innerHTML = '<div class="loading-container"><i class="fas fa-spinner fa-spin"></i> Loading courses from Supabase...</div>';
-            
-            // Fetch all data from Supabase
-            await fetchCourses();
-            await fetchQuizQuestions();
-            await fetchStudentCount();
-            await syncAuth();
-            
-            // Set up auth state listener
-            supabase.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                    await syncAuth();
+            async function handleRegister(email, password, fullName) {
+                if (!supabaseClient) throw new Error('Supabase not initialized');
+                
+                var { data, error } = await supabaseClient.auth.signUp({ 
+                    email: email, 
+                    password: password, 
+                    options: { data: { full_name: fullName } } 
+                });
+                if (error) throw error;
+                
+                if (data.user) {
+                    try {
+                        await supabaseClient.from('profiles').insert([{
+                            id: data.user.id,
+                            email: email,
+                            full_name: fullName,
+                            role: 'learner',
+                            created_at: new Date().toISOString()
+                        }]);
+                    } catch (profileError) {
+                        console.warn('Profile creation warning:', profileError);
+                    }
+                    showToast('✅ Registration successful! Please check your email to confirm.');
+                    openModal('login');
                 }
-            });
-        }
-        
-        // Make functions global for onclick handlers
-        window.scrollToSection = scrollToSection;
-        window.openModal = openModal;
-        window.closeModal = closeModal;
-        window.closeMpesaModal = closeMpesaModal;
-        window.closeDashboardModal = closeDashboardModal;
-        window.openDashboard = openDashboard;
-        window.openQuizBank = openQuizBank;
-        window.enrollCourse = enrollCourse;
-        window.showCourseModules = showCourseModules;
-        window.logout = logout;
-        window.handleAuthSubmit = handleAuthSubmit;
-        window.processMpesaPayment = processMpesaPayment;
-        
-        // Start the app
-        init();
+            }
+            
+            async function logout() {
+                if (!supabaseClient) return;
+                
+                await supabaseClient.auth.signOut();
+                await syncAuth();
+                showToast('Logged out successfully');
+            }
+            
+            // ============================================
+            // MODAL FUNCTIONS
+            // ============================================
+            
+            function openModal(mode) {
+                isLoginMode = mode === 'login';
+                document.getElementById('modalTitle').innerHTML = isLoginMode ? 'Login' : 'Register';
+                document.getElementById('modalSubmitBtn').innerHTML = isLoginMode ? 'Login' : 'Register';
+                document.getElementById('fullNameGroup').style.display = isLoginMode ? 'none' : 'block';
+                document.getElementById('modalSwitch').innerHTML = isLoginMode ? "Don't have an account? <span style='color:#00FF88;'>Register</span>" : "Already have an account? <span style='color:#00FF88;'>Login</span>";
+                document.getElementById('modalError').innerHTML = '';
+                document.getElementById('authModal').classList.add('active');
+            }
+            
+            function closeModal() { var el = document.getElementById('authModal'); if (el) el.classList.remove('active'); }
+            function closeMpesaModal() { var el = document.getElementById('mpesaModal'); if (el) el.classList.remove('active'); }
+            function closeDashboardModal() { var el = document.getElementById('dashboardModal'); if (el) el.classList.remove('active'); }
+            
+            async function handleAuthSubmit() {
+                var email = document.getElementById('modalEmail').value;
+                var password = document.getElementById('modalPassword').value;
+                
+                if (!email || !password) {
+                    document.getElementById('modalError').innerHTML = 'Please fill all fields';
+                    return;
+                }
+                
+                if (!isLoginMode) {
+                    var fullName = document.getElementById('modalFullName').value;
+                    if (!fullName) {
+                        document.getElementById('modalError').innerHTML = 'Please enter your full name';
+                        return;
+                    }
+                }
+                
+                var submitBtn = document.getElementById('modalSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                try {
+                    if (isLoginMode) {
+                        await handleLogin(email, password);
+                    } else {
+                        var fullName = document.getElementById('modalFullName').value;
+                        await handleRegister(email, password, fullName);
+                    }
+                    closeModal();
+                } catch (error) {
+                    document.getElementById('modalError').innerHTML = error.message;
+                    showToast(error.message, true);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = isLoginMode ? 'Login' : 'Register';
+                }
+            }
+            
+            // ============================================
+            // INITIALIZE - FETCH ALL FROM SUPABASE
+            // ============================================
+            
+            async function init() {
+                if (!supabaseClient) return;
+                
+                document.getElementById('coursesGrid').innerHTML = '<div class="loading-container"><i class="fas fa-spinner fa-spin"></i> Loading courses from Supabase...</div>';
+                
+                await fetchCourses();
+                await fetchQuizQuestions();
+                await fetchStudentCount();
+                await syncAuth();
+                
+                supabaseClient.auth.onAuthStateChange(async function(event, session) {
+                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                        await syncAuth();
+                    }
+                });
+            }
+            
+            // Make functions global for onclick handlers
+            window.scrollToSection = scrollToSection;
+            window.openModal = openModal;
+            window.closeModal = closeModal;
+            window.closeMpesaModal = closeMpesaModal;
+            window.closeDashboardModal = closeDashboardModal;
+            window.openDashboard = openDashboard;
+            window.openQuizBank = openQuizBank;
+            window.enrollCourse = enrollCourse;
+            window.showCourseModules = showCourseModules;
+            window.logout = logout;
+            window.handleAuthSubmit = handleAuthSubmit;
+            window.processMpesaPayment = processMpesaPayment;
+            
+            // Start the app
+            init();
+        })();
     </script>
 </body>
 </html>
