@@ -218,11 +218,12 @@ async function checkPaymentStatus(checkoutRequestID) {
 }
 
 // ============================================
-// ADMIN FUNCTIONS
+// ADMIN FUNCTIONS - FIXED (No complex joins)
 // ============================================
 async function getAllPayments() { 
     try { 
-        const { data } = await supabase.from('payments').select('*').order('created_at', { ascending: false }); 
+        const { data, error } = await supabase.from('payments').select('*').order('created_at', { ascending: false }); 
+        if (error) throw error;
         return data || []; 
     } catch (e) { 
         return []; 
@@ -231,18 +232,66 @@ async function getAllPayments() {
 
 async function getAllUsers() { 
     try { 
-        const { data } = await supabase.from('users').select('*').order('created_at', { ascending: false }); 
+        const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false }); 
+        if (error) throw error;
         return data || []; 
     } catch (e) { 
         return []; 
     } 
 }
 
+// FIXED: Simplified query without complex joins to avoid 400 error
 async function getAllEnrollments() { 
     try { 
-        const { data } = await supabase.from('user_enrollments').select('*, courses(name), users(email)').order('created_at', { ascending: false }); 
-        return data || []; 
+        // First get enrollments without joins
+        const { data: enrollments, error: enrollError } = await supabase
+            .from('user_enrollments')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (enrollError) throw enrollError;
+        
+        if (!enrollments || enrollments.length === 0) {
+            return [];
+        }
+        
+        // Manually fetch course names and user emails
+        const enrichedEnrollments = await Promise.all(
+            enrollments.map(async (enrollment) => {
+                let courseName = 'Unknown Course';
+                let userEmail = 'Unknown User';
+                
+                // Fetch course name
+                try {
+                    const { data: course } = await supabase
+                        .from('courses')
+                        .select('name')
+                        .eq('id', enrollment.course_id)
+                        .single();
+                    if (course) courseName = course.name;
+                } catch (e) {}
+                
+                // Fetch user email
+                try {
+                    const { data: user } = await supabase
+                        .from('users')
+                        .select('email')
+                        .eq('id', enrollment.user_id)
+                        .single();
+                    if (user) userEmail = user.email;
+                } catch (e) {}
+                
+                return {
+                    ...enrollment,
+                    courses: { name: courseName },
+                    users: { email: userEmail }
+                };
+            })
+        );
+        
+        return enrichedEnrollments;
     } catch (e) { 
+        console.log('Enrollments fetch error:', e);
         return []; 
     } 
 }
