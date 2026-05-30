@@ -20,18 +20,9 @@ const MPESA_PASSKEY = process.env.MPESA_PASSKEY || '7eb17a031bdfd5b4251863a1ddb7
 const MPESA_SHORTCODE = process.env.MPESA_SHORTCODE || '4095377';
 const MPESA_CALLBACK_URL = process.env.MPESA_CALLBACK_URL || `${BACKEND_URL}/api/payments/mpesa/callback`;
 
-// CORS configuration - Allow frontend to access backend
+// CORS configuration
 app.use(cors({
-    origin: [
-        'http://localhost:5500',
-        'http://127.0.0.1:5500',
-        'http://localhost:3000',
-        'http://localhost:8080',
-        'https://meidriveafrica.com',
-        'https://www.meidriveafrica.com',
-        'https://mei-drive-api.onrender.com',
-        'https://meidriveafrica-backend.onrender.com'
-    ],
+    origin: '*', // Allow all origins for testing
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -64,7 +55,8 @@ async function getMpesaAccessToken() {
             {
                 headers: {
                     Authorization: `Basic ${auth}`
-                }
+                },
+                timeout: 30000
             }
         );
         return response.data.access_token;
@@ -135,7 +127,7 @@ app.get('/', (req, res) => {
 });
 
 // ============================================
-// M-PESA PAYMENT ROUTES (LIVE PRODUCTION)
+// M-PESA PAYMENT ROUTES
 // ============================================
 
 // Test M-Pesa connection
@@ -147,13 +139,15 @@ app.get('/api/payments/mpesa/test', async (req, res) => {
             message: 'M-Pesa API connection successful',
             mode: 'PRODUCTION - REAL MONEY',
             paybill: MPESA_SHORTCODE,
+            token_preview: token.substring(0, 20) + '...',
             warning: '⚠️ Real money will be deducted from customers'
         });
     } catch (error) {
         res.status(500).json({
             success: false,
             error: error.message,
-            message: 'M-Pesa connection failed'
+            details: error.response?.data,
+            message: 'M-Pesa connection failed. Check your credentials.'
         });
     }
 });
@@ -163,6 +157,12 @@ app.post('/api/payments/mpesa/initiate', async (req, res) => {
     try {
         const { phoneNumber, amount, courseId, userId, email, accountReference, transactionDesc } = req.body;
 
+        console.log('===== STK PUSH REQUEST RECEIVED =====');
+        console.log('Phone:', phoneNumber);
+        console.log('Amount:', amount);
+        console.log('Course ID:', courseId);
+        console.log('User ID:', userId);
+
         if (!phoneNumber || !amount || amount < 1) {
             return res.status(400).json({
                 success: false,
@@ -170,41 +170,57 @@ app.post('/api/payments/mpesa/initiate', async (req, res) => {
             });
         }
 
+        // Format phone number (remove 0 or +254)
+        let formattedPhone = phoneNumber.replace(/\D/g, '');
+        if (formattedPhone.startsWith('0')) {
+            formattedPhone = '254' + formattedPhone.slice(1);
+        }
+        if (!formattedPhone.startsWith('254')) {
+            formattedPhone = '254' + formattedPhone;
+        }
+
         console.log(`💰 Initiating REAL M-Pesa payment:`);
-        console.log(`   Phone: ${phoneNumber}`);
+        console.log(`   Phone: ${formattedPhone}`);
         console.log(`   Amount: KES ${amount}`);
         console.log(`   Course: ${courseId}`);
-        console.log(`   User: ${userId}`);
         console.log(`   ⚠️ REAL MONEY WILL BE DEDUCTED!`);
 
+        // Get Access Token
         const accessToken = await getMpesaAccessToken();
+        console.log('✅ Access token obtained');
+
         const timestamp = getTimestamp();
         const password = Buffer.from(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`).toString('base64');
 
+        const stkRequestBody = {
+            BusinessShortCode: MPESA_SHORTCODE,
+            Password: password,
+            Timestamp: timestamp,
+            TransactionType: 'CustomerPayBillOnline',
+            Amount: Math.round(amount),
+            PartyA: formattedPhone,
+            PartyB: MPESA_SHORTCODE,
+            PhoneNumber: formattedPhone,
+            CallBackURL: MPESA_CALLBACK_URL,
+            AccountReference: accountReference || `COURSE_${courseId}`,
+            TransactionDesc: transactionDesc || `MEI DRIVE Course - ${courseId}`
+        };
+
+        console.log('📤 Sending STK Push request to Safaricom...');
+        
         const response = await axios.post(
             'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
-            {
-                BusinessShortCode: MPESA_SHORTCODE,
-                Password: password,
-                Timestamp: timestamp,
-                TransactionType: 'CustomerPayBillOnline',
-                Amount: Math.round(amount),
-                PartyA: phoneNumber,
-                PartyB: MPESA_SHORTCODE,
-                PhoneNumber: phoneNumber,
-                CallBackURL: MPESA_CALLBACK_URL,
-                AccountReference: accountReference || `COURSE_${courseId}`,
-                TransactionDesc: transactionDesc || `MEI DRIVE Course - ${courseId}`
-            },
+            stkRequestBody,
             {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                timeout: 30000
             }
         );
 
-        console.log('✅ STK Push sent:', response.data.CheckoutRequestID);
+        console.log('✅ STK Push sent successfully:', response.data.CheckoutRequestID);
 
         res.json({
             success: true,
@@ -212,12 +228,19 @@ app.post('/api/payments/mpesa/initiate', async (req, res) => {
             message: 'STK push sent. Check your phone for M-Pesa prompt.',
             warning: '⚠️ Real money will be deducted from your M-Pesa account'
         });
+        
     } catch (error) {
-        console.error('❌ STK Push Error:', error.response?.data || error.message);
+        console.error('❌ STK Push Error Details:');
+        console.error('Error message:', error.message);
+        console.error('Response data:', error.response?.data);
+        console.error('Status code:', error.response?.status);
+        
+        // Send detailed error to client
         res.status(500).json({
             success: false,
             error: error.response?.data?.errorMessage || error.message,
-            message: 'Payment initiation failed'
+            details: error.response?.data,
+            message: 'Payment initiation failed. Please try again or use Paybill method.'
         });
     }
 });
@@ -252,7 +275,8 @@ app.post('/api/payments/mpesa/status', async (req, res) => {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                timeout: 30000
             }
         );
 
@@ -367,7 +391,7 @@ app.listen(PORT, '0.0.0.0', () => {
 ║     • Paybill: ${MPESA_SHORTCODE}                                          ║
 ║     • Real customer phone numbers only                            ║
 ║     • Real money will be deducted                                 ║
-║     • Minimum payment: 49 KES                                      ║
+║     • Minimum payment: 1 KES                                      ║
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
     `);
